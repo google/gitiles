@@ -1,0 +1,319 @@
+/**
+ * Copyright 2012 Google Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/* Common styles and definitions. */
+
+h1 {
+  position: absolute;
+  top: 0;
+  white-space: nowrap;
+  margin-top: 5px;
+}
+.menu {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 10pt;
+  white-space: nowrap;
+  text-align: right;
+  margin-top: 5px;
+  margin-right: 5px;
+}
+.menu .entry {
+  padding-right: 5px;
+  border-right: 1px solid black;
+  margin-right: 0;
+}
+h2 {
+  margin-top: 3em;
+}
+.breadcrumbs {
+  margin-top: 3em;
+  font-size: 150%;
+  border-bottom: #ddd solid 1px; /* BORDER */
+}
+table.list {
+  margin-top: 1em;
+  width: 90%;
+}
+table.list tr.no-hover:hover {
+  background: #fff;
+}
+table.list tr:hover, ol.list li:hover, pre.prettyprint li:hover {
+  background: #eee; /* HOVER_BACKGROUND */
+}
+table.list td {
+  white-space: nowrap;
+  padding-top: 0.25em;
+  padding-bottom: 0.25em;
+}
+.log-link {
+  margin-left: 0.5em
+}
+
+
+/* Styles for the host index page. */
+
+.instructions {
+  width: 45em;
+  margin-left: 1em;
+  margin-right: 1em;
+  border-top: 1px solid #555;
+  border-bottom: 1px solid #555;
+  color: #555;
+}
+.instructions pre {
+  display: block;
+  margin-left: 1em;
+  border-left: 2px solid #060;
+  padding-left: 1em;
+  white-space: nowrap;
+}
+.footer {
+  text-align: right;
+  background: #eee;
+  padding-right: 1em;
+  width: 90%;
+}
+.footer a {
+  color: black;
+  font-weight: bold;
+  font-size: 70%;
+}
+
+
+/* Styles for the repository index page. */
+
+.repository-description {
+  border-bottom: #ddd solid 1px; /* BORDER */
+  padding-bottom: 5px; /* VPADDING */
+}
+.repository-refs {
+  width: 450px;
+}
+.repository-branches {
+  float: left;
+  width: 200px;
+}
+.repository-tags {
+  float: right;
+  width: 250px;
+}
+.clone-line {
+  background-color: #e5ecf9; /* BOX_BACKGROUND */
+  border: none;
+  margin: 5px /* VPADDING */ 0 0 0;
+  padding: 5px 2em; /* PADDING */
+  font-size: 9pt;
+}
+
+
+/* Styles for the object detail templates. */
+
+.sha1 {
+  color: #666;
+  font-size: 9pt;
+}
+div.sha1 {
+  padding-top: 5px; /* VPADDING */
+}
+
+.git-commit, .git-tag {
+  font-size: 9pt;
+  border-bottom: #ddd solid 1px; /* BORDER */
+  padding: 5px 2em; /* PADDING */
+}
+.git-commit table, .git-tag table {
+  margin: 0;
+}
+.git-commit table th, .git-tag table th {
+  text-align: right;
+}
+pre.commit-message, pre.tag-message {
+  border-bottom: #ddd solid 1px; /* BORDER */
+  padding: 5px 2em; /* PADDING */
+  color: #000;
+  font-size: 9pt;
+  margin: 0;
+}
+
+ul.diff-tree {
+  font-size: 9pt;
+  list-style-type: none;
+  margin: 0;
+  padding: 5px 2em; /* PADDING */
+}
+ul.diff-tree .add {
+  color: #060;
+}
+ul.diff-tree .delete {
+  color: #600;
+}
+ul.diff-tree .rename, ul.diff-tree .copy {
+  color: #006;
+}
+span.diff-link, ul.diff-tree .add, ul.diff-tree .modify, ul.diff-tree .delete,
+    ul.diff-tree .rename, ul.diff-tree .copy {
+  margin-left: 0.5em;
+}
+.diff-summary {
+  font-size: 9pt;
+  font-style: italic;
+  padding: 5px 2em; /* PADDING */
+  border-bottom: #ddd solid 1px; /* BORDER */
+}
+
+ol.files {
+  list-style-type: none;
+  margin-left: 1em;
+  font-size: 10pt;
+  line-height: normal;
+}
+
+/* Tree icons are taken from the public domain Apache standard icons:
+ * http://www.apache.org/icons/ */
+ol.files li.git-tree{
+  /* small/folder.png */
+  list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABmJLR0QAAAAAAAD5Q7t/AAAACXBIWXMAAABIAAAASABGyWs+AAAACXZwQWcAAAAQAAAAEABcxq3DAAAA+klEQVQ4y63TMWvCQBjG8f8r+RouRSe7ONchuCTQsZS6FNLBSQrdi1PmFhcnhwpOUjoK3iIvRWcdnP0q16FcSOSijfSZjht+PNy9r6gqAGEYWgBVFSpEANtq1nl7TQCIk5Q8dA4OAPZmxHX0AsByOiw0Wk6HRJ020vBDAlh7+MouHOQauUSdNma9JU7SAhIcV9qbkRcy6633DQJKUgb9GTiG5Ooue598aucAAPO9A+Djc3UZcCr/A/Se37OalQFVlfliQ5ykF0E1+J2uKtCg/2jdufCN+fmfLzY83N7wdN8tRcaTmXjnwAeVRdw6n4pbLIBWsw7AeDITgB/OTHEfF3G6oAAAAABJRU5ErkJggg==);
+}
+ol.files li.symlink{
+  /* small/forward.png */
+  list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAAmJLR0QAAKqNIzIAAAAJcEhZcwAAAEgAAABIAEbJaz4AAAAJdnBBZwAAABAAAAAQAFzGrcMAAACtSURBVCjPfZGxEYMwDEWffNTswApcGs+RY4KUtDSZgIbWJRNwWSHnjibHCtkhCyiFDYYE+Krk/0/S9xdPQq4f4QfZuukpFC6yI3jpIz4UexPuyiFMrsMJDebJOcwbx5WSMl4QTsyXqVkBNFig5AagwU+1dTECI446unBM2ga7nXJQVj0ePPWpxEAlHfbQhfglg0EnxhVlaSUK5qhg/pUm0htBkkFPJasV/0jBfwHsdko9kUCoMwAAAABJRU5ErkJggg==);
+}
+ol.files li.regular-file{
+  /* small/text.png */
+  list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAAmJLR0QAAKqNIzIAAAAJcEhZcwAAAEgAAABIAEbJaz4AAAAJdnBBZwAAABAAAAAQAFzGrcMAAACDSURBVCjPYzzAgB8woQuc+Y/KZzz33xCJe55BkmEpgwkjHhMkGKJRTMFQcJ7hOYMJI0IJCwMDA4MVXPoYhP2fgcEEWcE6JBOOMRxkZGBYjWpCEJI0A4P9/xdIGtBMeMHAwCDBIIGuIIgBFRzDbQImoJcJx/CZ8Imx9/99DOFzDKFQFgBj6yGwhtEzOwAAAABJRU5ErkJggg==)
+}
+ol.files li.executable-file{
+  /* small/patch.png */
+  list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAAmJLR0QA/4ePzL8AAAAJcEhZcwAAAEgAAABIAEbJaz4AAAAJdnBBZwAAABAAAAAQAFzGrcMAAACDSURBVCjPlY+xDYMwEEW/I4agZYRQsgojkC4ZAzp2ojMjuPQYjwJEcvgSKV+yzrKenv9J/2bk8hD5TCRjkdvVUKs3lgJYlfUKbyRE7gbojrkEtwOAJA18/UKC7HWYjrMXLYBJSQ+lEymAp+x0DHY6hkazGsfgrAnwc02bqg0jqfSetw2j7lch7TZvfQAAACR0RVh0Y29tbWVudABieSBNYXJ0aW4uS3JhZW1lckBNY2guU05JLkRlaCPF6QAAAABJRU5ErkJggg==);
+}
+ol.files li.gitlink{
+  /* small/continued.png */
+  list-style-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAAmJLR0QAAKqNIzIAAAAJcEhZcwAAAEgAAABIAEbJaz4AAAAJdnBBZwAAABAAAAAQAFzGrcMAAACPSURBVCjPzdCxbcNAFIPh7wQvkTIjBEjj1iscXGUSTZDGLjVCKuFWCK5Lc/AKGoUppNq1Wf18IB4Ilu65Ji8SmDOy2znzQeOgiTmLZoQ1VbWGkWYxh2mk+vBdGh6+XDzQLN5UIyc2d9vx+Ad/4BdNpTtHzrmlu0UctF+70rHm3WeBNVzLXnJzLfbAKyz5TP/rekGK5PrZfgAAAABJRU5ErkJggg==);
+}
+
+
+/* Styles for the path detail page. */
+
+.symlink-detail, .gitlink-detail {
+  margin-left: 1em;
+  color: #666;
+  font-style: italic;
+  font-size: 10pt;
+}
+
+
+/* Styles for the log detail page. */
+
+ol.shortlog {
+  list-style-type: none;
+  margin: 0;
+  padding: 5px 2em; /* PADDING */
+}
+ol.shortlog li {
+  border-bottom: #ddd solid 1px; /* BORDER */
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+ol.shortlog li.first {
+  border-top: #ddd solid 1px; /* BORDER */
+}
+ol.shortlog li:hover {
+  background: #eee; /* HOVER_BACKGROUND */
+}
+ol.shortlog .sha1 {
+  font-family: monospace;
+}
+.log-nav {
+  margin-top: 5px;
+  text-align: center;
+}
+.author {
+  padding-left: 3px;
+}
+.time {
+  font-size: 9pt; /* SHORTLOG_SMALL_FONT_SIZE */
+  font-style: italic;
+}
+.branch-label, .tag-label {
+  font-size: 9pt; /* SHORTLOG_SMALL_FONT_SIZE */
+  margin-left: 3px;
+}
+a.branch-label {
+  color: #dd4b39;
+}
+a.tag-label {
+  color: #009933;
+}
+
+
+/* Styles for the diff detail template. */
+
+.diff-header {
+}
+.diff-git {
+  color: #444;
+  font-weight: bold;
+}
+a.diff-git:hover {
+  text-decoration: none;
+}
+.diff-header, .diff-unified {
+  color: #000;
+  font-size: 9pt;
+  margin: 0;
+  padding-left: 2em;
+}
+.diff-unified {
+  border-bottom: #ddd solid 1px; /* BORDER */
+}
+.diff-unified .h {
+  color: darkblue;
+}
+.diff-unified .d {
+  color: darkred;
+}
+.diff-unified .i {
+  color: darkgreen;
+}
+
+
+/* Override some styles from the default prettify.css. */
+
+/* Line numbers on all lines. */
+li.L0, li.L1, li.L2, li.L3, li.L4, li.L5, li.L6, li.L7, li.L8, li.L9 {
+  list-style-type: decimal;
+}
+
+/* Disable alternating line background color. */
+li.L0, li.L1, li.L2, li.L3, li.L4, li.L5, li.L6, li.L7, li.L8, li.L9 {
+  background: #fff;
+}
+
+pre.git-blob {
+  border-top: #ddd solid 1px; /* BORDER */
+  border-bottom: #ddd solid 1px; /* BORDER */
+  border-left: none;
+  border-right: none;
+  padding-left: 1em;
+  padding-bottom: 5px;
+  font-family: monospace;
+  font-size: 8pt;
+}
+pre.prettyprint ol {
+  color: grey;
+}

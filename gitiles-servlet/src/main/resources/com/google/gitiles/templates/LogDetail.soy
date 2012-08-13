@@ -1,0 +1,95 @@
+// Copyright 2012 Google Inc. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+{namespace gitiles autoescape="contextual"}
+
+/**
+ * Detail page showing a shortlog for a commit.
+ *
+ * @param title human-readable revision name.
+ * @param repositoryName name of this repository.
+ * @param? menuEntries menu entries.
+ * @param breadcrumbs breadcrumbs for this page.
+ * @param? tags optional list of tags encountered when peeling this object, with
+ *     keys corresponding to gitiles.tagDetail.
+ * @param entries list of log entries; see .logEntry.
+ * @param? nextUrl URL for the next page of results.
+ * @param? previousUrl URL for the previous page of results.
+ */
+{template .logDetail}
+{call .header data="all" /}
+
+{if $tags}
+  {foreach $tag in $tags}
+    {call gitiles.tagDetail data="$tag" /}
+  {/foreach}
+{/if}
+
+{if $previousUrl}
+  <div class="log-nav">
+    <a href="{$previousUrl}">{msg desc="text for previous URL"}&laquo; Previous{/msg}</a>
+  </div>
+{/if}
+
+{if length($entries)}
+  <ol class="shortlog">
+    {foreach $entry in $entries}
+      <li{if $previousUrl and isFirst($entry)} class="first"{/if}>
+        {call .logEntry data="$entry" /}
+      </li>
+    {/foreach}
+  </ol>
+{else}
+  <p>{msg desc="informational text for when the log is empty"}No commits.{/msg}</p>
+{/if}
+
+{if $nextUrl}
+  <div class="log-nav">
+    <a href="{$nextUrl}">{msg desc="text for next URL"}Next &raquo;{/msg}</a>
+  </div>
+{/if}
+
+{call .footer /}
+{/template}
+
+/**
+ * Single shortlog entry.
+ *
+ * @param abbrevSha abbreviated SHA-1.
+ * @param url URL to commit detail page.
+ * @param shortMessage short commit message.
+ * @param author author information with at least "name" and "relativeTime" keys.
+ * @param branches list of branches for this entry, with "name" and "url" keys.
+ * @param tags list of tags for this entry, with "name" and "url" keys.
+ */
+{template .logEntry}
+<a href="{$url}">
+  <span class="sha1">{$abbrevSha}</span>
+  // nbsp instad of CSS padding/margin because those cause a break in the
+  // underline.
+  &nbsp;
+  {sp}<span class="commit-message">{$shortMessage}</span>
+</a>
+{sp}<span class="author">{msg desc="commit author name"}by {$author.name}{/msg}</span>
+{sp}<span class="time">- {$author.relativeTime}</span>
+{if length($branches)}
+  {foreach $branch in $branches}
+    {sp}<a href="{$branch.url}" class="branch-label">{$branch.name}</a>
+  {/foreach}
+{/if}
+{if length($tags)}
+  {foreach $tag in $tags}
+    {sp}<a href="{$tag.url}" class="tag-label">{$tag.name}</a>
+  {/foreach}
+{/if}
+{/template}

@@ -1,0 +1,79 @@
+// Copyright 2012 Google Inc. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+{namespace gitiles autoescape="contextual"}
+
+/**
+ * Index page for a repository.
+ *
+ * @param repositoryName name of this repository.
+ * @param? menuEntries menu entries.
+ * @param breadcrumbs breadcrumbs for this page.
+ * @param cloneUrl clone URL for this repository.
+ * @param description description text of the repository.
+ * @param? branches list of branch objects with url and name keys.
+ * @param? tags list of tag objects with url and name keys.
+ */
+{template .repositoryIndex}
+{call .header}
+  {param title: $repositoryName /}
+  {param repositoryName: null /}
+  {param menuEntries: $menuEntries /}
+  {param breadcrumbs: $breadcrumbs /}
+{/call}
+
+{if $description}
+  <div class="repository-description">{$description}</div>
+{/if}
+
+<textarea rows="1" cols="150" class="clone-line"
+  onclick="this.focus();this.select();"
+  readonly="readonly">
+    git clone {$cloneUrl}
+</textarea>
+
+<div class="repository-refs">
+  {if $branches and length($branches)}
+    <div class="repository-branches">
+      <h3>Branches</h3>
+      <ul class="branch-list">
+      {foreach $branch in $branches}
+        {call .ref_ data="$branch" /}
+      {/foreach}
+      </ul>
+    </div>
+  {/if}
+
+  {if $tags and length($tags)}
+    <div class="repository-tags">
+      <h3>Tags</h3>
+      <ul class="branch-list">
+      {foreach $tag in $tags}
+        {call .ref_ data="$tag" /}
+      {/foreach}
+      </ul>
+    </div>
+  {/if}
+</div>
+{call .footer /}
+{/template}
+
+/**
+ * Detail for a single ref.
+ *
+ * @param url URL for ref detail page.
+ * @param name ref name.
+ */
+{template .ref_}
+<li><a href="{$url}">{$name}</a></li>
+{/template}

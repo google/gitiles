@@ -1,0 +1,84 @@
+// Copyright 2012 Google Inc. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+{namespace gitiles autoescape="contextual"}
+
+/**
+ * Detail page for a path within a tree.
+ *
+ * @param title human-readable name of this path.
+ * @param repositoryName name of this repository.
+ * @param? menuEntries menu entries.
+ * @param breadcrumbs breadcrumbs for this page.
+ * @param type path type, matching one of the constant names defined in
+ *         org.eclipse.jgit.lib.FileMode.
+ * @param data path data, matching the params for one of .treeDetail,
+ *     .blobDetail, .symlinkDetail, or .gitlinkDetail as appropriate.
+ */
+{template .pathDetail}
+{if $type == 'REGULAR_FILE' or $type == 'EXECUTABLE_FILE'}
+  {call .header}
+    {param title: $title /}
+    {param repositoryName: $repositoryName /}
+    {param menuEntries: $menuEntries /}
+    {param breadcrumbs: $breadcrumbs /}
+    {param css: [gitiles.PRETTIFY_CSS_URL] /}
+    {param js: [gitiles.PRETTIFY_JS_URL] /}
+    {param onLoad: 'prettyPrint()' /}
+  {/call}
+{else}
+  {call .header data="all" /}
+{/if}
+
+{switch $type}
+  {case 'TREE'}{call .treeDetail data="$data" /}
+  {case 'SYMLINK'}{call .symlinkDetail data="$data" /}
+  {case 'REGULAR_FILE'}{call .blobDetail data="$data" /}
+  {case 'EXECUTABLE_FILE'}{call .blobDetail data="$data" /}
+  {case 'GITLINK'}{call .gitlinkDetail data="$data" /}
+  {default}
+    <div class="error">
+      {msg desc="Error message for an unknown object type"}Object has unknown type.{/msg}
+    </div>
+{/switch}
+
+{call .footer /}
+{/template}
+
+/**
+ * Detail for a symbolic link.
+ *
+ * @param target target of this symlink.
+ * @param? targetUrl optional URL for the target, if it is within this repo.
+ */
+{template .symlinkDetail}
+<div class="symlink-detail">
+  {msg desc="Lead-in text for the symbolic link target."}Symbolic link to{/msg}
+  {sp}{if $targetUrl}<a href="{$targetUrl}">{$target}</a>{else}{$target}{/if}
+</div>
+{/template}
+
+/**
+ * Detail for a git submodule link.
+ *
+ * @param sha submodule commit SHA.
+ * @param remoteUrl URL of the remote repository.
+ * @param? httpUrl optional HTTP URL pointing to a web-browser-compatible URL of
+ *     the remote repository.
+ */
+{template .gitlinkDetail}
+<div class="gitlink-detail">
+  {msg desc="Lead-in text for the git link URL"}Submodule link to {$sha} of{/msg}
+  {sp}{if $httpUrl}<a href="{$httpUrl}">{$remoteUrl}</a>{else}{$remoteUrl}{/if}
+</div>
+{/template}

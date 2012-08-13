@@ -1,0 +1,294 @@
+// Copyright 2012 Google Inc. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+{namespace gitiles autoescape="contextual"}
+
+/**
+ * Detailed listing of a commit.
+ *
+ * @param author map with "name", "email", and "time" keys for the commit author.
+ * @param committer map with "name", "email", and "time" keys for the committer.
+ * @param sha commit SHA-1.
+ * @param tree tree SHA-1.
+ * @param treeUrl tree URL.
+ * @param parents list of parent objects with the following keys:
+ *     sha: SHA-1.
+ *     url: URL to view the parent commit.
+ *     diffUrl: URL to display diffs relative to this parent.
+ * @param message list of commit message parts, where each part contains:
+ *     text: raw text of the part.
+ *     url: optional URL that should be linked to from the part.
+ * @param diffTree list of changed tree entries with the following keys:
+ *     changeType: string matching an org.eclipse.jgit.diff.DiffEntry.ChangeType
+ *         constant.
+ *     path: (new) path of the tree entry.
+ *     oldPath: old path, only for renames and copies.
+ *     url: URL to a detail page for the tree entry.
+ *     diffUrl: URL to a diff page for the tree entry's diff in this commit.
+ * @param logUrl URL to a log page starting at this commit.
+ */
+{template .commitDetail}
+<div class="git-commit">
+  <table>
+    <tr>
+      <th>{msg desc="Header for commit SHA entry"}commit{/msg}</th>
+      <td class="sha">
+        {$sha}
+        <span class="log-link">
+          [<a href="{$logUrl}">{msg desc="text for the log link"}log{/msg}</a>]
+        </span>
+      </td>
+      <td>{sp}</td>
+    </tr>
+    <tr>
+      <th>{msg desc="Header for commit author"}author{/msg}</th>
+      <td>{call .person_ data="$author" /}</td>
+      <td>{$author.time}</td>
+    </tr>
+    <tr>
+      <th>{msg desc="Header for committer"}committer{/msg}</th>
+      <td>{call .person_ data="$committer" /}</td>
+      <td>{$committer.time}</td>
+    </tr>
+    <tr>
+      <th>{msg desc="Header for tree SHA entry"}tree{/msg}</th>
+      <td class="sha"><a href="{$treeUrl}">{$tree}</a></td>
+    </tr>
+    {foreach $parent in $parents}
+      <tr>
+        <th>{msg desc="Header for parent SHA"}parent{/msg}</th>
+        <td>
+          <a href="{$parent.url}">{$parent.sha}</a>
+          <span class="diff-link">
+            [<a href="{$parent.diffUrl}">{msg desc="text for the parent diff link"}diff{/msg}</a>]
+          </span>
+        </td>
+      </tr>
+    {/foreach}
+  </table>
+</div>
+{call .message_}
+  {param className: 'commit-message' /}
+  {param message: $message /}
+{/call}
+
+{if $diffTree and length($diffTree)}
+  <ul class="diff-tree">
+    {foreach $entry in $diffTree}
+      <li>
+        <a href="{$entry.url}">{$entry.path}</a>
+        {switch $entry.changeType}
+          {case 'ADD'}
+            <span class="add">
+              {msg desc="Text for a new tree entry"}
+                [Added - <a href="{$entry.diffUrl}">diff</a>]
+              {/msg}
+            </span>
+          {case 'MODIFY'}
+            <span class="modify">
+              {msg desc="Text for a modified tree entry"}
+                [<a href="{$entry.diffUrl}">diff</a>]
+              {/msg}
+            </span>
+          {case 'DELETE'}
+            <span class="delete">
+              {msg desc="Text for a deleted tree entry"}
+                [Deleted - <a href="{$entry.diffUrl}">diff</a>]
+              {/msg}
+            </span>
+          {case 'RENAME'}
+            <span class="rename">
+              {msg desc="Text for a renamed tree entry"}
+                [Renamed from {$entry.oldPath} - <a href="{$entry.diffUrl}">diff</a>]
+              {/msg}
+            </span>
+          {case 'COPY'}
+            <span class="copy">
+              {msg desc="Text for a copied tree entry"}
+                [Copied from {$entry.oldPath} - <a href="{$entry.diffUrl}">diff</a>]
+              {/msg}
+            </span>
+          {default}
+        {/switch}
+      </li>
+    {/foreach}
+  </ul>
+  <div class="diff-summary">
+    {if length($diffTree) == 1}
+      {msg desc="1 file changed"}1 file changed{/msg}
+    {else}
+      {msg desc="number of files changed"}{length($diffTree)} files changed{/msg}
+    {/if}
+  </div>
+{/if}
+
+{/template}
+
+/**
+ * Detailed listing of a tree.
+ *
+ * @param sha SHA of this path's tree.
+ * @param? logUrl optional URL to a log for this path.
+ * @param entries list of entries with the following keys:
+ *     type: entry type, matching one of the constant names defined in
+ *         org.eclipse.jgit.lib.FileMode.
+ *     name: tree entry name.
+ *     url: URL to link to.
+ *     targetName: name of a symlink target, required only if type == 'SYMLINK'.
+ *     targetUrl: optional url of a symlink target, required only if
+ *         type == 'SYMLINK'.
+ */
+{template .treeDetail}
+<div class="sha1">
+  {msg desc="SHA-1 for the path's tree"}tree: {$sha}{/msg}
+  {if $logUrl}{sp}[<a href="{$logUrl}">{msg desc="history for a path"}path history{/msg}</a>]{/if}
+</div>
+
+{if length($entries)}
+  <ol class="list files">
+    {foreach $entry in $entries}
+      <li class="
+            {switch $entry.type}
+              {case 'TREE'}git-tree
+              {case 'SYMLINK'}symlink
+              {case 'REGULAR_FILE'}regular-file
+              {case 'EXECUTABLE_FILE'}executable-file
+              {case 'GITLINK'}gitlink
+              {default}regular-file
+            {/switch}
+            " title="
+            {switch $entry.type}
+              {case 'TREE'}{msg desc="Alt text for tree icon"}Tree{/msg}
+              {case 'SYMLINK'}{msg desc="Alt text for symlink icon"}Symlink{/msg}
+              {case 'REGULAR_FILE'}{msg desc="Alt text for regular file icon"}Regular file{/msg}
+              {case 'EXECUTABLE_FILE'}
+                {msg desc="Alt text for executable file icon"}Executable file{/msg}
+              {case 'GITLINK'}
+                {msg desc="Alt text for git submodule link icon"}Git submodule link{/msg}
+              {default}{msg desc="Alt text for other file icon"}Other{/msg}
+            {/switch}
+            - {$entry.name}">
+        <a href="{$entry.url}">{$entry.name}</a>
+        {if $entry.type == 'SYMLINK'}
+          {sp}&#x21e8;{sp}
+          {if $entry.targetUrl}
+            <a href="{$entry.targetUrl}">{$entry.targetName}</a>
+          {else}
+            {$entry.targetName}
+          {/if}
+        {/if}
+        // TODO(dborowitz): Something reasonable for gitlinks.
+      </li>
+    {/foreach}
+  </table>
+{else}
+  <p>{msg desc="Informational text for when a tree is empty"}This tree is empty.{/msg}</p>
+{/if}
+{/template}
+
+/**
+ * Detailed listing of a blob.
+ *
+ * @param sha SHA of this file's blob.
+ * @param? logUrl optional URL to a log for this file.
+ * @param data file data (may be empty), or null for a binary file.
+ * @param? lang prettyprint language extension for text file.
+ * @param? size for binary files only, size in bytes.
+ */
+{template .blobDetail}
+<div class="sha1">
+  {msg desc="SHA-1 for the file's blob"}blob: {$sha}{/msg}
+  {if $logUrl}{sp}[<a href="{$logUrl}">{msg desc="history for a file"}file history{/msg}</a>]{/if}
+</div>
+
+{if $data != null}
+  {if $data}
+    {if $lang != null}
+      <pre class="git-blob prettyprint linenums lang-{$lang}">{$data}</pre>
+    {else}
+      <pre class="git-blob">{$data}</pre>
+    {/if}
+  {else}
+    <div class="file-empty">Empty file</div>
+  {/if}
+{else}
+  <div class="file-binary">
+    {msg desc="size of binary file in bytes"}{$size}-byte binary file{/msg}
+  </div>
+{/if}
+{/template}
+
+/**
+ * Detailed listing of an annotated tag.
+ *
+ * @param sha SHA of this tag.
+ * @param? tagger optional map with "name", "email", and "time" keys for the
+ *     tagger.
+ * @param object SHA of the object this tag points to.
+ * @param message tag message.
+ */
+{template .tagDetail}
+<div class="git-tag">
+  <table>
+    <tr>
+      <th>{msg desc="Header for tag SHA entry"}tag{/msg}</th>
+      <td class="sha">{$sha}</td>
+      <td>{sp}</td>
+    </tr>
+    {if $tagger}
+      <tr>
+        <th>{msg desc="Header for tagger"}tagger{/msg}</th>
+        <td>{call .person_ data="$tagger" /}</td>
+        <td>{$tagger.time}</td>
+      </tr>
+    {/if}
+    <tr>
+      <th>{msg desc="Header for tagged object SHA"}object{/msg}</th>
+      <td class="sha">{$object}</td>
+      <td>{sp}</td>
+    </tr>
+  </table>
+</div>
+{if $message and length($message)}
+  {call .message_}
+    {param className: 'tag-message' /}
+    {param message: $message /}
+  {/call}
+{/if}
+{/template}
+
+/**
+ * Line about a git person identity.
+ *
+ * @param name name.
+ * @param email email.
+ */
+{template .person_ private="true"}
+{$name}{if $email} &lt;{$email}&gt;{/if}
+{/template}
+
+/**
+ * Preformatted message, possibly containing hyperlinks.
+ *
+ * @param className CSS class name for <pre> block.
+ * @param message list of message parts, where each part contains:
+ *     text: raw text of the part.
+ *     url: optional URL that should be linked to from the part.
+ */
+{template .message_ private="true"}
+<pre class="{$className|id}">
+  {foreach $part in $message}
+    {if $part.url}<a href="{$part.url}">{$part.text}</a>{else}{$part.text}{/if}
+  {/foreach}
+</pre>
+{/template}

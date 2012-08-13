@@ -1,0 +1,50 @@
+// Copyright 2012 Google Inc. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package com.google.gitiles;
+
+import com.google.common.collect.Maps;
+
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.revwalk.RevTag;
+import org.eclipse.jgit.util.GitDateFormatter;
+import org.eclipse.jgit.util.GitDateFormatter.Format;
+
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+/** Soy data converter for git tags. */
+public class TagSoyData {
+  private final Linkifier linkifier;
+  private final HttpServletRequest req;
+  private final GitDateFormatter dateFormatter;
+
+  public TagSoyData(Linkifier linkifier, HttpServletRequest req) {
+    this.linkifier = linkifier;
+    this.req = req;
+    this.dateFormatter = new GitDateFormatter(Format.DEFAULT);
+  }
+
+  public Map<String, Object> toSoyData(RevTag tag) {
+    Map<String, Object> data = Maps.newHashMapWithExpectedSize(4);
+    data.put("sha", ObjectId.toString(tag));
+    if (tag.getTaggerIdent() != null) {
+      data.put("tagger", CommitSoyData.toSoyData(tag.getTaggerIdent(), dateFormatter));
+    }
+    data.put("object", ObjectId.toString(tag.getObject()));
+    data.put("message", linkifier.linkify(req, tag.getFullMessage()));
+    return data;
+  }
+}
