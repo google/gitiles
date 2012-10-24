@@ -102,15 +102,15 @@ table.list td {
   padding-bottom: 5px; /* VPADDING */
 }
 .repository-refs {
-  width: 450px;
+  width: 650px;
 }
 .repository-branches {
   float: left;
-  width: 200px;
+  width: 300px;
 }
 .repository-tags {
   float: right;
-  width: 250px;
+  width: 350px;
 }
 .clone-line {
   background-color: #e5ecf9; /* BOX_BACKGROUND */
