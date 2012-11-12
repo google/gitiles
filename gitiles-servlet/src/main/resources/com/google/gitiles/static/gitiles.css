@@ -82,16 +82,32 @@ table.list td {
   padding-left: 1em;
   white-space: nowrap;
 }
+
+.formats {
+  text-align: right;
+  background: clear;
+  padding-right: 1em;
+  width: 90%;
+  clear: both;
+}
+
+.formats a {
+  color: black;
+  font-weight: bold;
+  font-size: 70%;
+}
+
 .footer {
   text-align: right;
   background: #eee;
   padding-right: 1em;
   width: 90%;
+  clear: both;
 }
+
 .footer a {
   color: black;
-  font-weight: bold;
-  font-size: 70%;
+  font-style: italic;
 }
 
 
