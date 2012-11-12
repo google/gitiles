@@ -37,6 +37,8 @@ import javax.servlet.http.HttpServletRequest;
  * configuration.
  */
 public class GitilesServlet extends MetaServlet {
+  private static final long serialVersionUID = 1L;
+
   /** The prefix from which static resources are served. */
   public static final String STATIC_PREFIX = "/+static/";
 

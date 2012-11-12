@@ -42,6 +42,7 @@ import javax.servlet.http.HttpServletResponse;
 
 /** Serves an HTML page with all the diffs for a commit. */
 public class DiffServlet extends BaseServlet {
+  private static final long serialVersionUID = 1L;
   private static final String PLACEHOLDER = "id=\"DIFF_OUTPUT_BLOCK\"";
 
   private final Linkifier linkifier;

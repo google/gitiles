@@ -195,9 +195,6 @@ class GitilesFilter extends MetaFilter {
     Filter repositoryFilter = new RepositoryFilter(resolver);
     Filter viewFilter = new ViewFilter(accessFactory, urls, visibilityCache);
     Filter dispatchFilter = new DispatchFilter(filters, servlets);
-    String browserCssName;
-    String prettifyCssName;
-    String prettifyJsName;
 
     serveRegex(ROOT_REGEX)
         .through(viewFilter)

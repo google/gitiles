@@ -68,20 +68,6 @@ public class DefaultAccess implements GitilesAccess {
 
     @Override
     public GitilesAccess forRequest(HttpServletRequest req) {
-      String path = req.getPathInfo();
-      String repositoryPath;
-      if (path == null || path == "/") {
-        repositoryPath = null;
-      } else {
-        int slashPlus = path.indexOf("/+/");
-        if (slashPlus >= 0) {
-          repositoryPath = path.substring(0, slashPlus);
-        } else if (path.endsWith("/+")) {
-          repositoryPath = path.substring(0, path.length() - 2);
-        } else {
-          repositoryPath = path;
-        }
-      }
       return newAccess(basePath, canonicalBasePath, baseGitUrl, resolver, req);
     }
 
