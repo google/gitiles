@@ -98,15 +98,14 @@ table.list td {
 }
 
 .footer {
+  padding-top: 2em;
   text-align: right;
-  background: #eee;
-  padding-right: 1em;
-  width: 90%;
+  color: #A0ADCC;
+  right: 0;
   clear: both;
 }
 
 .footer a {
-  color: black;
   font-style: italic;
 }
 
