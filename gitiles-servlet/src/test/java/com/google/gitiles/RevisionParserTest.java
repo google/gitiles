@@ -115,6 +115,7 @@ public class RevisionParserTest extends TestCase {
 
   public void testParseNonVisibleCommitSha() throws Exception {
     RevCommit other = repo.commit().create();
+    repo.branch("master").commit().create();
     assertEquals(null, parser.parse(other.name()));
 
     repo.branch("other").update(other);
@@ -196,6 +197,7 @@ public class RevisionParserTest extends TestCase {
             42),
         parser.parse(parent.name() + "^!"));
 
+    repo.update("refs/tags/tag", repo.tag("tag", commit));
     assertEquals(
         new Result(
             Revision.peeled("tag", commit),

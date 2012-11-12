@@ -64,6 +64,7 @@ public class ViewFilterTest extends TestCase {
     RevCommit master = repo.branch("refs/heads/master").commit().parent(parent).create();
     String hex = master.name();
     String hexBranch = hex.substring(0, 10);
+    repo.branch(hexBranch).commit().create();
 
     assertEquals(Type.LOG, getView("/repo/+/master").getType());
     assertEquals(Type.LOG, getView("/repo/+/" + hexBranch).getType());
@@ -187,6 +188,7 @@ public class ViewFilterTest extends TestCase {
   }
 
   public void testMultipleSlashes() throws Exception {
+    repo.branch("refs/heads/master").commit().create();
     assertEquals(Type.HOST_INDEX, getView("//").getType());
     assertEquals(Type.REPOSITORY_INDEX, getView("//repo").getType());
     assertEquals(Type.REPOSITORY_INDEX, getView("//repo//").getType());
