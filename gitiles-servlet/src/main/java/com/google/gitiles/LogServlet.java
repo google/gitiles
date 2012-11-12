@@ -56,6 +56,7 @@ import javax.servlet.http.HttpServletResponse;
 
 /** Serves an HTML page with a shortlog for commits and paths. */
 public class LogServlet extends BaseServlet {
+  private static final long serialVersionUID = 1L;
   private static final Logger log = LoggerFactory.getLogger(LogServlet.class);
 
   private static final String START_PARAM = "s";

@@ -51,6 +51,7 @@ import javax.servlet.http.HttpServletResponse;
 
 /** Serves the top level index page for a Gitiles host. */
 public class HostIndexServlet extends BaseServlet {
+  private static final long serialVersionUID = 1L;
   private static final Logger log = LoggerFactory.getLogger(HostIndexServlet.class);
 
   protected final GitilesUrls urls;

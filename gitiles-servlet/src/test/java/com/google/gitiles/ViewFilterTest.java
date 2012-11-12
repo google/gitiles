@@ -64,7 +64,6 @@ public class ViewFilterTest extends TestCase {
     RevCommit master = repo.branch("refs/heads/master").commit().parent(parent).create();
     String hex = master.name();
     String hexBranch = hex.substring(0, 10);
-    RevCommit hexCommit = repo.branch(hexBranch).commit().create();
 
     assertEquals(Type.LOG, getView("/repo/+/master").getType());
     assertEquals(Type.LOG, getView("/repo/+/" + hexBranch).getType());
@@ -188,9 +187,6 @@ public class ViewFilterTest extends TestCase {
   }
 
   public void testMultipleSlashes() throws Exception {
-    RevCommit master = repo.branch("refs/heads/master").commit().create();
-    GitilesView view;
-
     assertEquals(Type.HOST_INDEX, getView("//").getType());
     assertEquals(Type.REPOSITORY_INDEX, getView("//repo").getType());
     assertEquals(Type.REPOSITORY_INDEX, getView("//repo//").getType());
@@ -313,6 +309,7 @@ public class ViewFilterTest extends TestCase {
   private GitilesView getView(String pathAndQuery) throws ServletException, IOException {
     final AtomicReference<GitilesView> view = Atomics.newReference();
     HttpServlet testServlet = new HttpServlet() {
+      private static final long serialVersionUID = 1L;
       @Override
       protected void doGet(HttpServletRequest req, HttpServletResponse res) {
         view.set(ViewFilter.getView(req));

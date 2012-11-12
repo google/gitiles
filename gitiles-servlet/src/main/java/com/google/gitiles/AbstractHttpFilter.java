@@ -33,7 +33,7 @@ abstract class AbstractHttpFilter implements Filter {
   }
 
   @Override
-  @SuppressWarnings("unused") // Allow subclasses to throw ServletException.
+  // Allow subclasses to throw ServletException.
   public void init(FilterConfig config) throws ServletException {
     // Default implementation does nothing.
   }

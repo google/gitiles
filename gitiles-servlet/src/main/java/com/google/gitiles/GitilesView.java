@@ -88,6 +88,9 @@ public class GitilesView {
           // Fallthrough.
         case REPOSITORY_INDEX:
           repositoryName = other.repositoryName;
+          // Fallthrough.
+        default:
+          break;
       }
       // Don't copy params.
       return this;

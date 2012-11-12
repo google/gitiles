@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 
 /** Base servlet class for Gitiles servlets that serve Soy templates. */
 public abstract class BaseServlet extends HttpServlet {
+  private static final long serialVersionUID = 1L;
   private static final String DATA_ATTRIBUTE = BaseServlet.class.getName() + "/Data";
 
   static void setNotCacheable(HttpServletResponse res) {
@@ -43,6 +44,7 @@ public abstract class BaseServlet extends HttpServlet {
 
   public static BaseServlet notFoundServlet() {
     return new BaseServlet(null) {
+      private static final long serialVersionUID = 1L;
       @Override
       public void service(HttpServletRequest req, HttpServletResponse res) {
         res.setStatus(SC_NOT_FOUND);

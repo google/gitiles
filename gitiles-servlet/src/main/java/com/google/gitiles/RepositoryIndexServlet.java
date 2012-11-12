@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletResponse;
 
 /** Serves the index page for a repository, if accessed directly by a browser. */
 public class RepositoryIndexServlet extends BaseServlet {
+  private static final long serialVersionUID = 1L;
   private final GitilesAccess.Factory accessFactory;
 
   public RepositoryIndexServlet(Renderer renderer, GitilesAccess.Factory accessFactory) {
@@ -62,7 +63,6 @@ public class RepositoryIndexServlet extends BaseServlet {
   private List<Map<String, String>> getRefs(HttpServletRequest req, String prefix)
       throws IOException {
     RefDatabase refdb = ServletUtils.getRepository(req).getRefDatabase();
-    String repoName = ViewFilter.getView(req).getRepositoryName();
     Collection<Ref> refs = RefComparator.sort(refdb.getRefs(prefix).values());
     List<Map<String, String>> result = Lists.newArrayListWithCapacity(refs.size());
 
