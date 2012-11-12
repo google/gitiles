@@ -28,14 +28,15 @@ public class DefaultRenderer extends Renderer {
   private final SoyTofu tofu;
 
   DefaultRenderer() {
-    this("", null);
+    this("", null, "");
   }
 
-  public DefaultRenderer(String staticPrefix, URL customTemplates) {
-    this(ImmutableMap.<String, String> of(), staticPrefix, customTemplates);
+  public DefaultRenderer(String staticPrefix, URL customTemplates, String siteTitle) {
+    this(ImmutableMap.<String, String> of(), staticPrefix, customTemplates, siteTitle);
   }
 
-  public DefaultRenderer(Map<String, String> globals, String staticPrefix, URL customTemplates) {
+  public DefaultRenderer(Map<String, String> globals, String staticPrefix, URL customTemplates,
+      String siteTitle) {
     super(
         new Function<String, URL>() {
           @Override
@@ -43,7 +44,7 @@ public class DefaultRenderer extends Renderer {
             return Resources.getResource(Renderer.class, "templates/" + name);
           }
         },
-        globals, staticPrefix, customTemplates);
+        globals, staticPrefix, customTemplates, siteTitle);
     SoyFileSet.Builder builder = new SoyFileSet.Builder()
         .setCompileTimeGlobals(this.globals);
     for (URL template : templates) {

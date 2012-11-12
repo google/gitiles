@@ -65,7 +65,7 @@ public abstract class Renderer {
   protected ImmutableMap<String, String> globals;
 
   protected Renderer(Function<String, URL> resourceMapper, Map<String, String> globals,
-      String staticPrefix, URL customTemplates) {
+      String staticPrefix, URL customTemplates, String siteTitle) {
     checkNotNull(staticPrefix, "staticPrefix");
     List<URL> allTemplates = Lists.newArrayListWithCapacity(SOY_FILENAMES.size() + 1);
     for (String filename : SOY_FILENAMES) {
@@ -82,6 +82,7 @@ public abstract class Renderer {
     for (Map.Entry<String, String> e : STATIC_URL_GLOBALS.entrySet()) {
       allGlobals.put(e.getKey(), staticPrefix + e.getValue());
     }
+    allGlobals.put("gitiles.SITE_TITLE", siteTitle);
     allGlobals.putAll(globals);
     this.globals = ImmutableMap.copyOf(allGlobals);
   }
