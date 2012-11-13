@@ -86,19 +86,16 @@ table.list td {
 .formats {
   text-align: right;
   background: clear;
-  padding-right: 1em;
-  width: 90%;
+  right: 0;
   clear: both;
 }
 
 .formats a {
-  color: black;
   font-weight: bold;
   font-size: 70%;
 }
 
 .footer {
-  padding-top: 2em;
   text-align: right;
   color: #A0ADCC;
   right: 0;
