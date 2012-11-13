@@ -93,6 +93,13 @@ table.list td {
 .formats a {
   font-weight: bold;
   font-size: 70%;
+  color: white;
+  padding: 2px;
+  background-color: #A0ADCC;
+  border-top: #C0CFEE solid 1px;
+  border-left: #C0CFEE solid 1px;
+  border-right: #808A99 solid 1px;
+  border-bottom: #808A99 solid 1px;
 }
 
 .footer {
