@@ -167,22 +167,6 @@ limitations under the License.
         </plugin>
       </plugins>
     </pluginManagement>
-
-    <plugins>
-      <plugin>
-        <groupId>org.mortbay.jetty</groupId>
-        <artifactId>jetty-maven-plugin</artifactId>
-        <version>${jettyVersion}</version>
-        <configuration>
-          <webApp>
-            <defaultsDescriptor>gitiles-war/webdefault.xml</defaultsDescriptor>
-          </webApp>
-          <war>gitiles-war/target/gitiles-war-${project.version}.war</war>
-        </configuration>
-        <!-- TODO(dborowitz): Separate execution with reloadable static
-          resources and templates. -->
-      </plugin>
-    </plugins>
   </build>
 
   <repositories>
