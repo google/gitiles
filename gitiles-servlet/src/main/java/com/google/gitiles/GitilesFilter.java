@@ -33,13 +33,11 @@ import org.eclipse.jgit.http.server.RepositoryFilter;
 import org.eclipse.jgit.http.server.glue.MetaFilter;
 import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.storage.file.FileBasedConfig;
 import org.eclipse.jgit.transport.ServiceMayNotContinueException;
 import org.eclipse.jgit.transport.resolver.FileResolver;
 import org.eclipse.jgit.transport.resolver.RepositoryResolver;
 import org.eclipse.jgit.transport.resolver.ServiceNotAuthorizedException;
 import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
-import org.eclipse.jgit.util.FS;
 
 import java.io.File;
 import java.io.IOException;
@@ -64,7 +62,6 @@ import javax.servlet.http.HttpServletResponse;
  * Do not use directly; use {@link GitilesServlet}.
  */
 class GitilesFilter extends MetaFilter {
-  private static final String CONFIG_PATH_PARAM = "configPath";
 
   // The following regexes have the following capture groups:
   // 1. The whole string, which causes RegexPipeline to set REGEX_GROUPS but
@@ -262,18 +259,14 @@ class GitilesFilter extends MetaFilter {
     };
   }
 
-  private void setDefaultFields(FilterConfig config) throws ServletException {
+  private void setDefaultFields(FilterConfig filterConfig) throws ServletException {
     if (renderer != null && urls != null && accessFactory != null && resolver != null
         && visibilityCache != null) {
       return;
     }
-    String configPath = config.getInitParameter(CONFIG_PATH_PARAM);
-    if (configPath == null) {
-      throw new ServletException("Missing required parameter " + configPath);
-    }
-    FileBasedConfig jgitConfig = new FileBasedConfig(new File(configPath), FS.DETECTED);
+    Config config;
     try {
-      jgitConfig.load();
+      config = GitilesConfig.loadDefault(filterConfig);
     } catch (IOException e) {
       throw new ServletException(e);
     } catch (ConfigInvalidException e) {
@@ -281,12 +274,12 @@ class GitilesFilter extends MetaFilter {
     }
 
     if (renderer == null) {
-      String staticPrefix = config.getServletContext().getContextPath() + STATIC_PREFIX;
-      String customTemplates = jgitConfig.getString("gitiles", null, "customTemplates");
-      String siteTitle = Objects.firstNonNull(jgitConfig.getString("gitiles", null, "siteTitle"),
+      String staticPrefix = filterConfig.getServletContext().getContextPath() + STATIC_PREFIX;
+      String customTemplates = config.getString("gitiles", null, "customTemplates");
+      String siteTitle = Objects.firstNonNull(config.getString("gitiles", null, "siteTitle"),
           "Gitiles");
       // TODO(dborowitz): Automatically set to true when run with mvn jetty:run.
-      if (jgitConfig.getBoolean("gitiles", null, "reloadTemplates", false)) {
+      if (config.getBoolean("gitiles", null, "reloadTemplates", false)) {
         renderer = new DebugRenderer(staticPrefix, customTemplates,
             Joiner.on(File.separatorChar).join(System.getProperty("user.dir"),
                 "gitiles-servlet", "src", "main", "resources",
@@ -299,20 +292,20 @@ class GitilesFilter extends MetaFilter {
     if (urls == null) {
       try {
         urls = new DefaultUrls(
-            jgitConfig.getString("gitiles", null, "canonicalHostName"),
-            getBaseGitUrl(jgitConfig),
-            getGerritUrl(jgitConfig));
+            config.getString("gitiles", null, "canonicalHostName"),
+            getBaseGitUrl(config),
+            getGerritUrl(config));
       } catch (UnknownHostException e) {
         throw new ServletException(e);
       }
     }
     linkifier = new Linkifier(urls);
     if (accessFactory == null || resolver == null) {
-      String basePath = jgitConfig.getString("gitiles", null, "basePath");
+      String basePath = config.getString("gitiles", null, "basePath");
       if (basePath == null) {
         throw new ServletException("gitiles.basePath not set");
       }
-      boolean exportAll = jgitConfig.getBoolean("gitiles", null, "exportAll", false);
+      boolean exportAll = config.getBoolean("gitiles", null, "exportAll", false);
 
       FileResolver<HttpServletRequest> fileResolver;
       if (resolver == null) {
@@ -328,7 +321,7 @@ class GitilesFilter extends MetaFilter {
         try {
         accessFactory = new DefaultAccess.Factory(
             new File(basePath),
-            getBaseGitUrl(jgitConfig),
+            getBaseGitUrl(config),
             fileResolver);
         } catch (IOException e) {
           throw new ServletException(e);
@@ -336,9 +329,9 @@ class GitilesFilter extends MetaFilter {
       }
     }
     if (visibilityCache == null) {
-      if (jgitConfig.getSubsections("cache").contains("visibility")) {
+      if (config.getSubsections("cache").contains("visibility")) {
         visibilityCache =
-            new VisibilityCache(false, ConfigUtil.getCacheBuilder(jgitConfig, "visibility"));
+            new VisibilityCache(false, ConfigUtil.getCacheBuilder(config, "visibility"));
       } else {
         visibilityCache = new VisibilityCache(false);
       }
