@@ -20,7 +20,6 @@ import static com.google.gitiles.GitilesServlet.STATIC_PREFIX;
 import static com.google.gitiles.ViewFilter.getRegexGroup;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.LinkedListMultimap;
@@ -154,6 +153,7 @@ class GitilesFilter extends MetaFilter {
   private final ListMultimap<GitilesView.Type, Filter> filters = LinkedListMultimap.create();
   private final Map<GitilesView.Type, HttpServlet> servlets = Maps.newHashMap();
 
+  private Config config;
   private Renderer renderer;
   private GitilesUrls urls;
   private Linkifier linkifier;
@@ -166,17 +166,20 @@ class GitilesFilter extends MetaFilter {
   }
 
   GitilesFilter(
+      Config config,
       Renderer renderer,
       GitilesUrls urls,
       GitilesAccess.Factory accessFactory,
       final RepositoryResolver<HttpServletRequest> resolver,
       VisibilityCache visibilityCache) {
-    this.renderer = checkNotNull(renderer, "renderer");
-    this.urls = checkNotNull(urls, "urls");
-    this.accessFactory = checkNotNull(accessFactory, "accessFactory");
-    this.visibilityCache = checkNotNull(visibilityCache, "visibilityCache");
-    this.linkifier = new Linkifier(urls);
-    this.resolver = wrapResolver(resolver);
+    this.config = checkNotNull(config, "config");
+    this.renderer = renderer;
+    this.urls = urls;
+    this.accessFactory = accessFactory;
+    this.visibilityCache = visibilityCache;
+    if (resolver != null) {
+      this.resolver = wrapResolver(resolver);
+    }
   }
 
   @Override
@@ -219,16 +222,21 @@ class GitilesFilter extends MetaFilter {
       case REPOSITORY_INDEX:
         return new RepositoryIndexServlet(renderer, accessFactory);
       case REVISION:
-        return new RevisionServlet(renderer, linkifier);
+        return new RevisionServlet(renderer, linkifier());
       case PATH:
         return new PathServlet(renderer);
       case DIFF:
-        return new DiffServlet(renderer, linkifier);
+        return new DiffServlet(renderer, linkifier());
       case LOG:
-        return new LogServlet(renderer, linkifier);
+        return new LogServlet(renderer, linkifier());
       default:
         throw new IllegalArgumentException("Invalid view type: " + view);
     }
+  }
+
+  public synchronized void setRenderer(Renderer renderer) {
+    checkNotInitialized();
+    this.renderer = checkNotNull(renderer, "renderer");
   }
 
   synchronized void addFilter(GitilesView.Type view, Filter filter) {
@@ -259,47 +267,48 @@ class GitilesFilter extends MetaFilter {
     };
   }
 
+  private synchronized Linkifier linkifier() {
+    if (linkifier == null) {
+      checkState(urls != null, "GitilesUrls not yet set");
+      linkifier = new Linkifier(urls);
+    }
+    return linkifier;
+  }
+
   private void setDefaultFields(FilterConfig filterConfig) throws ServletException {
     if (renderer != null && urls != null && accessFactory != null && resolver != null
         && visibilityCache != null) {
       return;
     }
     Config config;
-    try {
-      config = GitilesConfig.loadDefault(filterConfig);
-    } catch (IOException e) {
-      throw new ServletException(e);
-    } catch (ConfigInvalidException e) {
-      throw new ServletException(e);
+    if (this.config != null) {
+      config = this.config;
+    } else {
+      try {
+        config = GitilesConfig.loadDefault(filterConfig);
+      } catch (IOException e) {
+        throw new ServletException(e);
+      } catch (ConfigInvalidException e) {
+        throw new ServletException(e);
+      }
     }
 
     if (renderer == null) {
-      String staticPrefix = filterConfig.getServletContext().getContextPath() + STATIC_PREFIX;
-      String customTemplates = config.getString("gitiles", null, "customTemplates");
-      String siteTitle = Objects.firstNonNull(config.getString("gitiles", null, "siteTitle"),
-          "Gitiles");
-      // TODO(dborowitz): Automatically set to true when run with mvn jetty:run.
-      if (config.getBoolean("gitiles", null, "reloadTemplates", false)) {
-        renderer = new DebugRenderer(staticPrefix, customTemplates,
-            Joiner.on(File.separatorChar).join(System.getProperty("user.dir"),
-                "gitiles-servlet", "src", "main", "resources",
-                "com", "google", "gitiles", "templates"), siteTitle);
-      } else {
-        renderer = new DefaultRenderer(staticPrefix, Renderer.toFileURL(customTemplates),
-            siteTitle);
-      }
+      renderer = new DefaultRenderer(
+          filterConfig.getServletContext().getContextPath() + STATIC_PREFIX,
+          Renderer.toFileURL(config.getString("gitiles", null, "customTemplates")),
+          Objects.firstNonNull(config.getString("gitiles", null, "siteTitle"), "Gitiles"));
     }
     if (urls == null) {
       try {
         urls = new DefaultUrls(
             config.getString("gitiles", null, "canonicalHostName"),
             getBaseGitUrl(config),
-            getGerritUrl(config));
+            config.getString("gitiles", null, "gerritUrl"));
       } catch (UnknownHostException e) {
         throw new ServletException(e);
       }
     }
-    linkifier = new Linkifier(urls);
     if (accessFactory == null || resolver == null) {
       String basePath = config.getString("gitiles", null, "basePath");
       if (basePath == null) {
@@ -344,13 +353,5 @@ class GitilesFilter extends MetaFilter {
       throw new ServletException("gitiles.baseGitUrl not set");
     }
     return baseGitUrl;
-  }
-
-  private static String getGerritUrl(Config config) throws ServletException {
-    String gerritUrl = config.getString("gitiles", null, "gerritUrl");
-    if (gerritUrl == null) {
-      throw new ServletException("gitiles.gerritUrl not set");
-    }
-    return gerritUrl;
   }
 }

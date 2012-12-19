@@ -15,10 +15,12 @@
 package com.google.gitiles;
 
 import org.eclipse.jgit.http.server.glue.MetaServlet;
+import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.transport.resolver.RepositoryResolver;
 
 import java.util.Enumeration;
 
+import javax.annotation.Nullable;
 import javax.servlet.Filter;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletConfig;
@@ -42,12 +44,14 @@ public class GitilesServlet extends MetaServlet {
   /** The prefix from which static resources are served. */
   public static final String STATIC_PREFIX = "/+static/";
 
-  public GitilesServlet(Renderer renderer,
-      GitilesUrls urls,
-      GitilesAccess.Factory accessFactory,
-      RepositoryResolver<HttpServletRequest> resolver,
-      VisibilityCache visibilityCache) {
-    super(new GitilesFilter(renderer, urls, accessFactory, resolver, visibilityCache));
+  public GitilesServlet(
+      @Nullable Config config,
+      @Nullable Renderer renderer,
+      @Nullable GitilesUrls urls,
+      @Nullable GitilesAccess.Factory accessFactory,
+      @Nullable RepositoryResolver<HttpServletRequest> resolver,
+      @Nullable VisibilityCache visibilityCache) {
+    super(new GitilesFilter(config, renderer, urls, accessFactory, resolver, visibilityCache));
   }
 
   public GitilesServlet() {

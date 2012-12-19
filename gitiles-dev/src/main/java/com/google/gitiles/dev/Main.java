@@ -18,6 +18,6 @@ import com.google.gitiles.GitilesConfig;
 
 public class Main {
   public static void main(String[] args) throws Exception {
-    new DevServer(GitilesConfig.loadDefault()).start();
+    new DevServer(GitilesConfig.defaultFile()).start();
   }
 }

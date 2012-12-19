@@ -29,12 +29,11 @@ public class GitilesConfig {
   private static final String PROPERTY_NAME = "com.google.gitiles.configPath";
   private static final String DEFAULT_PATH = "gitiles.config";
 
-  public static Config loadDefault() throws IOException, ConfigInvalidException {
-    return loadDefault(null);
+  public static File defaultFile() {
+    return defaultFile(null);
   }
 
-  public static Config loadDefault(FilterConfig filterConfig)
-      throws IOException, ConfigInvalidException {
+  public static File defaultFile(FilterConfig filterConfig) {
     String configPath = null;
     if (filterConfig != null) {
       configPath = filterConfig.getInitParameter(FILTER_CONFIG_PARAM);
@@ -42,7 +41,16 @@ public class GitilesConfig {
     if (configPath == null) {
       configPath = System.getProperty(PROPERTY_NAME, DEFAULT_PATH);
     }
-    FileBasedConfig config = new FileBasedConfig(new File(configPath), FS.DETECTED);
+    return new File(configPath);
+  }
+
+  public static Config loadDefault() throws IOException, ConfigInvalidException {
+    return loadDefault(null);
+  }
+
+  public static Config loadDefault(FilterConfig filterConfig)
+      throws IOException, ConfigInvalidException {
+    FileBasedConfig config = new FileBasedConfig(defaultFile(), FS.DETECTED);
     config.load();
     return config;
   }

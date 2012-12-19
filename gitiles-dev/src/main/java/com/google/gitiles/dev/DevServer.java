@@ -14,7 +14,12 @@
 
 package com.google.gitiles.dev;
 
+import static com.google.gitiles.GitilesServlet.STATIC_PREFIX;
+
+import com.google.common.base.Objects;
+import com.google.gitiles.DebugRenderer;
 import com.google.gitiles.GitilesServlet;
+import com.google.gitiles.PathServlet;
 
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
@@ -28,23 +33,119 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.resource.FileResource;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.util.thread.ThreadPool;
+import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.lib.Config;
+import org.eclipse.jgit.storage.file.FileBasedConfig;
+import org.eclipse.jgit.util.FS;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.MalformedURLException;
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
+import java.net.UnknownHostException;
 
 class DevServer {
+  private static final Logger log = LoggerFactory.getLogger(PathServlet.class);
+
+  private static Config defaultConfig() throws UnknownHostException {
+    Config cfg = new Config();
+    String cwd = System.getProperty("user.dir");
+    cfg.setString("gitiles", null, "basePath", cwd);
+    cfg.setBoolean("gitiles", null, "exportAll", true);
+    cfg.setString("gitiles", null, "baseGitUrl", "file://" + cwd + "/");
+    String networkHostName = InetAddress.getLocalHost().getCanonicalHostName();
+    cfg.setString("gitiles", null, "siteTitle",
+        String.format("Gitiles - %s:%s", networkHostName, cwd));
+    cfg.setString("gitiles", null, "canonicalHostName", new File(cwd).getName());
+    return cfg;
+  }
+
+  private static FileNotFoundException badSourceRoot(URI u) {
+    return new FileNotFoundException("Cannot find source root from " + u);
+  }
+
+  private static FileNotFoundException badSourceRoot(URI u, Throwable cause) {
+    FileNotFoundException notFound = badSourceRoot(u);
+    notFound.initCause(cause);
+    return notFound;
+  }
+
+  private static File findSourceRoot() throws IOException {
+    URI u;
+    try {
+      u = DevServer.class.getResource(DevServer.class.getSimpleName() + ".class").toURI();
+    } catch (URISyntaxException e) {
+      u = null;
+    }
+    if (u == null) {
+      throw new FileNotFoundException("Cannot find Gitiles source directory");
+    }
+    if ("jar".equals(u.getScheme())) {
+      int jarEntry = u.getPath().indexOf("!/");
+      if (jarEntry < 0) {
+        throw badSourceRoot(u);
+      }
+      try {
+        return findSourceRoot(new URI(u.getPath().substring(0, jarEntry)));
+      } catch (URISyntaxException e) {
+        throw badSourceRoot(u, e);
+      }
+    } else {
+      return findSourceRoot(u);
+    }
+  }
+
+  private static File findSourceRoot(URI targetUri) throws IOException {
+    if (!"file".equals(targetUri.getScheme())) {
+      throw badSourceRoot(targetUri);
+    }
+    String targetPath = targetUri.getPath();
+    // targetPath is an arbitrary path under gitiles-dev/target in the standard
+    // Maven package layout.
+    int targetIndex = targetPath.lastIndexOf("gitiles-dev/target/");
+    if (targetIndex < 0) {
+      throw badSourceRoot(targetUri);
+    }
+    String path = targetPath.substring(0, targetIndex);
+    URI u;
+    try {
+      u = new URI("file", path, null).normalize();
+    } catch (URISyntaxException e) {
+      throw new IOException(e);
+    }
+    File root = new File(u);
+    if (!root.exists() || !root.isDirectory()) {
+      throw badSourceRoot(targetUri);
+    }
+    return root;
+  }
+
+  private final File sourceRoot;
+  private final Config cfg;
   private final Server httpd;
 
-  DevServer(Config cfg) throws IOException {
+  DevServer(File cfgFile) throws IOException, ConfigInvalidException {
+    sourceRoot = findSourceRoot();
+
+    Config cfg = defaultConfig();
+    if (cfgFile.exists() && cfgFile.isFile()) {
+      FileBasedConfig fcfg = new FileBasedConfig(cfg, cfgFile, FS.DETECTED);
+      fcfg.load();
+      cfg = fcfg;
+    } else {
+      // TODO(dborowitz): This is not getting outputted, we're probably missing
+      // some logging config.
+      log.info("Config file %s not found, using defaults", cfgFile.getPath());
+    }
+    this.cfg = cfg;
+
     httpd = new Server();
-    httpd.setConnectors(connectors(cfg));
-    httpd.setThreadPool(threadPool(cfg));
+    httpd.setConnectors(connectors());
+    httpd.setThreadPool(threadPool());
     httpd.setHandler(handler());
   }
 
@@ -53,7 +154,7 @@ class DevServer {
     httpd.join();
   }
 
-  private Connector[] connectors(Config cfg) {
+  private Connector[] connectors() {
     Connector c = new SelectChannelConnector();
     c.setHost(null);
     c.setPort(cfg.getInt("gitiles", null, "port", 8080));
@@ -61,7 +162,7 @@ class DevServer {
     return new Connector[]{c};
   }
 
-  private ThreadPool threadPool(Config cfg) {
+  private ThreadPool threadPool() {
     QueuedThreadPool pool = new QueuedThreadPool();
     pool.setName("HTTP");
     pool.setMinThreads(2);
@@ -75,79 +176,38 @@ class DevServer {
     handlers.addHandler(staticHandler());
     handlers.addHandler(appHandler());
     return handlers;
-
   }
 
   private Handler appHandler() {
+    GitilesServlet servlet = new GitilesServlet(
+        cfg,
+        new DebugRenderer(
+            STATIC_PREFIX,
+            cfg.getString("gitiles", null, "customTemplates"),
+            new File(sourceRoot, "gitiles-servlet/src/main/resources/com/google/gitiles/templates")
+                .getPath(),
+            Objects.firstNonNull(cfg.getString("gitiles", null, "siteTitle"), "Gitiles")),
+        null, null, null, null);
+
     ServletContextHandler handler = new ServletContextHandler();
     handler.setContextPath("");
-    handler.addServlet(new ServletHolder(new GitilesServlet()), "/*");
+    handler.addServlet(new ServletHolder(servlet), "/*");
     return handler;
   }
 
-  private FileNotFoundException badWebRoot(URL u) {
-    return new FileNotFoundException("Cannot find web root from " + u);
-  }
-
-  private FileNotFoundException badWebRoot(URL u, Throwable cause) {
-    FileNotFoundException notFound = badWebRoot(u);
-    notFound.initCause(cause);
-    return notFound;
-  }
-
-  private Handler staticHandler(URL targetUrl) throws IOException {
-    if (!"file".equals(targetUrl.getProtocol())) {
-      throw badWebRoot(targetUrl);
-    }
-    String targetPath = targetUrl.getPath();
-    // targetPath is an arbitrary path under gitiles-dev/target in the standard
-    // Maven package layout.
-    int targetIndex = targetPath.lastIndexOf("gitiles-dev/target/");
-    if (targetIndex < 0) {
-      throw badWebRoot(targetUrl);
-    }
-    String staticPath = targetPath.substring(0, targetIndex)
-        + "./gitiles-servlet/src/main/resources/com/google/gitiles/static";
-    URI staticUri;
-    try {
-      staticUri = new URI("file", staticPath, null).normalize();
-    } catch (URISyntaxException e) {
-      throw new IOException(e);
-    }
-    File staticRoot = new File(staticUri);
-    if (!staticRoot.exists() || !staticRoot.isDirectory()) {
-      throw badWebRoot(targetUrl);
-    }
+  private Handler staticHandler() throws IOException {
+    File staticRoot = new File(sourceRoot,
+        "gitiles-servlet/src/main/resources/com/google/gitiles/static");
     ResourceHandler rh = new ResourceHandler();
     try {
-      rh.setBaseResource(new FileResource(staticUri.toURL()));
+      rh.setBaseResource(new FileResource(staticRoot.toURI().toURL()));
     } catch (URISyntaxException e) {
-      throw badWebRoot(targetUrl, e);
+      throw new IOException(e);
     }
     rh.setWelcomeFiles(new String[]{});
     rh.setDirectoriesListed(false);
     ContextHandler handler = new ContextHandler("/+static");
     handler.setHandler(rh);
     return handler;
-  }
-
-  private Handler staticHandler() throws IOException {
-    URL u = getClass().getResource(getClass().getSimpleName() + ".class");
-    if (u == null) {
-      throw new FileNotFoundException("Cannot find web root");
-    }
-    if ("jar".equals(u.getProtocol())) {
-      int jarEntry = u.getPath().indexOf("!/");
-      if (jarEntry < 0) {
-        throw badWebRoot(u);
-      }
-      try {
-        return staticHandler(new URL(u.getPath().substring(0, jarEntry)));
-      } catch (MalformedURLException e) {
-        throw badWebRoot(u, e);
-      }
-    } else {
-      return staticHandler(u);
-    }
   }
 }

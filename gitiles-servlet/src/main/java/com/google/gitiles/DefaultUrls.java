@@ -40,7 +40,7 @@ class DefaultUrls implements GitilesUrls {
       this.canonicalHostName = InetAddress.getLocalHost().getCanonicalHostName();
     }
     this.baseGitUrl = checkNotNull(baseGitUrl, "baseGitUrl");
-    this.baseGerritUrl = checkNotNull(baseGerritUrl, "baseGerritUrl");
+    this.baseGerritUrl = baseGerritUrl;
   }
 
   @Override
