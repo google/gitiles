@@ -70,7 +70,7 @@ public class RepositoryIndexServlet extends BaseServlet {
       String name = ref.getName().substring(prefix.length());
       boolean needPrefix = !ref.getName().equals(refdb.getRef(name).getName());
       result.add(ImmutableMap.of(
-          "url", GitilesView.log().copyFrom(req).setRevision(
+          "url", GitilesView.revision().copyFrom(req).setRevision(
               Revision.unpeeled(needPrefix ? ref.getName() : name, ref.getObjectId())).toUrl(),
           "name", name));
     }

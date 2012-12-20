@@ -98,7 +98,7 @@ public class LogServlet extends BaseServlet {
 
       if (!view.getRevision().nameIsId()) {
         List<Map<String, Object>> tags = Lists.newArrayListWithExpectedSize(1);
-        for (RevObject o : RevisionServlet.listObjects(walk, view.getRevision().getId())) {
+        for (RevObject o : RevisionServlet.listObjects(walk, view.getRevision())) {
           if (o instanceof RevTag) {
             tags.add(new TagSoyData(linkifier, req).toSoyData((RevTag) o));
           }

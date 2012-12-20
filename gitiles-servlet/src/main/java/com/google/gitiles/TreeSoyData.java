@@ -19,6 +19,7 @@ import static org.eclipse.jgit.lib.Constants.OBJ_COMMIT;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
+import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Files;
@@ -56,7 +57,8 @@ public class TreeSoyData {
 
     // simplifyPath() normalizes "a/../../" to "a", so manually check whether
     // the path leads above the git root.
-    int depth = new StringTokenizer(view.getTreePath(), "/").countTokens();
+    String path = Objects.firstNonNull(view.getTreePath(), "");
+    int depth = new StringTokenizer(path, "/").countTokens();
     for (String part : PATH_SPLITTER.split(target)) {
       if (part.equals("..")) {
         depth--;
@@ -68,7 +70,7 @@ public class TreeSoyData {
       }
     }
 
-    String path = Files.simplifyPath(view.getTreePath() + "/" + target);
+    path = Files.simplifyPath(view.getTreePath() + "/" + target);
     return GitilesView.path()
         .copyFrom(view)
         .setTreePath(!path.equals(".") ? path : "")

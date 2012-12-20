@@ -64,7 +64,7 @@ public class RevisionServlet extends BaseServlet {
 
     RevWalk walk = new RevWalk(repo);
     try {
-      List<RevObject> objects = listObjects(walk, view.getRevision().getId());
+      List<RevObject> objects = listObjects(walk, view.getRevision());
       List<Map<String, ?>> soyObjects = Lists.newArrayListWithCapacity(objects.size());
       boolean hasBlob = false;
 
@@ -120,17 +120,21 @@ public class RevisionServlet extends BaseServlet {
   }
 
   // TODO(dborowitz): Extract this.
-  static List<RevObject> listObjects(RevWalk walk, ObjectId id)
+  static List<RevObject> listObjects(RevWalk walk, Revision rev)
       throws MissingObjectException, IOException {
     List<RevObject> objects = Lists.newArrayListWithExpectedSize(1);
+    ObjectId id = rev.getId();
+    RevObject cur;
     while (true) {
-      RevObject cur = walk.parseAny(id);
+      cur = walk.parseAny(id);
       objects.add(cur);
-      if (cur.getType() == Constants.OBJ_TAG) {
-        id = ((RevTag) cur).getObject();
-      } else {
+      if (cur.getType() != Constants.OBJ_TAG) {
         break;
       }
+      id = ((RevTag) cur).getObject();
+    }
+    if (cur.getType() == Constants.OBJ_COMMIT) {
+      objects.add(walk.parseTree(((RevCommit) cur).getTree()));
     }
     return objects;
   }
