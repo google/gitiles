@@ -160,6 +160,7 @@ class GitilesFilter extends MetaFilter {
   private GitilesAccess.Factory accessFactory;
   private RepositoryResolver<HttpServletRequest> resolver;
   private VisibilityCache visibilityCache;
+  private TimeCache timeCache;
   private boolean initialized;
 
   GitilesFilter() {
@@ -171,12 +172,14 @@ class GitilesFilter extends MetaFilter {
       GitilesUrls urls,
       GitilesAccess.Factory accessFactory,
       final RepositoryResolver<HttpServletRequest> resolver,
-      VisibilityCache visibilityCache) {
+      VisibilityCache visibilityCache,
+      TimeCache timeCache) {
     this.config = checkNotNull(config, "config");
     this.renderer = renderer;
     this.urls = urls;
     this.accessFactory = accessFactory;
     this.visibilityCache = visibilityCache;
+    this.timeCache = timeCache;
     if (resolver != null) {
       this.resolver = wrapResolver(resolver);
     }
@@ -220,7 +223,7 @@ class GitilesFilter extends MetaFilter {
       case HOST_INDEX:
         return new HostIndexServlet(renderer, urls, accessFactory);
       case REPOSITORY_INDEX:
-        return new RepositoryIndexServlet(renderer, accessFactory);
+        return new RepositoryIndexServlet(renderer, accessFactory, timeCache);
       case REVISION:
         return new RevisionServlet(renderer, linkifier());
       case PATH:
@@ -277,7 +280,7 @@ class GitilesFilter extends MetaFilter {
 
   private void setDefaultFields(FilterConfig filterConfig) throws ServletException {
     if (renderer != null && urls != null && accessFactory != null && resolver != null
-        && visibilityCache != null) {
+        && visibilityCache != null && timeCache != null) {
       return;
     }
     Config config;
@@ -343,6 +346,13 @@ class GitilesFilter extends MetaFilter {
             new VisibilityCache(false, ConfigUtil.getCacheBuilder(config, "visibility"));
       } else {
         visibilityCache = new VisibilityCache(false);
+      }
+    }
+    if (timeCache == null) {
+      if (config.getSubsections("cache").contains("tagTime")) {
+        timeCache = new TimeCache(ConfigUtil.getCacheBuilder(config, "tagTime"));
+      } else {
+        timeCache = new TimeCache();
       }
     }
   }

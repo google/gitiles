@@ -50,8 +50,10 @@ public class GitilesServlet extends MetaServlet {
       @Nullable GitilesUrls urls,
       @Nullable GitilesAccess.Factory accessFactory,
       @Nullable RepositoryResolver<HttpServletRequest> resolver,
-      @Nullable VisibilityCache visibilityCache) {
-    super(new GitilesFilter(config, renderer, urls, accessFactory, resolver, visibilityCache));
+      @Nullable VisibilityCache visibilityCache,
+      @Nullable TimeCache timeCache) {
+    super(new GitilesFilter(
+        config, renderer, urls, accessFactory, resolver, visibilityCache, timeCache));
   }
 
   public GitilesServlet() {

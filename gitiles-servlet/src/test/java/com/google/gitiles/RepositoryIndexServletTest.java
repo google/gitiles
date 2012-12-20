@@ -42,7 +42,8 @@ public class RepositoryIndexServletTest extends TestCase {
         new InMemoryRepository(new DfsRepositoryDescription("test")));
     servlet = new RepositoryIndexServlet(
         new DefaultRenderer(),
-        new TestGitilesAccess(repo.getRepository()));
+        new TestGitilesAccess(repo.getRepository()),
+        new TimeCache());
   }
 
   public void testEmpty() throws Exception {

@@ -17,15 +17,19 @@ package com.google.gitiles;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
+import com.google.common.util.concurrent.UncheckedExecutionException;
 
 import org.eclipse.jgit.http.server.ServletUtils;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.RefComparator;
 import org.eclipse.jgit.lib.RefDatabase;
+import org.eclipse.jgit.revwalk.RevWalk;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -38,11 +42,15 @@ import javax.servlet.http.HttpServletResponse;
 /** Serves the index page for a repository, if accessed directly by a browser. */
 public class RepositoryIndexServlet extends BaseServlet {
   private static final long serialVersionUID = 1L;
-  private final GitilesAccess.Factory accessFactory;
 
-  public RepositoryIndexServlet(Renderer renderer, GitilesAccess.Factory accessFactory) {
+  private final GitilesAccess.Factory accessFactory;
+  private final TimeCache timeCache;
+
+  public RepositoryIndexServlet(Renderer renderer, GitilesAccess.Factory accessFactory,
+      TimeCache timeCache) {
     super(renderer);
     this.accessFactory = checkNotNull(accessFactory, "accessFactory");
+    this.timeCache = checkNotNull(timeCache, "timeCache");
   }
 
   @Override
@@ -53,17 +61,23 @@ public class RepositoryIndexServlet extends BaseServlet {
   @VisibleForTesting
   Map<String, ?> buildData(HttpServletRequest req) throws IOException {
     RepositoryDescription desc = accessFactory.forRequest(req).getRepositoryDescription();
-    return ImmutableMap.of(
-        "cloneUrl", desc.cloneUrl,
+    RevWalk walk = new RevWalk(ServletUtils.getRepository(req));
+    List<Map<String, String>> tags;
+    try {
+      tags = getRefs(req, Constants.R_TAGS, tagComparator(walk));
+    } finally {
+      walk.release();
+    }
+    return ImmutableMap.of("cloneUrl", desc.cloneUrl,
         "description", Strings.nullToEmpty(desc.description),
-        "branches", getRefs(req, Constants.R_HEADS),
-        "tags", getRefs(req, Constants.R_TAGS));
+        "branches", getRefs(req, Constants.R_HEADS, Ordering.from(RefComparator.INSTANCE)),
+        "tags", tags);
   }
 
-  private List<Map<String, String>> getRefs(HttpServletRequest req, String prefix)
-      throws IOException {
+  private List<Map<String, String>> getRefs(HttpServletRequest req, String prefix,
+      Ordering<Ref> ordering) throws IOException {
     RefDatabase refdb = ServletUtils.getRepository(req).getRefDatabase();
-    Collection<Ref> refs = RefComparator.sort(refdb.getRefs(prefix).values());
+    Collection<Ref> refs = ordering.sortedCopy(refdb.getRefs(prefix).values());
     List<Map<String, String>> result = Lists.newArrayListWithCapacity(refs.size());
 
     for (Ref ref : refs) {
@@ -76,5 +90,18 @@ public class RepositoryIndexServlet extends BaseServlet {
     }
 
     return result;
+  }
+
+  private Ordering<Ref> tagComparator(final RevWalk walk) {
+    return Ordering.natural().onResultOf(new Function<Ref, Long>() {
+      @Override
+      public Long apply(Ref ref) {
+        try {
+          return timeCache.getTime(walk, ref.getObjectId());
+        } catch (IOException e) {
+          throw new UncheckedExecutionException(e);
+        }
+      }
+    }).reverse().compound(RefComparator.INSTANCE);
   }
 }
