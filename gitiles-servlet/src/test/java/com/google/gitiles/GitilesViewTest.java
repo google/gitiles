@@ -134,12 +134,12 @@ public class GitilesViewTest extends TestCase {
     assertNull(view.getTreePath());
     assertTrue(HOST.getParameters().isEmpty());
 
-    assertEquals("/b/foo/bar/+show/master", view.toUrl());
+    assertEquals("/b/foo/bar/+/master", view.toUrl());
     assertEquals(
         ImmutableList.of(
             breadcrumb("host", "/b/?format=HTML"),
             breadcrumb("foo/bar", "/b/foo/bar/"),
-            breadcrumb("master", "/b/foo/bar/+show/master")),
+            breadcrumb("master", "/b/foo/bar/+/master")),
         view.getBreadcrumbs());
   }
 
@@ -166,7 +166,7 @@ public class GitilesViewTest extends TestCase {
         ImmutableList.of(
             breadcrumb("host", "/b/?format=HTML"),
             breadcrumb("foo/bar", "/b/foo/bar/"),
-            breadcrumb("master", "/b/foo/bar/+show/master"),
+            breadcrumb("master", "/b/foo/bar/+/master"),
             breadcrumb(".", "/b/foo/bar/+/master/")),
         view.getBreadcrumbs());
   }
@@ -194,7 +194,7 @@ public class GitilesViewTest extends TestCase {
         ImmutableList.of(
             breadcrumb("host", "/b/?format=HTML"),
             breadcrumb("foo/bar", "/b/foo/bar/"),
-            breadcrumb("master", "/b/foo/bar/+show/master"),
+            breadcrumb("master", "/b/foo/bar/+/master"),
             breadcrumb(".", "/b/foo/bar/+/master/"),
             breadcrumb("file", "/b/foo/bar/+/master/file")),
         view.getBreadcrumbs());
@@ -223,7 +223,7 @@ public class GitilesViewTest extends TestCase {
         ImmutableList.of(
             breadcrumb("host", "/b/?format=HTML"),
             breadcrumb("foo/bar", "/b/foo/bar/"),
-            breadcrumb("master", "/b/foo/bar/+show/master"),
+            breadcrumb("master", "/b/foo/bar/+/master"),
             breadcrumb(".", "/b/foo/bar/+/master/"),
             breadcrumb("path", "/b/foo/bar/+/master/path"),
             breadcrumb("to", "/b/foo/bar/+/master/path/to"),
@@ -353,12 +353,12 @@ public class GitilesViewTest extends TestCase {
     assertNull(view.getTreePath());
     assertTrue(HOST.getParameters().isEmpty());
 
-    assertEquals("/b/foo/bar/+/master", view.toUrl());
+    assertEquals("/b/foo/bar/+log/master", view.toUrl());
     assertEquals(
         ImmutableList.of(
             breadcrumb("host", "/b/?format=HTML"),
             breadcrumb("foo/bar", "/b/foo/bar/"),
-            breadcrumb("master", "/b/foo/bar/+/master")),
+            breadcrumb("master", "/b/foo/bar/+log/master")),
         view.getBreadcrumbs());
   }
 
@@ -413,7 +413,7 @@ public class GitilesViewTest extends TestCase {
         ImmutableList.of(
             breadcrumb("host", "/b/?format=HTML"),
             breadcrumb("foo/bar", "/b/foo/bar/"),
-            breadcrumb("master", "/b/foo/bar/+/master"),
+            breadcrumb("master", "/b/foo/bar/+log/master"),
             breadcrumb("path", "/b/foo/bar/+log/master/path"),
             breadcrumb("to", "/b/foo/bar/+log/master/path/to"),
             breadcrumb("a", "/b/foo/bar/+log/master/path/to/a"),

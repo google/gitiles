@@ -425,11 +425,7 @@ public class GitilesView {
         url.append(repositoryName).append('/');
         break;
       case REVISION:
-        url.append(repositoryName).append("/+");
-        if (!getRevision().nameIsId()) {
-          url.append("show"); // Default for /+/master is +log.
-        }
-        url.append('/').append(revision.getName());
+        url.append(repositoryName).append("/+/").append(revision.getName());
         break;
       case PATH:
         url.append(repositoryName).append("/+/").append(revision.getName()).append('/')
@@ -445,13 +441,7 @@ public class GitilesView {
         url.append('/').append(path);
         break;
       case LOG:
-        url.append(repositoryName).append("/+");
-        if (getRevision().nameIsId() || oldRevision != Revision.NULL || path != null) {
-         // Default for /+/c0ffee/(...) is +show.
-         // Default for /+/c0ffee..deadbeef(/...) is +diff.
-          url.append("log");
-        }
-        url.append('/');
+        url.append(repositoryName).append("/+log/");
         if (oldRevision != Revision.NULL) {
           url.append(oldRevision.getName()).append("..");
         }

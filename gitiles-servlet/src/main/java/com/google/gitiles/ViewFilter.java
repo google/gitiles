@@ -18,10 +18,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
-import org.eclipse.jgit.http.server.ServletUtils;
-import org.eclipse.jgit.http.server.glue.WrappedRequest;
-import org.eclipse.jgit.lib.Constants;
-
 import java.io.IOException;
 import java.util.Map;
 
@@ -29,6 +25,9 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.eclipse.jgit.http.server.ServletUtils;
+import org.eclipse.jgit.http.server.glue.WrappedRequest;
 
 /** Filter to parse URLs and convert them to {@link GitilesView}s. */
 public class ViewFilter extends AbstractHttpFilter {
@@ -147,14 +146,8 @@ public class ViewFilter extends AbstractHttpFilter {
       return command;
     } else if (result.getOldRevision() != null) {
       return CMD_DIFF;
-    }
-    Revision rev = result.getRevision();
-    if (rev.getPeeledType() != Constants.OBJ_COMMIT
-        || !path.isEmpty()
-        || result.getRevision().nameIsId()) {
-      return CMD_SHOW;
     } else {
-      return CMD_LOG;
+      return CMD_SHOW;
     }
   }
 }

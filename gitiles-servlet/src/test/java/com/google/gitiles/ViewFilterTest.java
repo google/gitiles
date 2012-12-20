@@ -66,8 +66,8 @@ public class ViewFilterTest extends TestCase {
     String hexBranch = hex.substring(0, 10);
     repo.branch(hexBranch).commit().create();
 
-    assertEquals(Type.LOG, getView("/repo/+/master").getType());
-    assertEquals(Type.LOG, getView("/repo/+/" + hexBranch).getType());
+    assertEquals(Type.REVISION, getView("/repo/+/master").getType());
+    assertEquals(Type.REVISION, getView("/repo/+/" + hexBranch).getType());
     assertEquals(Type.REVISION, getView("/repo/+/" + hex).getType());
     assertEquals(Type.REVISION, getView("/repo/+/" + hex.substring(0, 7)).getType());
     assertEquals(Type.PATH, getView("/repo/+/master/").getType());
