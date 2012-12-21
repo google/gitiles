@@ -118,12 +118,14 @@ public class PathServlet extends BaseServlet {
 
       TreeWalk tw;
       FileType type;
+      ObjectId treeId = null;
       String path = view.getTreePath();
       if (path.isEmpty()) {
         tw = new TreeWalk(rw.getObjectReader());
         tw.addTree(root);
         tw.setRecursive(false);
         type = FileType.TREE;
+        treeId = root;
       } else {
         tw = TreeWalk.forPath(rw.getObjectReader(), path, root);
         if (tw == null) {
@@ -132,6 +134,7 @@ public class PathServlet extends BaseServlet {
         }
         type = FileType.forEntry(tw);
         if (type == FileType.TREE) {
+          treeId = tw.getObjectId(0);
           tw.enterSubtree();
           tw.setRecursive(false);
         }
@@ -139,7 +142,7 @@ public class PathServlet extends BaseServlet {
 
       switch (type) {
         case TREE:
-          showTree(req, res, rw, tw, obj);
+          showTree(req, res, rw, tw, treeId);
           break;
         case SYMLINK:
           showSymlink(req, res, rw, tw);
