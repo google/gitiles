@@ -69,6 +69,7 @@ public class RepositoryIndexServlet extends BaseServlet {
       walk.release();
     }
     return ImmutableMap.of("cloneUrl", desc.cloneUrl,
+        "mirroredFromUrl", Strings.nullToEmpty(desc.mirroredFromUrl),
         "description", Strings.nullToEmpty(desc.description),
         "branches", getRefs(req, Constants.R_HEADS, Ordering.from(RefComparator.INSTANCE)),
         "tags", tags);

@@ -21,6 +21,7 @@
  * @param breadcrumbs breadcrumbs for this page.
  * @param cloneUrl clone URL for this repository.
  * @param description description text of the repository.
+ * @param? mirroredFromUrl URL this repository is mirrored from.
  * @param? branches list of branch objects with url and name keys.
  * @param? tags list of tag objects with url and name keys.
  */
@@ -32,8 +33,17 @@
   {param breadcrumbs: $breadcrumbs /}
 {/call}
 
-{if $description}
-  <div class="repository-description">{$description}</div>
+{if $description or $mirroredFromUrl}
+  <div class="repository-description">
+  {$description}
+  {if $mirroredFromUrl}
+    <div class="repository-mirrored-from">
+    {msg desc="Informational text describing source of repository"}
+    (mirrored from <a href="{$mirroredFromUrl}">{$mirroredFromUrl}</a>)
+    {/msg}
+    </div>
+  {/if}
+  </div>
 {/if}
 
 <textarea rows="1" cols="150" class="clone-line"

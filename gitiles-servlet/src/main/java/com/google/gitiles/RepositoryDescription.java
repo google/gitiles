@@ -21,5 +21,6 @@ public class RepositoryDescription {
   public String name;
   public String cloneUrl;
   public String description;
+  public String mirroredFromUrl;
   public Map<String, String> branches;
 }

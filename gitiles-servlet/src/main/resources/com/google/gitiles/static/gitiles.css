@@ -120,6 +120,11 @@ table.list td {
   border-bottom: #ddd solid 1px; /* BORDER */
   padding-bottom: 5px; /* VPADDING */
 }
+.repository-mirrored-from {
+  font-size: 85%;
+  font-style: italic;
+  padding-left: 1em;
+}
 .repository-refs {
   width: 650px;
 }
