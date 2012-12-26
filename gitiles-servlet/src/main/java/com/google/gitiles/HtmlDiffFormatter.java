@@ -122,6 +122,7 @@ final class HtmlDiffFormatter extends DiffFormatter {
         out.write(LINE_CHANGE_BEGIN);
         break;
     }
+    out.write(prefix);
     out.write(StringEscapeUtils.escapeHtml4(text.getString(cur)).getBytes(Charsets.UTF_8));
     out.write(LINE_END);
   }
