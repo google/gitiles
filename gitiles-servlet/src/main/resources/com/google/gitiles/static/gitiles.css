@@ -306,13 +306,13 @@ a.diff-git:hover {
   border-bottom: #ddd solid 1px; /* BORDER */
 }
 .diff-unified .h {
-  color: darkblue;
+  color: #0000cc;
 }
 .diff-unified .d {
-  color: darkred;
+  color: #cc0000;
 }
 .diff-unified .i {
-  color: darkgreen;
+  color: #008800;
 }
 
 
