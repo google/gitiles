@@ -498,6 +498,40 @@ public class GitilesViewTest extends TestCase {
         view.getBreadcrumbs());
   }
 
+  public void testBreadcrumbsHasSingleTree() throws Exception {
+    ObjectId id = ObjectId.fromString("abcd1234abcd1234abcd1234abcd1234abcd1234");
+    GitilesView view = GitilesView.path()
+        .copyFrom(HOST)
+        .setRepositoryName("foo/bar")
+        .setRevision(Revision.unpeeled("master", id))
+        .setTreePath("/path/to/a/file")
+        .build();
+
+    assertEquals("/b/foo/bar/+/master/path/to/a/file", view.toUrl());
+    assertEquals(
+        ImmutableList.of(
+            breadcrumb("host", "/b/?format=HTML"),
+            breadcrumb("foo/bar", "/b/foo/bar/"),
+            breadcrumb("master", "/b/foo/bar/+/master"),
+            breadcrumb(".", "/b/foo/bar/+/master/"),
+            breadcrumb("path", "/b/foo/bar/+/master/path"),
+            breadcrumb("to", "/b/foo/bar/+/master/path/to?autodive=0"),
+            breadcrumb("a", "/b/foo/bar/+/master/path/to/a?autodive=0"),
+            breadcrumb("file", "/b/foo/bar/+/master/path/to/a/file")),
+        view.getBreadcrumbs(ImmutableList.of(false, true, true)));
+    assertEquals(
+        ImmutableList.of(
+            breadcrumb("host", "/b/?format=HTML"),
+            breadcrumb("foo/bar", "/b/foo/bar/"),
+            breadcrumb("master", "/b/foo/bar/+/master"),
+            breadcrumb(".", "/b/foo/bar/+/master/"),
+            breadcrumb("path", "/b/foo/bar/+/master/path?autodive=0"),
+            breadcrumb("to", "/b/foo/bar/+/master/path/to"),
+            breadcrumb("a", "/b/foo/bar/+/master/path/to/a"),
+            breadcrumb("file", "/b/foo/bar/+/master/path/to/a/file")),
+        view.getBreadcrumbs(ImmutableList.of(true, false, false)));
+  }
+
   private static ImmutableMap<String, String> breadcrumb(String text, String url) {
     return ImmutableMap.of("text", text, "url", url);
   }

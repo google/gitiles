@@ -14,9 +14,11 @@
 
 package com.google.gitiles;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.gitiles.GitilesUrls.NAME_ESCAPER;
+import static com.google.gitiles.RevisionParser.PATH_SPLITTER;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Objects;
@@ -464,7 +466,28 @@ public class GitilesView {
     return baseUrl + url.toString();
   }
 
+  /**
+   * @return a list of maps with "text" and "url" keys for all file paths
+   *     leading up to the path represented by this view. All URLs allow
+   *     auto-diving into one-entry subtrees; see also
+   *     {@link #getBreadcrumbs(List<Boolean>)}.
+   */
   public List<Map<String, String>> getBreadcrumbs() {
+    return getBreadcrumbs(null);
+  }
+
+  /**
+   * @param hasSingleTree list of booleans, one per path entry in this view's
+   *     path excluding the leaf. True entries indicate the tree at that path
+   *     only has a single entry that is another tree.
+   * @return a list of maps with "text" and "url" keys for all file paths
+   *     leading up to the path represented by this view. URLs whose
+   *     corresponding entry in {@code hasSingleTree} is true will disable
+   *     auto-diving into one-entry subtrees.
+   */
+  public List<Map<String, String>> getBreadcrumbs(List<Boolean> hasSingleTree) {
+    checkArgument(hasSingleTree == null || type == Type.PATH,
+        "hasSingleTree must be null for %s view", type);
     String path = this.path;
     ImmutableList.Builder<Map<String, String>> breadcrumbs = ImmutableList.builder();
     breadcrumbs.add(breadcrumb(hostName, hostIndex().copyFrom(this)));
@@ -492,15 +515,18 @@ public class GitilesView {
         breadcrumbs.add(breadcrumb(".", copyWithPath().setTreePath("")));
       }
       StringBuilder cur = new StringBuilder();
-      boolean first = true;
-      for (String part : RevisionParser.PATH_SPLITTER.omitEmptyStrings().split(path)) {
-        if (!first) {
-          cur.append('/');
-        } else {
-          first = false;
+      List<String> parts = ImmutableList.copyOf(PATH_SPLITTER.omitEmptyStrings().split(path));
+      checkArgument(hasSingleTree == null || hasSingleTree.size() == parts.size() - 1,
+          "hasSingleTree has wrong number of entries");
+      for (int i = 0; i < parts.size(); i++) {
+        String part = parts.get(i);
+        cur.append(part).append('/');
+        String curPath = cur.toString();
+        Builder builder = copyWithPath().setTreePath(curPath);
+        if (hasSingleTree != null && i < parts.size() - 1 && hasSingleTree.get(i)) {
+          builder.replaceParam(PathServlet.AUTODIVE_PARAM, PathServlet.NO_AUTODIVE_VALUE);
         }
-        cur.append(part);
-        breadcrumbs.add(breadcrumb(part, copyWithPath().setTreePath(cur.toString())));
+        breadcrumbs.add(breadcrumb(part, builder));
       }
     }
     return breadcrumbs.build();
