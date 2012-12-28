@@ -49,7 +49,6 @@ limitations under the License.
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-server</artifactId>
-      <version>${jettyVersion}</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
