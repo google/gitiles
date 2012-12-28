@@ -85,12 +85,13 @@ class DevServer {
       throw new FileNotFoundException("Cannot find Gitiles source directory");
     }
     if ("jar".equals(u.getScheme())) {
-      int jarEntry = u.getPath().indexOf("!/");
+      String path = u.getSchemeSpecificPart();
+      int jarEntry = path.indexOf("!/");
       if (jarEntry < 0) {
         throw badSourceRoot(u);
       }
       try {
-        return findSourceRoot(new URI(u.getPath().substring(0, jarEntry)));
+        return findSourceRoot(new URI(path.substring(0, jarEntry)));
       } catch (URISyntaxException e) {
         throw badSourceRoot(u, e);
       }
