@@ -18,6 +18,9 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
+import org.eclipse.jgit.http.server.ServletUtils;
+import org.eclipse.jgit.http.server.glue.WrappedRequest;
+
 import java.io.IOException;
 import java.util.Map;
 
@@ -25,9 +28,6 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.eclipse.jgit.http.server.ServletUtils;
-import org.eclipse.jgit.http.server.glue.WrappedRequest;
 
 /** Filter to parse URLs and convert them to {@link GitilesView}s. */
 public class ViewFilter extends AbstractHttpFilter {
@@ -41,6 +41,7 @@ public class ViewFilter extends AbstractHttpFilter {
   private static final String CMD_AUTO = "+";
   private static final String CMD_DIFF = "+diff";
   private static final String CMD_LOG = "+log";
+  private static final String CMD_REFS = "+refs";
   private static final String CMD_SHOW = "+show";
 
   public static GitilesView getView(HttpServletRequest req) {
@@ -101,10 +102,12 @@ public class ViewFilter extends AbstractHttpFilter {
     // Non-path cases.
     if (repoName.isEmpty()) {
       return GitilesView.hostIndex();
+    } else if (command.equals(CMD_REFS) && path.isEmpty()) {
+      return GitilesView.refs().setRepositoryName(repoName);
     } else if (command.isEmpty()) {
       return GitilesView.repositoryIndex().setRepositoryName(repoName);
     } else if (path.isEmpty()) {
-      return null; // Command but no path.
+      return null; // Command that requires a path, but no path.
     }
 
     path = trimLeadingSlash(path);
@@ -128,6 +131,8 @@ public class ViewFilter extends AbstractHttpFilter {
       }
     } else if (CMD_DIFF.equals(command)) {
       view = GitilesView.diff().setTreePath(path);
+    } else if (CMD_REFS.equals(command)) {
+      view = GitilesView.repositoryIndex();
     } else {
       return null; // Bad command.
     }

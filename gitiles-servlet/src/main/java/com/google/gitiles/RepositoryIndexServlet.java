@@ -17,22 +17,18 @@ package com.google.gitiles;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Ordering;
-import com.google.common.util.concurrent.UncheckedExecutionException;
+import com.google.common.collect.Maps;
 
 import org.eclipse.jgit.http.server.ServletUtils;
 import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.lib.RefComparator;
-import org.eclipse.jgit.lib.RefDatabase;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevObject;
 import org.eclipse.jgit.revwalk.RevWalk;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -42,6 +38,9 @@ import javax.servlet.http.HttpServletResponse;
 /** Serves the index page for a repository, if accessed directly by a browser. */
 public class RepositoryIndexServlet extends BaseServlet {
   private static final long serialVersionUID = 1L;
+
+  static final int REF_LIMIT = 10;
+  private static final int LOG_LIMIT = 20;
 
   private final GitilesAccess.Factory accessFactory;
   private final TimeCache timeCache;
@@ -60,49 +59,48 @@ public class RepositoryIndexServlet extends BaseServlet {
 
   @VisibleForTesting
   Map<String, ?> buildData(HttpServletRequest req) throws IOException {
+    GitilesView view = ViewFilter.getView(req);
+    Repository repo = ServletUtils.getRepository(req);
     RepositoryDescription desc = accessFactory.forRequest(req).getRepositoryDescription();
-    RevWalk walk = new RevWalk(ServletUtils.getRepository(req));
+    RevWalk walk = new RevWalk(repo);
     List<Map<String, String>> tags;
+    Map<String, Object> data;
     try {
-      tags = getRefs(req, Constants.R_TAGS, tagComparator(walk));
+      tags = RefServlet.getTags(req, timeCache, walk, REF_LIMIT);
+      ObjectId headId = repo.resolve(Constants.HEAD);
+      if (headId != null) {
+        RevObject head = walk.parseAny(repo.resolve(Constants.HEAD));
+        if (head.getType() == Constants.OBJ_COMMIT) {
+          walk.reset();
+          walk.markStart((RevCommit) head);
+          data = new LogSoyData(req, repo, view).toSoyData(walk, LOG_LIMIT, "HEAD", null);
+        } else {
+          // TODO(dborowitz): Handle non-commit or missing HEAD?
+          data = Maps.newHashMapWithExpectedSize(6);
+        }
+      } else {
+        data = Maps.newHashMapWithExpectedSize(6);
+      }
     } finally {
       walk.release();
     }
-    return ImmutableMap.of("cloneUrl", desc.cloneUrl,
-        "mirroredFromUrl", Strings.nullToEmpty(desc.mirroredFromUrl),
-        "description", Strings.nullToEmpty(desc.description),
-        "branches", getRefs(req, Constants.R_HEADS, Ordering.from(RefComparator.INSTANCE)),
-        "tags", tags);
-  }
+    List<Map<String, String>> branches = RefServlet.getBranches(req, REF_LIMIT);
 
-  private List<Map<String, String>> getRefs(HttpServletRequest req, String prefix,
-      Ordering<Ref> ordering) throws IOException {
-    RefDatabase refdb = ServletUtils.getRepository(req).getRefDatabase();
-    Collection<Ref> refs = ordering.sortedCopy(refdb.getRefs(prefix).values());
-    List<Map<String, String>> result = Lists.newArrayListWithCapacity(refs.size());
-
-    for (Ref ref : refs) {
-      String name = ref.getName().substring(prefix.length());
-      boolean needPrefix = !ref.getName().equals(refdb.getRef(name).getName());
-      result.add(ImmutableMap.of(
-          "url", GitilesView.revision().copyFrom(req).setRevision(
-              Revision.unpeeled(needPrefix ? ref.getName() : name, ref.getObjectId())).toUrl(),
-          "name", name));
+    data.put("cloneUrl", desc.cloneUrl);
+    data.put("mirroredFromUrl", Strings.nullToEmpty(desc.mirroredFromUrl));
+    data.put("description", Strings.nullToEmpty(desc.description));
+    data.put("branches", trim(branches));
+    if (branches.size() > REF_LIMIT) {
+      data.put("moreBranchesUrl", GitilesView.refs().copyFrom(view).toUrl());
     }
-
-    return result;
+    data.put("tags", trim(tags));
+    if (tags.size() > REF_LIMIT) {
+      data.put("moreTagsUrl", GitilesView.refs().copyFrom(view).toUrl());
+    }
+    return data;
   }
 
-  private Ordering<Ref> tagComparator(final RevWalk walk) {
-    return Ordering.natural().onResultOf(new Function<Ref, Long>() {
-      @Override
-      public Long apply(Ref ref) {
-        try {
-          return timeCache.getTime(walk, ref.getObjectId());
-        } catch (IOException e) {
-          throw new UncheckedExecutionException(e);
-        }
-      }
-    }).reverse().compound(RefComparator.INSTANCE);
+  private static <T> List<T> trim(List<T> list) {
+    return list.size() > REF_LIMIT ? list.subList(0, REF_LIMIT) : list;
   }
 }

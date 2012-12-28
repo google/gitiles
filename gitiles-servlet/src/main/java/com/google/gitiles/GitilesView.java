@@ -51,6 +51,7 @@ public class GitilesView {
   public static enum Type {
     HOST_INDEX,
     REPOSITORY_INDEX,
+    REFS,
     REVISION,
     PATH,
     DIFF,
@@ -88,6 +89,7 @@ public class GitilesView {
         case REVISION:
           revision = other.revision;
           // Fallthrough.
+        case REFS:
         case REPOSITORY_INDEX:
           repositoryName = other.repositoryName;
           // Fallthrough.
@@ -139,6 +141,7 @@ public class GitilesView {
       switch (type) {
         case HOST_INDEX:
         case REPOSITORY_INDEX:
+        case REFS:
           throw new IllegalStateException(String.format("cannot set revision on %s view", type));
         default:
           this.revision = checkNotNull(revision);
@@ -244,6 +247,9 @@ public class GitilesView {
         case REPOSITORY_INDEX:
           checkRepositoryIndex();
           break;
+        case REFS:
+          checkRefs();
+          break;
         case REVISION:
           checkRevision();
           break;
@@ -275,6 +281,10 @@ public class GitilesView {
       checkHostIndex();
     }
 
+    private void checkRefs() {
+      checkRepositoryIndex();
+    }
+
     private void checkRevision() {
       checkState(revision != Revision.NULL, "missing revision on %s view", type);
       checkRepositoryIndex();
@@ -300,6 +310,10 @@ public class GitilesView {
 
   public static Builder repositoryIndex() {
     return new Builder(Type.REPOSITORY_INDEX);
+  }
+
+  public static Builder refs() {
+    return new Builder(Type.REFS);
   }
 
   public static Builder revision() {
@@ -425,6 +439,9 @@ public class GitilesView {
         break;
       case REPOSITORY_INDEX:
         url.append(repositoryName).append('/');
+        break;
+      case REFS:
+        url.append(repositoryName).append("/+refs");
         break;
       case REVISION:
         url.append(repositoryName).append("/+/").append(revision.getName());

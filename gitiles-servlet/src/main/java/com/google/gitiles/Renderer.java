@@ -42,6 +42,7 @@ public abstract class Renderer {
       "LogDetail.soy",
       "ObjectDetail.soy",
       "PathDetail.soy",
+      "RefList.soy",
       "RevisionDetail.soy",
       "RepositoryIndex.soy");
 

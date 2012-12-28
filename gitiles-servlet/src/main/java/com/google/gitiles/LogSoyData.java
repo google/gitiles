@@ -14,13 +14,9 @@
 
 package com.google.gitiles;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.gitiles.CommitSoyData.KeySet;
 
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.ObjectId;
@@ -29,9 +25,13 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.gitiles.CommitSoyData.KeySet;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.Nullable;
+import javax.servlet.http.HttpServletRequest;
 
 public class LogSoyData {
   private final HttpServletRequest req;

@@ -22,8 +22,13 @@
  * @param cloneUrl clone URL for this repository.
  * @param description description text of the repository.
  * @param? mirroredFromUrl URL this repository is mirrored from.
- * @param? branches list of branch objects with url and name keys.
- * @param? tags list of tag objects with url and name keys.
+ * @param branches list of branch objects with url and name keys.
+ * @param? moreBranchesUrl URL to show more branches, if necessary.
+ * @param tags list of tag objects with url and name keys.
+ * @param? moreTagsUrl URL to show more branches, if necessary.
+ * @param? nextUrl URL for the next page of log results.
+ * @param? previousUrl URL for the previous page of log results.
+ * @param entries list of log entries; see .logEntry.
  */
 {template .repositoryIndex}
 {call .header}
@@ -52,38 +57,59 @@
     git clone {$cloneUrl}
 </textarea>
 
-<div class="repository-refs">
-  {if $branches and length($branches)}
-    <div class="repository-branches">
-      <h3>Branches</h3>
-      <ul class="branch-list">
-      {foreach $branch in $branches}
-        {call .ref_ data="$branch" /}
-      {/foreach}
-      </ul>
+{if length($entries) and (length($branches) or length($tags))}
+  <div class="repository-shortlog-wrapper">
+    <div class="repository-shortlog">
+      {call .logEntries data="all" /}
     </div>
-  {/if}
+  </div>
 
-  {if $tags and length($tags)}
-    <div class="repository-tags">
-      <h3>Tags</h3>
-      <ul class="branch-list">
-      {foreach $tag in $tags}
-        {call .ref_ data="$tag" /}
-      {/foreach}
-      </ul>
-    </div>
-  {/if}
-</div>
+  <div class="repository-refs">
+    {call .branches_ data="all" /}
+    {call .tags_ data="all" /}
+  </div>
+{elseif length($entries)}
+  {call .logEntries data="all" /}
+{elseif length($branches) or length($tags)}
+  {call .branches_ data="all" /}
+  {call .tags_ data="all" /}
+{/if}
+
 {call .footer /}
 {/template}
 
 /**
- * Detail for a single ref.
+ * List of branches.
  *
- * @param url URL for ref detail page.
- * @param name ref name.
+ * @param? branches list of branch objects with url and name keys.
+ * @param? moreBranchesUrl URL to show more branches, if necessary.
  */
-{template .ref_}
-<li><a href="{$url}">{$name}</a></li>
+{template .branches_ private="true"}
+  {if length($branches)}
+    {call .refList}
+      {param type: 'Branches' /}
+      {param refs: $branches /}
+    {/call}
+    {if $moreBranchesUrl}
+      <a href="{$moreBranchesUrl}">{msg desc="link to view more branches"}More...{/msg}</a>
+    {/if}
+  {/if}
+{/template}
+
+/**
+ * List of tags.
+ *
+ * @param? tags list of branch objects with url and name keys.
+ * @param? moreTagsUrl URL to show more tags, if necessary.
+ */
+{template .tags_ private="true"}
+  {if length($tags)}
+    {call .refList}
+      {param type: 'Tags' /}
+      {param refs: $tags /}
+    {/call}
+    {if $moreTagsUrl}
+      <a href="{$moreTagsUrl}">{msg desc="link to view more tags"}More...{/msg}</a>
+    {/if}
+  {/if}
 {/template}

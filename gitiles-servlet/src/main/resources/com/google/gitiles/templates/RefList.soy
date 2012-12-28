@@ -1,0 +1,68 @@
+// Copyright 2012 Google Inc. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+{namespace gitiles autoescape="contextual"}
+
+
+/**
+ * List of all refs in a repository.
+ *
+ * @param repositoryName name of this repository.
+ * @param? menuEntries menu entries.
+ * @param breadcrumbs breadcrumbs for this page.
+ * @param branches list of branch objects with url and name keys.
+ * @param tags list of tag objects with url and name keys.
+ */
+{template .refsDetail}
+{call .header}
+  {param title: 'Refs' /}
+  {param repositoryName: $repositoryName /}
+  {param menuEntries: $menuEntries /}
+  {param breadcrumbs: $breadcrumbs /}
+{/call}
+
+{if length($branches)}
+  <div class="refs-branches">
+    {call .refList}
+      {param type: 'Branches' /}
+      {param refs: $branches /}
+    {/call}
+  </div>
+{/if}
+
+{if length($tags)}
+  <div class="refs-tags">
+    {call .refList}
+      {param type: 'Tags' /}
+      {param refs: $tags /}
+    {/call}
+  </div>
+{/if}
+
+{call .footer /}
+{/template}
+
+/**
+ * List of a single type of refs
+ *
+ * @param type name of this type of refs, e.g. "Branches"
+ * @param refs list of ref objects with url and name keys
+ */
+{template .refList}
+  <h3>{$type}</h3>
+  <ul>
+  {foreach $ref in $refs}
+    <li><a href="{$ref.url}">{$ref.name}</a></li>
+  {/foreach}
+  </ul>
+{/template}

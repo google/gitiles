@@ -126,15 +126,17 @@ table.list td {
   padding-left: 1em;
 }
 .repository-refs {
-  width: 650px;
-}
-.repository-branches {
   float: left;
-  width: 300px;
+  width: 200px;
+  margin-left: -100%;
 }
-.repository-tags {
-  float: right;
-  width: 350px;
+.repository-shortlog-wrapper {
+  float: left;
+  width: 100%;
+}
+.repository-shortlog {
+  margin-top: 20px;
+  margin-left: 200px;
 }
 .clone-line {
   background-color: #e5ecf9; /* BOX_BACKGROUND */
@@ -142,6 +144,17 @@ table.list td {
   margin: 5px /* VPADDING */ 0 0 0;
   padding: 5px 2em; /* PADDING */
   font-size: 9pt;
+}
+
+/* Styles for the ref detail page. */
+
+.refs-branches {
+  float: left;
+  width: 200px;
+}
+.refs-tags {
+  float: left;
+  width: 200px;
 }
 
 

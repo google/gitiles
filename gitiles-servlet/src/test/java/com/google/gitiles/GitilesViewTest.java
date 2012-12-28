@@ -117,6 +117,28 @@ public class GitilesViewTest extends TestCase {
         view.getBreadcrumbs());
   }
 
+  public void testRefs() throws Exception {
+    GitilesView view = GitilesView.refs()
+        .copyFrom(HOST)
+        .setRepositoryName("foo/bar")
+        .build();
+
+    assertEquals("/b", view.getServletPath());
+    assertEquals(Type.REFS, view.getType());
+    assertEquals("host", view.getHostName());
+    assertEquals("foo/bar", view.getRepositoryName());
+    assertEquals(Revision.NULL, view.getRevision());
+    assertNull(view.getTreePath());
+    assertTrue(HOST.getParameters().isEmpty());
+
+    assertEquals("/b/foo/bar/+refs", view.toUrl());
+    assertEquals(
+        ImmutableList.of(
+            breadcrumb("host", "/b/?format=HTML"),
+            breadcrumb("foo/bar", "/b/foo/bar/")),
+        view.getBreadcrumbs());
+  }
+
   public void testRefWithRevision() throws Exception {
     ObjectId id = ObjectId.fromString("abcd1234abcd1234abcd1234abcd1234abcd1234");
     GitilesView view = GitilesView.revision()

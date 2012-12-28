@@ -224,6 +224,8 @@ class GitilesFilter extends MetaFilter {
         return new HostIndexServlet(renderer, urls, accessFactory);
       case REPOSITORY_INDEX:
         return new RepositoryIndexServlet(renderer, accessFactory, timeCache);
+      case REFS:
+        return new RefServlet(renderer, timeCache);
       case REVISION:
         return new RevisionServlet(renderer, linkifier());
       case PATH:
