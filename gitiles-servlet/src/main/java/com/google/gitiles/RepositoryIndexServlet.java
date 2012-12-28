@@ -18,6 +18,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 
 import org.eclipse.jgit.http.server.ServletUtils;
@@ -69,7 +70,7 @@ public class RepositoryIndexServlet extends BaseServlet {
       tags = RefServlet.getTags(req, timeCache, walk, REF_LIMIT);
       ObjectId headId = repo.resolve(Constants.HEAD);
       if (headId != null) {
-        RevObject head = walk.parseAny(repo.resolve(Constants.HEAD));
+        RevObject head = walk.parseAny(headId);
         if (head.getType() == Constants.OBJ_COMMIT) {
           walk.reset();
           walk.markStart((RevCommit) head);
@@ -83,6 +84,9 @@ public class RepositoryIndexServlet extends BaseServlet {
       }
     } finally {
       walk.release();
+    }
+    if (!data.containsKey("entries")) {
+      data.put("entries", ImmutableList.of());
     }
     List<Map<String, String>> branches = RefServlet.getBranches(req, REF_LIMIT);
 
