@@ -35,6 +35,19 @@
   {/foreach}
 {/if}
 
+{call .logEntries data="all" /}
+
+{call .footer /}
+{/template}
+
+/**
+ * List of log entries.
+ *
+ * @param entries list of log entries; see .logEntry.
+ * @param? nextUrl URL for the next page of results.
+ * @param? previousUrl URL for the previous page of results.
+ */
+{template .logEntries}
 {if $previousUrl}
   <div class="log-nav">
     <a href="{$previousUrl}">{msg desc="text for previous URL"}&laquo; Previous{/msg}</a>
@@ -58,9 +71,8 @@
     <a href="{$nextUrl}">{msg desc="text for next URL"}Next &raquo;{/msg}</a>
   </div>
 {/if}
-
-{call .footer /}
 {/template}
+
 
 /**
  * Single shortlog entry.

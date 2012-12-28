@@ -14,18 +14,19 @@
 
 package com.google.gitiles;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Strings;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.gitiles.CommitSoyData.KeySet;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
@@ -45,34 +46,26 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import com.google.common.base.Optional;
+import com.google.common.base.Strings;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Lists;
+import com.google.gitiles.CommitSoyData.KeySet;
 
 /** Serves an HTML page with a shortlog for commits and paths. */
 public class LogServlet extends BaseServlet {
   private static final long serialVersionUID = 1L;
   private static final Logger log = LoggerFactory.getLogger(LogServlet.class);
 
-  private static final String START_PARAM = "s";
+  static final String START_PARAM = "s";
+  private static final int LIMIT = 100;
 
   private final Linkifier linkifier;
-  private final int limit;
 
   public LogServlet(Renderer renderer, Linkifier linkifier) {
-    this(renderer, linkifier, 100);
-  }
-
-  private LogServlet(Renderer renderer, Linkifier linkifier, int limit) {
     super(renderer);
     this.linkifier = checkNotNull(linkifier, "linkifier");
-    checkArgument(limit >= 0, "limit must be positive: %s", limit);
-    this.limit = limit;
   }
 
   @Override
@@ -94,7 +87,8 @@ public class LogServlet extends BaseServlet {
         return;
       }
 
-      Map<String, Object> data = Maps.newHashMapWithExpectedSize(5);
+      Map<String, Object> data = new LogSoyData(req, repo, view)
+        .toSoyData(walk, LIMIT, null, start.orNull());
 
       if (!view.getRevision().nameIsId()) {
         List<Map<String, Object>> tags = Lists.newArrayListWithExpectedSize(1);
@@ -108,9 +102,9 @@ public class LogServlet extends BaseServlet {
         }
       }
 
-      Paginator paginator = new Paginator(walk, limit, start.orNull());
+      Paginator paginator = new Paginator(walk, LIMIT, start.orNull());
       Map<AnyObjectId, Set<Ref>> refsById = repo.getAllRefsByPeeledObjectId();
-      List<Map<String, Object>> entries = Lists.newArrayListWithCapacity(limit);
+      List<Map<String, Object>> entries = Lists.newArrayListWithCapacity(LIMIT);
       for (RevCommit c : paginator) {
         entries.add(new CommitSoyData(null, req, repo, walk, view, refsById)
             .toSoyData(c, KeySet.SHORTLOG));
@@ -124,21 +118,6 @@ public class LogServlet extends BaseServlet {
       }
 
       data.put("title", title);
-      data.put("entries", entries);
-      ObjectId next = paginator.getNextStart();
-      if (next != null) {
-        data.put("nextUrl", copyAndCanonicalize(view)
-            .replaceParam(START_PARAM, next.name())
-            .toUrl());
-      }
-      ObjectId prev = paginator.getPreviousStart();
-      if (prev != null) {
-        GitilesView.Builder prevView = copyAndCanonicalize(view);
-        if (!prevView.getRevision().getId().equals(prev)) {
-          prevView.replaceParam(START_PARAM, prev.name());
-        }
-        data.put("previousUrl", prevView.toUrl());
-      }
 
       render(req, res, "gitiles.logDetail", data);
     } catch (RevWalkException e) {
@@ -150,16 +129,6 @@ public class LogServlet extends BaseServlet {
         walk.release();
       }
     }
-  }
-
-  private static GitilesView.Builder copyAndCanonicalize(GitilesView view) {
-    // Canonicalize the view by using full SHAs.
-    GitilesView.Builder copy = GitilesView.log().copyFrom(view)
-        .setRevision(view.getRevision());
-    if (view.getOldRevision() != Revision.NULL) {
-      copy.setOldRevision(view.getOldRevision());
-    }
-    return copy;
   }
 
   private static Optional<ObjectId> getStart(ListMultimap<String, String> params,
