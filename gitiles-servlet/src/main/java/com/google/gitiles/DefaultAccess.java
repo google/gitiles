@@ -16,6 +16,7 @@ package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.base.CharMatcher;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
@@ -51,6 +52,9 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class DefaultAccess implements GitilesAccess {
   private static final String ANONYMOUS_USER_KEY = "anonymous user";
+
+  private static final String DEFAULT_DESCRIPTION =
+    "Unnamed repository; edit this file 'description' to name the repository.";
 
   public static class Factory implements GitilesAccess.Factory {
     private final File basePath;
@@ -167,6 +171,9 @@ public class DefaultAccess implements GitilesAccess {
       File descFile = new File(repo.getDirectory(), "description");
       if (descFile.exists()) {
         desc = new String(IO.readFully(descFile));
+        if (DEFAULT_DESCRIPTION.equals(CharMatcher.WHITESPACE.trimFrom(desc))) {
+          desc = null;
+        }
       } else if (configError != null) {
         throw configError;
       }
