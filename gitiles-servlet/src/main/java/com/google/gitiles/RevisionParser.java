@@ -22,6 +22,7 @@ import com.google.common.base.Objects;
 import com.google.common.base.Splitter;
 
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
+import org.eclipse.jgit.errors.RevisionSyntaxException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -126,7 +127,7 @@ class RevisionParser {
             if (!isValidRevision(oldName)) {
               return null;
             } else {
-              ObjectId old = repo.resolve(oldName);
+              ObjectId old = resolve(oldName);
               if (old == null) {
                 return null;
               }
@@ -143,7 +144,7 @@ class RevisionParser {
             if (!isValidRevision(name)) {
               return null;
             }
-            ObjectId id = repo.resolve(name);
+            ObjectId id = resolve(name);
             if (id == null) {
               return null;
             }
@@ -168,7 +169,7 @@ class RevisionParser {
         if (!isValidRevision(name)) {
           return null;
         }
-        ObjectId id = repo.resolve(name);
+        ObjectId id = resolve(name);
         if (id != null) {
           int pathStart;
           if (oldRevision == null) {
@@ -185,6 +186,14 @@ class RevisionParser {
       return null;
     } finally {
       walk.release();
+    }
+  }
+
+  private ObjectId resolve(String name) throws IOException {
+    try {
+      return repo.resolve(name);
+    } catch (RevisionSyntaxException e) {
+      return null;
     }
   }
 

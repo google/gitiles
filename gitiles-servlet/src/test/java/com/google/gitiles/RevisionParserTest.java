@@ -53,6 +53,7 @@ public class RevisionParserTest extends TestCase {
     assertEquals(new Result(Revision.peeled("refs/heads/master", master)),
         parser.parse("refs/heads/master"));
     assertNull(parser.parse("refs//heads//master"));
+    assertNull(parser.parse("refs heads master"));
   }
 
   public void testParseRefParentExpression() throws Exception {
@@ -67,6 +68,7 @@ public class RevisionParserTest extends TestCase {
     assertEquals(new Result(Revision.peeled("master^", parent1)), parser.parse("master^"));
     assertEquals(new Result(Revision.peeled("master~1", parent1)), parser.parse("master~1"));
     assertEquals(new Result(Revision.peeled("master^2", parent2)), parser.parse("master^2"));
+    assertNull(parser.parse("master^3"));
     assertEquals(new Result(Revision.peeled("master~2", root)), parser.parse("master~2"));
   }
 
