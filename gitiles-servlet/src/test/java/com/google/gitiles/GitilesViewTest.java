@@ -554,6 +554,25 @@ public class GitilesViewTest extends TestCase {
         view.getBreadcrumbs(ImmutableList.of(true, false, false)));
   }
 
+  public void testBreadcrumbsHasSingleTreeRootPath() throws Exception {
+    ObjectId id = ObjectId.fromString("abcd1234abcd1234abcd1234abcd1234abcd1234");
+    GitilesView view = GitilesView.path()
+        .copyFrom(HOST)
+        .setRepositoryName("foo/bar")
+        .setRevision(Revision.unpeeled("master", id))
+        .setTreePath("")
+        .build();
+
+    assertEquals("/b/foo/bar/+/master/", view.toUrl());
+    assertEquals(
+        ImmutableList.of(
+            breadcrumb("host", "/b/?format=HTML"),
+            breadcrumb("foo/bar", "/b/foo/bar/"),
+            breadcrumb("master", "/b/foo/bar/+/master"),
+            breadcrumb(".", "/b/foo/bar/+/master/")),
+        view.getBreadcrumbs(ImmutableList.<Boolean> of()));
+  }
+
   private static ImmutableMap<String, String> breadcrumb(String text, String url) {
     return ImmutableMap.of("text", text, "url", url);
   }

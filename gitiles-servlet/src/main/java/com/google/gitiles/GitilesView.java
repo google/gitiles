@@ -533,7 +533,9 @@ public class GitilesView {
       }
       StringBuilder cur = new StringBuilder();
       List<String> parts = ImmutableList.copyOf(PATH_SPLITTER.omitEmptyStrings().split(path));
-      checkArgument(hasSingleTree == null || hasSingleTree.size() == parts.size() - 1,
+      checkArgument(hasSingleTree == null
+          || (parts.isEmpty() && hasSingleTree.isEmpty())
+          || hasSingleTree.size() == parts.size() - 1,
           "hasSingleTree has wrong number of entries");
       for (int i = 0; i < parts.size(); i++) {
         String part = parts.get(i);
