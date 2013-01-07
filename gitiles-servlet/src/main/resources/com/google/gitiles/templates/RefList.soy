@@ -20,7 +20,7 @@
  * @param repositoryName name of this repository.
  * @param? menuEntries menu entries.
  * @param breadcrumbs breadcrumbs for this page.
- * @param branches list of branch objects with url and name keys.
+ * @param branches list of branch objects with url, name, and isHead keys.
  * @param tags list of tag objects with url and name keys.
  */
 {template .refsDetail}
@@ -56,13 +56,13 @@
  * List of a single type of refs
  *
  * @param type name of this type of refs, e.g. "Branches"
- * @param refs list of ref objects with url and name keys
+ * @param refs list of branch objects with url, name, and optional isHead keys.
  */
 {template .refList}
   <h3>{$type}</h3>
-  <ul>
+  <ul class="ref-list">
   {foreach $ref in $refs}
-    <li><a href="{$ref.url}">{$ref.name}</a></li>
+    <li{if $ref.isHead} class="head-ref"{/if}><a href="{$ref.url}">{$ref.name}</a></li>
   {/foreach}
   </ul>
 {/template}

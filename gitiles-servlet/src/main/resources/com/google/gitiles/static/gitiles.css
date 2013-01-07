@@ -156,6 +156,9 @@ table.list td {
   float: left;
   width: 200px;
 }
+.ref-list li.head-ref {
+  font-weight: bold;
+}
 
 
 /* Styles for the object detail templates. */

@@ -64,7 +64,7 @@ public class RepositoryIndexServlet extends BaseServlet {
     Repository repo = ServletUtils.getRepository(req);
     RepositoryDescription desc = accessFactory.forRequest(req).getRepositoryDescription();
     RevWalk walk = new RevWalk(repo);
-    List<Map<String, String>> tags;
+    List<Map<String, Object>> tags;
     Map<String, Object> data;
     try {
       tags = RefServlet.getTags(req, timeCache, walk, REF_LIMIT);
@@ -88,7 +88,7 @@ public class RepositoryIndexServlet extends BaseServlet {
     if (!data.containsKey("entries")) {
       data.put("entries", ImmutableList.of());
     }
-    List<Map<String, String>> branches = RefServlet.getBranches(req, REF_LIMIT);
+    List<Map<String, Object>> branches = RefServlet.getBranches(req, REF_LIMIT);
 
     data.put("cloneUrl", desc.cloneUrl);
     data.put("mirroredFromUrl", Strings.nullToEmpty(desc.mirroredFromUrl));
