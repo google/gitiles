@@ -88,7 +88,7 @@ public class RefServlet extends BaseServlet {
       public int compare(@Nullable Ref left, @Nullable Ref right) {
         int l = isHead(left) ? 1 : 0;
         int r = isHead(right) ? 1 : 0;
-        return l - r;
+        return r - l;
       }
 
       private final boolean isHead(Ref ref) {
