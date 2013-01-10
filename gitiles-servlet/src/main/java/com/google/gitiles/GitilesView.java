@@ -16,7 +16,6 @@ package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
 import static com.google.gitiles.GitilesUrls.NAME_ESCAPER;
 import static com.google.gitiles.RevisionParser.PATH_SPLITTER;
 
@@ -56,6 +55,15 @@ public class GitilesView {
     PATH,
     DIFF,
     LOG;
+  }
+
+  /** Exception thrown when building a view that is invalid. */
+  public static class InvalidViewException extends IllegalStateException {
+    private static final long serialVersionUID = 1L;
+
+    public InvalidViewException(String msg) {
+      super(msg);
+    }
   }
 
   /** Builder for views. */
@@ -271,13 +279,19 @@ public class GitilesView {
       return build().toUrl();
     }
 
+    private void checkView(boolean expr, String msg, Object... args) {
+      if (!expr) {
+        throw new InvalidViewException(String.format(msg, args));
+      }
+    }
+
     private void checkHostIndex() {
-      checkState(hostName != null, "missing hostName on %s view", type);
-      checkState(servletPath != null, "missing hostName on %s view", type);
+      checkView(hostName != null, "missing hostName on %s view", type);
+      checkView(servletPath != null, "missing hostName on %s view", type);
     }
 
     private void checkRepositoryIndex() {
-      checkState(repositoryName != null, "missing repository name on %s view", type);
+      checkView(repositoryName != null, "missing repository name on %s view", type);
       checkHostIndex();
     }
 
@@ -286,7 +300,7 @@ public class GitilesView {
     }
 
     private void checkRevision() {
-      checkState(revision != Revision.NULL, "missing revision on %s view", type);
+      checkView(revision != Revision.NULL, "missing revision on %s view", type);
       checkRepositoryIndex();
     }
 
@@ -299,7 +313,7 @@ public class GitilesView {
     }
 
     private void checkPath() {
-      checkState(path != null, "missing path on %s view", type);
+      checkView(path != null, "missing path on %s view", type);
       checkRevision();
     }
   }
