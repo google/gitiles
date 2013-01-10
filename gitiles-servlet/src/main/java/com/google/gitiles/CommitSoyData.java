@@ -17,6 +17,10 @@ package com.google.gitiles;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
+import static org.eclipse.jgit.diff.DiffEntry.ChangeType.COPY;
+import static org.eclipse.jgit.diff.DiffEntry.ChangeType.DELETE;
+import static org.eclipse.jgit.diff.DiffEntry.ChangeType.RENAME;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -215,19 +219,21 @@ public class CommitSoyData {
     AbstractTreeIterator oldTree;
     GitilesView.Builder diffUrl = GitilesView.diff().copyFrom(view)
         .setTreePath("");
+    Revision oldRevision;
     switch (commit.getParentCount()) {
       case 0:
         oldTree = new EmptyTreeIterator();
-        diffUrl.setOldRevision(Revision.NULL);
+        oldRevision = Revision.NULL;
         break;
       case 1:
         oldTree = getTreeIterator(walk, commit.getParent(0));
-        diffUrl.setOldRevision(view.getRevision().getName() + "^", commit.getParent(0));
+        oldRevision = Revision.peeled(view.getRevision().getName() + "^", commit.getParent(0));
         break;
       default:
         // TODO(dborowitz): handle merges
         return NullData.INSTANCE;
     }
+    diffUrl.setOldRevision(oldRevision);
     AbstractTreeIterator newTree = getTreeIterator(walk, commit);
 
     DiffFormatter diff = new DiffFormatter(NullOutputStream.INSTANCE);
@@ -238,14 +244,24 @@ public class CommitSoyData {
       List<Object> result = Lists.newArrayList();
       for (DiffEntry e : diff.scan(oldTree, newTree)) {
         Map<String, Object> entry = Maps.newHashMapWithExpectedSize(5);
-        entry.put("path", e.getNewPath());
-        entry.put("url", GitilesView.path()
-            .copyFrom(view)
-            .setTreePath(e.getNewPath())
-            .toUrl());
+        ChangeType type = e.getChangeType();
+        if (type != DELETE) {
+          entry.put("path", e.getNewPath());
+          entry.put("url", GitilesView.path()
+              .copyFrom(view)
+              .setTreePath(e.getNewPath())
+              .toUrl());
+        } else {
+          entry.put("path", e.getOldPath());
+          entry.put("url", GitilesView.path()
+              .copyFrom(view)
+              .setRevision(oldRevision)
+              .setTreePath(e.getOldPath())
+              .toUrl());
+        }
         entry.put("diffUrl", diffUrl.setAnchor("F" + result.size()).toUrl());
         entry.put("changeType", e.getChangeType().toString());
-        if (e.getChangeType() == ChangeType.COPY || e.getChangeType() == ChangeType.RENAME) {
+        if (type == COPY || type == RENAME) {
           entry.put("oldPath", e.getOldPath());
         }
         result.add(entry);
