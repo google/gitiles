@@ -24,10 +24,10 @@ import com.google.gitiles.PathServlet;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.bio.SocketConnector;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.handler.ResourceHandler;
-import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.resource.FileResource;
@@ -156,7 +156,7 @@ class DevServer {
   }
 
   private Connector[] connectors() {
-    Connector c = new SelectChannelConnector();
+    Connector c = new SocketConnector();
     c.setHost(null);
     c.setPort(cfg.getInt("gitiles", null, "port", 8080));
     c.setStatsOn(false);
