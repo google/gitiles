@@ -260,8 +260,15 @@ public class ViewFilterTest extends TestCase {
     RevCommit master = repo.branch("refs/heads/master").commit().parent(parent).create();
     GitilesView view;
 
-    assertNull(getView("/repo/+log"));
-    assertNull(getView("/repo/+log/"));
+    view = getView("/repo/+log");
+    assertEquals(Type.LOG, view.getType());
+    assertEquals(Revision.NULL, view.getRevision());
+    assertNull(view.getTreePath());
+
+    view = getView("/repo/+log/");
+    assertEquals(Type.LOG, view.getType());
+    assertEquals(Revision.NULL, view.getRevision());
+    assertNull(view.getTreePath());
 
     view = getView("/repo/+log/master");
     assertEquals(Type.LOG, view.getType());

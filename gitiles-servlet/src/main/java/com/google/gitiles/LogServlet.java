@@ -19,14 +19,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import com.google.common.base.Optional;
+import com.google.common.base.Strings;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Lists;
+import com.google.gitiles.CommitSoyData.KeySet;
 
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
@@ -34,6 +32,7 @@ import org.eclipse.jgit.errors.RevWalkException;
 import org.eclipse.jgit.http.server.ServletUtils;
 import org.eclipse.jgit.lib.AbbreviatedObjectId;
 import org.eclipse.jgit.lib.AnyObjectId;
+import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Ref;
@@ -46,12 +45,14 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Strings;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Lists;
-import com.google.gitiles.CommitSoyData.KeySet;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /** Serves an HTML page with a shortlog for commits and paths. */
 public class LogServlet extends BaseServlet {
@@ -69,9 +70,14 @@ public class LogServlet extends BaseServlet {
   }
 
   @Override
-  protected void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException {
-    GitilesView view = ViewFilter.getView(req);
+  protected void doGetHtml(HttpServletRequest req, HttpServletResponse res) throws IOException {
     Repository repo = ServletUtils.getRepository(req);
+    GitilesView view = getView(req, repo);
+    if (view == null) {
+      res.setStatus(SC_NOT_FOUND);
+      return;
+    }
+
     RevWalk walk = null;
     try {
       try {
@@ -128,6 +134,26 @@ public class LogServlet extends BaseServlet {
       if (walk != null) {
         walk.release();
       }
+    }
+  }
+
+  private static GitilesView getView(HttpServletRequest req, Repository repo) throws IOException {
+    GitilesView view = ViewFilter.getView(req);
+    if (view.getRevision() != Revision.NULL) {
+      return view;
+    }
+    Ref headRef = repo.getRef(Constants.HEAD);
+    if (headRef == null) {
+      return null;
+    }
+    RevWalk walk = new RevWalk(repo);
+    try {
+      return GitilesView.log()
+        .copyFrom(view)
+        .setRevision(Revision.peel(Constants.HEAD, headRef.getObjectId(), walk))
+        .build();
+    } finally {
+      walk.release();
     }
   }
 

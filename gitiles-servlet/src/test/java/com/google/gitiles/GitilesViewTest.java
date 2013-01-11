@@ -477,6 +477,29 @@ public class GitilesViewTest extends TestCase {
         view.getBreadcrumbs());
   }
 
+  public void testLogWithNoRevision() throws Exception {
+    GitilesView view = GitilesView.log()
+        .copyFrom(HOST)
+        .setRepositoryName("foo/bar")
+        .build();
+
+    assertEquals("/b", view.getServletPath());
+    assertEquals(Type.LOG, view.getType());
+    assertEquals("host", view.getHostName());
+    assertEquals("foo/bar", view.getRepositoryName());
+    assertEquals(Revision.NULL, view.getRevision());
+    assertEquals(Revision.NULL, view.getOldRevision());
+    assertTrue(HOST.getParameters().isEmpty());
+
+    assertEquals("/b/foo/bar/+log", view.toUrl());
+    assertEquals(
+        ImmutableList.of(
+            breadcrumb("host", "/b/?format=HTML"),
+            breadcrumb("foo/bar", "/b/foo/bar/"),
+            breadcrumb("HEAD", "/b/foo/bar/+log")),
+        view.getBreadcrumbs());
+  }
+
   public void testEscaping() throws Exception {
     ObjectId id = ObjectId.fromString("abcd1234abcd1234abcd1234abcd1234abcd1234");
     ObjectId parent = ObjectId.fromString("efab5678efab5678efab5678efab5678efab5678");

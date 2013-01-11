@@ -28,6 +28,7 @@ import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
 
+import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.revwalk.RevObject;
 
 import java.io.UnsupportedEncodingException;
@@ -309,7 +310,7 @@ public class GitilesView {
     }
 
     private void checkLog() {
-      checkRevision();
+      checkRepositoryIndex();
     }
 
     private void checkPath() {
@@ -474,13 +475,16 @@ public class GitilesView {
         url.append('/').append(path);
         break;
       case LOG:
-        url.append(repositoryName).append("/+log/");
-        if (oldRevision != Revision.NULL) {
-          url.append(oldRevision.getName()).append("..");
-        }
-        url.append(revision.getName());
-        if (path != null) {
-          url.append('/').append(path);
+        url.append(repositoryName).append("/+log");
+        if (revision != Revision.NULL) {
+          url.append('/');
+          if (oldRevision != Revision.NULL) {
+            url.append(oldRevision.getName()).append("..");
+          }
+          url.append(revision.getName());
+          if (path != null) {
+            url.append('/').append(path);
+          }
         }
         break;
       default:
@@ -530,12 +534,16 @@ public class GitilesView {
       // separate links in "old..new".
       breadcrumbs.add(breadcrumb(getRevisionRange(), diff().copyFrom(this).setTreePath("")));
     } else if (type == Type.LOG) {
-      // TODO(dborowitz): Add something in the navigation area (probably not
-      // a breadcrumb) to allow switching between /+log/ and /+/.
-      if (oldRevision == Revision.NULL) {
-        breadcrumbs.add(breadcrumb(revision.getName(), log().copyFrom(this).setTreePath(null)));
+      if (revision != Revision.NULL) {
+        // TODO(dborowitz): Add something in the navigation area (probably not
+        // a breadcrumb) to allow switching between /+log/ and /+/.
+        if (oldRevision == Revision.NULL) {
+          breadcrumbs.add(breadcrumb(revision.getName(), log().copyFrom(this).setTreePath(null)));
+        } else {
+          breadcrumbs.add(breadcrumb(getRevisionRange(), log().copyFrom(this).setTreePath(null)));
+        }
       } else {
-        breadcrumbs.add(breadcrumb(getRevisionRange(), log().copyFrom(this).setTreePath(null)));
+        breadcrumbs.add(breadcrumb(Constants.HEAD, log().copyFrom(this)));
       }
       path = Strings.emptyToNull(path);
     } else if (revision != Revision.NULL) {
