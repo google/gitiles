@@ -95,7 +95,7 @@ public class RevisionServlet extends BaseServlet {
                   "data", new TagSoyData(linkifier, req).toSoyData((RevTag) obj)));
               break;
             default:
-              log.warn("Bad object type for %s: %s", ObjectId.toString(obj.getId()), obj.getType());
+              log.warn("Bad object type for {}: {}", ObjectId.toString(obj.getId()), obj.getType());
               res.setStatus(SC_NOT_FOUND);
               return;
           }

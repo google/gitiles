@@ -171,7 +171,7 @@ public class PathServlet extends BaseServlet {
           showGitlink(req, res, rw, tw, root, hasSingleTree);
           break;
         default:
-          log.error("Bad file type: %s", type);
+          log.error("Bad file type: {}", type);
           res.setStatus(SC_NOT_FOUND);
           break;
       }
