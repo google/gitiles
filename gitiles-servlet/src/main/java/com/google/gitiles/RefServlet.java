@@ -15,6 +15,7 @@
 package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
@@ -24,13 +25,16 @@ import com.google.common.collect.Ordering;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 
 import org.eclipse.jgit.http.server.ServletUtils;
+import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.RefComparator;
 import org.eclipse.jgit.lib.RefDatabase;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.transport.RefAdvertiser;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -51,25 +55,41 @@ public class RefServlet extends BaseServlet {
   }
 
   @Override
-  protected void doGet(HttpServletRequest req, HttpServletResponse res)
+  protected void doGetHtml(HttpServletRequest req, HttpServletResponse res)
       throws IOException {
+    if (!ViewFilter.getView(req).getTreePath().isEmpty()) {
+      res.setStatus(SC_NOT_FOUND);
+      return;
+    }
     RevWalk walk = new RevWalk(ServletUtils.getRepository(req));
     List<Map<String, Object>> tags;
     try {
-      tags = getTags(req, timeCache, walk, 0);
+      tags = getTagsSoyData(req, timeCache, walk, 0);
     } finally {
       walk.release();
     }
     renderHtml(req, res, "gitiles.refsDetail",
-        ImmutableMap.of("branches", getBranches(req, 0), "tags", tags));
+        ImmutableMap.of("branches", getBranchesSoyData(req, 0), "tags", tags));
   }
 
-  static List<Map<String, Object>> getBranches(HttpServletRequest req, int limit)
+  @Override
+  protected void doGetText(HttpServletRequest req, HttpServletResponse res)
+      throws IOException {
+    GitilesView view = ViewFilter.getView(req);
+    Map<String, Ref> refs = getRefs(ServletUtils.getRepository(req).getRefDatabase(),
+        view.getTreePath());
+    TextRefAdvertiser adv = new TextRefAdvertiser(startRenderText(req, res));
+    adv.setDerefTags(true);
+    adv.send(refs);
+    adv.end();
+  }
+
+  static List<Map<String, Object>> getBranchesSoyData(HttpServletRequest req, int limit)
       throws IOException {
     RefDatabase refdb = ServletUtils.getRepository(req).getRefDatabase();
     Ref head = refdb.getRef(Constants.HEAD);
     Ref headLeaf = head != null && head.isSymbolic() ? head.getLeaf() : null;
-    return getRefs(
+    return getRefsSoyData(
         refdb,
         ViewFilter.getView(req),
         Constants.R_HEADS,
@@ -97,9 +117,9 @@ public class RefServlet extends BaseServlet {
     }.compound(RefComparator.INSTANCE);
   }
 
-  static List<Map<String, Object>> getTags(HttpServletRequest req,
+  static List<Map<String, Object>> getTagsSoyData(HttpServletRequest req,
       TimeCache timeCache, RevWalk walk, int limit) throws IOException {
-    return getRefs(
+    return getRefsSoyData(
         ServletUtils.getRepository(req).getRefDatabase(),
         ViewFilter.getView(req),
         Constants.R_TAGS,
@@ -121,7 +141,7 @@ public class RefServlet extends BaseServlet {
     }).reverse().compound(RefComparator.INSTANCE);
   }
 
-  private static List<Map<String, Object>> getRefs(
+  private static List<Map<String, Object>> getRefsSoyData(
       RefDatabase refdb,
       GitilesView view,
       String prefix,
@@ -145,5 +165,47 @@ public class RefServlet extends BaseServlet {
       result.add(value);
     }
     return result;
+  }
+
+  private static String sanitizeRefForText(String refName) {
+    return refName.replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;");
+  }
+
+  private static Map<String, Ref> getRefs(RefDatabase refdb, String path) throws IOException {
+    path = GitilesView.maybeTrimLeadingAndTrailingSlash(path);
+    if (path.isEmpty()) {
+      return refdb.getRefs(RefDatabase.ALL);
+    }
+    path = Constants.R_REFS + path;
+    Ref singleRef = refdb.getRef(path);
+    if (singleRef != null) {
+      return ImmutableMap.of(singleRef.getName(), singleRef);
+    }
+    return refdb.getRefs(path + '/');
+  }
+
+  private static class TextRefAdvertiser extends RefAdvertiser {
+    private final PrintWriter writer;
+
+    private TextRefAdvertiser(PrintWriter writer) {
+      this.writer = writer;
+    }
+
+    @Override
+    public void advertiseId(AnyObjectId id, String refName) throws IOException {
+      super.advertiseId(id, sanitizeRefForText(refName));
+    }
+
+    @Override
+    protected void writeOne(CharSequence line) throws IOException {
+      writer.print(line);
+    }
+
+    @Override
+    public void end() throws IOException {
+      writer.close();
+    }
   }
 }

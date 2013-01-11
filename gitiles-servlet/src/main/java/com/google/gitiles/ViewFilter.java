@@ -102,8 +102,8 @@ public class ViewFilter extends AbstractHttpFilter {
     // Non-path cases.
     if (repoName.isEmpty()) {
       return GitilesView.hostIndex();
-    } else if (command.equals(CMD_REFS) && path.isEmpty()) {
-      return GitilesView.refs().setRepositoryName(repoName);
+    } else if (command.equals(CMD_REFS)) {
+      return GitilesView.refs().setRepositoryName(repoName).setTreePath(path);
     } else if (command.equals(CMD_LOG) && (path.isEmpty() || path.equals("/"))) {
       return GitilesView.log().setRepositoryName(repoName);
     } else if (command.isEmpty()) {

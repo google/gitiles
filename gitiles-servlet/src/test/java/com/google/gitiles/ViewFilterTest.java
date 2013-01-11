@@ -97,12 +97,42 @@ public class ViewFilterTest extends TestCase {
   }
 
   public void testRefs() throws Exception {
-    GitilesView view = getView("/repo/+refs");
+    GitilesView view;
+
+    view = getView("/repo/+refs");
     assertEquals(Type.REFS, view.getType());
     assertEquals("repo", view.getRepositoryName());
     assertEquals(Revision.NULL, view.getRevision());
     assertEquals(Revision.NULL, view.getOldRevision());
-    assertNull(view.getTreePath());
+    assertEquals("", view.getTreePath());
+
+    view = getView("/repo/+refs/");
+    assertEquals(Type.REFS, view.getType());
+    assertEquals("repo", view.getRepositoryName());
+    assertEquals(Revision.NULL, view.getRevision());
+    assertEquals(Revision.NULL, view.getOldRevision());
+    assertEquals("", view.getTreePath());
+
+    view = getView("/repo/+refs/heads");
+    assertEquals(Type.REFS, view.getType());
+    assertEquals("repo", view.getRepositoryName());
+    assertEquals(Revision.NULL, view.getRevision());
+    assertEquals(Revision.NULL, view.getOldRevision());
+    assertEquals("heads", view.getTreePath());
+
+    view = getView("/repo/+refs/heads/");
+    assertEquals(Type.REFS, view.getType());
+    assertEquals("repo", view.getRepositoryName());
+    assertEquals(Revision.NULL, view.getRevision());
+    assertEquals(Revision.NULL, view.getOldRevision());
+    assertEquals("heads", view.getTreePath());
+
+    view = getView("/repo/+refs/heads/master");
+    assertEquals(Type.REFS, view.getType());
+    assertEquals("repo", view.getRepositoryName());
+    assertEquals(Revision.NULL, view.getRevision());
+    assertEquals(Revision.NULL, view.getOldRevision());
+    assertEquals("heads/master", view.getTreePath());
   }
 
   public void testBranches() throws Exception {

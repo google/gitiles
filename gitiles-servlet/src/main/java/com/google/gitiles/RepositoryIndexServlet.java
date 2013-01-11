@@ -67,7 +67,7 @@ public class RepositoryIndexServlet extends BaseServlet {
     List<Map<String, Object>> tags;
     Map<String, Object> data;
     try {
-      tags = RefServlet.getTags(req, timeCache, walk, REF_LIMIT);
+      tags = RefServlet.getTagsSoyData(req, timeCache, walk, REF_LIMIT);
       ObjectId headId = repo.resolve(Constants.HEAD);
       if (headId != null) {
         RevObject head = walk.parseAny(headId);
@@ -88,7 +88,7 @@ public class RepositoryIndexServlet extends BaseServlet {
     if (!data.containsKey("entries")) {
       data.put("entries", ImmutableList.of());
     }
-    List<Map<String, Object>> branches = RefServlet.getBranches(req, REF_LIMIT);
+    List<Map<String, Object>> branches = RefServlet.getBranchesSoyData(req, REF_LIMIT);
 
     data.put("cloneUrl", desc.cloneUrl);
     data.put("mirroredFromUrl", Strings.nullToEmpty(desc.mirroredFromUrl));

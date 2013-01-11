@@ -15,7 +15,6 @@
 package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-
 import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;

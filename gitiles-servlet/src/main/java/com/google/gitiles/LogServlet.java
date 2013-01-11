@@ -15,7 +15,6 @@
 package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
