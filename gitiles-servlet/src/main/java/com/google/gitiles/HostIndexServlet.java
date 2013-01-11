@@ -15,9 +15,7 @@
 package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.gitiles.FormatType.JSON;
-import static com.google.gitiles.FormatType.TEXT;
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+
 import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
@@ -26,9 +24,6 @@ import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
-import com.google.common.net.HttpHeaders;
-import com.google.gson.FieldNamingPolicy;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.google.template.soy.data.SoyListData;
 import com.google.template.soy.data.SoyMapData;
@@ -64,55 +59,36 @@ public class HostIndexServlet extends BaseServlet {
     this.accessFactory = checkNotNull(accessFactory, "accessFactory");
   }
 
-  @Override
-  protected void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException {
-    FormatType format;
-    try {
-      format = FormatType.getFormatType(req);
-    } catch (IllegalArgumentException err) {
-      res.sendError(SC_BAD_REQUEST);
-      return;
-    }
+  private Map<String, RepositoryDescription> getDescriptions(HttpServletRequest req,
+      HttpServletResponse res) throws IOException {
+    return getDescriptions(req, res, parseShowBranch(req));
+  }
 
-    Set<String> branches = parseShowBranch(req);
+  private Map<String, RepositoryDescription> getDescriptions(HttpServletRequest req,
+      HttpServletResponse res, Set<String> branches) throws IOException {
     Map<String, RepositoryDescription> descs;
     try {
       descs = accessFactory.forRequest(req).listRepositories(branches);
     } catch (RepositoryNotFoundException e) {
       res.sendError(SC_NOT_FOUND);
-      return;
+      return null;
     } catch (ServiceNotEnabledException e) {
       res.sendError(SC_FORBIDDEN);
-      return;
+      return null;
     } catch (ServiceNotAuthorizedException e) {
       res.sendError(SC_UNAUTHORIZED);
-      return;
+      return null;
     } catch (ServiceMayNotContinueException e) {
       // TODO(dborowitz): Show the error message to the user.
       res.sendError(SC_FORBIDDEN);
-      return;
+      return null;
     } catch (IOException err) {
       String name = urls.getHostName(req);
       log.warn("Cannot scan repositories" + (name != null ? "for " + name : ""), err);
       res.sendError(SC_SERVICE_UNAVAILABLE);
-      return;
+      return null;
     }
-
-    switch (format) {
-      case HTML:
-      case DEFAULT:
-      default:
-        displayHtml(req, res, descs);
-        break;
-
-      case TEXT:
-        displayText(req, res, branches, descs);
-        break;
-
-      case JSON:
-        displayJson(req, res, descs);
-        break;
-    }
+    return descs;
   }
 
   private SoyMapData toSoyMapData(RepositoryDescription desc, GitilesView view) {
@@ -125,27 +101,32 @@ public class HostIndexServlet extends BaseServlet {
             .toUrl());
   }
 
-  private void displayHtml(HttpServletRequest req, HttpServletResponse res,
-      Map<String, RepositoryDescription> descs) throws IOException {
+  @Override
+  protected void doGetHtml(HttpServletRequest req, HttpServletResponse res) throws IOException {
+    Map<String, RepositoryDescription> descs = getDescriptions(req, res);
+    if (descs == null) {
+      return;
+    }
     SoyListData repos = new SoyListData();
     for (RepositoryDescription desc : descs.values()) {
       repos.add(toSoyMapData(desc, ViewFilter.getView(req)));
     }
 
-    render(req, res, "gitiles.hostIndex", ImmutableMap.of(
+    renderHtml(req, res, "gitiles.hostIndex", ImmutableMap.of(
         "hostName", urls.getHostName(req),
         "baseUrl", urls.getBaseGitUrl(req),
         "repositories", repos));
   }
 
-  private void displayText(HttpServletRequest req, HttpServletResponse res,
-      Set<String> branches, Map<String, RepositoryDescription> descs) throws IOException {
-    res.setContentType(TEXT.getMimeType());
-    res.setCharacterEncoding("UTF-8");
-    res.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment");
-    setNotCacheable(res);
+  @Override
+  protected void doGetText(HttpServletRequest req, HttpServletResponse res) throws IOException {
+    Set<String> branches = parseShowBranch(req);
+    Map<String, RepositoryDescription> descs = getDescriptions(req, res, branches);
+    if (descs == null) {
+      return;
+    }
 
-    PrintWriter writer = res.getWriter();
+    PrintWriter writer = startRenderText(req, res);
     for (RepositoryDescription repo : descs.values()) {
       for (String name : branches) {
         String ref = repo.branches.get(name);
@@ -163,24 +144,13 @@ public class HostIndexServlet extends BaseServlet {
     writer.close();
   }
 
-  private void displayJson(HttpServletRequest req, HttpServletResponse res,
-      Map<String, RepositoryDescription> descs) throws IOException {
-    res.setContentType(JSON.getMimeType());
-    res.setCharacterEncoding("UTF-8");
-    res.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment");
-    setNotCacheable(res);
-
-    PrintWriter writer = res.getWriter();
-    new GsonBuilder()
-        .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
-        .setPrettyPrinting()
-        .generateNonExecutableJson()
-        .create()
-        .toJson(descs,
-          new TypeToken<Map<String, RepositoryDescription>>() {}.getType(),
-          writer);
-    writer.print('\n');
-    writer.close();
+  @Override
+  protected void doGetJson(HttpServletRequest req, HttpServletResponse res) throws IOException {
+    Map<String, RepositoryDescription> descs = getDescriptions(req, res);
+    if (descs == null) {
+      return;
+    }
+    renderJson(req, res, descs, new TypeToken<Map<String, RepositoryDescription>>() {}.getType());
   }
 
   private static Set<String> parseShowBranch(HttpServletRequest req) {

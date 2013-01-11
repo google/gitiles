@@ -284,7 +284,7 @@ public class PathServlet extends BaseServlet {
       }
     }
     // TODO(sop): Allow caching trees by SHA-1 when no S cookie is sent.
-    render(req, res, "gitiles.pathDetail", ImmutableMap.of(
+    renderHtml(req, res, "gitiles.pathDetail", ImmutableMap.of(
         "title", !view.getTreePath().isEmpty() ? view.getTreePath() : "/",
         "breadcrumbs", view.getBreadcrumbs(hasSingleTree),
         "type", FileType.TREE.toString(),
@@ -305,7 +305,7 @@ public class PathServlet extends BaseServlet {
       List<Boolean> hasSingleTree) throws IOException {
     GitilesView view = ViewFilter.getView(req);
     // TODO(sop): Allow caching files by SHA-1 when no S cookie is sent.
-    render(req, res, "gitiles.pathDetail", ImmutableMap.of(
+    renderHtml(req, res, "gitiles.pathDetail", ImmutableMap.of(
         "title", ViewFilter.getView(req).getTreePath(),
         "breadcrumbs", view.getBreadcrumbs(hasSingleTree),
         "type", FileType.forEntry(tw).toString(),
@@ -328,7 +328,7 @@ public class PathServlet extends BaseServlet {
       data.put("sha", ObjectId.toString(id));
       data.put("data", null);
       data.put("size", Long.toString(loader.getSize()));
-      render(req, res, "gitiles.pathDetail", ImmutableMap.of(
+      renderHtml(req, res, "gitiles.pathDetail", ImmutableMap.of(
           "title", ViewFilter.getView(req).getTreePath(),
           "breadcrumbs", view.getBreadcrumbs(hasSingleTree),
           "type", FileType.REGULAR_FILE.toString(),
@@ -349,7 +349,7 @@ public class PathServlet extends BaseServlet {
     }
 
     // TODO(sop): Allow caching files by SHA-1 when no S cookie is sent.
-    render(req, res, "gitiles.pathDetail", ImmutableMap.of(
+    renderHtml(req, res, "gitiles.pathDetail", ImmutableMap.of(
         "title", ViewFilter.getView(req).getTreePath(),
         "breadcrumbs", view.getBreadcrumbs(hasSingleTree),
         "type", FileType.SYMLINK.toString(),
@@ -396,7 +396,7 @@ public class PathServlet extends BaseServlet {
       }
 
       // TODO(sop): Allow caching links by SHA-1 when no S cookie is sent.
-      render(req, res, "gitiles.pathDetail", ImmutableMap.of(
+      renderHtml(req, res, "gitiles.pathDetail", ImmutableMap.of(
           "title", view.getTreePath(),
           "type", FileType.GITLINK.toString(),
           "data", data));

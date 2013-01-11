@@ -119,7 +119,7 @@ public class LogServlet extends BaseServlet {
 
       data.put("title", title);
 
-      render(req, res, "gitiles.logDetail", data);
+      renderHtml(req, res, "gitiles.logDetail", data);
     } catch (RevWalkException e) {
       log.warn("Error in rev walk", e);
       res.setStatus(SC_INTERNAL_SERVER_ERROR);

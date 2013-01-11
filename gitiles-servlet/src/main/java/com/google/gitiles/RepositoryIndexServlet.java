@@ -55,7 +55,7 @@ public class RepositoryIndexServlet extends BaseServlet {
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException {
-    render(req, res, "gitiles.repositoryIndex", buildData(req));
+    renderHtml(req, res, "gitiles.repositoryIndex", buildData(req));
   }
 
   @VisibleForTesting

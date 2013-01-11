@@ -110,7 +110,7 @@ public class RevisionServlet extends BaseServlet {
         }
       }
 
-      render(req, res, "gitiles.revisionDetail", ImmutableMap.of(
+      renderHtml(req, res, "gitiles.revisionDetail", ImmutableMap.of(
           "title", view.getRevision().getName(),
           "objects", soyObjects,
           "hasBlob", hasBlob));

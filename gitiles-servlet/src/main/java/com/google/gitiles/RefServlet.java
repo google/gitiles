@@ -60,7 +60,7 @@ public class RefServlet extends BaseServlet {
     } finally {
       walk.release();
     }
-    render(req, res, "gitiles.refsDetail",
+    renderHtml(req, res, "gitiles.refsDetail",
         ImmutableMap.of("branches", getBranches(req, 0), "tags", tags));
   }
 
