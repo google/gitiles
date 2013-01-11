@@ -19,20 +19,21 @@ import javax.servlet.http.HttpServletRequest;
 /** {@link GitilesUrls} for testing. */
 public class TestGitilesUrls implements GitilesUrls {
   public static final GitilesUrls URLS = new TestGitilesUrls();
+  public static final String HOST_NAME = "test-host";
 
   @Override
   public String getHostName(HttpServletRequest req) {
-    return "test-host";
+    return HOST_NAME;
   }
 
   @Override
   public String getBaseGitUrl(HttpServletRequest req) {
-    return "git://test-host/foo";
+    return "git://" + HOST_NAME + "/foo";
   }
 
   @Override
   public String getBaseGerritUrl(HttpServletRequest req) {
-    return "http://test-host-review/foo/";
+    return "http://" + HOST_NAME + "-review/foo/";
   }
 
   private TestGitilesUrls() {

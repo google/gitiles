@@ -30,6 +30,7 @@ import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.http.server.RepositoryFilter;
 import org.eclipse.jgit.http.server.glue.MetaFilter;
+import org.eclipse.jgit.http.server.glue.ServletBinder;
 import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.transport.ServiceMayNotContinueException;
@@ -161,6 +162,7 @@ class GitilesFilter extends MetaFilter {
   private RepositoryResolver<HttpServletRequest> resolver;
   private VisibilityCache visibilityCache;
   private TimeCache timeCache;
+  private GitwebRedirectFilter gitwebRedirect;
   private boolean initialized;
 
   GitilesFilter() {
@@ -173,13 +175,15 @@ class GitilesFilter extends MetaFilter {
       GitilesAccess.Factory accessFactory,
       final RepositoryResolver<HttpServletRequest> resolver,
       VisibilityCache visibilityCache,
-      TimeCache timeCache) {
+      TimeCache timeCache,
+      GitwebRedirectFilter gitwebRedirect) {
     this.config = checkNotNull(config, "config");
     this.renderer = renderer;
     this.urls = urls;
     this.accessFactory = accessFactory;
     this.visibilityCache = visibilityCache;
     this.timeCache = timeCache;
+    this.gitwebRedirect = gitwebRedirect;
     if (resolver != null) {
       this.resolver = wrapResolver(resolver);
     }
@@ -200,9 +204,11 @@ class GitilesFilter extends MetaFilter {
     Filter viewFilter = new ViewFilter(accessFactory, urls, visibilityCache);
     Filter dispatchFilter = new DispatchFilter(filters, servlets);
 
-    serveRegex(ROOT_REGEX)
-        .through(viewFilter)
-        .through(dispatchFilter);
+    ServletBinder root = serveRegex(ROOT_REGEX).through(viewFilter);
+    if (gitwebRedirect != null) {
+      root.through(gitwebRedirect);
+    }
+    root.through(dispatchFilter);
 
     serveRegex(REPO_REGEX)
         .through(repositoryFilter)
@@ -281,10 +287,6 @@ class GitilesFilter extends MetaFilter {
   }
 
   private void setDefaultFields(FilterConfig filterConfig) throws ServletException {
-    if (renderer != null && urls != null && accessFactory != null && resolver != null
-        && visibilityCache != null && timeCache != null) {
-      return;
-    }
     Config config;
     if (this.config != null) {
       config = this.config;
@@ -355,6 +357,11 @@ class GitilesFilter extends MetaFilter {
         timeCache = new TimeCache(ConfigUtil.getCacheBuilder(config, "tagTime"));
       } else {
         timeCache = new TimeCache();
+      }
+    }
+    if (gitwebRedirect == null) {
+      if (config.getBoolean("gitiles", null, "redirectGitweb", true)) {
+        gitwebRedirect = new GitwebRedirectFilter();
       }
     }
   }

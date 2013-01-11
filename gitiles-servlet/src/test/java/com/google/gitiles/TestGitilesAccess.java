@@ -16,6 +16,8 @@ package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableMap;
+
 import org.eclipse.jgit.storage.dfs.DfsRepository;
 
 import java.util.Map;
@@ -36,9 +38,13 @@ public class TestGitilesAccess implements GitilesAccess.Factory {
     return new GitilesAccess() {
       @Override
       public Map<String, RepositoryDescription> listRepositories(Set<String> branches) {
-        // TODO(dborowitz): Implement this, using the DfsRepositoryDescriptions to
-        // get the repository names.
-        throw new UnsupportedOperationException();
+        if (branches != null && !branches.isEmpty()) {
+          throw new UnsupportedOperationException("branches set not yet supported");
+        }
+        RepositoryDescription desc = new RepositoryDescription();
+        desc.name = repo.getDescription().getRepositoryName();
+        desc.cloneUrl = TestGitilesUrls.URLS.getBaseGitUrl(req) + "/" + desc.name;
+        return ImmutableMap.of(desc.name, desc);
       }
 
       @Override

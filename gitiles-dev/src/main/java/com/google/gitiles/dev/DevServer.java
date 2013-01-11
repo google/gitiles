@@ -186,7 +186,7 @@ class DevServer {
             new File(sourceRoot, "gitiles-servlet/src/main/resources/com/google/gitiles/templates")
                 .getPath(),
             Objects.firstNonNull(cfg.getString("gitiles", null, "siteTitle"), "Gitiles")),
-        null, null, null, null, null);
+        null, null, null, null, null, null);
 
     ServletContextHandler handler = new ServletContextHandler();
     handler.setContextPath("");

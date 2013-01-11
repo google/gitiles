@@ -318,7 +318,7 @@ public class FakeHttpServletRequest implements HttpServletRequest {
 
   @Override
   public String getQueryString() {
-    return null;
+    return GitilesView.paramsToString(parameters);
   }
 
   @Override

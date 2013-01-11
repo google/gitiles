@@ -51,9 +51,11 @@ public class GitilesServlet extends MetaServlet {
       @Nullable GitilesAccess.Factory accessFactory,
       @Nullable RepositoryResolver<HttpServletRequest> resolver,
       @Nullable VisibilityCache visibilityCache,
-      @Nullable TimeCache timeCache) {
+      @Nullable TimeCache timeCache,
+      @Nullable GitwebRedirectFilter gitwebRedirect) {
     super(new GitilesFilter(
-        config, renderer, urls, accessFactory, resolver, visibilityCache, timeCache));
+        config, renderer, urls, accessFactory, resolver, visibilityCache, timeCache,
+        gitwebRedirect));
   }
 
   public GitilesServlet() {

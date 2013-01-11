@@ -33,6 +33,12 @@ import javax.servlet.http.HttpServletRequest;
 
 /** Static utility methods for creating {@link GitilesServlet}s for testing. */
 public class TestGitilesServlet {
+  /** @see #create(TestRepository) */
+  public static GitilesServlet create(final TestRepository<DfsRepository> repo)
+      throws ServletException {
+    return create(repo, new GitwebRedirectFilter());
+  }
+
   /**
    * Create a servlet backed by a single test repository.
    * <p>
@@ -43,10 +49,11 @@ public class TestGitilesServlet {
    * to the servlet's {@code service} method to test.
    *
    * @param repo the test repo backing the servlet.
+   * @param gitwebRedirect optional redirect filter for gitweb URLs.
    * @return a servlet.
    */
-  public static GitilesServlet create(final TestRepository<DfsRepository> repo)
-      throws ServletException {
+  public static GitilesServlet create(final TestRepository<DfsRepository> repo,
+      GitwebRedirectFilter gitwebRedirect) throws ServletException {
     final String repoName =
         repo.getRepository().getDescription().getRepositoryName();
     GitilesServlet servlet =
@@ -62,7 +69,7 @@ public class TestGitilesServlet {
                 }
                 return repo.getRepository();
               }
-            }, null, null);
+            }, null, null, gitwebRedirect);
 
     servlet.init(new ServletConfig() {
       @Override
