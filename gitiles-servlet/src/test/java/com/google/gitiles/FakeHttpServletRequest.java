@@ -328,7 +328,11 @@ public class FakeHttpServletRequest implements HttpServletRequest {
 
   @Override
   public String getRequestURI() {
-    return null;
+    String uri = contextPath + servletPath + path;
+    if (!parameters.isEmpty()) {
+      uri += "?" + GitilesView.paramsToString(parameters);
+    }
+    return uri;
   }
 
   @Override

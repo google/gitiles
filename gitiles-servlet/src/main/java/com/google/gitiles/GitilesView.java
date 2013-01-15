@@ -19,6 +19,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.gitiles.GitilesUrls.NAME_ESCAPER;
 import static com.google.gitiles.RevisionParser.PATH_SPLITTER;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
@@ -599,7 +600,8 @@ public class GitilesView {
         || rev2.getName().equals(rev1.getName() + "~1");
   }
 
-  private static String paramsToString(ListMultimap<String, String> params) {
+  @VisibleForTesting
+  static String paramsToString(ListMultimap<String, String> params) {
     try {
     StringBuilder sb = new StringBuilder();
     boolean first = true;

@@ -15,8 +15,20 @@
 package com.google.gitiles;
 
 import static com.google.common.base.Charsets.UTF_8;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
 
+import com.google.common.base.Charsets;
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.ListMultimap;
+import com.google.common.net.HttpHeaders;
+
+import org.eclipse.jgit.util.RawParseUtils;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
 import java.util.Locale;
 
 import javax.servlet.ServletOutputStream;
@@ -25,16 +37,25 @@ import javax.servlet.http.HttpServletResponse;
 
 /** Simple fake implementation of {@link HttpServletResponse}. */
 public class FakeHttpServletResponse implements HttpServletResponse {
+  private final ByteArrayOutputStream actualBody = new ByteArrayOutputStream();
+  private final ListMultimap<String, String> headers = LinkedListMultimap.create();
 
-  private volatile int status;
+  private int status = 200;
+  private boolean committed;
+  private ServletOutputStream outputStream;
+  private PrintWriter writer;
 
   public FakeHttpServletResponse() {
-    status = 200;
   }
 
   @Override
-  public void flushBuffer() {
-    throw new UnsupportedOperationException();
+  public synchronized void flushBuffer() throws IOException {
+    if (outputStream != null) {
+      outputStream.flush();
+    }
+    if (writer != null) {
+      writer.flush();
+    }
   }
 
   @Override
@@ -58,18 +79,33 @@ public class FakeHttpServletResponse implements HttpServletResponse {
   }
 
   @Override
-  public ServletOutputStream getOutputStream() {
-    throw new UnsupportedOperationException();
+  public synchronized ServletOutputStream getOutputStream() {
+    checkState(writer == null, "getWriter() already called");
+    if (outputStream == null) {
+      final PrintWriter osWriter = new PrintWriter(actualBody);
+      outputStream = new ServletOutputStream() {
+        @Override
+        public void write(int c) throws IOException {
+          osWriter.write(c);
+          osWriter.flush();
+        }
+      };
+    }
+    return outputStream;
   }
 
   @Override
-  public PrintWriter getWriter() {
-    throw new UnsupportedOperationException();
+  public synchronized PrintWriter getWriter() {
+    checkState(outputStream == null, "getOutputStream() already called");
+    if (writer == null) {
+      writer = new PrintWriter(actualBody);
+    }
+    return writer;
   }
 
   @Override
-  public boolean isCommitted() {
-    return false;
+  public synchronized boolean isCommitted() {
+    return committed;
   }
 
   @Override
@@ -89,17 +125,20 @@ public class FakeHttpServletResponse implements HttpServletResponse {
 
   @Override
   public void setCharacterEncoding(String name) {
-    throw new UnsupportedOperationException();
+    checkArgument(Charsets.UTF_8.equals(Charset.forName(name)),
+        "unsupported charset: %s", name);
   }
 
   @Override
   public void setContentLength(int length) {
-    throw new UnsupportedOperationException();
+    headers.removeAll(HttpHeaders.CONTENT_LENGTH);
+    headers.put(HttpHeaders.CONTENT_LENGTH, Integer.toString(length));
   }
 
   @Override
   public void setContentType(String type) {
-    throw new UnsupportedOperationException();
+    headers.removeAll(HttpHeaders.CONTENT_TYPE);
+    headers.put(HttpHeaders.CONTENT_TYPE, type);
   }
 
   @Override
@@ -119,17 +158,17 @@ public class FakeHttpServletResponse implements HttpServletResponse {
 
   @Override
   public void addHeader(String name, String value) {
-    throw new UnsupportedOperationException();
+    headers.put(name, value);
   }
 
   @Override
   public void addIntHeader(String name, int value) {
-    throw new UnsupportedOperationException();
+    headers.put(name, Integer.toString(value));
   }
 
   @Override
   public boolean containsHeader(String name) {
-    return false;
+    return !headers.get(name).isEmpty();
   }
 
   @Override
@@ -155,47 +194,62 @@ public class FakeHttpServletResponse implements HttpServletResponse {
   }
 
   @Override
-  public void sendError(int sc) {
+  public synchronized void sendError(int sc) {
     status = sc;
+    committed = true;
   }
 
   @Override
-  public void sendError(int sc, String msg) {
+  public synchronized void sendError(int sc, String msg) {
     status = sc;
+    committed = true;
   }
 
   @Override
-  public void sendRedirect(String msg) {
+  public synchronized void sendRedirect(String msg) {
     status = SC_FOUND;
+    committed = true;
   }
 
   @Override
   public void setDateHeader(String name, long value) {
-    throw new UnsupportedOperationException();
+    setHeader(name, Long.toString(value));
   }
 
   @Override
   public void setHeader(String name, String value) {
-    throw new UnsupportedOperationException();
+    headers.removeAll(name);
+    addHeader(name, value);
   }
 
   @Override
   public void setIntHeader(String name, int value) {
-    throw new UnsupportedOperationException();
+    headers.removeAll(name);
+    addIntHeader(name, value);
   }
 
   @Override
-  public void setStatus(int sc) {
+  public synchronized void setStatus(int sc) {
     status = sc;
+    committed = true;
   }
 
   @Override
   @Deprecated
-  public void setStatus(int sc, String msg) {
+  public synchronized void setStatus(int sc, String msg) {
     status = sc;
+    committed = true;
   }
 
-  public int getStatus() {
+  public synchronized int getStatus() {
     return status;
+  }
+
+  public byte[] getActualBody() {
+    return actualBody.toByteArray();
+  }
+
+  public String getActualBodyString() {
+    return RawParseUtils.decode(getActualBody());
   }
 }
