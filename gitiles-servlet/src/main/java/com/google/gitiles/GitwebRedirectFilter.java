@@ -77,7 +77,7 @@ public class GitwebRedirectFilter extends AbstractHttpFilter {
     ListMultimap<String, String> params = parse(req.getQueryString());
     String action = getFirst(params, "a");
     String project = getFirst(params, "p");
-    String path = getFirst(params, "f");
+    String path = Strings.nullToEmpty(getFirst(params, "f"));
 
     // According to gitweb's perl source code, the primary parameters are these
     // short abbreviated names. When pointing to blob or subtree hash,hashParent
