@@ -51,7 +51,7 @@ public class VisibilityCache {
     private Key(Object user, String repositoryName, ObjectId objectId) {
       this.user = checkNotNull(user, "user");
       this.repositoryName = checkNotNull(repositoryName, "repositoryName");
-      this.objectId = checkNotNull(objectId, "objectId");
+      this.objectId = checkNotNull(objectId, "objectId").copy();
     }
 
     @Override
