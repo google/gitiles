@@ -17,7 +17,6 @@ package com.google.gitiles;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.gitiles.GitilesUrls.NAME_ESCAPER;
-import static com.google.gitiles.RevisionParser.PATH_SPLITTER;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
@@ -559,7 +558,7 @@ public class GitilesView {
         breadcrumbs.add(breadcrumb(".", copyWithPath().setTreePath("")));
       }
       StringBuilder cur = new StringBuilder();
-      List<String> parts = ImmutableList.copyOf(PATH_SPLITTER.omitEmptyStrings().split(path));
+      List<String> parts = ImmutableList.copyOf(Paths.SPLITTER.omitEmptyStrings().split(path));
       checkArgument(hasSingleTree == null
           || (parts.isEmpty() && hasSingleTree.isEmpty())
           || hasSingleTree.size() == parts.size() - 1,

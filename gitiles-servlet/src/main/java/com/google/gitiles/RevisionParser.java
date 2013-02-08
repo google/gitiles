@@ -32,7 +32,6 @@ import java.io.IOException;
 
 /** Object to parse revisions out of Gitiles paths. */
 class RevisionParser {
-  static final Splitter PATH_SPLITTER = Splitter.on('/');
   private static final Splitter OPERATOR_SPLITTER = Splitter.on(CharMatcher.anyOf("^~"));
 
   static class Result {
@@ -108,7 +107,7 @@ class RevisionParser {
 
       StringBuilder b = new StringBuilder();
       boolean first = true;
-      for (String part : PATH_SPLITTER.split(path)) {
+      for (String part : Paths.SPLITTER.split(path)) {
         if (part.isEmpty()) {
           return null; // No valid revision contains empty segments.
         }

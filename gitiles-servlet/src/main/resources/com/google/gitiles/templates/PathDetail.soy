@@ -79,6 +79,10 @@
 {template .gitlinkDetail}
 <div class="gitlink-detail">
   {msg desc="Lead-in text for the git link URL"}Submodule link to {$sha} of{/msg}
-  {sp}{if $httpUrl}<a href="{$httpUrl}">{$remoteUrl}</a>{else}{$remoteUrl}{/if}
+  {if $remoteUrl}
+    {sp}{if $httpUrl}<a href="{$httpUrl}">{$remoteUrl}</a>{else}{$remoteUrl}{/if}
+  {else}
+    {sp}{msg desc="Text describing an unknown submodule URL"}a submodule with an unknown URL{/msg}
+  {/if}
 </div>
 {/template}

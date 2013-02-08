@@ -14,15 +14,12 @@
 
 package com.google.gitiles;
 
-import static com.google.gitiles.RevisionParser.PATH_SPLITTER;
 import static org.eclipse.jgit.lib.Constants.OBJ_COMMIT;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
-import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.io.Files;
 import com.google.gitiles.PathServlet.FileType;
 
 import org.eclipse.jgit.errors.MissingObjectException;
@@ -33,7 +30,6 @@ import org.eclipse.jgit.treewalk.TreeWalk;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
 
 /** Soy data converter for git trees. */
 public class TreeSoyData {
@@ -51,29 +47,13 @@ public class TreeSoyData {
   static final int MAX_SYMLINK_SIZE = 16 << 10;
 
   static String resolveTargetUrl(GitilesView view, String target) {
-    if (target.startsWith("/")) {
+    String resolved = Paths.simplifyPathUpToRoot(target, view.getTreePath());
+    if (resolved == null) {
       return null;
     }
-
-    // simplifyPath() normalizes "a/../../" to "a", so manually check whether
-    // the path leads above the git root.
-    String path = Objects.firstNonNull(view.getTreePath(), "");
-    int depth = new StringTokenizer(path, "/").countTokens();
-    for (String part : PATH_SPLITTER.split(target)) {
-      if (part.equals("..")) {
-        depth--;
-        if (depth < 0) {
-          return null;
-        }
-      } else if (!part.isEmpty() && !part.equals(".")) {
-        depth++;
-      }
-    }
-
-    path = Files.simplifyPath(view.getTreePath() + "/" + target);
     return GitilesView.path()
         .copyFrom(view)
-        .setTreePath(!path.equals(".") ? path : "")
+        .setTreePath(resolved)
         .toUrl();
   }
 
@@ -130,8 +110,6 @@ public class TreeSoyData {
         String target = new String(
             rw.getObjectReader().open(tw.getObjectId(0)).getCachedBytes(),
             Charsets.UTF_8);
-        // TODO(dborowitz): Merge Shawn's changes before copying these methods
-        // in.
         entry.put("targetName", getTargetDisplayName(target));
         String targetUrl = resolveTargetUrl(view, target);
         if (targetUrl != null) {

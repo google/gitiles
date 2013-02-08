@@ -14,9 +14,12 @@
 
 package com.google.gitiles;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.gitiles.TreeSoyData.resolveTargetUrl;
+
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
+
 import static org.eclipse.jgit.lib.Constants.OBJ_BLOB;
 import static org.eclipse.jgit.lib.Constants.OBJ_COMMIT;
 import static org.eclipse.jgit.lib.Constants.OBJ_TREE;
@@ -103,8 +106,11 @@ public class PathServlet extends BaseServlet {
     }
   }
 
-  public PathServlet(Renderer renderer) {
+  private final GitilesUrls urls;
+
+  public PathServlet(Renderer renderer, GitilesUrls urls) {
     super(renderer);
+    this.urls = checkNotNull(urls, "urls");
   }
 
   @Override
@@ -376,9 +382,18 @@ public class PathServlet extends BaseServlet {
     SubmoduleWalk sw = SubmoduleWalk.forPath(ServletUtils.getRepository(req), root,
         view.getTreePath());
 
-    String remoteUrl;
+    String modulesUrl;
+    String remoteUrl = null;
     try {
-      remoteUrl = sw.getRemoteUrl();
+      modulesUrl = sw.getModulesUrl();
+      if (modulesUrl != null && (modulesUrl.startsWith("./") || modulesUrl.startsWith("../"))) {
+        String moduleRepo = Paths.simplifyPathUpToRoot(modulesUrl, view.getRepositoryName());
+        if (moduleRepo != null) {
+          modulesUrl = urls.getBaseGitUrl(req) + moduleRepo;
+        }
+      } else {
+        remoteUrl = sw.getRemoteUrl();
+      }
     } catch (ConfigInvalidException e) {
       throw new IOException(e);
     } finally {
@@ -387,22 +402,25 @@ public class PathServlet extends BaseServlet {
 
     Map<String, Object> data = Maps.newHashMap();
     data.put("sha", ObjectId.toString(tw.getObjectId(0)));
-    data.put("remoteUrl", remoteUrl);
+    data.put("remoteUrl", remoteUrl != null ? remoteUrl : modulesUrl);
 
-      // TODO(dborowitz): Guess when we can put commit SHAs in the URL.
-      String httpUrl = resolveHttpUrl(remoteUrl);
-      if (httpUrl != null) {
-        data.put("httpUrl", httpUrl);
-      }
+    // TODO(dborowitz): Guess when we can put commit SHAs in the URL.
+    String httpUrl = resolveHttpUrl(remoteUrl);
+    if (httpUrl != null) {
+      data.put("httpUrl", httpUrl);
+    }
 
-      // TODO(sop): Allow caching links by SHA-1 when no S cookie is sent.
-      renderHtml(req, res, "gitiles.pathDetail", ImmutableMap.of(
-          "title", view.getTreePath(),
-          "type", FileType.GITLINK.toString(),
-          "data", data));
+    // TODO(sop): Allow caching links by SHA-1 when no S cookie is sent.
+    renderHtml(req, res, "gitiles.pathDetail", ImmutableMap.of(
+        "title", view.getTreePath(),
+        "type", FileType.GITLINK.toString(),
+        "data", data));
   }
 
   private static String resolveHttpUrl(String remoteUrl) {
+    if (remoteUrl == null) {
+      return null;
+    }
     return VERBATIM_SUBMODULE_URL_PATTERN.matcher(remoteUrl).matches() ? remoteUrl : null;
   }
 }

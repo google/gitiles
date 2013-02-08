@@ -235,7 +235,7 @@ class GitilesFilter extends MetaFilter {
       case REVISION:
         return new RevisionServlet(renderer, linkifier());
       case PATH:
-        return new PathServlet(renderer);
+        return new PathServlet(renderer, urls);
       case DIFF:
         return new DiffServlet(renderer, linkifier());
       case LOG:
