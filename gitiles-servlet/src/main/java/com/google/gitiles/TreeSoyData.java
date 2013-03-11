@@ -47,13 +47,13 @@ public class TreeSoyData {
   static final int MAX_SYMLINK_SIZE = 16 << 10;
 
   static String resolveTargetUrl(GitilesView view, String target) {
-    String resolved = Paths.simplifyPathUpToRoot(target, view.getTreePath());
+    String resolved = Paths.simplifyPathUpToRoot(target, view.getPathPart());
     if (resolved == null) {
       return null;
     }
     return GitilesView.path()
         .copyFrom(view)
-        .setTreePath(resolved)
+        .setPathPart(resolved)
         .toUrl();
   }
 
@@ -86,11 +86,11 @@ public class TreeSoyData {
 
       switch (view.getType()) {
         case PATH:
-          urlBuilder.setTreePath(view.getTreePath() + "/" + name);
+          urlBuilder.setPathPart(view.getPathPart() + "/" + name);
           break;
         case REVISION:
           // Got here from a tag pointing at a tree.
-          urlBuilder.setTreePath(name);
+          urlBuilder.setPathPart(name);
           break;
         default:
           throw new IllegalStateException(String.format(

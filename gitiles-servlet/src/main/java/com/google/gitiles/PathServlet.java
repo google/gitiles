@@ -139,7 +139,7 @@ public class PathServlet extends BaseServlet {
       tw.addTree(root);
       tw.setRecursive(false);
       FileType type;
-      String path = view.getTreePath();
+      String path = view.getPathPart();
       List<Boolean> hasSingleTree;
 
       if (path.isEmpty()) {
@@ -270,7 +270,7 @@ public class PathServlet extends BaseServlet {
     GitilesView view = ViewFilter.getView(req);
     List<String> autodive = view.getParameters().get(AUTODIVE_PARAM);
     if (autodive.size() != 1 || !NO_AUTODIVE_VALUE.equals(autodive.get(0))) {
-      byte[] path = Constants.encode(view.getTreePath());
+      byte[] path = Constants.encode(view.getPathPart());
       CanonicalTreeParser child = getOnlyChildSubtree(rw, id, path);
       if (child != null) {
         while (true) {
@@ -283,7 +283,7 @@ public class PathServlet extends BaseServlet {
           child = next;
         }
         res.sendRedirect(GitilesView.path().copyFrom(view)
-            .setTreePath(
+            .setPathPart(
                 RawParseUtils.decode(child.getEntryPathBuffer(), 0, child.getEntryPathLength()))
             .toUrl());
         return;
@@ -291,7 +291,7 @@ public class PathServlet extends BaseServlet {
     }
     // TODO(sop): Allow caching trees by SHA-1 when no S cookie is sent.
     renderHtml(req, res, "gitiles.pathDetail", ImmutableMap.of(
-        "title", !view.getTreePath().isEmpty() ? view.getTreePath() : "/",
+        "title", !view.getPathPart().isEmpty() ? view.getPathPart() : "/",
         "breadcrumbs", view.getBreadcrumbs(hasSingleTree),
         "type", FileType.TREE.toString(),
         "data", new TreeSoyData(rw, view).toSoyData(id, tw)));
@@ -312,7 +312,7 @@ public class PathServlet extends BaseServlet {
     GitilesView view = ViewFilter.getView(req);
     // TODO(sop): Allow caching files by SHA-1 when no S cookie is sent.
     renderHtml(req, res, "gitiles.pathDetail", ImmutableMap.of(
-        "title", ViewFilter.getView(req).getTreePath(),
+        "title", ViewFilter.getView(req).getPathPart(),
         "breadcrumbs", view.getBreadcrumbs(hasSingleTree),
         "type", FileType.forEntry(tw).toString(),
         "data", new BlobSoyData(rw, view).toSoyData(tw.getPathString(), tw.getObjectId(0))));
@@ -335,7 +335,7 @@ public class PathServlet extends BaseServlet {
       data.put("data", null);
       data.put("size", Long.toString(loader.getSize()));
       renderHtml(req, res, "gitiles.pathDetail", ImmutableMap.of(
-          "title", ViewFilter.getView(req).getTreePath(),
+          "title", ViewFilter.getView(req).getPathPart(),
           "breadcrumbs", view.getBreadcrumbs(hasSingleTree),
           "type", FileType.REGULAR_FILE.toString(),
           "data", data));
@@ -345,10 +345,10 @@ public class PathServlet extends BaseServlet {
     String url = resolveTargetUrl(
         GitilesView.path()
             .copyFrom(view)
-            .setTreePath(dirname(view.getTreePath()))
+            .setPathPart(dirname(view.getPathPart()))
             .build(),
         target);
-    data.put("title", view.getTreePath());
+    data.put("title", view.getPathPart());
     data.put("target", target);
     if (url != null) {
       data.put("targetUrl", url);
@@ -356,7 +356,7 @@ public class PathServlet extends BaseServlet {
 
     // TODO(sop): Allow caching files by SHA-1 when no S cookie is sent.
     renderHtml(req, res, "gitiles.pathDetail", ImmutableMap.of(
-        "title", ViewFilter.getView(req).getTreePath(),
+        "title", ViewFilter.getView(req).getPathPart(),
         "breadcrumbs", view.getBreadcrumbs(hasSingleTree),
         "type", FileType.SYMLINK.toString(),
         "data", data));
@@ -380,7 +380,7 @@ public class PathServlet extends BaseServlet {
       TreeWalk tw, RevTree root, List<Boolean> hasSingleTree) throws IOException {
     GitilesView view = ViewFilter.getView(req);
     SubmoduleWalk sw = SubmoduleWalk.forPath(ServletUtils.getRepository(req), root,
-        view.getTreePath());
+        view.getPathPart());
 
     String modulesUrl;
     String remoteUrl = null;
@@ -412,7 +412,7 @@ public class PathServlet extends BaseServlet {
 
     // TODO(sop): Allow caching links by SHA-1 when no S cookie is sent.
     renderHtml(req, res, "gitiles.pathDetail", ImmutableMap.of(
-        "title", view.getTreePath(),
+        "title", view.getPathPart(),
         "type", FileType.GITLINK.toString(),
         "data", data));
   }

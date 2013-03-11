@@ -57,7 +57,7 @@ public class RefServlet extends BaseServlet {
   @Override
   protected void doGetHtml(HttpServletRequest req, HttpServletResponse res)
       throws IOException {
-    if (!ViewFilter.getView(req).getTreePath().isEmpty()) {
+    if (!ViewFilter.getView(req).getPathPart().isEmpty()) {
       res.setStatus(SC_NOT_FOUND);
       return;
     }
@@ -77,7 +77,7 @@ public class RefServlet extends BaseServlet {
       throws IOException {
     GitilesView view = ViewFilter.getView(req);
     Map<String, Ref> refs = getRefs(ServletUtils.getRepository(req).getRefDatabase(),
-        view.getTreePath());
+        view.getPathPart());
     TextRefAdvertiser adv = new TextRefAdvertiser(startRenderText(req, res));
     adv.setDerefTags(true);
     adv.send(refs);

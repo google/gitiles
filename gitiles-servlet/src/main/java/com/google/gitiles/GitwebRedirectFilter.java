@@ -102,27 +102,27 @@ public class GitwebRedirectFilter extends AbstractHttpFilter {
     } else if ("tree".equals(action)) {
       view = GitilesView.path()
           .setRevision(Objects.firstNonNull(hashBase, Revision.HEAD))
-          .setTreePath(path);
+          .setPathPart(path);
     } else if (("blob".equals(action) || "blob_plain".equals(action))
         && hashBase != null && !path.isEmpty()) {
       view = GitilesView.path()
           .setRevision(hashBase)
-          .setTreePath(path);
+          .setPathPart(path);
     } else if ("commitdiff".equals(action) && hash != null) {
       view = GitilesView.diff()
           .setOldRevision(Objects.firstNonNull(hashParent, Revision.NULL))
           .setRevision(hash)
-          .setTreePath("");
+          .setPathPart("");
     } else if ("blobdiff".equals(action) && !path.isEmpty()
         && hashParentBase != null && hashBase != null) {
       view = GitilesView.diff()
           .setOldRevision(hashParentBase)
           .setRevision(hashBase)
-          .setTreePath(path);
+          .setPathPart(path);
     } else if ("history".equals(action) && !path.isEmpty()) {
       view = GitilesView.log()
           .setRevision(Objects.firstNonNull(hashBase, Revision.HEAD))
-          .setTreePath(path);
+          .setPathPart(path);
     } else {
       // Gitiles does not provide an RSS feed (a=rss,atom,opml)
       // Any other URL is out of date and not valid anymore.

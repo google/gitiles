@@ -198,7 +198,7 @@ public class GitilesView {
       return revision;
     }
 
-    public Builder setTreePath(String path) {
+    public Builder setPathPart(String path) {
       switch (type) {
         case PATH:
         case DIFF:
@@ -213,7 +213,7 @@ public class GitilesView {
       }
     }
 
-    public String getTreePath() {
+    public String getPathPart() {
       return path;
     }
 
@@ -425,7 +425,7 @@ public class GitilesView {
     }
   }
 
-  public String getTreePath() {
+  public String getPathPart() {
     return path;
   }
 
@@ -535,15 +535,15 @@ public class GitilesView {
     if (type == Type.DIFF) {
       // TODO(dborowitz): Tweak the breadcrumbs template to allow us to render
       // separate links in "old..new".
-      breadcrumbs.add(breadcrumb(getRevisionRange(), diff().copyFrom(this).setTreePath("")));
+      breadcrumbs.add(breadcrumb(getRevisionRange(), diff().copyFrom(this).setPathPart("")));
     } else if (type == Type.LOG) {
       if (revision != Revision.NULL) {
         // TODO(dborowitz): Add something in the navigation area (probably not
         // a breadcrumb) to allow switching between /+log/ and /+/.
         if (oldRevision == Revision.NULL) {
-          breadcrumbs.add(breadcrumb(revision.getName(), log().copyFrom(this).setTreePath(null)));
+          breadcrumbs.add(breadcrumb(revision.getName(), log().copyFrom(this).setPathPart(null)));
         } else {
-          breadcrumbs.add(breadcrumb(getRevisionRange(), log().copyFrom(this).setTreePath(null)));
+          breadcrumbs.add(breadcrumb(getRevisionRange(), log().copyFrom(this).setPathPart(null)));
         }
       } else {
         breadcrumbs.add(breadcrumb(Constants.HEAD, log().copyFrom(this)));
@@ -555,7 +555,7 @@ public class GitilesView {
     if (path != null) {
       if (type != Type.LOG && type != Type.REFS) {
         // The "." breadcrumb would be no different for LOG or REFS.
-        breadcrumbs.add(breadcrumb(".", copyWithPath().setTreePath("")));
+        breadcrumbs.add(breadcrumb(".", copyWithPath().setPathPart("")));
       }
       StringBuilder cur = new StringBuilder();
       List<String> parts = ImmutableList.copyOf(Paths.SPLITTER.omitEmptyStrings().split(path));
@@ -567,7 +567,7 @@ public class GitilesView {
         String part = parts.get(i);
         cur.append(part).append('/');
         String curPath = cur.toString();
-        Builder builder = copyWithPath().setTreePath(curPath);
+        Builder builder = copyWithPath().setPathPart(curPath);
         if (hasSingleTree != null && i < parts.size() - 1 && hasSingleTree.get(i)) {
           builder.replaceParam(PathServlet.AUTODIVE_PARAM, PathServlet.NO_AUTODIVE_VALUE);
         }

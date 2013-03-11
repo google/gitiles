@@ -103,7 +103,7 @@ public class ViewFilter extends AbstractHttpFilter {
     if (repoName.isEmpty()) {
       return GitilesView.hostIndex();
     } else if (command.equals(CMD_REFS)) {
-      return GitilesView.refs().setRepositoryName(repoName).setTreePath(path);
+      return GitilesView.refs().setRepositoryName(repoName).setPathPart(path);
     } else if (command.equals(CMD_LOG) && (path.isEmpty() || path.equals("/"))) {
       return GitilesView.log().setRepositoryName(repoName);
     } else if (command.isEmpty()) {
@@ -124,15 +124,15 @@ public class ViewFilter extends AbstractHttpFilter {
     command = getCommand(command, result, path);
     GitilesView.Builder view;
     if (CMD_LOG.equals(command)) {
-      view = GitilesView.log().setTreePath(path);
+      view = GitilesView.log().setPathPart(path);
     } else if (CMD_SHOW.equals(command)) {
       if (path.isEmpty()) {
         view = GitilesView.revision();
       } else {
-        view = GitilesView.path().setTreePath(path);
+        view = GitilesView.path().setPathPart(path);
       }
     } else if (CMD_DIFF.equals(command)) {
-      view = GitilesView.diff().setTreePath(path);
+      view = GitilesView.diff().setPathPart(path);
     } else if (CMD_REFS.equals(command)) {
       view = GitilesView.repositoryIndex();
     } else {

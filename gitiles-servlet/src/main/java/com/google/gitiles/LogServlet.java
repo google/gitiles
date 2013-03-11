@@ -180,8 +180,8 @@ public class LogServlet extends BaseServlet {
     if (view.getOldRevision() != Revision.NULL) {
       walk.markUninteresting(walk.parseCommit(view.getOldRevision().getId()));
     }
-    if (!Strings.isNullOrEmpty(view.getTreePath())) {
-      walk.setTreeFilter(FollowFilter.create(view.getTreePath()));
+    if (!Strings.isNullOrEmpty(view.getPathPart())) {
+      walk.setTreeFilter(FollowFilter.create(view.getPathPart()));
     }
     return walk;
   }

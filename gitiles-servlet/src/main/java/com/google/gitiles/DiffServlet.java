@@ -98,7 +98,7 @@ public class DiffServlet extends BaseServlet {
       OutputStream out = res.getOutputStream();
       try {
         out.write(html[0].getBytes(Charsets.UTF_8));
-        formatHtmlDiff(out, repo, walk, oldTree, newTree, view.getTreePath());
+        formatHtmlDiff(out, repo, walk, oldTree, newTree, view.getPathPart());
         out.write(html[1].getBytes(Charsets.UTF_8));
       } finally {
         out.close();

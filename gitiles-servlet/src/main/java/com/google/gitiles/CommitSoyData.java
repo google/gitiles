@@ -134,14 +134,14 @@ public class CommitSoyData {
           .copyFrom(view)
           .setRevision(rev.getId().equals(commit) ? rev.getName() : commit.name(), commit)
           .setOldRevision(Revision.NULL)
-          .setTreePath(null);
+          .setPathPart(null);
       data.put("logUrl", logView.toUrl());
     }
     if (keys.keys.contains("tree")) {
       data.put("tree", ObjectId.toString(commit.getTree()));
     }
     if (keys.keys.contains("treeUrl")) {
-      data.put("treeUrl", GitilesView.path().copyFrom(view).setTreePath("/").toUrl());
+      data.put("treeUrl", GitilesView.path().copyFrom(view).setPathPart("/").toUrl());
     }
     if (keys.keys.contains("parents")) {
       data.put("parents", toSoyData(view, commit.getParents()));
@@ -191,7 +191,7 @@ public class CommitSoyData {
     // viewing a diff against one of the parents.
     for (RevCommit parent : parents) {
       String name = parent.name();
-      GitilesView.Builder diff = GitilesView.diff().copyFrom(view).setTreePath("");
+      GitilesView.Builder diff = GitilesView.diff().copyFrom(view).setPathPart("");
       String parentName;
       if (parents.length == 1) {
         parentName = view.getRevision().getName() + "^";
@@ -218,7 +218,7 @@ public class CommitSoyData {
   private Object computeDiffTree(RevCommit commit) throws IOException {
     AbstractTreeIterator oldTree;
     GitilesView.Builder diffUrl = GitilesView.diff().copyFrom(view)
-        .setTreePath("");
+        .setPathPart("");
     Revision oldRevision;
     switch (commit.getParentCount()) {
       case 0:
@@ -249,14 +249,14 @@ public class CommitSoyData {
           entry.put("path", e.getNewPath());
           entry.put("url", GitilesView.path()
               .copyFrom(view)
-              .setTreePath(e.getNewPath())
+              .setPathPart(e.getNewPath())
               .toUrl());
         } else {
           entry.put("path", e.getOldPath());
           entry.put("url", GitilesView.path()
               .copyFrom(view)
               .setRevision(oldRevision)
-              .setTreePath(e.getOldPath())
+              .setPathPart(e.getOldPath())
               .toUrl());
         }
         entry.put("diffUrl", diffUrl.setAnchor("F" + result.size()).toUrl());

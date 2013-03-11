@@ -40,7 +40,7 @@ public class GitilesViewTest extends TestCase {
     assertEquals("host", view.getHostName());
     assertNull(view.getRepositoryName());
     assertEquals(Revision.NULL, view.getRevision());
-    assertNull(view.getTreePath());
+    assertNull(view.getPathPart());
     assertTrue(HOST.getParameters().isEmpty());
 
     assertEquals("/?format=HTML", view.toUrl());
@@ -54,7 +54,7 @@ public class GitilesViewTest extends TestCase {
     assertEquals("host", HOST.getHostName());
     assertNull(HOST.getRepositoryName());
     assertEquals(Revision.NULL, HOST.getRevision());
-    assertNull(HOST.getTreePath());
+    assertNull(HOST.getPathPart());
     assertTrue(HOST.getParameters().isEmpty());
 
     assertEquals("/b/?format=HTML", HOST.toUrl());
@@ -73,7 +73,7 @@ public class GitilesViewTest extends TestCase {
     assertEquals("host", view.getHostName());
     assertNull(view.getRepositoryName());
     assertEquals(Revision.NULL, view.getRevision());
-    assertNull(view.getTreePath());
+    assertNull(view.getPathPart());
     assertEquals(
         ImmutableListMultimap.of(
             "foo", "foovalue",
@@ -106,7 +106,7 @@ public class GitilesViewTest extends TestCase {
     assertEquals("host", view.getHostName());
     assertEquals("foo/bar", view.getRepositoryName());
     assertEquals(Revision.NULL, view.getRevision());
-    assertNull(view.getTreePath());
+    assertNull(view.getPathPart());
     assertTrue(HOST.getParameters().isEmpty());
 
     assertEquals("/b/foo/bar/", view.toUrl());
@@ -128,7 +128,7 @@ public class GitilesViewTest extends TestCase {
     assertEquals("host", view.getHostName());
     assertEquals("foo/bar", view.getRepositoryName());
     assertEquals(Revision.NULL, view.getRevision());
-    assertNull(view.getTreePath());
+    assertNull(view.getPathPart());
     assertTrue(HOST.getParameters().isEmpty());
 
     assertEquals("/b/foo/bar/+refs", view.toUrl());
@@ -153,7 +153,7 @@ public class GitilesViewTest extends TestCase {
     assertEquals("foo/bar", view.getRepositoryName());
     assertEquals(id, view.getRevision().getId());
     assertEquals("master", view.getRevision().getName());
-    assertNull(view.getTreePath());
+    assertNull(view.getPathPart());
     assertTrue(HOST.getParameters().isEmpty());
 
     assertEquals("/b/foo/bar/+/master", view.toUrl());
@@ -171,7 +171,7 @@ public class GitilesViewTest extends TestCase {
         .copyFrom(HOST)
         .setRepositoryName("foo/bar")
         .setRevision(Revision.unpeeled("master", id))
-        .setTreePath("/")
+        .setPathPart("/")
         .build();
 
     assertEquals("/b", view.getServletPath());
@@ -180,7 +180,7 @@ public class GitilesViewTest extends TestCase {
     assertEquals("foo/bar", view.getRepositoryName());
     assertEquals(id, view.getRevision().getId());
     assertEquals("master", view.getRevision().getName());
-    assertEquals("", view.getTreePath());
+    assertEquals("", view.getPathPart());
     assertTrue(HOST.getParameters().isEmpty());
 
     assertEquals("/b/foo/bar/+/master/", view.toUrl());
@@ -199,7 +199,7 @@ public class GitilesViewTest extends TestCase {
         .copyFrom(HOST)
         .setRepositoryName("foo/bar")
         .setRevision(Revision.unpeeled("master", id))
-        .setTreePath("/file")
+        .setPathPart("/file")
         .build();
 
     assertEquals("/b", view.getServletPath());
@@ -208,7 +208,7 @@ public class GitilesViewTest extends TestCase {
     assertEquals("foo/bar", view.getRepositoryName());
     assertEquals(id, view.getRevision().getId());
     assertEquals("master", view.getRevision().getName());
-    assertEquals("file", view.getTreePath());
+    assertEquals("file", view.getPathPart());
     assertTrue(HOST.getParameters().isEmpty());
 
     assertEquals("/b/foo/bar/+/master/file", view.toUrl());
@@ -228,7 +228,7 @@ public class GitilesViewTest extends TestCase {
         .copyFrom(HOST)
         .setRepositoryName("foo/bar")
         .setRevision(Revision.unpeeled("master", id))
-        .setTreePath("/path/to/a/file")
+        .setPathPart("/path/to/a/file")
         .build();
 
     assertEquals("/b", view.getServletPath());
@@ -237,7 +237,7 @@ public class GitilesViewTest extends TestCase {
     assertEquals("foo/bar", view.getRepositoryName());
     assertEquals(id, view.getRevision().getId());
     assertEquals("master", view.getRevision().getName());
-    assertEquals("path/to/a/file", view.getTreePath());
+    assertEquals("path/to/a/file", view.getPathPart());
     assertTrue(HOST.getParameters().isEmpty());
 
     assertEquals("/b/foo/bar/+/master/path/to/a/file", view.toUrl());
@@ -262,7 +262,7 @@ public class GitilesViewTest extends TestCase {
         .setRepositoryName("foo/bar")
         .setRevision(Revision.unpeeled("master", id))
         .setOldRevision(Revision.unpeeled("master^", parent))
-        .setTreePath("/path/to/a/file")
+        .setPathPart("/path/to/a/file")
         .build();
 
     assertEquals("/b", view.getServletPath());
@@ -272,7 +272,7 @@ public class GitilesViewTest extends TestCase {
     assertEquals(id, view.getRevision().getId());
     assertEquals("master", view.getRevision().getName());
     assertEquals("master^", view.getOldRevision().getName());
-    assertEquals("path/to/a/file", view.getTreePath());
+    assertEquals("path/to/a/file", view.getPathPart());
     assertTrue(HOST.getParameters().isEmpty());
 
     assertEquals("/b/foo/bar/+/master%5E%21/path/to/a/file", view.toUrl());
@@ -295,7 +295,7 @@ public class GitilesViewTest extends TestCase {
         .copyFrom(HOST)
         .setRepositoryName("foo/bar")
         .setRevision(Revision.unpeeled("master", id))
-        .setTreePath("/path/to/a/file")
+        .setPathPart("/path/to/a/file")
         .build();
 
     assertEquals("/b", view.getServletPath());
@@ -305,7 +305,7 @@ public class GitilesViewTest extends TestCase {
     assertEquals(id, view.getRevision().getId());
     assertEquals("master", view.getRevision().getName());
     assertEquals(Revision.NULL, view.getOldRevision());
-    assertEquals("path/to/a/file", view.getTreePath());
+    assertEquals("path/to/a/file", view.getPathPart());
     assertTrue(HOST.getParameters().isEmpty());
 
     assertEquals("/b/foo/bar/+/master%5E%21/path/to/a/file", view.toUrl());
@@ -330,7 +330,7 @@ public class GitilesViewTest extends TestCase {
         .setRepositoryName("foo/bar")
         .setRevision(Revision.unpeeled("master", id))
         .setOldRevision(Revision.unpeeled("efab5678", other))
-        .setTreePath("/path/to/a/file")
+        .setPathPart("/path/to/a/file")
         .build();
 
     assertEquals("/b", view.getServletPath());
@@ -340,7 +340,7 @@ public class GitilesViewTest extends TestCase {
     assertEquals(id, view.getRevision().getId());
     assertEquals("master", view.getRevision().getName());
     assertEquals("efab5678", view.getOldRevision().getName());
-    assertEquals("path/to/a/file", view.getTreePath());
+    assertEquals("path/to/a/file", view.getPathPart());
     assertTrue(HOST.getParameters().isEmpty());
 
     assertEquals("/b/foo/bar/+/efab5678..master/path/to/a/file", view.toUrl());
@@ -372,7 +372,7 @@ public class GitilesViewTest extends TestCase {
     assertEquals(id, view.getRevision().getId());
     assertEquals("master", view.getRevision().getName());
     assertEquals(Revision.NULL, view.getOldRevision());
-    assertNull(view.getTreePath());
+    assertNull(view.getPathPart());
     assertTrue(HOST.getParameters().isEmpty());
 
     assertEquals("/b/foo/bar/+log/master", view.toUrl());
@@ -399,7 +399,7 @@ public class GitilesViewTest extends TestCase {
     assertEquals(id, view.getRevision().getId());
     assertEquals("abcd1234", view.getRevision().getName());
     assertEquals(Revision.NULL, view.getOldRevision());
-    assertNull(view.getTreePath());
+    assertNull(view.getPathPart());
     assertTrue(HOST.getParameters().isEmpty());
 
     assertEquals("/b/foo/bar/+log/abcd1234", view.toUrl());
@@ -417,7 +417,7 @@ public class GitilesViewTest extends TestCase {
         .copyFrom(HOST)
         .setRepositoryName("foo/bar")
         .setRevision(Revision.unpeeled("master", id))
-        .setTreePath("/path/to/a/file")
+        .setPathPart("/path/to/a/file")
         .build();
 
     assertEquals("/b", view.getServletPath());
@@ -427,7 +427,7 @@ public class GitilesViewTest extends TestCase {
     assertEquals(id, view.getRevision().getId());
     assertEquals("master", view.getRevision().getName());
     assertEquals(Revision.NULL, view.getOldRevision());
-    assertEquals("path/to/a/file", view.getTreePath());
+    assertEquals("path/to/a/file", view.getPathPart());
     assertTrue(HOST.getParameters().isEmpty());
 
     assertEquals("/b/foo/bar/+log/master/path/to/a/file", view.toUrl());
@@ -451,7 +451,7 @@ public class GitilesViewTest extends TestCase {
         .setRepositoryName("foo/bar")
         .setRevision(Revision.unpeeled("master", id))
         .setOldRevision(Revision.unpeeled("master^", parent))
-        .setTreePath("/path/to/a/file")
+        .setPathPart("/path/to/a/file")
         .build();
 
     assertEquals("/b", view.getServletPath());
@@ -461,7 +461,7 @@ public class GitilesViewTest extends TestCase {
     assertEquals(id, view.getRevision().getId());
     assertEquals("master", view.getRevision().getName());
     assertEquals("master^", view.getOldRevision().getName());
-    assertEquals("path/to/a/file", view.getTreePath());
+    assertEquals("path/to/a/file", view.getPathPart());
     assertTrue(HOST.getParameters().isEmpty());
 
     assertEquals("/b/foo/bar/+log/master%5E..master/path/to/a/file", view.toUrl());
@@ -509,7 +509,7 @@ public class GitilesViewTest extends TestCase {
         .setRepositoryName("foo?bar")
         .setRevision(Revision.unpeeled("ba/d#name", id))
         .setOldRevision(Revision.unpeeled("other\"na/me", parent))
-        .setTreePath("we ird/pa'th/name")
+        .setPathPart("we ird/pa'th/name")
         .putParam("k e y", "val/ue")
         .setAnchor("anc#hor")
         .build();
@@ -523,7 +523,7 @@ public class GitilesViewTest extends TestCase {
     assertEquals("ba/d#name", view.getRevision().getName());
     assertEquals(parent, view.getOldRevision().getId());
     assertEquals("other\"na/me", view.getOldRevision().getName());
-    assertEquals("we ird/pa'th/name", view.getTreePath());
+    assertEquals("we ird/pa'th/name", view.getPathPart());
     assertEquals(ImmutableListMultimap.<String, String> of("k e y", "val/ue"),
         view.getParameters());
 
@@ -549,7 +549,7 @@ public class GitilesViewTest extends TestCase {
         .copyFrom(HOST)
         .setRepositoryName("foo/bar")
         .setRevision(Revision.unpeeled("master", id))
-        .setTreePath("/path/to/a/file")
+        .setPathPart("/path/to/a/file")
         .build();
 
     assertEquals("/b/foo/bar/+/master/path/to/a/file", view.toUrl());
@@ -583,7 +583,7 @@ public class GitilesViewTest extends TestCase {
         .copyFrom(HOST)
         .setRepositoryName("foo/bar")
         .setRevision(Revision.unpeeled("master", id))
-        .setTreePath("")
+        .setPathPart("")
         .build();
 
     assertEquals("/b/foo/bar/+/master/", view.toUrl());

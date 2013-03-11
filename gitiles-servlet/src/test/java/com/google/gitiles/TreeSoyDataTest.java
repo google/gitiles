@@ -45,7 +45,7 @@ public class TreeSoyDataTest extends TestCase {
         .setHostName("host")
         .setRepositoryName("repo")
         .setRevision(Revision.unpeeled("m", id))
-        .setTreePath("a/b/c")
+        .setPathPart("a/b/c")
         .build();
     assertNull(resolveTargetUrl(view, "/foo"));
     assertEquals("/x/repo/+/m/a", resolveTargetUrl(view, "../../"));
