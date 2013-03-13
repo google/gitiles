@@ -167,7 +167,7 @@ public class RefServlet extends BaseServlet {
     return result;
   }
 
-  private static String sanitizeRefForText(String refName) {
+  static String sanitizeRefForText(String refName) {
     return refName.replace("&", "&amp;")
         .replace("<", "&lt;")
         .replace(">", "&gt;");

@@ -258,6 +258,27 @@ public abstract class BaseServlet extends HttpServlet {
     return res.getWriter();
   }
 
+  /**
+   * Render an error as plain text.
+   *
+   * @param req in-progress request.
+   * @param res in-progress response.
+   * @param statusCode HTTP status code.
+   * @param message full message text.
+   *
+   * @throws IOException
+   */
+  protected void renderTextError(HttpServletRequest req, HttpServletResponse res, int statusCode,
+      String message) throws IOException {
+    res.setStatus(statusCode);
+    res.setContentType(TEXT.getMimeType());
+    res.setCharacterEncoding("UTF-8");
+    setCacheHeaders(req, res);
+    PrintWriter out = res.getWriter();
+    out.write(message);
+    out.close();
+  }
+
   protected void setCacheHeaders(HttpServletRequest req, HttpServletResponse res) {
     setNotCacheable(res);
   }

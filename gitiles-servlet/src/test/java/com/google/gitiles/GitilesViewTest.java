@@ -165,6 +165,22 @@ public class GitilesViewTest extends TestCase {
         view.getBreadcrumbs());
   }
 
+  public void testDescribe() throws Exception {
+    GitilesView view = GitilesView.describe()
+        .copyFrom(HOST)
+        .setRepositoryName("foo/bar")
+        .setPathPart("deadbeef")
+        .build();
+
+    assertEquals("/b", view.getServletPath());
+    assertEquals(Type.DESCRIBE, view.getType());
+    assertEquals("host", view.getHostName());
+    assertEquals("foo/bar", view.getRepositoryName());
+    assertEquals(Revision.NULL, view.getRevision());
+    assertEquals("deadbeef", view.getPathPart());
+    assertTrue(HOST.getParameters().isEmpty());
+  }
+
   public void testNoPathComponents() throws Exception {
     ObjectId id = ObjectId.fromString("abcd1234abcd1234abcd1234abcd1234abcd1234");
     GitilesView view = GitilesView.path()

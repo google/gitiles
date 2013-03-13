@@ -135,6 +135,27 @@ public class ViewFilterTest extends TestCase {
     assertEquals("heads/master", view.getPathPart());
   }
 
+  public void testDescribe() throws Exception {
+    GitilesView view;
+
+    assertNull(getView("/repo/+describe"));
+    assertNull(getView("/repo/+describe/"));
+
+    view = getView("/repo/+describe/deadbeef");
+    assertEquals(Type.DESCRIBE, view.getType());
+    assertEquals("repo", view.getRepositoryName());
+    assertEquals(Revision.NULL, view.getRevision());
+    assertEquals(Revision.NULL, view.getOldRevision());
+    assertEquals("deadbeef", view.getPathPart());
+
+    view = getView("/repo/+describe/refs/heads/master~3^~2");
+    assertEquals(Type.DESCRIBE, view.getType());
+    assertEquals("repo", view.getRepositoryName());
+    assertEquals(Revision.NULL, view.getRevision());
+    assertEquals(Revision.NULL, view.getOldRevision());
+    assertEquals("refs/heads/master~3^~2", view.getPathPart());
+  }
+
   public void testBranches() throws Exception {
     RevCommit master = repo.branch("refs/heads/master").commit().create();
     RevCommit stable = repo.branch("refs/heads/stable").commit().create();

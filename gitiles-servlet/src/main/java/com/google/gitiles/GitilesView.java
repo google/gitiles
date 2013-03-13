@@ -55,7 +55,8 @@ public class GitilesView {
     REVISION,
     PATH,
     DIFF,
-    LOG;
+    LOG,
+    DESCRIBE;
   }
 
   /** Exception thrown when building a view that is invalid. */
@@ -98,6 +99,7 @@ public class GitilesView {
         case REVISION:
           revision = other.revision;
           // Fallthrough.
+        case DESCRIBE:
         case REFS:
         case REPOSITORY_INDEX:
           repositoryName = other.repositoryName;
@@ -151,6 +153,7 @@ public class GitilesView {
         case HOST_INDEX:
         case REPOSITORY_INDEX:
         case REFS:
+        case DESCRIBE:
           throw new IllegalStateException(String.format("cannot set revision on %s view", type));
         default:
           this.revision = checkNotNull(revision);
@@ -204,6 +207,7 @@ public class GitilesView {
         case DIFF:
           this.path = maybeTrimLeadingAndTrailingSlash(checkNotNull(path));
           return this;
+        case DESCRIBE:
         case REFS:
         case LOG:
           this.path = path != null ? maybeTrimLeadingAndTrailingSlash(path) : null;
@@ -260,6 +264,9 @@ public class GitilesView {
         case REFS:
           checkRefs();
           break;
+        case DESCRIBE:
+          checkDescribe();
+          break;
         case REVISION:
           checkRevision();
           break;
@@ -301,6 +308,10 @@ public class GitilesView {
       checkRepositoryIndex();
     }
 
+    private void checkDescribe() {
+      checkRepositoryIndex();
+    }
+
     private void checkRevision() {
       checkView(revision != Revision.NULL, "missing revision on %s view", type);
       checkRepositoryIndex();
@@ -330,6 +341,10 @@ public class GitilesView {
 
   public static Builder refs() {
     return new Builder(Type.REFS);
+  }
+
+  public static Builder describe() {
+    return new Builder(Type.DESCRIBE);
   }
 
   public static Builder revision() {
@@ -459,6 +474,9 @@ public class GitilesView {
       case REFS:
         url.append(repositoryName).append("/+refs");
         break;
+      case DESCRIBE:
+        url.append(repositoryName).append("/+describe");
+        break;
       case REVISION:
         url.append(repositoryName).append("/+/").append(revision.getName());
         break;
@@ -522,6 +540,8 @@ public class GitilesView {
    *     auto-diving into one-entry subtrees.
    */
   public List<Map<String, String>> getBreadcrumbs(List<Boolean> hasSingleTree) {
+    checkArgument(type != Type.DESCRIBE,
+        "breadcrumbs for DESCRIBE view not supported");
     checkArgument(type != Type.REFS || Strings.isNullOrEmpty(path),
         "breadcrumbs for REFS view with path not supported");
     checkArgument(hasSingleTree == null || type == Type.PATH,

@@ -240,6 +240,8 @@ class GitilesFilter extends MetaFilter {
         return new DiffServlet(renderer, linkifier());
       case LOG:
         return new LogServlet(renderer, linkifier());
+      case DESCRIBE:
+        return new DescribeServlet();
       default:
         throw new IllegalArgumentException("Invalid view type: " + view);
     }

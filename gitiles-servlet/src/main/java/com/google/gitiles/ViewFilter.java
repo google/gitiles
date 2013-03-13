@@ -39,6 +39,7 @@ public class ViewFilter extends AbstractHttpFilter {
   private static final String VIEW_ATTIRBUTE = ViewFilter.class.getName() + "/View";
 
   private static final String CMD_AUTO = "+";
+  private static final String CMD_DESCRIBE = "+describe";
   private static final String CMD_DIFF = "+diff";
   private static final String CMD_LOG = "+log";
   private static final String CMD_REFS = "+refs";
@@ -98,14 +99,17 @@ public class ViewFilter extends AbstractHttpFilter {
     String repoName = trimLeadingSlash(getRegexGroup(req, 1));
     String command = getRegexGroup(req, 2);
     String path = getRegexGroup(req, 3);
+    boolean emptyPath = (path.isEmpty() || path.equals("/"));
 
     // Non-path cases.
     if (repoName.isEmpty()) {
       return GitilesView.hostIndex();
     } else if (command.equals(CMD_REFS)) {
       return GitilesView.refs().setRepositoryName(repoName).setPathPart(path);
-    } else if (command.equals(CMD_LOG) && (path.isEmpty() || path.equals("/"))) {
+    } else if (command.equals(CMD_LOG) && emptyPath) {
       return GitilesView.log().setRepositoryName(repoName);
+    } else if (command.equals(CMD_DESCRIBE) && !emptyPath) {
+      return GitilesView.describe().setRepositoryName(repoName).setPathPart(path);
     } else if (command.isEmpty()) {
       return GitilesView.repositoryIndex().setRepositoryName(repoName);
     } else if (path.isEmpty()) {
