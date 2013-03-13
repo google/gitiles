@@ -384,8 +384,14 @@ public class ViewFilterTest extends TestCase {
     } else {
       req.setPathInfo(pathAndQuery);
     }
-    new MetaServlet(mf){}.service(req, new FakeHttpServletResponse());
+    dummyServlet(mf).service(req, new FakeHttpServletResponse());
 
     return view.get();
+  }
+
+  private MetaServlet dummyServlet(MetaFilter mf) {
+    return new MetaServlet(mf) {
+      private static final long serialVersionUID = 1L;
+    };
   }
 }
