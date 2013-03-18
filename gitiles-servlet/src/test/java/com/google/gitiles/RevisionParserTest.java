@@ -17,19 +17,18 @@ package com.google.gitiles;
 import static org.eclipse.jgit.lib.Constants.OBJ_BLOB;
 import static org.eclipse.jgit.lib.Constants.OBJ_COMMIT;
 import static org.eclipse.jgit.lib.Constants.OBJ_TAG;
-
-import com.google.common.cache.CacheBuilder;
-import com.google.gitiles.RevisionParser.Result;
-
 import junit.framework.TestCase;
 
+import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
+import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
+import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
 import org.eclipse.jgit.junit.TestRepository;
 import org.eclipse.jgit.revwalk.RevBlob;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTag;
-import org.eclipse.jgit.storage.dfs.DfsRepository;
-import org.eclipse.jgit.storage.dfs.DfsRepositoryDescription;
-import org.eclipse.jgit.storage.dfs.InMemoryRepository;
+
+import com.google.common.cache.CacheBuilder;
+import com.google.gitiles.RevisionParser.Result;
 
 /** Tests for the revision parser. */
 public class RevisionParserTest extends TestCase {

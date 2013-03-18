@@ -15,7 +15,6 @@
 package com.google.gitiles;
 
 import static com.google.gitiles.ConfigUtil.getDuration;
-
 import junit.framework.TestCase;
 
 import org.eclipse.jgit.lib.Config;

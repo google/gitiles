@@ -14,14 +14,14 @@
 
 package com.google.gitiles;
 
+import junit.framework.TestCase;
+
+import org.eclipse.jgit.lib.ObjectId;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.gitiles.GitilesView.Type;
-
-import junit.framework.TestCase;
-
-import org.eclipse.jgit.lib.ObjectId;
 
 /** Tests for Gitiles views. */
 public class GitilesViewTest extends TestCase {

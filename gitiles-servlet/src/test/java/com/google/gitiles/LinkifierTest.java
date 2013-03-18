@@ -14,12 +14,12 @@
 
 package com.google.gitiles;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+import javax.servlet.http.HttpServletRequest;
 
 import junit.framework.TestCase;
 
-import javax.servlet.http.HttpServletRequest;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 /** Tests for {@link Linkifier}. */
 public class LinkifierTest extends TestCase {

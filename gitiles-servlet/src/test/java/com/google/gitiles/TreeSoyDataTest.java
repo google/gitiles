@@ -16,12 +16,11 @@ package com.google.gitiles;
 
 import static com.google.gitiles.TreeSoyData.getTargetDisplayName;
 import static com.google.gitiles.TreeSoyData.resolveTargetUrl;
-
-import com.google.common.base.Strings;
-
 import junit.framework.TestCase;
 
 import org.eclipse.jgit.lib.ObjectId;
+
+import com.google.common.base.Strings;
 
 /** Tests for {@link TreeSoyData}. */
 public class TreeSoyDataTest extends TestCase {

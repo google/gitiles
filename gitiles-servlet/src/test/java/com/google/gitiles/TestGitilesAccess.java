@@ -16,14 +16,14 @@ package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.collect.ImmutableMap;
-
-import org.eclipse.jgit.storage.dfs.DfsRepository;
-
 import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
+
+import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
+
+import com.google.common.collect.ImmutableMap;
 
 /** Gitiles access for testing. */
 public class TestGitilesAccess implements GitilesAccess.Factory {

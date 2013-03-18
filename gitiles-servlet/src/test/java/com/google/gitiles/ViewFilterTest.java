@@ -19,20 +19,6 @@ import static com.google.gitiles.GitilesFilter.REPO_PATH_REGEX;
 import static com.google.gitiles.GitilesFilter.REPO_REGEX;
 import static com.google.gitiles.GitilesFilter.ROOT_REGEX;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.util.concurrent.Atomics;
-import com.google.gitiles.GitilesView.Type;
-
-import junit.framework.TestCase;
-
-import org.eclipse.jgit.http.server.glue.MetaFilter;
-import org.eclipse.jgit.http.server.glue.MetaServlet;
-import org.eclipse.jgit.junit.TestRepository;
-import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.storage.dfs.DfsRepository;
-import org.eclipse.jgit.storage.dfs.DfsRepositoryDescription;
-import org.eclipse.jgit.storage.dfs.InMemoryRepository;
-
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
@@ -41,6 +27,20 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import junit.framework.TestCase;
+
+import org.eclipse.jgit.http.server.glue.MetaFilter;
+import org.eclipse.jgit.http.server.glue.MetaServlet;
+import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
+import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
+import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
+import org.eclipse.jgit.junit.TestRepository;
+import org.eclipse.jgit.revwalk.RevCommit;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.Atomics;
+import com.google.gitiles.GitilesView.Type;
 
 /** Tests for the view filter. */
 public class ViewFilterTest extends TestCase {

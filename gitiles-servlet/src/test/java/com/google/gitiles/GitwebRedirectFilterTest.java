@@ -16,22 +16,21 @@ package com.google.gitiles;
 
 import static com.google.gitiles.FakeHttpServletRequest.SERVLET_PATH;
 import static com.google.gitiles.TestGitilesUrls.HOST_NAME;
-
 import static javax.servlet.http.HttpServletResponse.SC_GONE;
 import static javax.servlet.http.HttpServletResponse.SC_MOVED_PERMANENTLY;
 
-import com.google.common.net.HttpHeaders;
+import javax.servlet.http.HttpServletRequest;
 
 import junit.framework.TestCase;
 
+import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
+import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
+import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
 import org.eclipse.jgit.junit.TestRepository;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.storage.dfs.DfsRepository;
-import org.eclipse.jgit.storage.dfs.DfsRepositoryDescription;
-import org.eclipse.jgit.storage.dfs.InMemoryRepository;
 
-import javax.servlet.http.HttpServletRequest;
+import com.google.common.net.HttpHeaders;
 
 /** Tests for gitweb redirector. */
 public class GitwebRedirectFilterTest extends TestCase {

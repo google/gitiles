@@ -15,7 +15,6 @@
 package com.google.gitiles;
 
 import static com.google.gitiles.GitilesUrls.NAME_ESCAPER;
-
 import junit.framework.TestCase;
 
 /** Unit tests for {@link GitilesUrls}. */

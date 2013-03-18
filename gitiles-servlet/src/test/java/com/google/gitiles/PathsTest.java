@@ -15,7 +15,6 @@
 package com.google.gitiles;
 
 import static com.google.gitiles.Paths.simplifyPathUpToRoot;
-
 import junit.framework.TestCase;
 
 /** Tests for {@link Paths}. */

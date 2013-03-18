@@ -18,9 +18,9 @@ import static com.google.gitiles.GitilesFilter.REPO_PATH_REGEX;
 import static com.google.gitiles.GitilesFilter.REPO_REGEX;
 import static com.google.gitiles.GitilesFilter.ROOT_REGEX;
 
-import junit.framework.TestCase;
-
 import java.util.regex.Matcher;
+
+import junit.framework.TestCase;
 
 /** Tests for the Gitiles filter. */
 public class GitilesFilterTest extends TestCase {
