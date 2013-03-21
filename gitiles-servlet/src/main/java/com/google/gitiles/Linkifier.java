@@ -33,7 +33,10 @@ public class Linkifier {
 
   static {
     // HTTP URL regex adapted from com.google.gwtexpui.safehtml.client.SafeHtml.
-    String part = "[a-zA-Z0-9$_.+!*',%;:@=?#/~<>-]";
+    String part = "(?:" +
+        "[a-zA-Z0-9$_.+!*',%;:@=?#/~<>-]" +
+        "|&(?!lt;|gt;)" +
+        ")";
     String httpUrl = "https?://" +
         part + "{2,}" +
         "(?:[(]" + part + "*" + "[)])*" +
