@@ -27,12 +27,12 @@ import javax.servlet.http.HttpServletRequest;
  * This implementation uses statically-configured defaults, and thus assumes
  * that the servlet is running a single virtual host.
  */
-class DefaultUrls implements GitilesUrls {
+public class DefaultUrls implements GitilesUrls {
   private final String canonicalHostName;
   private final String baseGitUrl;
   private final String baseGerritUrl;
 
-  DefaultUrls(String canonicalHostName, String baseGitUrl, String baseGerritUrl)
+  public DefaultUrls(String canonicalHostName, String baseGitUrl, String baseGerritUrl)
       throws UnknownHostException {
     if (canonicalHostName != null) {
       this.canonicalHostName = canonicalHostName;
