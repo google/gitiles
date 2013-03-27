@@ -50,7 +50,7 @@ public class GitilesConfig {
 
   public static Config loadDefault(FilterConfig filterConfig)
       throws IOException, ConfigInvalidException {
-    FileBasedConfig config = new FileBasedConfig(defaultFile(), FS.DETECTED);
+    FileBasedConfig config = new FileBasedConfig(defaultFile(filterConfig), FS.DETECTED);
     config.load();
     return config;
   }
