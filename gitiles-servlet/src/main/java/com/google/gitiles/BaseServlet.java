@@ -72,6 +72,17 @@ public abstract class BaseServlet extends HttpServlet {
     }
   }
 
+  /**
+   * Put a value into a request's Soy data map.
+   *
+   * @param req in-progress request.
+   * @param key key.
+   * @param value Soy data value.
+   */
+  public static void putSoyData(HttpServletRequest req, String key, Object value) {
+    getData(req).put(key, value);
+  }
+
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse res)
       throws IOException, ServletException {
@@ -157,21 +168,6 @@ public abstract class BaseServlet extends HttpServlet {
 
   protected BaseServlet(Renderer renderer) {
     this.renderer = renderer;
-  }
-
-  /**
-   * Put a value into a request's Soy data map.
-   * <p>
-   * This method is intended to support a composition pattern whereby a
-   * {@link BaseServlet} is wrapped in a different {@link HttpServlet} that can
-   * update its data map.
-   *
-   * @param req in-progress request.
-   * @param key key.
-   * @param value Soy data value.
-   */
-  public void put(HttpServletRequest req, String key, Object value) {
-    getData(req).put(key, value);
   }
 
   /**
