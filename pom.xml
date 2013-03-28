@@ -31,9 +31,9 @@ limitations under the License.
   </description>
 
   <properties>
-    <!-- Should track Gerrit's jgitVersion fairly closely. -->
-    <jgitVersion>2.3.1.201302201838-r.70-gf32b861</jgitVersion>
-    <jettyVersion>7.6.8.v20121106</jettyVersion>
+    <!-- Should track Gerrit's versions fairly closely. -->
+    <jgitVersion>2.3.1.201302201838-r.78-g8fcde4b</jgitVersion>
+    <jettyVersion>8.1.7.v20120910</jettyVersion>
     <slf4jVersion>1.6.1</slf4jVersion>
   </properties>
 
@@ -48,7 +48,7 @@ limitations under the License.
       <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
-        <version>13.0</version>
+        <version>14.0</version>
       </dependency>
 
       <dependency>
@@ -90,7 +90,7 @@ limitations under the License.
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
-        <version>3.8.1</version>
+        <version>4.11</version>
       </dependency>
 
       <dependency>
