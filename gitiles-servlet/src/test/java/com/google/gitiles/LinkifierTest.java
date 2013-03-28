@@ -110,4 +110,16 @@ public class LinkifierTest extends TestCase {
           "url", "http://test-host-review/foo/#/q/I0123456789,n,z")),
         l.linkify(REQ, "http://my/url/I0123456789 is not change I0123456789"));
   }
+
+  public void testLinkifyAmpersand() throws Exception {
+    Linkifier l = new Linkifier(TestGitilesUrls.URLS);
+    assertEquals(ImmutableList.of(
+        ImmutableMap.of("text", "http://my/url?a&b", "url", "http://my/url?a&b")),
+        l.linkify(REQ, "http://my/url?a&b"));
+    assertEquals(ImmutableList.of(
+        ImmutableMap.of("text", "http://weird/htmlified/?url",
+          "url", "http://weird/htmlified/?url"),
+        ImmutableMap.of("text", "&lt;p&rt;")),
+        l.linkify(REQ, "http://weird/htmlified/?url&lt;p&rt;"));
+  }
 }
