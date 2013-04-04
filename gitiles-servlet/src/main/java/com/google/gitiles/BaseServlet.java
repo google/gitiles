@@ -23,15 +23,6 @@ import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 
-import com.google.common.base.Charsets;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
-import com.google.common.net.HttpHeaders;
-import com.google.gson.FieldNamingPolicy;
-import com.google.gson.GsonBuilder;
-
-import org.joda.time.Instant;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Type;
@@ -41,6 +32,15 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.joda.time.Instant;
+
+import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+import com.google.common.net.HttpHeaders;
+import com.google.gson.FieldNamingPolicy;
+import com.google.gson.GsonBuilder;
 
 /** Base servlet class for Gitiles servlets that serve Soy templates. */
 public abstract class BaseServlet extends HttpServlet {
@@ -213,10 +213,7 @@ public abstract class BaseServlet extends HttpServlet {
    */
   protected void renderJson(HttpServletRequest req, HttpServletResponse res, Object src,
       Type typeOfSrc) throws IOException {
-    res.setContentType(JSON.getMimeType());
-    res.setCharacterEncoding("UTF-8");
-    res.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment");
-    setCacheHeaders(req, res);
+    setApiHeaders(req, res, JSON);
     res.setStatus(SC_OK);
 
     PrintWriter writer = res.getWriter();
@@ -247,10 +244,7 @@ public abstract class BaseServlet extends HttpServlet {
    */
   protected PrintWriter startRenderText(HttpServletRequest req, HttpServletResponse res)
       throws IOException {
-    res.setContentType(TEXT.getMimeType());
-    res.setCharacterEncoding("UTF-8");
-    res.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment");
-    setCacheHeaders(req, res);
+    setApiHeaders(req, res, TEXT);
     return res.getWriter();
   }
 
@@ -267,8 +261,7 @@ public abstract class BaseServlet extends HttpServlet {
   protected void renderTextError(HttpServletRequest req, HttpServletResponse res, int statusCode,
       String message) throws IOException {
     res.setStatus(statusCode);
-    res.setContentType(TEXT.getMimeType());
-    res.setCharacterEncoding("UTF-8");
+    setApiHeaders(req, res, TEXT);
     setCacheHeaders(req, res);
     PrintWriter out = res.getWriter();
     out.write(message);
@@ -277,5 +270,12 @@ public abstract class BaseServlet extends HttpServlet {
 
   protected void setCacheHeaders(HttpServletRequest req, HttpServletResponse res) {
     setNotCacheable(res);
+  }
+
+  protected void setApiHeaders(HttpServletRequest req, HttpServletResponse res, FormatType type) {
+    res.setContentType(type.getMimeType());
+    res.setCharacterEncoding(Charsets.UTF_8.name());
+    res.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment");
+    setCacheHeaders(req, res);
   }
 }
