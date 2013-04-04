@@ -170,11 +170,14 @@ limitations under the License.
     </pluginManagement>
 
     <extensions>
+      <!-- Uncomment to deploy with mvn:deploy. -->
+      <!--
       <extension>
         <groupId>com.googlesource.gerrit</groupId>
         <artifactId>gs-maven-wagon</artifactId>
         <version>3.3</version>
       </extension>
+      -->
     </extensions>
   </build>
 
@@ -196,6 +199,8 @@ limitations under the License.
     </repository>
   </repositories>
 
+  <!-- Uncomment to deploy with mvn:deploy. -->
+  <!--
   <distributionManagement>
     <repository>
       <id>gerrit-maven-repository</id>
@@ -203,4 +208,5 @@ limitations under the License.
       <uniqueVersion>true</uniqueVersion>
     </repository>
   </distributionManagement>
+  -->
 </project>
