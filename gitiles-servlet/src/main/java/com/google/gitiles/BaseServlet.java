@@ -276,6 +276,7 @@ public abstract class BaseServlet extends HttpServlet {
     res.setContentType(type.getMimeType());
     res.setCharacterEncoding(Charsets.UTF_8.name());
     res.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment");
+    res.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
     setCacheHeaders(req, res);
   }
 }
