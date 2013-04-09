@@ -17,6 +17,7 @@ package com.google.gitiles;
 import static org.eclipse.jgit.lib.Constants.OBJ_BLOB;
 import static org.eclipse.jgit.lib.Constants.OBJ_COMMIT;
 import static org.eclipse.jgit.lib.Constants.OBJ_TAG;
+
 import junit.framework.TestCase;
 
 import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
@@ -270,5 +271,10 @@ public class RevisionParserTest extends TestCase {
     // TestRepository has no simple way of setting the reflog.
     //assertEquals(null, repo.getRepository().resolve("master@{0}"));
     assertEquals(null, parser.parse("master@{0}"));
+  }
+
+  public void testParseMissingSha() throws Exception {
+    assertNull(parser.parse("deadbeef"));
+    assertNull(parser.parse("deadbeefdeadbeefdeadbeefdeadbeefdeadbeef"));
   }
 }

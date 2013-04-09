@@ -60,9 +60,8 @@ public class Revision {
     return peeled(name, null, OBJ_BAD);
   }
 
-  public static Revision peel(String name, ObjectId id, RevWalk walk)
+  public static Revision peel(String name, RevObject obj, RevWalk walk)
       throws MissingObjectException, IOException {
-    RevObject obj = walk.parseAny(id);
     RevObject peeled = walk.peel(obj);
     return new Revision(name, obj, obj.getType(), peeled, peeled.getType());
   }

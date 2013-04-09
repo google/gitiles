@@ -16,19 +16,21 @@ package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.CharMatcher;
-import com.google.common.base.Objects;
-import com.google.common.base.Splitter;
+import java.io.IOException;
 
-import org.eclipse.jgit.errors.IncorrectObjectTypeException;
+import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.errors.RevisionSyntaxException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevObject;
+import org.eclipse.jgit.revwalk.RevTag;
 import org.eclipse.jgit.revwalk.RevWalk;
 
-import java.io.IOException;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.CharMatcher;
+import com.google.common.base.Objects;
+import com.google.common.base.Splitter;
 
 /** Object to parse revisions out of Gitiles paths. */
 class RevisionParser {
@@ -126,7 +128,7 @@ class RevisionParser {
             if (!isValidRevision(oldName)) {
               return null;
             } else {
-              ObjectId old = resolve(oldName);
+              RevObject old = resolve(oldName, walk);
               if (old == null) {
                 return null;
               }
@@ -143,16 +145,18 @@ class RevisionParser {
             if (!isValidRevision(name)) {
               return null;
             }
-            ObjectId id = resolve(name);
-            if (id == null) {
+            RevObject obj = resolve(name, walk);
+            if (obj == null) {
               return null;
             }
-            RevCommit c;
-            try {
-              c = walk.parseCommit(id);
-            } catch (IncorrectObjectTypeException e) {
+            while (obj instanceof RevTag) {
+              obj = ((RevTag) obj).getObject();
+              walk.parseHeaders(obj);
+            }
+            if (!(obj instanceof RevCommit)) {
               return null; // Not a commit, ^! is invalid.
             }
+            RevCommit c = (RevCommit) obj;
             if (c.getParentCount() > 0) {
               oldRevision = Revision.peeled(name + "^", c.getParent(0));
             } else {
@@ -168,8 +172,8 @@ class RevisionParser {
         if (!isValidRevision(name)) {
           return null;
         }
-        ObjectId id = resolve(name);
-        if (id != null) {
+        RevObject obj = resolve(name, walk);
+        if (obj != null) {
           int pathStart;
           if (oldRevision == null) {
             pathStart = name.length(); // foo
@@ -177,7 +181,7 @@ class RevisionParser {
             // foo..bar (foo may be empty)
             pathStart = oldRevision.getName().length() + 2 + name.length();
           }
-          Result result = new Result(Revision.peel(name, id, walk), oldRevision, pathStart);
+          Result result = new Result(Revision.peel(name, obj, walk), oldRevision, pathStart);
           return isVisible(walk, result) ? result : null;
         }
         first = false;
@@ -188,10 +192,13 @@ class RevisionParser {
     }
   }
 
-  private ObjectId resolve(String name) throws IOException {
+  private RevObject resolve(String name, RevWalk walk) throws IOException {
     try {
-      return repo.resolve(name);
+      ObjectId id = repo.resolve(name);
+      return id != null ? walk.parseAny(id) : null;
     } catch (RevisionSyntaxException e) {
+      return null;
+    } catch (MissingObjectException e) {
       return null;
     }
   }

@@ -149,7 +149,7 @@ public class LogServlet extends BaseServlet {
     try {
       return GitilesView.log()
         .copyFrom(view)
-        .setRevision(Revision.peel(Constants.HEAD, headRef.getObjectId(), walk))
+        .setRevision(Revision.peel(Constants.HEAD, walk.parseAny(headRef.getObjectId()), walk))
         .build();
     } finally {
       walk.release();
