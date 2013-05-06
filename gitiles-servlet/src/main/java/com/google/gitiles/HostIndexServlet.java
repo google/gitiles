@@ -83,7 +83,7 @@ public class HostIndexServlet extends BaseServlet {
       return null;
     } catch (IOException err) {
       String name = urls.getHostName(req);
-      log.warn("Cannot scan repositories" + (name != null ? "for " + name : ""), err);
+      log.warn("Cannot scan repositories" + (name != null ? " for " + name : ""), err);
       res.sendError(SC_SERVICE_UNAVAILABLE);
       return null;
     }
