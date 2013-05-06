@@ -25,6 +25,7 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.gitiles.CommitSoyData.KeySet;
 
+import org.eclipse.jgit.diff.DiffConfig;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.errors.RevWalkException;
@@ -181,7 +182,9 @@ public class LogServlet extends BaseServlet {
       walk.markUninteresting(walk.parseCommit(view.getOldRevision().getId()));
     }
     if (!Strings.isNullOrEmpty(view.getPathPart())) {
-      walk.setTreeFilter(FollowFilter.create(view.getPathPart()));
+      walk.setTreeFilter(FollowFilter.create(
+        view.getPathPart(),
+        repo.getConfig().get(DiffConfig.KEY)));
     }
     return walk;
   }

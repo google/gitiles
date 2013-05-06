@@ -32,7 +32,7 @@ limitations under the License.
 
   <properties>
     <!-- Should track Gerrit's versions fairly closely. -->
-    <jgitVersion>2.3.1.201302201838-r.78-g8fcde4b</jgitVersion>
+    <jgitVersion>2.3.1.201302201838-r.208-g75e1bdb</jgitVersion>
     <jettyVersion>8.1.7.v20120910</jettyVersion>
     <slf4jVersion>1.6.1</slf4jVersion>
   </properties>
