@@ -43,6 +43,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Throwables;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.util.concurrent.ExecutionError;
 
 /** Cache of per-user object visibility. */
 public class VisibilityCache {
@@ -119,6 +120,14 @@ public class VisibilityCache {
     } catch (ExecutionException e) {
       Throwables.propagateIfInstanceOf(e.getCause(), IOException.class);
       throw new IOException(e);
+    } catch (ExecutionError e) {
+      // markUninteresting may overflow on pathological repos with very long
+      // merge chains. Play it safe and return false rather than letting the
+      // error propagate.
+      if (e.getCause() instanceof StackOverflowError) {
+        return false;
+      }
+      throw e;
     }
   }
 
