@@ -217,11 +217,12 @@ class RevisionParser {
       // Name contains a visible ref; skip expensive reachability check.
       return true;
     }
-    if (!cache.isVisible(repo, walk, access, result.getRevision().getId())) {
+    ObjectId id = result.getRevision().getId();
+    if (!cache.isVisible(repo, walk, access, id)) {
       return false;
     }
     if (result.getOldRevision() != null && result.getOldRevision() != Revision.NULL) {
-      return cache.isVisible(repo, walk, access, result.getOldRevision().getId());
+      return cache.isVisible(repo, walk, access, result.getOldRevision().getId(), id);
     } else {
       return true;
     }
