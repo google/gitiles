@@ -16,17 +16,20 @@ package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Predicates.not;
+import static com.google.common.base.Predicates.or;
 import static com.google.common.collect.Collections2.filter;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Predicate;
-import com.google.common.base.Throwables;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import static org.eclipse.jgit.lib.Constants.R_HEADS;
+import static org.eclipse.jgit.lib.Constants.R_TAGS;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
-import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.RefDatabase;
@@ -35,11 +38,11 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
+import com.google.common.base.Objects;
+import com.google.common.base.Predicate;
+import com.google.common.base.Throwables;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 /** Cache of per-user object visibility. */
 public class VisibilityCache {
@@ -141,9 +144,9 @@ public class VisibilityCache {
     // Check heads first under the assumption that most requests are for refs
     // close to a head. Tags tend to be much further back in history and just
     // clutter up the priority queue in the common case.
-    return isReachableFrom(walk, commit, filter(allRefs, refStartsWith(Constants.R_HEADS)))
-        || isReachableFrom(walk, commit, filter(allRefs, refStartsWith(Constants.R_TAGS)))
-        || isReachableFrom(walk, commit, filter(allRefs, not(refStartsWith("refs/changes/"))));
+    return isReachableFrom(walk, commit, filter(allRefs, refStartsWith(R_HEADS)))
+        || isReachableFrom(walk, commit, filter(allRefs, refStartsWith(R_TAGS)))
+        || isReachableFrom(walk, commit, filter(allRefs, otherRefs()));
   }
 
   private static Predicate<Ref> refStartsWith(final String prefix) {
@@ -155,8 +158,16 @@ public class VisibilityCache {
     };
   }
 
+  @SuppressWarnings("unchecked")
+  private static Predicate<Ref> otherRefs() {
+    return not(or(refStartsWith(R_HEADS), refStartsWith(R_TAGS), refStartsWith("refs/changes/")));
+  }
+
   private boolean isReachableFrom(RevWalk walk, RevCommit commit, Collection<Ref> refs)
       throws IOException {
+    if (refs.isEmpty()) {
+      return false;
+    }
     walk.reset();
     if (topoSort) {
       walk.sort(RevSort.TOPO);
