@@ -62,7 +62,8 @@ import javax.servlet.http.HttpServletRequest;
 public class CommitSoyData {
   /** Valid sets of keys to include in Soy data for commits. */
   public static enum KeySet {
-    DETAIL("author", "committer", "sha", "tree", "treeUrl", "parents", "message", "logUrl"),
+    DETAIL("author", "committer", "sha", "tree", "treeUrl", "parents", "message", "logUrl",
+        "tgzUrl"),
     DETAIL_DIFF_TREE(DETAIL, "diffTree"),
     SHORTLOG("abbrevSha", "url", "shortMessage", "author", "branches", "tags"),
     DEFAULT(DETAIL);
@@ -129,13 +130,10 @@ public class CommitSoyData {
           .toUrl());
     }
     if (keys.keys.contains("logUrl")) {
-      Revision rev = view.getRevision();
-      GitilesView.Builder logView = GitilesView.log()
-          .copyFrom(view)
-          .setRevision(rev.getId().equals(commit) ? rev.getName() : commit.name(), commit)
-          .setOldRevision(Revision.NULL)
-          .setPathPart(null);
-      data.put("logUrl", logView.toUrl());
+      data.put("logUrl", urlFromView(view, commit, GitilesView.log()));
+    }
+    if (keys.keys.contains("tgzUrl")) {
+      data.put("tgzUrl", urlFromView(view, commit, GitilesView.archive().setExtension(".tar.gz")));
     }
     if (keys.keys.contains("tree")) {
       data.put("tree", ObjectId.toString(commit.getTree()));
@@ -299,5 +297,13 @@ public class CommitSoyData {
     }
     Collections.sort(result, NAME_COMPARATOR);
     return result;
+  }
+
+  private String urlFromView(GitilesView view, RevCommit commit, GitilesView.Builder builder) {
+    Revision rev = view.getRevision();
+    return builder.copyFrom(view)
+        .setRevision(rev.getId().equals(commit) ? rev.getName() : commit.name(), commit)
+        .setPathPart(null)
+        .toUrl();
   }
 }

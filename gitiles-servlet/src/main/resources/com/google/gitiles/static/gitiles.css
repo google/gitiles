@@ -60,7 +60,7 @@ table.list td {
   padding-top: 0.25em;
   padding-bottom: 0.25em;
 }
-.log-link {
+.log-link, .download-link {
   margin-left: 0.5em
 }
 
