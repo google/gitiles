@@ -16,6 +16,7 @@ package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
 import org.eclipse.jgit.http.server.ServletUtils;
@@ -63,6 +64,10 @@ public class ViewFilter extends AbstractHttpFilter {
     return str.substring(1);
   }
 
+  private static boolean isEmptyOrSlash(String path) {
+    return path.isEmpty() || path.equals("/");
+  }
+
   private final GitilesUrls urls;
   private final GitilesAccess.Factory accessFactory;
   private final VisibilityCache visibilityCache;
@@ -97,68 +102,140 @@ public class ViewFilter extends AbstractHttpFilter {
 
   private GitilesView.Builder parse(HttpServletRequest req) throws IOException {
     String repoName = trimLeadingSlash(getRegexGroup(req, 1));
-    String command = getRegexGroup(req, 2);
-    String path = getRegexGroup(req, 3);
-    boolean emptyPath = (path.isEmpty() || path.equals("/"));
-
-    // Non-path cases.
     if (repoName.isEmpty()) {
       return GitilesView.hostIndex();
-    } else if (command.equals(CMD_REFS)) {
-      return GitilesView.refs().setRepositoryName(repoName).setPathPart(path);
-    } else if (command.equals(CMD_LOG) && emptyPath) {
-      return GitilesView.log().setRepositoryName(repoName);
-    } else if (command.equals(CMD_DESCRIBE) && !emptyPath) {
-      return GitilesView.describe().setRepositoryName(repoName).setPathPart(path);
-    } else if (command.isEmpty()) {
-      return GitilesView.repositoryIndex().setRepositoryName(repoName);
-    } else if (path.isEmpty()) {
-      return null; // Command that requires a path, but no path.
     }
+    String command = getRegexGroup(req, 2);
+    String path = getRegexGroup(req, 3);
 
+    if (command.isEmpty()) {
+      return parseNoCommand(req, repoName, path);
+    } else if (command.equals(CMD_AUTO)) {
+      return parseAutoCommand(req, repoName, path);
+    } else if (command.equals(CMD_DESCRIBE)) {
+      return parseDescribeCommand(req, repoName, path);
+    } else if (command.equals(CMD_DIFF)) {
+      return parseDiffCommand(req, repoName, path);
+    } else if (command.equals(CMD_LOG)) {
+      return parseLogCommand(req, repoName, path);
+    } else if (command.equals(CMD_REFS)) {
+      return parseRefsCommand(req, repoName, path);
+    } else if (command.equals(CMD_SHOW)) {
+      return parseShowCommand(req, repoName, path);
+    } else {
+      return null;
+    }
+  }
+
+  private GitilesView.Builder parseNoCommand(
+      HttpServletRequest req, String repoName, String path) {
+    return GitilesView.repositoryIndex().setRepositoryName(repoName);
+  }
+
+  private GitilesView.Builder parseAutoCommand(
+      HttpServletRequest req, String repoName, String path) throws IOException {
+    // Note: if you change the mapping for +, make sure to change
+    // GitilesView.toUrl() correspondingly.
+    if (path.isEmpty()) {
+      return null;
+    }
     path = trimLeadingSlash(path);
-    RevisionParser revParser = new RevisionParser(
-        ServletUtils.getRepository(req), accessFactory.forRequest(req), visibilityCache);
-    RevisionParser.Result result = revParser.parse(path);
+    RevisionParser.Result result = parseRevision(req, path);
     if (result == null) {
       return null;
     }
-    path = path.substring(result.getPathStart());
-
-    command = getCommand(command, result, path);
-    GitilesView.Builder view;
-    if (CMD_LOG.equals(command)) {
-      view = GitilesView.log().setPathPart(path);
-    } else if (CMD_SHOW.equals(command)) {
-      if (path.isEmpty()) {
-        view = GitilesView.revision();
-      } else {
-        view = GitilesView.path().setPathPart(path);
-      }
-    } else if (CMD_DIFF.equals(command)) {
-      view = GitilesView.diff().setPathPart(path);
-    } else if (CMD_REFS.equals(command)) {
-      view = GitilesView.repositoryIndex();
+    if (result.getOldRevision() != null) {
+      return parseDiffCommand(repoName, result, path);
     } else {
-      return null; // Bad command.
+      return parseShowCommand(repoName, result, path);
     }
-    if (result.getOldRevision() != null) { // May be NULL.
-      view.setOldRevision(result.getOldRevision());
-    }
-    view.setRepositoryName(repoName)
-        .setRevision(result.getRevision());
-    return view;
   }
 
-  private String getCommand(String command, RevisionParser.Result result, String path) {
-    // Note: if you change the mapping for +, make sure to change
-    // GitilesView.toUrl() correspondingly.
-    if (!CMD_AUTO.equals(command)) {
-      return command;
-    } else if (result.getOldRevision() != null) {
-      return CMD_DIFF;
-    } else {
-      return CMD_SHOW;
+  private GitilesView.Builder parseDescribeCommand(
+      HttpServletRequest req, String repoName, String path) {
+    if (isEmptyOrSlash(path)) {
+      return null;
     }
+    return GitilesView.describe()
+        .setRepositoryName(repoName)
+        .setPathPart(path);
+  }
+
+  private GitilesView.Builder parseDiffCommand(
+      HttpServletRequest req, String repoName, String path) throws IOException {
+    path = trimLeadingSlash(path);
+    RevisionParser.Result result = parseRevision(req, path);
+    if (result == null) {
+      return null;
+    }
+    return parseDiffCommand(repoName, result, path);
+  }
+
+  private GitilesView.Builder parseDiffCommand(
+      String repoName, RevisionParser.Result result, String path) {
+    return GitilesView.diff()
+        .setRepositoryName(repoName)
+        .setRevision(result.getRevision())
+        .setOldRevision(result.getOldRevision())
+        .setPathPart(path.substring(result.getPathStart()));
+  }
+
+  private GitilesView.Builder parseLogCommand(
+      HttpServletRequest req, String repoName, String path) throws IOException {
+    if (isEmptyOrSlash(path)) {
+      return GitilesView.log().setRepositoryName(repoName);
+    }
+    path = trimLeadingSlash(path);
+    RevisionParser.Result result = parseRevision(req, path);
+    if (result == null) {
+      return null;
+    }
+    return GitilesView.log()
+        .setRepositoryName(repoName)
+        .setRevision(result.getRevision())
+        .setOldRevision(result.getOldRevision())
+        .setPathPart(path.substring(result.getPathStart()));
+  }
+
+  private GitilesView.Builder parseRefsCommand(
+      HttpServletRequest req, String repoName, String path) {
+    return GitilesView.refs()
+        .setRepositoryName(repoName)
+        .setPathPart(path);
+  }
+
+  private GitilesView.Builder parseShowCommand(
+      HttpServletRequest req, String repoName, String path) throws IOException {
+    path = trimLeadingSlash(path);
+    RevisionParser.Result result = parseRevision(req, path);
+    if (result == null) {
+      return null;
+    }
+    return parseShowCommand(repoName, result, path);
+  }
+
+  private GitilesView.Builder parseShowCommand(
+      String repoName, RevisionParser.Result result, String path) {
+    if (result.getOldRevision() != null) {
+      return null;
+    }
+    path = path.substring(result.getPathStart());
+    if (path.isEmpty()) {
+      return GitilesView.revision()
+        .setRepositoryName(repoName)
+        .setRevision(result.getRevision());
+    } else {
+      return GitilesView.path()
+        .setRepositoryName(repoName)
+        .setRevision(result.getRevision())
+        .setPathPart(path);
+    }
+  }
+
+  private RevisionParser.Result parseRevision(HttpServletRequest req, String path)
+      throws IOException {
+    RevisionParser revParser = new RevisionParser(
+        ServletUtils.getRepository(req), accessFactory.forRequest(req), visibilityCache);
+    return revParser.parse(path);
   }
 }

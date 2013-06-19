@@ -181,7 +181,7 @@ public class GitilesView {
       switch (type) {
         case DIFF:
         case LOG:
-          this.oldRevision = checkNotNull(revision);
+          this.oldRevision = revision;
           return this;
         default:
           throw new IllegalStateException(

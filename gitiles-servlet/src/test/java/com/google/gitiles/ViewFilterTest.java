@@ -156,7 +156,7 @@ public class ViewFilterTest extends TestCase {
     assertEquals("refs/heads/master~3^~2", view.getPathPart());
   }
 
-  public void testBranches() throws Exception {
+  public void testShowBranches() throws Exception {
     RevCommit master = repo.branch("refs/heads/master").commit().create();
     RevCommit stable = repo.branch("refs/heads/stable").commit().create();
     GitilesView view;
@@ -184,6 +184,8 @@ public class ViewFilterTest extends TestCase {
     assertEquals("stable", view.getRevision().getName());
     assertEquals(stable, view.getRevision().getId());
     assertNull(view.getPathPart());
+
+    assertNull(getView("/repo/+show/stable..master"));
   }
 
   public void testAmbiguousBranchAndTag() throws Exception {
@@ -224,6 +226,7 @@ public class ViewFilterTest extends TestCase {
 
   public void testPath() throws Exception {
     RevCommit master = repo.branch("refs/heads/master").commit().create();
+    repo.branch("refs/heads/stable").commit().create();
     GitilesView view;
 
     view = getView("/repo/+show/master/");
@@ -245,6 +248,8 @@ public class ViewFilterTest extends TestCase {
     assertEquals(Type.PATH, view.getType());
     assertEquals(master, view.getRevision().getId());
     assertEquals("foo/bar", view.getPathPart());
+
+    assertNull(getView("/repo/+show/stable..master/foo"));
   }
 
   public void testMultipleSlashes() throws Exception {
