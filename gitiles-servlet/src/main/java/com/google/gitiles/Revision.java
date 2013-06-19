@@ -23,6 +23,7 @@ import com.google.common.base.Objects;
 
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.AbbreviatedObjectId;
+import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevObject;
 import org.eclipse.jgit.revwalk.RevWalk;
@@ -128,10 +129,10 @@ public class Revision {
     return Objects.toStringHelper(this)
         .omitNullValues()
         .add("name", name)
-        .add("id", id)
-        .add("type", type)
-        .add("peeledId", peeledId)
-        .add("peeledType", peeledType)
+        .add("id", id != null ? id.getName() : null)
+        .add("type", type > 0 ? Constants.typeString(type) : null)
+        .add("peeledId", peeledId != null ? peeledId.getName() : null)
+        .add("peeledType", type > 0 ? Constants.typeString(peeledType) : null)
         .toString();
   }
 }

@@ -21,6 +21,7 @@ import static com.google.gitiles.GitilesUrls.NAME_ESCAPER;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
 import com.google.common.base.Objects;
+import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -454,6 +455,23 @@ public class GitilesView {
 
   public Type getType() {
     return type;
+  }
+
+  @Override
+  public String toString() {
+    ToStringHelper b = Objects.toStringHelper(type.toString())
+        .omitNullValues()
+        .add("host", hostName)
+        .add("servlet", servletPath)
+        .add("repo", repositoryName)
+        .add("rev", revision)
+        .add("old", oldRevision)
+        .add("path", path);
+    if (!params.isEmpty()) {
+      b.add("params", params);
+    }
+    b.add("anchor", anchor);
+    return b.toString();
   }
 
   /** @return an escaped, relative URL representing this view. */
