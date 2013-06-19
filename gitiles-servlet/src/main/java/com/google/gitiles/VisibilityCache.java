@@ -16,18 +16,20 @@ package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Predicates.not;
-import static com.google.common.base.Predicates.or;
 import static com.google.common.collect.Collections2.filter;
 
 import static org.eclipse.jgit.lib.Constants.R_HEADS;
 import static org.eclipse.jgit.lib.Constants.R_TAGS;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
+import com.google.common.base.Function;
+import com.google.common.base.Objects;
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
+import com.google.common.base.Throwables;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.Collections2;
+import com.google.common.util.concurrent.ExecutionError;
 
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
@@ -39,14 +41,12 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
 
-import com.google.common.base.Function;
-import com.google.common.base.Objects;
-import com.google.common.base.Predicate;
-import com.google.common.base.Throwables;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.collect.Collections2;
-import com.google.common.util.concurrent.ExecutionError;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 /** Cache of per-user object visibility. */
 public class VisibilityCache {
@@ -174,7 +174,8 @@ public class VisibilityCache {
 
   @SuppressWarnings("unchecked")
   private static Predicate<Ref> otherRefs() {
-    return not(or(refStartsWith(R_HEADS), refStartsWith(R_TAGS), refStartsWith("refs/changes/")));
+    return not(Predicates.<Ref> or(
+        refStartsWith(R_HEADS), refStartsWith(R_TAGS), refStartsWith("refs/changes/")));
   }
 
   private boolean isReachableFromRefs(RevWalk walk, RevCommit commit,
