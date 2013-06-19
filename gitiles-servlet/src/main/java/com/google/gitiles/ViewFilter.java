@@ -60,8 +60,12 @@ public class ViewFilter extends AbstractHttpFilter {
   }
 
   static String trimLeadingSlash(String str) {
+    return checkLeadingSlash(str).substring(1);
+  }
+
+  private static String checkLeadingSlash(String str) {
     checkArgument(str.startsWith("/"), "expected string starting with a slash: %s", str);
-    return str.substring(1);
+    return str;
   }
 
   private static boolean isEmptyOrSlash(String path) {
@@ -139,15 +143,14 @@ public class ViewFilter extends AbstractHttpFilter {
     if (path.isEmpty()) {
       return null;
     }
-    path = trimLeadingSlash(path);
     RevisionParser.Result result = parseRevision(req, path);
     if (result == null) {
       return null;
     }
     if (result.getOldRevision() != null) {
-      return parseDiffCommand(repoName, result, path);
+      return parseDiffCommand(repoName, result);
     } else {
-      return parseShowCommand(repoName, result, path);
+      return parseShowCommand(repoName, result);
     }
   }
 
@@ -163,21 +166,19 @@ public class ViewFilter extends AbstractHttpFilter {
 
   private GitilesView.Builder parseDiffCommand(
       HttpServletRequest req, String repoName, String path) throws IOException {
-    path = trimLeadingSlash(path);
-    RevisionParser.Result result = parseRevision(req, path);
-    if (result == null) {
-      return null;
-    }
-    return parseDiffCommand(repoName, result, path);
+    return parseDiffCommand(repoName, parseRevision(req, path));
   }
 
   private GitilesView.Builder parseDiffCommand(
-      String repoName, RevisionParser.Result result, String path) {
+      String repoName, RevisionParser.Result result) {
+    if (result == null) {
+      return null;
+    }
     return GitilesView.diff()
         .setRepositoryName(repoName)
         .setRevision(result.getRevision())
         .setOldRevision(result.getOldRevision())
-        .setPathPart(path.substring(result.getPathStart()));
+        .setPathPart(result.getPath());
   }
 
   private GitilesView.Builder parseLogCommand(
@@ -185,7 +186,6 @@ public class ViewFilter extends AbstractHttpFilter {
     if (isEmptyOrSlash(path)) {
       return GitilesView.log().setRepositoryName(repoName);
     }
-    path = trimLeadingSlash(path);
     RevisionParser.Result result = parseRevision(req, path);
     if (result == null) {
       return null;
@@ -194,7 +194,7 @@ public class ViewFilter extends AbstractHttpFilter {
         .setRepositoryName(repoName)
         .setRevision(result.getRevision())
         .setOldRevision(result.getOldRevision())
-        .setPathPart(path.substring(result.getPathStart()));
+        .setPathPart(result.getPath());
   }
 
   private GitilesView.Builder parseRefsCommand(
@@ -206,21 +206,15 @@ public class ViewFilter extends AbstractHttpFilter {
 
   private GitilesView.Builder parseShowCommand(
       HttpServletRequest req, String repoName, String path) throws IOException {
-    path = trimLeadingSlash(path);
-    RevisionParser.Result result = parseRevision(req, path);
-    if (result == null) {
-      return null;
-    }
-    return parseShowCommand(repoName, result, path);
+    return parseShowCommand(repoName, parseRevision(req, path));
   }
 
   private GitilesView.Builder parseShowCommand(
-      String repoName, RevisionParser.Result result, String path) {
-    if (result.getOldRevision() != null) {
+      String repoName, RevisionParser.Result result) {
+    if (result == null || result.getOldRevision() != null) {
       return null;
     }
-    path = path.substring(result.getPathStart());
-    if (path.isEmpty()) {
+    if (result.getPath().isEmpty()) {
       return GitilesView.revision()
         .setRepositoryName(repoName)
         .setRevision(result.getRevision());
@@ -228,7 +222,7 @@ public class ViewFilter extends AbstractHttpFilter {
       return GitilesView.path()
         .setRepositoryName(repoName)
         .setRevision(result.getRevision())
-        .setPathPart(path);
+        .setPathPart(result.getPath());
     }
   }
 
@@ -236,6 +230,6 @@ public class ViewFilter extends AbstractHttpFilter {
       throws IOException {
     RevisionParser revParser = new RevisionParser(
         ServletUtils.getRepository(req), accessFactory.forRequest(req), visibilityCache);
-    return revParser.parse(path);
+    return revParser.parse(checkLeadingSlash(path));
   }
 }

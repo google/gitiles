@@ -133,37 +133,37 @@ public class RevisionParserTest extends TestCase {
         new Result(
             Revision.peeled("master", commit),
             Revision.peeled("master^", parent),
-            15),
+            ""),
         parser.parse("master^..master"));
     assertEquals(
         new Result(
             Revision.peeled("master", commit),
             Revision.peeled("master^", parent),
-            15),
+            "/"),
         parser.parse("master^..master/"));
     assertEquals(
         new Result(
             Revision.peeled("master", commit),
             Revision.peeled("master^", parent),
-            15),
+            "/path/to/a/file"),
         parser.parse("master^..master/path/to/a/file"));
     assertEquals(
         new Result(
             Revision.peeled("master", commit),
             Revision.peeled("master^", parent),
-            15),
+            "/path/to/a/..file"),
         parser.parse("master^..master/path/to/a/..file"));
     assertEquals(
         new Result(
             Revision.peeled("refs/heads/master", commit),
             Revision.peeled("refs/heads/master^", parent),
-            37),
+            ""),
       parser.parse("refs/heads/master^..refs/heads/master"));
     assertEquals(
         new Result(
             Revision.peeled("master", commit),
             Revision.peeled("master~1", parent),
-            16),
+            ""),
         parser.parse("master~1..master"));
     // TODO(dborowitz): 2a2362fbb in JGit causes master~2 to resolve to master
     // rather than null. Uncomment when upstream regression is fixed.
@@ -172,7 +172,7 @@ public class RevisionParserTest extends TestCase {
         new Result(
             Revision.peeled("master", commit),
             Revision.peeled("other", other),
-            13),
+            ""),
         parser.parse("other..master"));
   }
 
@@ -184,19 +184,19 @@ public class RevisionParserTest extends TestCase {
         new Result(
             Revision.peeled("master", commit),
             Revision.peeled("master^", parent),
-            8),
+            ""),
         parser.parse("master^!"));
     assertEquals(
         new Result(
             Revision.peeled("master^", parent),
             Revision.NULL,
-            9),
+            ""),
         parser.parse("master^^!"));
     assertEquals(
         new Result(
             Revision.peeled(parent.name(), parent),
             Revision.NULL,
-            42),
+            ""),
         parser.parse(parent.name() + "^!"));
 
     repo.update("refs/tags/tag", repo.tag("tag", commit));
@@ -204,13 +204,13 @@ public class RevisionParserTest extends TestCase {
         new Result(
             Revision.peeled("tag", commit),
             Revision.peeled("tag^", parent),
-            5),
+            ""),
         parser.parse("tag^!"));
     assertEquals(
         new Result(
             Revision.peeled("tag^", parent),
             Revision.NULL,
-            6),
+            ""),
         parser.parse("tag^^!"));
   }
 
@@ -225,13 +225,13 @@ public class RevisionParserTest extends TestCase {
         new Result(
             Revision.peeled("master", master),
             Revision.peeled("other", other),
-            13),
+            ""),
         parser.parse("other..master"));
     assertEquals(
         new Result(
             Revision.peeled("other", other),
             Revision.peeled("master", master),
-            13),
+            ""),
         parser.parse("master..other"));
   }
 

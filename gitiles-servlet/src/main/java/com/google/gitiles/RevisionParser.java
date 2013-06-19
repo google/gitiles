@@ -39,18 +39,18 @@ class RevisionParser {
   static class Result {
     private final Revision revision;
     private final Revision oldRevision;
-    private final int pathStart;
+    private final String path;
 
     @VisibleForTesting
     Result(Revision revision) {
-      this(revision, null, revision.getName().length());
+      this(revision, null, "");
     }
 
     @VisibleForTesting
-    Result(Revision revision, Revision oldRevision, int pathStart) {
+    Result(Revision revision, Revision oldRevision, String path) {
       this.revision = revision;
       this.oldRevision = oldRevision;
-      this.pathStart = pathStart;
+      this.path = path;
     }
 
     public Revision getRevision() {
@@ -61,34 +61,34 @@ class RevisionParser {
       return oldRevision;
     }
 
+    public String getPath() {
+      return path;
+    }
+
     @Override
     public boolean equals(Object o) {
       if (o instanceof Result) {
         Result r = (Result) o;
         return Objects.equal(revision, r.revision)
             && Objects.equal(oldRevision, r.oldRevision)
-            && Objects.equal(pathStart, r.pathStart);
+            && Objects.equal(path, r.path);
       }
       return false;
     }
 
     @Override
     public int hashCode() {
-      return Objects.hashCode(revision, oldRevision, pathStart);
+      return Objects.hashCode(revision, oldRevision, path);
     }
 
     @Override
     public String toString() {
       return Objects.toStringHelper(this)
           .omitNullValues()
-          .add("revision", revision)
-          .add("oldRevision", oldRevision)
-          .add("pathStart", pathStart)
+          .add("revision", revision.getName())
+          .add("oldRevision", oldRevision != null ? oldRevision.getName() : null)
+          .add("path", path)
           .toString();
-    }
-
-    int getPathStart() {
-      return pathStart;
     }
   }
 
@@ -103,6 +103,9 @@ class RevisionParser {
   }
 
   Result parse(String path) throws IOException {
+    if (path.startsWith("/")) {
+      path = path.substring(1);
+    }
     RevWalk walk = new RevWalk(repo);
     try {
       Revision oldRevision = null;
@@ -162,7 +165,7 @@ class RevisionParser {
             } else {
               oldRevision = Revision.NULL;
             }
-            Result result = new Result(Revision.peeled(name, c), oldRevision, name.length() + 2);
+            Result result = new Result(Revision.peeled(name, c), oldRevision, path.substring(name.length() + 2));
             return isVisible(walk, result) ? result : null;
           }
         }
@@ -181,7 +184,7 @@ class RevisionParser {
             // foo..bar (foo may be empty)
             pathStart = oldRevision.getName().length() + 2 + name.length();
           }
-          Result result = new Result(Revision.peel(name, obj, walk), oldRevision, pathStart);
+          Result result = new Result(Revision.peel(name, obj, walk), oldRevision, path.substring(pathStart));
           return isVisible(walk, result) ? result : null;
         }
         first = false;
