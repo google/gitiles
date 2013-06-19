@@ -39,18 +39,6 @@ limitations under the License.
       <version>${project.version}</version>
       <scope>runtime</scope>
     </dependency>
-
-    <dependency>
-      <groupId>org.apache.tomcat</groupId>
-      <artifactId>servlet-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.eclipse.jetty</groupId>
-      <artifactId>jetty-server</artifactId>
-      <scope>provided</scope>
-    </dependency>
   </dependencies>
 
   <build>

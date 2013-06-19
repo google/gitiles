@@ -33,7 +33,6 @@ limitations under the License.
   <properties>
     <!-- Should track Gerrit's versions fairly closely. -->
     <jgitVersion>2.3.1.201302201838-r.208-g75e1bdb</jgitVersion>
-    <jettyVersion>8.1.7.v20120910</jettyVersion>
     <slf4jVersion>1.6.1</slf4jVersion>
   </properties>
 
@@ -82,12 +81,6 @@ limitations under the License.
       </dependency>
 
       <dependency>
-        <groupId>org.apache.tomcat</groupId>
-        <artifactId>servlet-api</artifactId>
-        <version>6.0.29</version>
-      </dependency>
-
-      <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
         <version>4.11</version>
@@ -115,12 +108,6 @@ limitations under the License.
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-lang3</artifactId>
         <version>3.1</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-server</artifactId>
-        <version>${jettyVersion}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

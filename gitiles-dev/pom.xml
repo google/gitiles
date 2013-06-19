@@ -32,6 +32,10 @@ limitations under the License.
     Gitiles running with an embedded Jetty server.
   </description>
 
+  <properties>
+    <jettyVersion>8.1.7.v20120910</jettyVersion>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>com.google.gitiles</groupId>
@@ -40,14 +44,24 @@ limitations under the License.
     </dependency>
 
     <dependency>
-      <groupId>org.apache.tomcat</groupId>
-      <artifactId>servlet-api</artifactId>
-      <scope>provided</scope>
+      <groupId>org.eclipse.jetty.orbit</groupId>
+      <artifactId>javax.servlet</artifactId>
+      <!-- The bulk of Gitiles is designed to compile and run against Servlet API
+        2.5, but the embedded Jetty 8 in this module only requires Servlet API
+        3.0. -->
+      <version>3.0.0.v201112011016</version>
+      <scope>compile</scope>
     </dependency>
 
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-servlet</artifactId>
+      <version>${jettyVersion}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-server</artifactId>
       <version>${jettyVersion}</version>
     </dependency>
 
