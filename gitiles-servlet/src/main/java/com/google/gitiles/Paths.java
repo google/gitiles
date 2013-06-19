@@ -14,6 +14,7 @@
 
 package com.google.gitiles;
 
+import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.io.Files;
@@ -22,7 +23,8 @@ import java.util.StringTokenizer;
 
 /** Static utilities for dealing with pathnames. */
 class Paths {
-  static final Splitter SPLITTER = Splitter.on('/');
+  private static final CharMatcher MATCHER = CharMatcher.is('/');
+  static final Splitter SPLITTER = Splitter.on(MATCHER);
 
   static String simplifyPathUpToRoot(String path, String root) {
     if (path.startsWith("/")) {
@@ -46,6 +48,15 @@ class Paths {
 
     String result = Files.simplifyPath(!root.isEmpty() ? root + "/" + path : path);
     return !result.equals(".") ? result : "";
+  }
+
+  static String basename(String path) {
+    path = MATCHER.trimTrailingFrom(path);
+    int slash = path.lastIndexOf('/');
+    if (slash < 0) {
+      return path;
+    }
+    return path.substring(slash + 1);
   }
 
   private Paths() {

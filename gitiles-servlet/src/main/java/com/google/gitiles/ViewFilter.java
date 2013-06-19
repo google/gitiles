@@ -39,6 +39,7 @@ public class ViewFilter extends AbstractHttpFilter {
 
   private static final String VIEW_ATTIRBUTE = ViewFilter.class.getName() + "/View";
 
+  private static final String CMD_ARCHIVE = "+archive";
   private static final String CMD_AUTO = "+";
   private static final String CMD_DESCRIBE = "+describe";
   private static final String CMD_DIFF = "+diff";
@@ -114,6 +115,8 @@ public class ViewFilter extends AbstractHttpFilter {
 
     if (command.isEmpty()) {
       return parseNoCommand(req, repoName, path);
+    } else if (command.equals(CMD_ARCHIVE)) {
+      return parseArchiveCommand(req, repoName, path);
     } else if (command.equals(CMD_AUTO)) {
       return parseAutoCommand(req, repoName, path);
     } else if (command.equals(CMD_DESCRIBE)) {
@@ -134,6 +137,29 @@ public class ViewFilter extends AbstractHttpFilter {
   private GitilesView.Builder parseNoCommand(
       HttpServletRequest req, String repoName, String path) {
     return GitilesView.repositoryIndex().setRepositoryName(repoName);
+  }
+
+  private GitilesView.Builder parseArchiveCommand(
+      HttpServletRequest req, String repoName, String path) throws IOException {
+    String ext = null;
+    for (String e : ArchiveServlet.validExtensions()) {
+      if (path.endsWith(e)) {
+        path = path.substring(0, path.length() - e.length());
+        ext = e;
+        break;
+      }
+    }
+    if (ext == null) {
+      return null;
+    }
+    RevisionParser.Result result = parseRevision(req, path);
+    if (result == null || result.getOldRevision() != null) {
+      return null;
+    }
+    return GitilesView.archive()
+        .setRepositoryName(repoName)
+        .setRevision(result.getRevision())
+        .setExtension(ext);
   }
 
   private GitilesView.Builder parseAutoCommand(

@@ -242,6 +242,8 @@ class GitilesFilter extends MetaFilter {
         return new LogServlet(renderer, linkifier());
       case DESCRIBE:
         return new DescribeServlet();
+      case ARCHIVE:
+        return new ArchiveServlet();
       default:
         throw new IllegalArgumentException("Invalid view type: " + view);
     }

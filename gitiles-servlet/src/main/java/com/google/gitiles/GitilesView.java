@@ -16,6 +16,7 @@ package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.gitiles.GitilesUrls.NAME_ESCAPER;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -34,6 +35,7 @@ import org.eclipse.jgit.revwalk.RevObject;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
@@ -48,6 +50,8 @@ import javax.servlet.http.HttpServletRequest;
  * Construction happens in {@link ViewFilter}.
  */
 public class GitilesView {
+  private static final String DEFAULT_ARCHIVE_EXTENSION = ".tar.gz";
+
   /** All the possible view types supported in the application. */
   public static enum Type {
     HOST_INDEX,
@@ -57,7 +61,8 @@ public class GitilesView {
     PATH,
     DIFF,
     LOG,
-    DESCRIBE;
+    DESCRIBE,
+    ARCHIVE;
   }
 
   /** Exception thrown when building a view that is invalid. */
@@ -80,6 +85,7 @@ public class GitilesView {
     private Revision revision = Revision.NULL;
     private Revision oldRevision = Revision.NULL;
     private String path;
+    private String extension;
     private String anchor;
 
     private Builder(Type type) {
@@ -98,6 +104,7 @@ public class GitilesView {
           path = other.path;
           // Fallthrough.
         case REVISION:
+        case ARCHIVE:
           revision = other.revision;
           // Fallthrough.
         case DESCRIBE:
@@ -107,6 +114,9 @@ public class GitilesView {
           // Fallthrough.
         default:
           break;
+      }
+      if (type == Type.ARCHIVE) {
+        extension = other.extension;
       }
       // Don't copy params.
       return this;
@@ -222,6 +232,22 @@ public class GitilesView {
       return path;
     }
 
+    public Builder setExtension(String extension) {
+      switch (type) {
+        default:
+          checkState(extension == null, "cannot set path on %s view", type);
+          // Fallthrough;
+        case ARCHIVE:
+          this.extension = extension;
+          break;
+      }
+      return this;
+    }
+
+    public String getExtension() {
+      return extension;
+    }
+
     public Builder putParam(String key, String value) {
       params.put(key, value);
       return this;
@@ -280,9 +306,12 @@ public class GitilesView {
         case LOG:
           checkLog();
           break;
+        case ARCHIVE:
+          checkArchive();
+          break;
       }
       return new GitilesView(type, hostName, servletPath, repositoryName, revision,
-          oldRevision, path, params, anchor);
+          oldRevision, path, extension, params, anchor);
     }
 
     public String toUrl() {
@@ -330,6 +359,10 @@ public class GitilesView {
       checkView(path != null, "missing path on %s view", type);
       checkRevision();
     }
+
+    private void checkArchive() {
+      checkRevision();
+    }
   }
 
   public static Builder hostIndex() {
@@ -364,6 +397,10 @@ public class GitilesView {
     return new Builder(Type.LOG);
   }
 
+  public static Builder archive() {
+    return new Builder(Type.ARCHIVE);
+  }
+
   static String maybeTrimLeadingAndTrailingSlash(String str) {
     if (str.startsWith("/")) {
       str = str.substring(1);
@@ -378,6 +415,7 @@ public class GitilesView {
   private final Revision revision;
   private final Revision oldRevision;
   private final String path;
+  private final String extension;
   private final ListMultimap<String, String> params;
   private final String anchor;
 
@@ -388,6 +426,7 @@ public class GitilesView {
       Revision revision,
       Revision oldRevision,
       String path,
+      String extension,
       ListMultimap<String, String> params,
       String anchor) {
     this.type = type;
@@ -397,6 +436,7 @@ public class GitilesView {
     this.revision = Objects.firstNonNull(revision, Revision.NULL);
     this.oldRevision = Objects.firstNonNull(oldRevision, Revision.NULL);
     this.path = path;
+    this.extension = extension;
     this.params = Multimaps.unmodifiableListMultimap(params);
     this.anchor = anchor;
   }
@@ -445,6 +485,10 @@ public class GitilesView {
     return path;
   }
 
+  public String getExtension() {
+    return extension;
+  }
+
   public ListMultimap<String, String> getParameters() {
     return params;
   }
@@ -466,7 +510,8 @@ public class GitilesView {
         .add("repo", repositoryName)
         .add("rev", revision)
         .add("old", oldRevision)
-        .add("path", path);
+        .add("path", path)
+        .add("extension", extension);
     if (!params.isEmpty()) {
       b.add("params", params);
     }
@@ -497,6 +542,10 @@ public class GitilesView {
         break;
       case REVISION:
         url.append(repositoryName).append("/+/").append(revision.getName());
+        break;
+      case ARCHIVE:
+        url.append(repositoryName).append("/+archive/").append(revision.getName())
+            .append(Objects.firstNonNull(extension, DEFAULT_ARCHIVE_EXTENSION));
         break;
       case PATH:
         url.append(repositoryName).append("/+/").append(revision.getName()).append('/')
@@ -548,6 +597,8 @@ public class GitilesView {
     return getBreadcrumbs(null);
   }
 
+  private static final EnumSet<Type> NON_HTML_TYPES = EnumSet.of(Type.DESCRIBE, Type.ARCHIVE);
+
   /**
    * @param hasSingleTree list of booleans, one per path entry in this view's
    *     path excluding the leaf. True entries indicate the tree at that path
@@ -558,8 +609,8 @@ public class GitilesView {
    *     auto-diving into one-entry subtrees.
    */
   public List<Map<String, String>> getBreadcrumbs(List<Boolean> hasSingleTree) {
-    checkArgument(type != Type.DESCRIBE,
-        "breadcrumbs for DESCRIBE view not supported");
+    checkArgument(!NON_HTML_TYPES.contains(type),
+        "breadcrumbs for %s view not supported", type);
     checkArgument(type != Type.REFS || Strings.isNullOrEmpty(path),
         "breadcrumbs for REFS view with path not supported");
     checkArgument(hasSingleTree == null || type == Type.PATH,

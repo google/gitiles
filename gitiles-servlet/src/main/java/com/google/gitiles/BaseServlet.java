@@ -279,4 +279,11 @@ public abstract class BaseServlet extends HttpServlet {
     res.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
     setCacheHeaders(req, res);
   }
+
+  protected void setDownloadHeaders(HttpServletRequest req, HttpServletResponse res,
+      String filename, String contentType) {
+    res.setContentType(contentType);
+    res.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename);
+    setCacheHeaders(req, res);
+  }
 }
