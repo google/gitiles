@@ -115,7 +115,7 @@ public class GitilesView {
         default:
           break;
       }
-      if (type == Type.ARCHIVE) {
+      if (type == Type.ARCHIVE && other.type == Type.ARCHIVE) {
         extension = other.extension;
       }
       // Don't copy params.

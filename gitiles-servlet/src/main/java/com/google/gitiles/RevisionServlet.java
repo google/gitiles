@@ -15,7 +15,9 @@
 package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
+
 import static org.eclipse.jgit.lib.Constants.OBJ_BLOB;
 import static org.eclipse.jgit.lib.Constants.OBJ_COMMIT;
 import static org.eclipse.jgit.lib.Constants.OBJ_TAG;
@@ -28,6 +30,7 @@ import com.google.gitiles.CommitSoyData.KeySet;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.http.server.ServletUtils;
+import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
@@ -51,10 +54,12 @@ public class RevisionServlet extends BaseServlet {
   private static final Logger log = LoggerFactory.getLogger(RevisionServlet.class);
 
   private final Linkifier linkifier;
+  private final ArchiveFormat archiveFormat;
 
-  public RevisionServlet(Renderer renderer, Linkifier linkifier) {
+  public RevisionServlet(Config cfg, Renderer renderer, Linkifier linkifier) {
     super(renderer);
     this.linkifier = checkNotNull(linkifier, "linkifier");
+    this.archiveFormat = ArchiveFormat.getDefault(checkNotNull(cfg, "cfg"));
   }
 
   @Override
@@ -78,6 +83,7 @@ public class RevisionServlet extends BaseServlet {
                   "data", new CommitSoyData()
                       .setLinkifier(linkifier)
                       .setRevWalk(walk)
+                      .setArchiveFormat(archiveFormat)
                       .toSoyData(req, (RevCommit) obj, KeySet.DETAIL_DIFF_TREE)));
               break;
             case OBJ_TREE:

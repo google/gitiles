@@ -15,6 +15,7 @@
 package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
 import com.google.common.base.Charsets;
@@ -23,6 +24,7 @@ import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.http.server.ServletUtils;
+import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -46,10 +48,12 @@ public class DiffServlet extends BaseServlet {
   private static final String PLACEHOLDER = "id=\"DIFF_OUTPUT_BLOCK\"";
 
   private final Linkifier linkifier;
+  private final ArchiveFormat archiveFormat;
 
-  public DiffServlet(Renderer renderer, Linkifier linkifier) {
+  public DiffServlet(Config cfg, Renderer renderer, Linkifier linkifier) {
     super(renderer);
     this.linkifier = checkNotNull(linkifier, "linkifier");
+    this.archiveFormat = ArchiveFormat.getDefault(checkNotNull(cfg, "cfg"));
   }
 
   @Override
@@ -81,6 +85,7 @@ public class DiffServlet extends BaseServlet {
       if (showCommit) {
         data.put("commit", new CommitSoyData()
             .setLinkifier(linkifier)
+            .setArchiveFormat(archiveFormat)
             .toSoyData(req, walk.parseCommit(view.getRevision().getId())));
       }
       if (!data.containsKey("repositoryName") && (view.getRepositoryName() != null)) {

@@ -36,6 +36,7 @@ import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
 import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
 import org.eclipse.jgit.junit.TestRepository;
+import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.google.common.collect.ImmutableList;
@@ -421,6 +422,7 @@ public class ViewFilterTest extends TestCase {
     };
 
     ViewFilter vf = new ViewFilter(
+        new Config(),
         new TestGitilesAccess(repo.getRepository()),
         TestGitilesUrls.URLS,
         new VisibilityCache(false));

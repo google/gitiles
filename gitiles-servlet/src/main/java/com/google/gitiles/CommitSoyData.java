@@ -62,7 +62,7 @@ public class CommitSoyData {
   /** Valid sets of keys to include in Soy data for commits. */
   public static enum KeySet {
     DETAIL("author", "committer", "sha", "tree", "treeUrl", "parents", "message", "logUrl",
-        "tgzUrl"),
+        "archiveUrl", "archiveType"),
     DETAIL_DIFF_TREE(DETAIL, "diffTree"),
     SHORTLOG("abbrevSha", "url", "shortMessage", "author", "branches", "tags"),
     DEFAULT(DETAIL);
@@ -88,6 +88,7 @@ public class CommitSoyData {
   private RevWalk walk;
   private GitilesView view;
   private Map<AnyObjectId, Set<Ref>> refsById;
+  private ArchiveFormat archiveFormat;
 
   public CommitSoyData setLinkifier(Linkifier linkifier) {
     this.linkifier = checkNotNull(linkifier, "linkifier");
@@ -96,6 +97,11 @@ public class CommitSoyData {
 
   public CommitSoyData setRevWalk(RevWalk walk) {
     this.walk = checkNotNull(walk, "walk");
+    return this;
+  }
+
+  public CommitSoyData setArchiveFormat(ArchiveFormat archiveFormat) {
+    this.archiveFormat = checkNotNull(archiveFormat, "archiveFormat");
     return this;
   }
 
@@ -133,8 +139,12 @@ public class CommitSoyData {
     if (ks.contains("logUrl")) {
       data.put("logUrl", urlFromView(view, commit, GitilesView.log()));
     }
-    if (ks.contains("tgzUrl")) {
-      data.put("tgzUrl", urlFromView(view, commit, GitilesView.archive().setExtension(".tar.gz")));
+    if (ks.contains("archiveUrl")) {
+      data.put("archiveUrl", urlFromView(view, commit,
+          GitilesView.archive().setExtension(archiveFormat.getDefaultSuffix())));
+    }
+    if (ks.contains("archiveType")) {
+      data.put("archiveType", archiveFormat.getShortName());
     }
     if (ks.contains("tree")) {
       data.put("tree", ObjectId.toString(commit.getTree()));
@@ -175,6 +185,9 @@ public class CommitSoyData {
 
   private void checkKeys(KeySet ks) {
     checkState(!ks.contains("diffTree") || walk != null, "RevWalk required for diffTree");
+    if (ks.contains("archiveUrl") || ks.contains("archiveType")) {
+      checkState(archiveFormat != null, "archive format required");
+    }
   }
 
   // TODO(dborowitz): Extract this.

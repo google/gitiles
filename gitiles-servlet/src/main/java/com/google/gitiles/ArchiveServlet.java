@@ -17,22 +17,16 @@ package com.google.gitiles;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 
-import com.google.common.collect.ImmutableMap;
-
 import org.eclipse.jgit.api.ArchiveCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.archive.TarFormat;
-import org.eclipse.jgit.archive.Tbz2Format;
-import org.eclipse.jgit.archive.TgzFormat;
-import org.eclipse.jgit.archive.TxzFormat;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.http.server.ServletUtils;
+import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevWalk;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -41,42 +35,11 @@ import javax.servlet.http.HttpServletResponse;
 public class ArchiveServlet extends BaseServlet {
   private static final long serialVersionUID = 1L;
 
-  private enum Format {
-    TAR("application/x-tar", new TarFormat()),
-    TGZ("application/x-gzip", new TgzFormat()),
-    TBZ2("application/x-bzip2", new Tbz2Format()),
-    TXZ("application/x-xz", new TxzFormat());
-    // Zip is not supported because it may be interpreted by a Java plugin as a
-    // valid JAR file, whose code would have access to cookies on the domain.
+  private final Map<String, ArchiveFormat> byExt;
 
-    private final ArchiveCommand.Format<?> format;
-    private final String mimeType;
-
-    private Format(String mimeType, ArchiveCommand.Format<?> format) {
-      this.format = format;
-      this.mimeType = mimeType;
-      ArchiveCommand.registerFormat(name(), format);
-    }
-  }
-
-  private static final Map<String, Format> FORMATS_BY_EXTENSION;
-
-  static {
-    ImmutableMap.Builder<String, Format> exts = ImmutableMap.builder();
-    for (Format format : Format.values()) {
-      for (String ext : format.format.suffixes()) {
-        exts.put(ext, format);
-      }
-    }
-    FORMATS_BY_EXTENSION = exts.build();
-  }
-
-  static Set<String> validExtensions() {
-    return FORMATS_BY_EXTENSION.keySet();
-  }
-
-  public ArchiveServlet() {
+  public ArchiveServlet(Config cfg) {
     super(null);
+    byExt = ArchiveFormat.byExtension(cfg);
   }
 
   @Override
@@ -99,9 +62,9 @@ public class ArchiveServlet extends BaseServlet {
       walk.release();
     }
 
-    Format format = FORMATS_BY_EXTENSION.get(view.getExtension());
+    ArchiveFormat format = byExt.get(view.getExtension());
     String filename = getFilename(view, rev, view.getExtension());
-    setDownloadHeaders(req, res, filename, format.mimeType);
+    setDownloadHeaders(req, res, filename, format.getMimeType());
     res.setStatus(SC_OK);
 
     try {

@@ -36,7 +36,8 @@
  *     url: URL to a detail page for the tree entry.
  *     diffUrl: URL to a diff page for the tree entry's diff in this commit.
  * @param logUrl URL to a log page starting at this commit.
- * @param tgzUrl URL to a download link of this commit as a tarball.
+ * @param archiveUrl URL to a download link of this commit as an archive.
+ * @param archiveType type of the archive to download.
  */
 {template .commitDetail}
 <div class="git-commit">
@@ -48,9 +49,7 @@
         <span class="log-link">
           [<a href="{$logUrl}">{msg desc="text for the log link"}log{/msg}</a>]
         </span>
-        <span class="download-link">
-          [<a href="{$tgzUrl}">{msg desc="text for the tarball link"}tgz{/msg}</a>]
-        </span>
+        <span class="download-link">[<a href="{$archiveUrl}">{$archiveType}</a>]</span>
       </td>
       <td>{sp}</td>
     </tr>

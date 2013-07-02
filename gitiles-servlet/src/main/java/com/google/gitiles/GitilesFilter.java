@@ -201,7 +201,7 @@ class GitilesFilter extends MetaFilter {
     }
 
     Filter repositoryFilter = new RepositoryFilter(resolver);
-    Filter viewFilter = new ViewFilter(accessFactory, urls, visibilityCache);
+    Filter viewFilter = new ViewFilter(this.config, accessFactory, urls, visibilityCache);
     Filter dispatchFilter = new DispatchFilter(filters, servlets);
 
     ServletBinder root = serveRegex(ROOT_REGEX).through(viewFilter);
@@ -233,17 +233,17 @@ class GitilesFilter extends MetaFilter {
       case REFS:
         return new RefServlet(renderer, timeCache);
       case REVISION:
-        return new RevisionServlet(renderer, linkifier());
+        return new RevisionServlet(config, renderer, linkifier());
       case PATH:
         return new PathServlet(renderer, urls);
       case DIFF:
-        return new DiffServlet(renderer, linkifier());
+        return new DiffServlet(config, renderer, linkifier());
       case LOG:
         return new LogServlet(renderer, linkifier());
       case DESCRIBE:
         return new DescribeServlet();
       case ARCHIVE:
-        return new ArchiveServlet();
+        return new ArchiveServlet(config);
       default:
         throw new IllegalArgumentException("Invalid view type: " + view);
     }
