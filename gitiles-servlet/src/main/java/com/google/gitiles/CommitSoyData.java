@@ -16,7 +16,6 @@ package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-
 import static org.eclipse.jgit.diff.DiffEntry.ChangeType.COPY;
 import static org.eclipse.jgit.diff.DiffEntry.ChangeType.DELETE;
 import static org.eclipse.jgit.diff.DiffEntry.ChangeType.RENAME;
@@ -31,6 +30,7 @@ import com.google.template.soy.data.restricted.NullData;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.diff.DiffFormatter;
+import org.eclipse.jgit.http.server.ServletUtils;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
@@ -55,7 +55,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 
 /** Soy data converter for git commits. */
@@ -77,45 +76,47 @@ public class CommitSoyData {
     private KeySet(KeySet other, String... keys) {
       this.keys = ImmutableSet.<String> builder().addAll(other.keys).add(keys).build();
     }
+
+    private boolean contains(String key) {
+      return keys.contains(key);
+    }
   }
 
-  private final Linkifier linkifier;
-  private final HttpServletRequest req;
-  private final Repository repo;
-  private final RevWalk walk;
-  private final GitilesView view;
-  private final Map<AnyObjectId, Set<Ref>> refsById;
-  private final GitDateFormatter dateFormatter;
+  private final GitDateFormatter dateFormatter = new GitDateFormatter(Format.DEFAULT);
+  private Linkifier linkifier;
+  private Repository repo;
+  private RevWalk walk;
+  private GitilesView view;
+  private Map<AnyObjectId, Set<Ref>> refsById;
 
-  // TODO(dborowitz): This constructor is getting a bit ridiculous.
-  public CommitSoyData(@Nullable Linkifier linkifier, HttpServletRequest req, Repository repo,
-      RevWalk walk, GitilesView view) {
-    this(linkifier, req, repo, walk, view, null);
+  public CommitSoyData setLinkifier(Linkifier linkifier) {
+    this.linkifier = checkNotNull(linkifier, "linkifier");
+    return this;
   }
 
-  public CommitSoyData(@Nullable Linkifier linkifier, HttpServletRequest req, Repository repo,
-      RevWalk walk, GitilesView view, @Nullable Map<AnyObjectId, Set<Ref>> refsById) {
-    this.linkifier = linkifier;
-    this.req = req;
-    this.repo = repo;
-    this.walk = walk;
-    this.view = view;
-    this.refsById = refsById;
-    this.dateFormatter = new GitDateFormatter(Format.DEFAULT);
+  public CommitSoyData setRevWalk(RevWalk walk) {
+    this.walk = checkNotNull(walk, "walk");
+    return this;
   }
 
-  public Map<String, Object> toSoyData(RevCommit commit, KeySet keys) throws IOException {
+  public Map<String, Object> toSoyData(HttpServletRequest req, RevCommit commit, KeySet ks)
+      throws IOException {
+    checkKeys(ks);
+    req = checkNotNull(req, "request");
+    repo = ServletUtils.getRepository(req);
+    view = ViewFilter.getView(req);
+
     Map<String, Object> data = Maps.newHashMapWithExpectedSize(KeySet.DEFAULT.keys.size());
-    if (keys.keys.contains("author")) {
+    if (ks.contains("author")) {
       data.put("author", toSoyData(commit.getAuthorIdent(), dateFormatter));
     }
-    if (keys.keys.contains("committer")) {
+    if (ks.contains("committer")) {
       data.put("committer", toSoyData(commit.getCommitterIdent(), dateFormatter));
     }
-    if (keys.keys.contains("sha")) {
+    if (ks.contains("sha")) {
       data.put("sha", ObjectId.toString(commit));
     }
-    if (keys.keys.contains("abbrevSha")) {
+    if (ks.contains("abbrevSha")) {
       ObjectReader reader = repo.getObjectDatabase().newReader();
       try {
         data.put("abbrevSha", reader.abbreviate(commit).name());
@@ -123,53 +124,57 @@ public class CommitSoyData {
         reader.release();
       }
     }
-    if (keys.keys.contains("url")) {
+    if (ks.contains("url")) {
       data.put("url", GitilesView.revision()
           .copyFrom(view)
           .setRevision(commit)
           .toUrl());
     }
-    if (keys.keys.contains("logUrl")) {
+    if (ks.contains("logUrl")) {
       data.put("logUrl", urlFromView(view, commit, GitilesView.log()));
     }
-    if (keys.keys.contains("tgzUrl")) {
+    if (ks.contains("tgzUrl")) {
       data.put("tgzUrl", urlFromView(view, commit, GitilesView.archive().setExtension(".tar.gz")));
     }
-    if (keys.keys.contains("tree")) {
+    if (ks.contains("tree")) {
       data.put("tree", ObjectId.toString(commit.getTree()));
     }
-    if (keys.keys.contains("treeUrl")) {
+    if (ks.contains("treeUrl")) {
       data.put("treeUrl", GitilesView.path().copyFrom(view).setPathPart("/").toUrl());
     }
-    if (keys.keys.contains("parents")) {
+    if (ks.contains("parents")) {
       data.put("parents", toSoyData(view, commit.getParents()));
     }
-    if (keys.keys.contains("shortMessage")) {
+    if (ks.contains("shortMessage")) {
       data.put("shortMessage", commit.getShortMessage());
     }
-    if (keys.keys.contains("branches")) {
+    if (ks.contains("branches")) {
       data.put("branches", getRefsById(commit, Constants.R_HEADS));
     }
-    if (keys.keys.contains("tags")) {
+    if (ks.contains("tags")) {
       data.put("tags", getRefsById(commit, Constants.R_TAGS));
     }
-    if (keys.keys.contains("message")) {
+    if (ks.contains("message")) {
       if (linkifier != null) {
         data.put("message", linkifier.linkify(req, commit.getFullMessage()));
       } else {
         data.put("message", commit.getFullMessage());
       }
     }
-    if (keys.keys.contains("diffTree")) {
+    if (ks.contains("diffTree")) {
       data.put("diffTree", computeDiffTree(commit));
     }
-    checkState(keys.keys.size() == data.size(), "bad commit data keys: %s != %s", keys.keys,
+    checkState(ks.keys.size() == data.size(), "bad commit data keys: %s != %s", ks.keys,
         data.keySet());
     return ImmutableMap.copyOf(data);
   }
 
-  public Map<String, Object> toSoyData(RevCommit commit) throws IOException {
-    return toSoyData(commit, KeySet.DEFAULT);
+  public Map<String, Object> toSoyData(HttpServletRequest req, RevCommit commit) throws IOException {
+    return toSoyData(req, commit, KeySet.DEFAULT);
+  }
+
+  private void checkKeys(KeySet ks) {
+    checkState(!ks.contains("diffTree") || walk != null, "RevWalk required for diffTree");
   }
 
   // TODO(dborowitz): Extract this.
@@ -279,7 +284,9 @@ public class CommitSoyData {
       };
 
   private List<Map<String, String>> getRefsById(ObjectId id, String prefix) {
-    checkNotNull(refsById, "must pass in ID to ref map to look up refs by ID");
+    if (refsById == null) {
+      refsById = repo.getAllRefsByPeeledObjectId();
+    }
     Set<Ref> refs = refsById.get(id);
     if (refs == null) {
       return ImmutableList.of();

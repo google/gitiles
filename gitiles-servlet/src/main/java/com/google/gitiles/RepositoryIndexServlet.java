@@ -74,7 +74,8 @@ public class RepositoryIndexServlet extends BaseServlet {
         if (head.getType() == Constants.OBJ_COMMIT) {
           walk.reset();
           walk.markStart((RevCommit) head);
-          data = new LogSoyData(req, repo, view).toSoyData(walk, LOG_LIMIT, "HEAD", null);
+          data =
+              new LogSoyData(req, view).toSoyData(walk, LOG_LIMIT, "HEAD", null);
         } else {
           // TODO(dborowitz): Handle non-commit or missing HEAD?
           data = Maps.newHashMapWithExpectedSize(6);

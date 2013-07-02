@@ -75,8 +75,10 @@ public class RevisionServlet extends BaseServlet {
             case OBJ_COMMIT:
               soyObjects.add(ImmutableMap.of(
                   "type", Constants.TYPE_COMMIT,
-                  "data", new CommitSoyData(linkifier, req, repo, walk, view)
-                      .toSoyData((RevCommit) obj, KeySet.DETAIL_DIFF_TREE)));
+                  "data", new CommitSoyData()
+                      .setLinkifier(linkifier)
+                      .setRevWalk(walk)
+                      .toSoyData(req, (RevCommit) obj, KeySet.DETAIL_DIFF_TREE)));
               break;
             case OBJ_TREE:
               soyObjects.add(ImmutableMap.of(

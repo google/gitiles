@@ -31,7 +31,6 @@ import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.errors.RevWalkException;
 import org.eclipse.jgit.http.server.ServletUtils;
 import org.eclipse.jgit.lib.AbbreviatedObjectId;
-import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
@@ -49,7 +48,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -93,7 +91,8 @@ public class LogServlet extends BaseServlet {
         return;
       }
 
-      Map<String, Object> data = new LogSoyData(req, repo, view)
+      Map<String, Object> data =
+          new LogSoyData(req, view)
         .toSoyData(walk, LIMIT, null, start.orNull());
 
       if (!view.getRevision().nameIsId()) {
@@ -109,11 +108,9 @@ public class LogServlet extends BaseServlet {
       }
 
       Paginator paginator = new Paginator(walk, LIMIT, start.orNull());
-      Map<AnyObjectId, Set<Ref>> refsById = repo.getAllRefsByPeeledObjectId();
       List<Map<String, Object>> entries = Lists.newArrayListWithCapacity(LIMIT);
       for (RevCommit c : paginator) {
-        entries.add(new CommitSoyData(null, req, repo, walk, view, refsById)
-            .toSoyData(c, KeySet.SHORTLOG));
+        entries.add(new CommitSoyData().toSoyData(req, c, KeySet.SHORTLOG));
       }
 
       String title = "Log - ";

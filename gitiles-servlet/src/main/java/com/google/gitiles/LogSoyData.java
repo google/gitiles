@@ -18,29 +18,23 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gitiles.CommitSoyData.KeySet;
 
-import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 
 public class LogSoyData {
   private final HttpServletRequest req;
-  private final Repository repo;
   private final GitilesView view;
 
-  public LogSoyData(HttpServletRequest req, Repository repo, GitilesView view) {
+  public LogSoyData(HttpServletRequest req, GitilesView view) {
     this.req = req;
-    this.repo = repo;
     this.view = view;
   }
 
@@ -49,11 +43,9 @@ public class LogSoyData {
     Map<String, Object> data = Maps.newHashMapWithExpectedSize(3);
 
     Paginator paginator = new Paginator(walk, limit, start);
-    Map<AnyObjectId, Set<Ref>> refsById = repo.getAllRefsByPeeledObjectId();
     List<Map<String, Object>> entries = Lists.newArrayListWithCapacity(limit);
     for (RevCommit c : paginator) {
-      entries.add(new CommitSoyData(null, req, repo, walk, view, refsById)
-          .toSoyData(c, KeySet.SHORTLOG));
+      entries.add(new CommitSoyData().toSoyData(req, c, KeySet.SHORTLOG));
     }
 
     data.put("entries", entries);

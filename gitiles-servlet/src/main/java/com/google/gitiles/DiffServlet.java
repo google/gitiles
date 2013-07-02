@@ -79,8 +79,9 @@ public class DiffServlet extends BaseServlet {
       Map<String, Object> data = getData(req);
       data.put("title", "Diff - " + view.getRevisionRange());
       if (showCommit) {
-        data.put("commit", new CommitSoyData(linkifier, req, repo, walk, view)
-            .toSoyData(walk.parseCommit(view.getRevision().getId())));
+        data.put("commit", new CommitSoyData()
+            .setLinkifier(linkifier)
+            .toSoyData(req, walk.parseCommit(view.getRevision().getId())));
       }
       if (!data.containsKey("repositoryName") && (view.getRepositoryName() != null)) {
         data.put("repositoryName", view.getRepositoryName());
