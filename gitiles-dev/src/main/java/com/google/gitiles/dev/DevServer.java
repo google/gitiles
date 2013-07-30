@@ -51,13 +51,18 @@ import java.net.UnknownHostException;
 class DevServer {
   private static final Logger log = LoggerFactory.getLogger(PathServlet.class);
 
-  private static Config defaultConfig() throws UnknownHostException {
+  private static Config defaultConfig() {
     Config cfg = new Config();
     String cwd = System.getProperty("user.dir");
     cfg.setString("gitiles", null, "basePath", cwd);
     cfg.setBoolean("gitiles", null, "exportAll", true);
     cfg.setString("gitiles", null, "baseGitUrl", "file://" + cwd + "/");
-    String networkHostName = InetAddress.getLocalHost().getCanonicalHostName();
+    String networkHostName;
+    try {
+      networkHostName = InetAddress.getLocalHost().getCanonicalHostName();
+    } catch (UnknownHostException e) {
+      networkHostName = "127.0.0.1";
+    }
     cfg.setString("gitiles", null, "siteTitle",
         String.format("Gitiles - %s:%s", networkHostName, cwd));
     cfg.setString("gitiles", null, "canonicalHostName", new File(cwd).getName());
