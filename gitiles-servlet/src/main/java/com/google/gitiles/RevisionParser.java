@@ -165,7 +165,8 @@ class RevisionParser {
             } else {
               oldRevision = Revision.NULL;
             }
-            Result result = new Result(Revision.peeled(name, c), oldRevision, path.substring(name.length() + 2));
+            Result result = new Result(Revision.peeled(name, c), oldRevision,
+                path.substring(name.length() + 2));
             return isVisible(walk, result) ? result : null;
           }
         }

@@ -206,7 +206,8 @@ public class DefaultAccess implements GitilesAccess {
     return "refs/heads/" + name;
   }
 
-  private Collection<Repository> scanRepositories(final File basePath, final HttpServletRequest req) throws IOException {
+  private Collection<Repository> scanRepositories(final File basePath, final HttpServletRequest req)
+      throws IOException {
     List<Repository> repos = Lists.newArrayList();
     Queue<File> todo = Queues.newArrayDeque();
     File[] baseFiles = basePath.listFiles();

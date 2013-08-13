@@ -179,7 +179,8 @@ public class CommitSoyData {
     return ImmutableMap.copyOf(data);
   }
 
-  public Map<String, Object> toSoyData(HttpServletRequest req, RevCommit commit) throws IOException {
+  public Map<String, Object> toSoyData(HttpServletRequest req, RevCommit commit)
+      throws IOException {
     return toSoyData(req, commit, KeySet.DEFAULT);
   }
 
