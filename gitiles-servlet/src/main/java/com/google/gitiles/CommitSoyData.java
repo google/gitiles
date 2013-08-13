@@ -108,7 +108,7 @@ public class CommitSoyData {
   public Map<String, Object> toSoyData(HttpServletRequest req, RevCommit commit, KeySet ks)
       throws IOException {
     checkKeys(ks);
-    req = checkNotNull(req, "request");
+    checkNotNull(req, "request");
     repo = ServletUtils.getRepository(req);
     view = ViewFilter.getView(req);
 
