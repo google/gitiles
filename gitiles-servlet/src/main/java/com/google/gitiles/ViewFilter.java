@@ -18,6 +18,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
+import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
 
 import java.io.IOException;
 import java.util.Map;
@@ -31,11 +32,14 @@ import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jgit.http.server.ServletUtils;
 import org.eclipse.jgit.http.server.glue.WrappedRequest;
 import org.eclipse.jgit.lib.Config;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 
 /** Filter to parse URLs and convert them to {@link GitilesView}s. */
 public class ViewFilter extends AbstractHttpFilter {
+  private static final Logger log = LoggerFactory.getLogger(ViewFilter.class);
   // TODO(dborowitz): Make this public in JGit (or implement getRegexGroup
   // upstream).
   private static final String REGEX_GROUPS_ATTRIBUTE =
@@ -93,7 +97,15 @@ public class ViewFilter extends AbstractHttpFilter {
   @Override
   public void doFilter(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
       throws IOException, ServletException {
-    GitilesView.Builder view = parse(req);
+    GitilesView.Builder view;
+    try {
+      view = parse(req);
+    } catch (IOException err) {
+      String name = urls.getHostName(req);
+      log.warn("Cannot parse view" + (name != null ? " for " + name : ""), err);
+      res.setStatus(SC_SERVICE_UNAVAILABLE);
+      return;
+    }
     if (view == null) {
       res.setStatus(SC_NOT_FOUND);
       return;
