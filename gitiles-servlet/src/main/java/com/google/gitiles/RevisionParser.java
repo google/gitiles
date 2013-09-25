@@ -18,6 +18,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.IOException;
 
+import org.eclipse.jgit.errors.AmbiguousObjectException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.errors.RevisionSyntaxException;
 import org.eclipse.jgit.lib.ObjectId;
@@ -200,6 +201,9 @@ class RevisionParser {
     try {
       ObjectId id = repo.resolve(name);
       return id != null ? walk.parseAny(id) : null;
+    } catch (AmbiguousObjectException e) {
+      // TODO(dborowitz): Render a helpful disambiguation page.
+      return null;
     } catch (RevisionSyntaxException e) {
       return null;
     } catch (MissingObjectException e) {
