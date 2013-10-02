@@ -45,7 +45,7 @@ public class GitilesServlet extends MetaServlet {
   public static final String STATIC_PREFIX = "/+static/";
 
   public GitilesServlet(
-      @Nullable Config config,
+      Config config,
       @Nullable Renderer renderer,
       @Nullable GitilesUrls urls,
       @Nullable GitilesAccess.Factory accessFactory,
