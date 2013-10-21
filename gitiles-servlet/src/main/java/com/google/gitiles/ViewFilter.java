@@ -45,7 +45,7 @@ public class ViewFilter extends AbstractHttpFilter {
   private static final String REGEX_GROUPS_ATTRIBUTE =
       "org.eclipse.jgit.http.server.glue.MetaServlet.serveRegex";
 
-  private static final String VIEW_ATTIRBUTE = ViewFilter.class.getName() + "/View";
+  private static final String VIEW_ATTRIBUTE = ViewFilter.class.getName() + "/View";
 
   private static final String CMD_ARCHIVE = "+archive";
   private static final String CMD_AUTO = "+";
@@ -56,7 +56,7 @@ public class ViewFilter extends AbstractHttpFilter {
   private static final String CMD_SHOW = "+show";
 
   public static GitilesView getView(HttpServletRequest req) {
-    return (GitilesView) req.getAttribute(VIEW_ATTIRBUTE);
+    return (GitilesView) req.getAttribute(VIEW_ATTRIBUTE);
   }
 
   static String getRegexGroup(HttpServletRequest req, int groupId) {
@@ -65,7 +65,7 @@ public class ViewFilter extends AbstractHttpFilter {
   }
 
   static void setView(HttpServletRequest req, GitilesView view) {
-    req.setAttribute(VIEW_ATTIRBUTE, view);
+    req.setAttribute(VIEW_ATTRIBUTE, view);
   }
 
   static String trimLeadingSlash(String str) {
@@ -119,7 +119,7 @@ public class ViewFilter extends AbstractHttpFilter {
     try {
       chain.doFilter(req, res);
     } finally {
-      req.removeAttribute(VIEW_ATTIRBUTE);
+      req.removeAttribute(VIEW_ATTRIBUTE);
     }
   }
 
