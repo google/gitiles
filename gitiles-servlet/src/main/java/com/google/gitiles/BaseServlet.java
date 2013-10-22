@@ -128,7 +128,7 @@ public abstract class BaseServlet extends HttpServlet {
    * @param res in-progress response.
    */
   protected void doGetHtml(HttpServletRequest req, HttpServletResponse res)
-      throws IOException, ServletException {
+      throws IOException {
     res.sendError(SC_BAD_REQUEST);
   }
 
@@ -139,7 +139,7 @@ public abstract class BaseServlet extends HttpServlet {
    * @param res in-progress response.
    */
   protected void doGetText(HttpServletRequest req, HttpServletResponse res)
-      throws IOException, ServletException {
+      throws IOException {
     res.sendError(SC_BAD_REQUEST);
   }
 
@@ -150,7 +150,7 @@ public abstract class BaseServlet extends HttpServlet {
    * @param res in-progress response.
    */
   protected void doGetJson(HttpServletRequest req, HttpServletResponse res)
-      throws IOException, ServletException {
+      throws IOException {
     res.sendError(SC_BAD_REQUEST);
   }
 
@@ -175,16 +175,17 @@ public abstract class BaseServlet extends HttpServlet {
    *
    * @param req in-progress request.
    * @param res in-progress response.
-   * @param key key.
    * @param templateName Soy template name; must be in one of the template files
-   *     defined in {@link Renderer#SOY_FILENAMES}.
+   *     defined in {@link Renderer}.
+   * @param soyData data for Soy.
+   * @throws IOException an error occurred during rendering.
    */
   protected void renderHtml(HttpServletRequest req, HttpServletResponse res, String templateName,
       Map<String, ?> soyData) throws IOException {
     try {
       res.setContentType(FormatType.HTML.getMimeType());
       res.setCharacterEncoding(Charsets.UTF_8.name());
-      setCacheHeaders(req, res);
+      setCacheHeaders(res);
 
       Map<String, Object> allData = getData(req);
       allData.putAll(soyData);
@@ -213,7 +214,7 @@ public abstract class BaseServlet extends HttpServlet {
    */
   protected void renderJson(HttpServletRequest req, HttpServletResponse res, Object src,
       Type typeOfSrc) throws IOException {
-    setApiHeaders(req, res, JSON);
+    setApiHeaders(res, JSON);
     res.setStatus(SC_OK);
 
     PrintWriter writer = res.getWriter();
@@ -244,7 +245,7 @@ public abstract class BaseServlet extends HttpServlet {
    */
   protected PrintWriter startRenderText(HttpServletRequest req, HttpServletResponse res)
       throws IOException {
-    setApiHeaders(req, res, TEXT);
+    setApiHeaders(res, TEXT);
     return res.getWriter();
   }
 
@@ -261,29 +262,28 @@ public abstract class BaseServlet extends HttpServlet {
   protected void renderTextError(HttpServletRequest req, HttpServletResponse res, int statusCode,
       String message) throws IOException {
     res.setStatus(statusCode);
-    setApiHeaders(req, res, TEXT);
-    setCacheHeaders(req, res);
+    setApiHeaders(res, TEXT);
+    setCacheHeaders(res);
     PrintWriter out = res.getWriter();
     out.write(message);
     out.close();
   }
 
-  protected void setCacheHeaders(HttpServletRequest req, HttpServletResponse res) {
+  protected void setCacheHeaders(HttpServletResponse res) {
     setNotCacheable(res);
   }
 
-  protected void setApiHeaders(HttpServletRequest req, HttpServletResponse res, FormatType type) {
+  protected void setApiHeaders(HttpServletResponse res, FormatType type) {
     res.setContentType(type.getMimeType());
     res.setCharacterEncoding(Charsets.UTF_8.name());
     res.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment");
     res.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
-    setCacheHeaders(req, res);
+    setCacheHeaders(res);
   }
 
-  protected void setDownloadHeaders(HttpServletRequest req, HttpServletResponse res,
-      String filename, String contentType) {
+  protected void setDownloadHeaders(HttpServletResponse res, String filename, String contentType) {
     res.setContentType(contentType);
     res.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename);
-    setCacheHeaders(req, res);
+    setCacheHeaders(res);
   }
 }

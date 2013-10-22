@@ -132,19 +132,19 @@ public class ViewFilter extends AbstractHttpFilter {
     String path = getRegexGroup(req, 3);
 
     if (command.isEmpty()) {
-      return parseNoCommand(req, repoName, path);
+      return parseNoCommand(repoName);
     } else if (command.equals(CMD_ARCHIVE)) {
       return parseArchiveCommand(req, repoName, path);
     } else if (command.equals(CMD_AUTO)) {
       return parseAutoCommand(req, repoName, path);
     } else if (command.equals(CMD_DESCRIBE)) {
-      return parseDescribeCommand(req, repoName, path);
+      return parseDescribeCommand(repoName, path);
     } else if (command.equals(CMD_DIFF)) {
       return parseDiffCommand(req, repoName, path);
     } else if (command.equals(CMD_LOG)) {
       return parseLogCommand(req, repoName, path);
     } else if (command.equals(CMD_REFS)) {
-      return parseRefsCommand(req, repoName, path);
+      return parseRefsCommand(repoName, path);
     } else if (command.equals(CMD_SHOW)) {
       return parseShowCommand(req, repoName, path);
     } else {
@@ -152,8 +152,7 @@ public class ViewFilter extends AbstractHttpFilter {
     }
   }
 
-  private GitilesView.Builder parseNoCommand(
-      HttpServletRequest req, String repoName, String path) {
+  private GitilesView.Builder parseNoCommand(String repoName) {
     return GitilesView.repositoryIndex().setRepositoryName(repoName);
   }
 
@@ -198,8 +197,7 @@ public class ViewFilter extends AbstractHttpFilter {
     }
   }
 
-  private GitilesView.Builder parseDescribeCommand(
-      HttpServletRequest req, String repoName, String path) {
+  private GitilesView.Builder parseDescribeCommand(String repoName, String path) {
     if (isEmptyOrSlash(path)) {
       return null;
     }
@@ -241,8 +239,7 @@ public class ViewFilter extends AbstractHttpFilter {
         .setPathPart(result.getPath());
   }
 
-  private GitilesView.Builder parseRefsCommand(
-      HttpServletRequest req, String repoName, String path) {
+  private GitilesView.Builder parseRefsCommand(String repoName, String path) {
     return GitilesView.refs()
         .setRepositoryName(repoName)
         .setPathPart(path);

@@ -56,8 +56,7 @@ public class FakeHttpServletRequest implements HttpServletRequest {
         URLS.getHostName(null),
         80,
         "",
-        SERVLET_PATH,
-        "");
+        SERVLET_PATH);
   }
 
   public static FakeHttpServletRequest newRequest(DfsRepository repo) {
@@ -76,8 +75,8 @@ public class FakeHttpServletRequest implements HttpServletRequest {
   private String servletPath;
   private String path;
 
-  private FakeHttpServletRequest(String hostName, int port, String contextPath, String servletPath,
-      String path) {
+  private FakeHttpServletRequest(String hostName, int port, String contextPath,
+      String servletPath) {
     this.hostName = checkNotNull(hostName, "hostName");
     checkArgument(port > 0);
     this.port = port;

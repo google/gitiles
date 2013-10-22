@@ -29,7 +29,7 @@ import org.eclipse.jgit.revwalk.RevTag;
 
 /** Tests for {@link Linkifier}. */
 public class RefServletTest extends TestCase {
-  private TestRepository<DfsRepository> repo;;
+  private TestRepository<DfsRepository> repo;
   private GitilesServlet servlet;
 
   @Override

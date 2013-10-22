@@ -594,7 +594,7 @@ public class GitilesView {
    * @return a list of maps with "text" and "url" keys for all file paths
    *     leading up to the path represented by this view. All URLs allow
    *     auto-diving into one-entry subtrees; see also
-   *     {@link #getBreadcrumbs(List<Boolean>)}.
+   *     {@link #getBreadcrumbs(List)}.
    */
   public List<Map<String, String>> getBreadcrumbs() {
     return getBreadcrumbs(null);

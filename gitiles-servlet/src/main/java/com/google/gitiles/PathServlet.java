@@ -174,7 +174,7 @@ public class PathServlet extends BaseServlet {
           showFile(req, res, rw, tw, hasSingleTree);
           break;
         case GITLINK:
-          showGitlink(req, res, rw, tw, root, hasSingleTree);
+          showGitlink(req, res, tw, root);
           break;
         default:
           log.error("Bad file type: {}", type);
@@ -189,7 +189,7 @@ public class PathServlet extends BaseServlet {
   }
 
   private static class AutoDiveFilter extends TreeFilter {
-    /** @see GitilesView#getBreadcrumbs(List<Boolean>) */
+    /** @see GitilesView#getBreadcrumbs(List) */
     List<Boolean> hasSingleTree;
 
     private final byte[] pathRaw;
@@ -376,8 +376,8 @@ public class PathServlet extends BaseServlet {
     }
   }
 
-  private void showGitlink(HttpServletRequest req, HttpServletResponse res, RevWalk rw,
-      TreeWalk tw, RevTree root, List<Boolean> hasSingleTree) throws IOException {
+  private void showGitlink(HttpServletRequest req, HttpServletResponse res, TreeWalk tw,
+      RevTree root) throws IOException {
     GitilesView view = ViewFilter.getView(req);
     SubmoduleWalk sw = SubmoduleWalk.forPath(ServletUtils.getRepository(req), root,
         view.getPathPart());

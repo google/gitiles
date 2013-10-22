@@ -99,12 +99,12 @@ public class DiffServlet extends BaseServlet {
       res.setStatus(HttpServletResponse.SC_OK);
       res.setContentType(FormatType.HTML.getMimeType());
       res.setCharacterEncoding(Charsets.UTF_8.name());
-      setCacheHeaders(req, res);
+      setCacheHeaders(res);
 
       OutputStream out = res.getOutputStream();
       try {
         out.write(html[0].getBytes(Charsets.UTF_8));
-        formatHtmlDiff(out, repo, walk, oldTree, newTree, view.getPathPart());
+        formatHtmlDiff(out, repo, oldTree, newTree, view.getPathPart());
         out.write(html[1].getBytes(Charsets.UTF_8));
       } finally {
         out.close();
@@ -139,9 +139,8 @@ public class DiffServlet extends BaseServlet {
   }
 
   private void formatHtmlDiff(OutputStream out,
-      Repository repo, RevWalk walk,
-      AbstractTreeIterator oldTree, AbstractTreeIterator newTree,
-      String path)
+      Repository repo, AbstractTreeIterator oldTree,
+      AbstractTreeIterator newTree, String path)
       throws IOException {
     DiffFormatter diff = new HtmlDiffFormatter(renderer, out);
     try {
