@@ -32,7 +32,7 @@ limitations under the License.
 
   <properties>
     <!-- Should track Gerrit's versions fairly closely. -->
-    <jgitVersion>3.0.0.201306101825-r.41-g84d2738</jgitVersion>
+    <jgitVersion>3.1.0.201310021548-r</jgitVersion>
     <slf4jVersion>1.6.1</slf4jVersion>
   </properties>
 
@@ -183,7 +183,7 @@ limitations under the License.
 
     <repository>
       <id>jgit-repository</id>
-      <url>http://download.eclipse.org/jgit/maven</url>
+      <url>https://repo.eclipse.org/content/groups/releases</url>
     </repository>
 
     <repository>
