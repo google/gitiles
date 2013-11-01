@@ -23,6 +23,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
+import com.google.gson.reflect.TypeToken;
 
 import org.eclipse.jgit.diff.DiffConfig;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
@@ -36,6 +37,7 @@ import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.FollowFilter;
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevObject;
 import org.eclipse.jgit.revwalk.RevTag;
 import org.eclipse.jgit.revwalk.RevWalk;
@@ -104,6 +106,36 @@ public class LogServlet extends BaseServlet {
       log.warn("Error in rev walk", e);
       res.setStatus(SC_INTERNAL_SERVER_ERROR);
       return;
+    } finally {
+      paginator.getWalk().release();
+    }
+  }
+
+  @Override
+  protected void doGetJson(HttpServletRequest req, HttpServletResponse res) throws IOException {
+    Repository repo = ServletUtils.getRepository(req);
+    GitilesView view = getView(req, repo);
+    Paginator paginator = newPaginator(repo, view);
+    if (paginator == null) {
+      res.setStatus(SC_NOT_FOUND);
+      return;
+    }
+
+    try {
+      Map<String, Object> result = Maps.newLinkedHashMap();
+      List<CommitJsonData.Commit> entries = Lists.newArrayListWithCapacity(paginator.getLimit());
+      for (RevCommit c : paginator) {
+        paginator.getWalk().parseBody(c);
+        entries.add(CommitJsonData.toJsonData(c));
+      }
+      result.put("log", entries);
+      if (paginator.getPreviousStart() != null) {
+        result.put("previous", paginator.getPreviousStart().name());
+      }
+      if (paginator.getNextStart() != null) {
+        result.put("next", paginator.getNextStart().name());
+      }
+      renderJson(req, res, result, new TypeToken<Map<String, Object>>() {}.getType());
     } finally {
       paginator.getWalk().release();
     }
