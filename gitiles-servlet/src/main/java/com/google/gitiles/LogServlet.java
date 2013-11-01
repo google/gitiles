@@ -23,6 +23,8 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.primitives.Longs;
 import com.google.gson.reflect.TypeToken;
 
 import org.eclipse.jgit.diff.DiffConfig;
@@ -57,8 +59,10 @@ public class LogServlet extends BaseServlet {
   private static final long serialVersionUID = 1L;
   private static final Logger log = LoggerFactory.getLogger(LogServlet.class);
 
+  static final String LIMIT_PARAM = "n";
   static final String START_PARAM = "s";
-  private static final int LIMIT = 100;
+  private static final int DEFAULT_LIMIT = 100;
+  private static final int MAX_LIMIT = 10000;
 
   private final Linkifier linkifier;
 
@@ -215,6 +219,19 @@ public class LogServlet extends BaseServlet {
     if (start == null) {
       return null;
     }
-    return new Paginator(walk, LIMIT, start.orNull());
+
+    return new Paginator(walk, getLimit(view), start.orNull());
+  }
+
+  private static int getLimit(GitilesView view) {
+    List<String> values = view.getParameters().get(LIMIT_PARAM);
+    if (values.isEmpty()) {
+      return DEFAULT_LIMIT;
+    }
+    Long limit = Longs.tryParse(values.get(0));
+    if (limit == null) {
+      return DEFAULT_LIMIT;
+    }
+    return (int) Math.min(limit, MAX_LIMIT);
   }
 }
