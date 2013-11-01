@@ -23,7 +23,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
-import com.google.gitiles.CommitSoyData.KeySet;
 
 import org.eclipse.jgit.diff.DiffConfig;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
@@ -37,7 +36,6 @@ import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.FollowFilter;
-import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevObject;
 import org.eclipse.jgit.revwalk.RevTag;
 import org.eclipse.jgit.revwalk.RevWalk;
@@ -105,12 +103,6 @@ public class LogServlet extends BaseServlet {
         if (!tags.isEmpty()) {
           data.put("tags", tags);
         }
-      }
-
-      Paginator paginator = new Paginator(walk, LIMIT, start.orNull());
-      List<Map<String, Object>> entries = Lists.newArrayListWithCapacity(LIMIT);
-      for (RevCommit c : paginator) {
-        entries.add(new CommitSoyData().toSoyData(req, c, KeySet.SHORTLOG));
       }
 
       String title = "Log - ";
