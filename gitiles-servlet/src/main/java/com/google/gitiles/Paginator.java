@@ -162,6 +162,14 @@ class Paginator implements Iterable<RevCommit> {
     };
   }
 
+  public int getLimit() {
+    return limit;
+  }
+
+  public RevWalk getWalk() {
+    return walk;
+  }
+
   private RevCommit nextUnchecked() {
     try {
       return next();

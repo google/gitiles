@@ -40,10 +40,14 @@ public class LogSoyData {
 
   public Map<String, Object> toSoyData(RevWalk walk, int limit, @Nullable String revision,
       @Nullable ObjectId start) throws IOException {
+    return toSoyData(new Paginator(walk, limit, start), revision);
+  }
+
+  public Map<String, Object> toSoyData(Paginator paginator, @Nullable String revision)
+      throws IOException {
     Map<String, Object> data = Maps.newHashMapWithExpectedSize(3);
 
-    Paginator paginator = new Paginator(walk, limit, start);
-    List<Map<String, Object>> entries = Lists.newArrayListWithCapacity(limit);
+    List<Map<String, Object>> entries = Lists.newArrayListWithCapacity(paginator.getLimit());
     for (RevCommit c : paginator) {
       entries.add(new CommitSoyData().toSoyData(req, c, KeySet.SHORTLOG));
     }

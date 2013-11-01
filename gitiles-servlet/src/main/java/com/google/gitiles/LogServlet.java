@@ -69,33 +69,18 @@ public class LogServlet extends BaseServlet {
   protected void doGetHtml(HttpServletRequest req, HttpServletResponse res) throws IOException {
     Repository repo = ServletUtils.getRepository(req);
     GitilesView view = getView(req, repo);
-    if (view == null) {
+    Paginator paginator = newPaginator(repo, view);
+    if (paginator == null) {
       res.setStatus(SC_NOT_FOUND);
       return;
     }
 
-    RevWalk walk = null;
     try {
-      try {
-        walk = newWalk(repo, view);
-      } catch (IncorrectObjectTypeException e) {
-        res.setStatus(SC_NOT_FOUND);
-        return;
-      }
-
-      Optional<ObjectId> start = getStart(view.getParameters(), walk.getObjectReader());
-      if (start == null) {
-        res.setStatus(SC_NOT_FOUND);
-        return;
-      }
-
-      Map<String, Object> data =
-          new LogSoyData(req, view)
-        .toSoyData(walk, LIMIT, null, start.orNull());
+      Map<String, Object> data = new LogSoyData(req, view).toSoyData(paginator, null);
 
       if (!view.getRevision().nameIsId()) {
         List<Map<String, Object>> tags = Lists.newArrayListWithExpectedSize(1);
-        for (RevObject o : RevisionServlet.listObjects(walk, view.getRevision())) {
+        for (RevObject o : RevisionServlet.listObjects(paginator.getWalk(), view.getRevision())) {
           if (o instanceof RevTag) {
             tags.add(new TagSoyData(linkifier, req).toSoyData((RevTag) o));
           }
@@ -120,9 +105,7 @@ public class LogServlet extends BaseServlet {
       res.setStatus(SC_INTERNAL_SERVER_ERROR);
       return;
     } finally {
-      if (walk != null) {
-        walk.release();
-      }
+      paginator.getWalk().release();
     }
   }
 
@@ -176,5 +159,30 @@ public class LogServlet extends BaseServlet {
         repo.getConfig().get(DiffConfig.KEY)));
     }
     return walk;
+  }
+
+  private static Paginator newPaginator(Repository repo, GitilesView view) throws IOException {
+    if (view == null) {
+      return null;
+    }
+
+    RevWalk walk = null;
+    try {
+      walk = newWalk(repo, view);
+    } catch (IncorrectObjectTypeException e) {
+      return null;
+    }
+
+    Optional<ObjectId> start;
+    try {
+      start = getStart(view.getParameters(), walk.getObjectReader());
+    } catch (IOException e) {
+      walk.release();
+      throw e;
+    }
+    if (start == null) {
+      return null;
+    }
+    return new Paginator(walk, LIMIT, start.orNull());
   }
 }
