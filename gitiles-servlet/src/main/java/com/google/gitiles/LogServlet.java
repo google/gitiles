@@ -15,6 +15,7 @@
 package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
@@ -27,7 +28,6 @@ import com.google.common.collect.Maps;
 import com.google.common.primitives.Longs;
 import com.google.gson.reflect.TypeToken;
 
-import org.eclipse.jgit.diff.DiffConfig;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.errors.RevWalkException;
@@ -38,11 +38,11 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.revwalk.FollowFilter;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevObject;
 import org.eclipse.jgit.revwalk.RevTag;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -190,9 +190,7 @@ public class LogServlet extends BaseServlet {
       walk.markUninteresting(walk.parseCommit(view.getOldRevision().getId()));
     }
     if (!Strings.isNullOrEmpty(view.getPathPart())) {
-      walk.setTreeFilter(FollowFilter.create(
-        view.getPathPart(),
-        repo.getConfig().get(DiffConfig.KEY)));
+      walk.setTreeFilter(PathFilter.create(view.getPathPart()));
     }
     return walk;
   }
