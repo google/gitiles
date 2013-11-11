@@ -101,10 +101,10 @@ public class GitilesView {
           oldRevision = other.oldRevision;
           // Fallthrough.
         case PATH:
+        case ARCHIVE:
           path = other.path;
           // Fallthrough.
         case REVISION:
-        case ARCHIVE:
           revision = other.revision;
           // Fallthrough.
         case DESCRIBE:
@@ -219,6 +219,7 @@ public class GitilesView {
         case DIFF:
           checkState(path != null, "cannot set null path on %s view", type);
           break;
+        case ARCHIVE:
         case DESCRIBE:
         case REFS:
         case LOG:
@@ -547,8 +548,11 @@ public class GitilesView {
         url.append(repositoryName).append("/+/").append(revision.getName());
         break;
       case ARCHIVE:
-        url.append(repositoryName).append("/+archive/").append(revision.getName())
-            .append(Objects.firstNonNull(extension, DEFAULT_ARCHIVE_EXTENSION));
+        url.append(repositoryName).append("/+archive/").append(revision.getName());
+        if (path != null) {
+          url.append('/').append(path);
+        }
+        url.append(Objects.firstNonNull(extension, DEFAULT_ARCHIVE_EXTENSION));
         break;
       case PATH:
         url.append(repositoryName).append("/+/").append(revision.getName()).append('/')

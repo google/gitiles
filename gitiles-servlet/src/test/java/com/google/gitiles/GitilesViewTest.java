@@ -516,6 +516,49 @@ public class GitilesViewTest extends TestCase {
         view.getBreadcrumbs());
   }
 
+  public void testArchiveWithNoPath() throws Exception {
+    ObjectId id = ObjectId.fromString("abcd1234abcd1234abcd1234abcd1234abcd1234");
+    GitilesView view = GitilesView.archive()
+        .copyFrom(HOST)
+        .setRepositoryName("foo/bar")
+        .setRevision(Revision.unpeeled("master", id))
+        .setExtension(".tar.bz2")
+        .build();
+
+    assertEquals("/b", view.getServletPath());
+    assertEquals(Type.ARCHIVE, view.getType());
+    assertEquals("host", view.getHostName());
+    assertEquals("foo/bar", view.getRepositoryName());
+    assertEquals(id, view.getRevision().getId());
+    assertEquals("master", view.getRevision().getName());
+    assertEquals(Revision.NULL, view.getOldRevision());
+    assertNull(view.getPathPart());
+    assertTrue(HOST.getParameters().isEmpty());
+    assertEquals("/b/foo/bar/+archive/master.tar.bz2", view.toUrl());
+  }
+
+  public void testArchiveWithPath() throws Exception {
+    ObjectId id = ObjectId.fromString("abcd1234abcd1234abcd1234abcd1234abcd1234");
+    GitilesView view = GitilesView.archive()
+        .copyFrom(HOST)
+        .setRepositoryName("foo/bar")
+        .setRevision(Revision.unpeeled("master", id))
+        .setPathPart("/path/to/a/dir")
+        .setExtension(".tar.bz2")
+        .build();
+
+    assertEquals("/b", view.getServletPath());
+    assertEquals(Type.ARCHIVE, view.getType());
+    assertEquals("host", view.getHostName());
+    assertEquals("foo/bar", view.getRepositoryName());
+    assertEquals(id, view.getRevision().getId());
+    assertEquals("master", view.getRevision().getName());
+    assertEquals(Revision.NULL, view.getOldRevision());
+    assertEquals("path/to/a/dir", view.getPathPart());
+    assertTrue(HOST.getParameters().isEmpty());
+    assertEquals("/b/foo/bar/+archive/master/path/to/a/dir.tar.bz2", view.toUrl());
+  }
+
   public void testEscaping() throws Exception {
     ObjectId id = ObjectId.fromString("abcd1234abcd1234abcd1234abcd1234abcd1234");
     ObjectId parent = ObjectId.fromString("efab5678efab5678efab5678efab5678efab5678");

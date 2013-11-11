@@ -19,14 +19,9 @@ import static com.google.gitiles.GitilesFilter.REPO_PATH_REGEX;
 import static com.google.gitiles.GitilesFilter.REPO_REGEX;
 import static com.google.gitiles.GitilesFilter.ROOT_REGEX;
 
-import java.io.IOException;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.regex.Pattern;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.Atomics;
+import com.google.gitiles.GitilesView.Type;
 
 import junit.framework.TestCase;
 
@@ -39,9 +34,14 @@ import org.eclipse.jgit.junit.TestRepository;
 import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.util.concurrent.Atomics;
-import com.google.gitiles.GitilesView.Type;
+import java.io.IOException;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Pattern;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /** Tests for the view filter. */
 public class ViewFilterTest extends TestCase {
@@ -391,6 +391,8 @@ public class ViewFilterTest extends TestCase {
     assertNull(getView("/repo/+archive/master..branch"));
     assertNull(getView("/repo/+archive/master.foo"));
     assertNull(getView("/repo/+archive/master.zip"));
+    assertNull(getView("/repo/+archive/master/.tar.gz"));
+    assertNull(getView("/repo/+archive/master/foo/.tar.gz"));
 
     view = getView("/repo/+archive/master.tar.gz");
     assertEquals(Type.ARCHIVE, view.getType());
@@ -409,6 +411,15 @@ public class ViewFilterTest extends TestCase {
     assertEquals(Revision.NULL, view.getOldRevision());
     assertEquals(".tar.bz2", view.getExtension());
     assertNull(view.getPathPart());
+
+    view = getView("/repo/+archive/master/foo/bar.tar.gz");
+    assertEquals(Type.ARCHIVE, view.getType());
+    assertEquals("repo", view.getRepositoryName());
+    assertEquals("master", view.getRevision().getName());
+    assertEquals(master, view.getRevision().getId());
+    assertEquals(Revision.NULL, view.getOldRevision());
+    assertEquals(".tar.gz", view.getExtension());
+    assertEquals("foo/bar", view.getPathPart());
   }
 
   private GitilesView getView(String pathAndQuery) throws ServletException, IOException {

@@ -16,9 +16,17 @@ package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
+
+import com.google.common.base.Strings;
+import com.google.common.collect.Sets;
+
+import org.eclipse.jgit.http.server.ServletUtils;
+import org.eclipse.jgit.http.server.glue.WrappedRequest;
+import org.eclipse.jgit.lib.Config;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Map;
@@ -28,14 +36,6 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.eclipse.jgit.http.server.ServletUtils;
-import org.eclipse.jgit.http.server.glue.WrappedRequest;
-import org.eclipse.jgit.lib.Config;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Sets;
 
 /** Filter to parse URLs and convert them to {@link GitilesView}s. */
 public class ViewFilter extends AbstractHttpFilter {
@@ -166,7 +166,7 @@ public class ViewFilter extends AbstractHttpFilter {
         break;
       }
     }
-    if (ext == null) {
+    if (ext == null || path.endsWith("/")) {
       return null;
     }
     RevisionParser.Result result = parseRevision(req, path);
@@ -176,6 +176,7 @@ public class ViewFilter extends AbstractHttpFilter {
     return GitilesView.archive()
         .setRepositoryName(repoName)
         .setRevision(result.getRevision())
+        .setPathPart(Strings.emptyToNull(result.getPath()))
         .setExtension(ext);
   }
 

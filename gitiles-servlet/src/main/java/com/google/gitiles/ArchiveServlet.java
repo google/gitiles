@@ -22,8 +22,12 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.http.server.ServletUtils;
 import org.eclipse.jgit.lib.Config;
+import org.eclipse.jgit.lib.FileMode;
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.treewalk.TreeWalk;
 
 import java.io.IOException;
 import java.util.Map;
@@ -49,17 +53,10 @@ public class ArchiveServlet extends BaseServlet {
     Revision rev = view.getRevision();
     Repository repo = ServletUtils.getRepository(req);
 
-    // Check object type before starting the archive. If we just caught the
-    // exception from cmd.call() below, we wouldn't know whether it was because
-    // the input object is not a tree or something broke later.
-    RevWalk walk = new RevWalk(repo);
-    try {
-      walk.parseTree(rev.getId());
-    } catch (IncorrectObjectTypeException e) {
+    ObjectId treeId = getTree(view, repo, rev);
+    if (treeId.equals(ObjectId.zeroId())) {
       res.sendError(SC_NOT_FOUND);
       return;
-    } finally {
-      walk.release();
     }
 
     ArchiveFormat format = byExt.get(view.getExtension());
@@ -70,7 +67,7 @@ public class ArchiveServlet extends BaseServlet {
     try {
       new ArchiveCommand(repo)
           .setFormat(format.name())
-          .setTree(rev.getId())
+          .setTree(treeId)
           .setOutputStream(res.getOutputStream())
           .call();
     } catch (GitAPIException e) {
@@ -78,12 +75,35 @@ public class ArchiveServlet extends BaseServlet {
     }
   }
 
+  private ObjectId getTree(GitilesView view, Repository repo, Revision rev) throws IOException {
+    RevWalk rw = new RevWalk(repo);
+    try {
+      RevTree tree = rw.parseTree(rev.getId());
+      if (view.getPathPart() == null) {
+        return tree;
+      }
+      TreeWalk tw = TreeWalk.forPath(rw.getObjectReader(), view.getPathPart(), tree);
+      if (tw.getFileMode(0) != FileMode.TREE) {
+        return ObjectId.zeroId();
+      }
+      return tw.getObjectId(0);
+    } catch (IncorrectObjectTypeException e) {
+      return ObjectId.zeroId();
+    } finally {
+      rw.release();
+    }
+  }
+
   private String getFilename(GitilesView view, Revision rev, String ext) {
-    return new StringBuilder()
+    StringBuilder sb = new StringBuilder()
         .append(Paths.basename(view.getRepositoryName()))
         .append('-')
-        .append(rev.getName())
-        .append(ext)
+        .append(rev.getName());
+    if (view.getPathPart() != null) {
+      sb.append('-')
+          .append(view.getPathPart().replace('/', '-'));
+    }
+    return sb.append(ext)
         .toString();
   }
 }
