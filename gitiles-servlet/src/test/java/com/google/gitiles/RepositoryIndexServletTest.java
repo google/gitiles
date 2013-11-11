@@ -16,10 +16,8 @@ package com.google.gitiles;
 
 import static com.google.gitiles.TestGitilesUrls.URLS;
 
-import java.io.IOException;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 import junit.framework.TestCase;
 
@@ -27,9 +25,12 @@ import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
 import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
 import org.eclipse.jgit.junit.TestRepository;
+import org.eclipse.jgit.lib.Config;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+import java.io.IOException;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
 
 /** Tests for {@link RepositoryIndexServlet}. */
 public class RepositoryIndexServletTest extends TestCase {
@@ -41,6 +42,7 @@ public class RepositoryIndexServletTest extends TestCase {
     repo = new TestRepository<DfsRepository>(
         new InMemoryRepository(new DfsRepositoryDescription("test")));
     servlet = new RepositoryIndexServlet(
+        new Config(),
         new DefaultRenderer(),
         new TestGitilesAccess(repo.getRepository()),
         new TimeCache());

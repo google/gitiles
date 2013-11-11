@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 
 import org.eclipse.jgit.http.server.ServletUtils;
+import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
@@ -46,9 +47,9 @@ public class RepositoryIndexServlet extends BaseServlet {
   private final GitilesAccess.Factory accessFactory;
   private final TimeCache timeCache;
 
-  public RepositoryIndexServlet(Renderer renderer, GitilesAccess.Factory accessFactory,
+  public RepositoryIndexServlet(Config cfg, Renderer renderer, GitilesAccess.Factory accessFactory,
       TimeCache timeCache) {
-    super(renderer);
+    super(cfg, renderer);
     this.accessFactory = checkNotNull(accessFactory, "accessFactory");
     this.timeCache = checkNotNull(timeCache, "timeCache");
   }

@@ -15,7 +15,6 @@
 package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
@@ -33,6 +32,7 @@ import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.errors.RevWalkException;
 import org.eclipse.jgit.http.server.ServletUtils;
 import org.eclipse.jgit.lib.AbbreviatedObjectId;
+import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
@@ -66,8 +66,8 @@ public class LogServlet extends BaseServlet {
 
   private final Linkifier linkifier;
 
-  public LogServlet(Renderer renderer, Linkifier linkifier) {
-    super(renderer);
+  public LogServlet(Config cfg, Renderer renderer, Linkifier linkifier) {
+    super(cfg, renderer);
     this.linkifier = checkNotNull(linkifier, "linkifier");
   }
 

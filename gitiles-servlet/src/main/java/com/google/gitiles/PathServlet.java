@@ -16,10 +16,8 @@ package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.gitiles.TreeSoyData.resolveTargetUrl;
-
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
-
 import static org.eclipse.jgit.lib.Constants.OBJ_BLOB;
 import static org.eclipse.jgit.lib.Constants.OBJ_COMMIT;
 import static org.eclipse.jgit.lib.Constants.OBJ_TREE;
@@ -37,6 +35,7 @@ import org.eclipse.jgit.errors.LargeObjectException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.errors.StopWalkException;
 import org.eclipse.jgit.http.server.ServletUtils;
+import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
@@ -108,8 +107,8 @@ public class PathServlet extends BaseServlet {
 
   private final GitilesUrls urls;
 
-  public PathServlet(Renderer renderer, GitilesUrls urls) {
-    super(renderer);
+  public PathServlet(Config cfg, Renderer renderer, GitilesUrls urls) {
+    super(cfg, renderer);
     this.urls = checkNotNull(urls, "urls");
   }
 

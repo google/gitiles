@@ -14,14 +14,24 @@
 
 package com.google.gitiles;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.gitiles.FormatType.DEFAULT;
 import static com.google.gitiles.FormatType.HTML;
 import static com.google.gitiles.FormatType.JSON;
 import static com.google.gitiles.FormatType.TEXT;
-
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
+
+import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+import com.google.common.net.HttpHeaders;
+import com.google.gson.FieldNamingPolicy;
+import com.google.gson.GsonBuilder;
+
+import org.eclipse.jgit.lib.Config;
+import org.joda.time.Instant;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -32,15 +42,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.joda.time.Instant;
-
-import com.google.common.base.Charsets;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
-import com.google.common.net.HttpHeaders;
-import com.google.gson.FieldNamingPolicy;
-import com.google.gson.GsonBuilder;
 
 /** Base servlet class for Gitiles servlets that serve Soy templates. */
 public abstract class BaseServlet extends HttpServlet {
@@ -55,7 +56,7 @@ public abstract class BaseServlet extends HttpServlet {
   }
 
   public static BaseServlet notFoundServlet() {
-    return new BaseServlet(null) {
+    return new BaseServlet(new Config(), null) {
       private static final long serialVersionUID = 1L;
       @Override
       public void service(HttpServletRequest req, HttpServletResponse res) {
@@ -165,9 +166,11 @@ public abstract class BaseServlet extends HttpServlet {
   }
 
   protected final Renderer renderer;
+  protected final ArchiveFormat archiveFormat;
 
-  protected BaseServlet(Renderer renderer) {
+  protected BaseServlet(Config cfg, Renderer renderer) {
     this.renderer = renderer;
+    this.archiveFormat = ArchiveFormat.getDefault(checkNotNull(cfg, "cfg"));
   }
 
   /**

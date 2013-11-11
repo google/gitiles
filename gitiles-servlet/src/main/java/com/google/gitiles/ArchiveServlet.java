@@ -42,7 +42,7 @@ public class ArchiveServlet extends BaseServlet {
   private final Map<String, ArchiveFormat> byExt;
 
   public ArchiveServlet(Config cfg) {
-    super(null);
+    super(cfg, null);
     byExt = ArchiveFormat.byExtension(cfg);
   }
 

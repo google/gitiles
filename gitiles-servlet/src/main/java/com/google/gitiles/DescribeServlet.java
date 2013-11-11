@@ -17,13 +17,9 @@ package com.google.gitiles;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableMap;
+import com.google.gson.reflect.TypeToken;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.NameRevCommand;
@@ -31,13 +27,18 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.AmbiguousObjectException;
 import org.eclipse.jgit.errors.RevisionSyntaxException;
 import org.eclipse.jgit.http.server.ServletUtils;
+import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableMap;
-import com.google.gson.reflect.TypeToken;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /** Serves an API result describing an object. */
 public class DescribeServlet extends BaseServlet {
@@ -53,8 +54,8 @@ public class DescribeServlet extends BaseServlet {
         && (values.get(0).equals("") || values.get(0).equals("1"));
   }
 
-  protected DescribeServlet() {
-    super(null);
+  protected DescribeServlet(Config cfg) {
+    super(cfg, null);
   }
 
   @Override

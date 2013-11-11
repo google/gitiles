@@ -227,21 +227,21 @@ class GitilesFilter extends MetaFilter {
     checkNotInitialized();
     switch (view) {
       case HOST_INDEX:
-        return new HostIndexServlet(renderer, urls, accessFactory);
+        return new HostIndexServlet(config, renderer, urls, accessFactory);
       case REPOSITORY_INDEX:
-        return new RepositoryIndexServlet(renderer, accessFactory, timeCache);
+        return new RepositoryIndexServlet(config, renderer, accessFactory, timeCache);
       case REFS:
-        return new RefServlet(renderer, timeCache);
+        return new RefServlet(config, renderer, timeCache);
       case REVISION:
         return new RevisionServlet(config, renderer, linkifier());
       case PATH:
-        return new PathServlet(renderer, urls);
+        return new PathServlet(config, renderer, urls);
       case DIFF:
         return new DiffServlet(config, renderer, linkifier());
       case LOG:
-        return new LogServlet(renderer, linkifier());
+        return new LogServlet(config, renderer, linkifier());
       case DESCRIBE:
-        return new DescribeServlet();
+        return new DescribeServlet(config);
       case ARCHIVE:
         return new ArchiveServlet(config);
       default:

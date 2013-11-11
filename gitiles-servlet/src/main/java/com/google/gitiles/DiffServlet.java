@@ -48,12 +48,10 @@ public class DiffServlet extends BaseServlet {
   private static final String PLACEHOLDER = "id=\"DIFF_OUTPUT_BLOCK\"";
 
   private final Linkifier linkifier;
-  private final ArchiveFormat archiveFormat;
 
   public DiffServlet(Config cfg, Renderer renderer, Linkifier linkifier) {
-    super(renderer);
+    super(cfg, renderer);
     this.linkifier = checkNotNull(linkifier, "linkifier");
-    this.archiveFormat = ArchiveFormat.getDefault(checkNotNull(cfg, "cfg"));
   }
 
   @Override

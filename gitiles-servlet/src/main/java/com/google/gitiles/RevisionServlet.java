@@ -15,9 +15,7 @@
 package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
-
 import static org.eclipse.jgit.lib.Constants.OBJ_BLOB;
 import static org.eclipse.jgit.lib.Constants.OBJ_COMMIT;
 import static org.eclipse.jgit.lib.Constants.OBJ_TAG;
@@ -54,12 +52,10 @@ public class RevisionServlet extends BaseServlet {
   private static final Logger log = LoggerFactory.getLogger(RevisionServlet.class);
 
   private final Linkifier linkifier;
-  private final ArchiveFormat archiveFormat;
 
   public RevisionServlet(Config cfg, Renderer renderer, Linkifier linkifier) {
-    super(renderer);
+    super(cfg, renderer);
     this.linkifier = checkNotNull(linkifier, "linkifier");
-    this.archiveFormat = ArchiveFormat.getDefault(checkNotNull(cfg, "cfg"));
   }
 
   @Override
