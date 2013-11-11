@@ -293,7 +293,9 @@ public class PathServlet extends BaseServlet {
         "title", !view.getPathPart().isEmpty() ? view.getPathPart() : "/",
         "breadcrumbs", view.getBreadcrumbs(hasSingleTree),
         "type", FileType.TREE.toString(),
-        "data", new TreeSoyData(rw, view).toSoyData(id, tw)));
+        "data", new TreeSoyData(rw, view)
+            .setArchiveFormat(archiveFormat)
+            .toSoyData(id, tw)));
   }
 
   private CanonicalTreeParser getOnlyChildSubtree(RevWalk rw, ObjectId id, byte[] prefix)

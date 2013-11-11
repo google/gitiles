@@ -70,10 +70,16 @@ public class TreeSoyData {
 
   private final RevWalk rw;
   private final GitilesView view;
+  private ArchiveFormat archiveFormat;
 
   public TreeSoyData(RevWalk rw, GitilesView view) {
     this.rw = rw;
     this.view = view;
+  }
+
+  public TreeSoyData setArchiveFormat(ArchiveFormat archiveFormat) {
+    this.archiveFormat = archiveFormat;
+    return this;
   }
 
   public Map<String, Object> toSoyData(ObjectId treeId, TreeWalk tw) throws MissingObjectException,
@@ -126,6 +132,11 @@ public class TreeSoyData {
     if (view.getType() == GitilesView.Type.PATH
         && view.getRevision().getPeeledType() == OBJ_COMMIT) {
       data.put("logUrl", GitilesView.log().copyFrom(view).toUrl());
+      data.put("archiveUrl", GitilesView.archive()
+          .copyFrom(view)
+          .setExtension(archiveFormat.getDefaultSuffix())
+          .toUrl());
+      data.put("archiveType", archiveFormat.getShortName());
     }
 
     return data;

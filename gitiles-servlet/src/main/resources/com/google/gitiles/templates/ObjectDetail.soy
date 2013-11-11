@@ -142,6 +142,8 @@
  *
  * @param sha SHA of this path's tree.
  * @param? logUrl optional URL to a log for this path.
+ * @param? archiveUrl optional URL to a download link of this tree as an archive.
+ * @param? archiveType type of the archive to download, if archiveUrl is set.
  * @param entries list of entries with the following keys:
  *     type: entry type, matching one of the constant names defined in
  *         org.eclipse.jgit.lib.FileMode.
@@ -155,6 +157,9 @@
 <div class="sha1">
   {msg desc="SHA-1 for the path's tree"}tree: {$sha}{/msg}
   {if $logUrl}{sp}[<a href="{$logUrl}">{msg desc="history for a path"}path history{/msg}</a>]{/if}
+  {if $archiveUrl}
+    <span class="download-link">[<a href="{$archiveUrl}">{$archiveType}</a>]</span>
+  {/if}
 </div>
 
 {if length($entries)}
