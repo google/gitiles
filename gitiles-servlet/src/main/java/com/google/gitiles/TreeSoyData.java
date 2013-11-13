@@ -18,6 +18,7 @@ import static org.eclipse.jgit.lib.Constants.OBJ_COMMIT;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gitiles.PathServlet.FileType;
@@ -134,6 +135,7 @@ public class TreeSoyData {
       data.put("logUrl", GitilesView.log().copyFrom(view).toUrl());
       data.put("archiveUrl", GitilesView.archive()
           .copyFrom(view)
+          .setPathPart(Strings.emptyToNull(view.getPathPart()))
           .setExtension(archiveFormat.getDefaultSuffix())
           .toUrl());
       data.put("archiveType", archiveFormat.getShortName());
