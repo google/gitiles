@@ -33,10 +33,12 @@ import org.eclipse.jgit.util.IO;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.Collator;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -55,6 +57,8 @@ public class DefaultAccess implements GitilesAccess {
 
   private static final String DEFAULT_DESCRIPTION =
     "Unnamed repository; edit this file 'description' to name the repository.";
+
+  private static final Collator US_COLLATOR = Collator.getInstance(Locale.US);
 
   public static class Factory implements GitilesAccess.Factory {
     private final File basePath;
@@ -99,7 +103,7 @@ public class DefaultAccess implements GitilesAccess {
   @Override
   public Map<String, RepositoryDescription> listRepositories(Set<String> branches)
       throws IOException {
-    Map<String, RepositoryDescription> repos = Maps.newTreeMap();
+    Map<String, RepositoryDescription> repos = Maps.newTreeMap(US_COLLATOR);
     for (Repository repo : scanRepositories(basePath, req)) {
       repos.put(getRepositoryName(repo), buildDescription(repo, branches));
       repo.close();
