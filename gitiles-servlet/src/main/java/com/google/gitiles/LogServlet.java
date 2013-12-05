@@ -42,7 +42,9 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevObject;
 import org.eclipse.jgit.revwalk.RevTag;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
+import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -190,7 +192,9 @@ public class LogServlet extends BaseServlet {
       walk.markUninteresting(walk.parseCommit(view.getOldRevision().getId()));
     }
     if (!Strings.isNullOrEmpty(view.getPathPart())) {
-      walk.setTreeFilter(PathFilter.create(view.getPathPart()));
+      walk.setTreeFilter(AndTreeFilter.create(
+          PathFilter.create(view.getPathPart()),
+          TreeFilter.ANY_DIFF));
     }
     return walk;
   }
