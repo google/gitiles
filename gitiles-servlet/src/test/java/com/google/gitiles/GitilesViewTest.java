@@ -559,6 +559,36 @@ public class GitilesViewTest extends TestCase {
     assertEquals("/b/foo/bar/+archive/master/path/to/a/dir.tar.bz2", view.toUrl());
   }
 
+  public void testBlame() throws Exception {
+    ObjectId id = ObjectId.fromString("abcd1234abcd1234abcd1234abcd1234abcd1234");
+    GitilesView view = GitilesView.blame()
+        .copyFrom(HOST)
+        .setRepositoryName("foo/bar")
+        .setRevision(Revision.unpeeled("master", id))
+        .setPathPart("/dir/file")
+        .build();
+
+    assertEquals("/b", view.getServletPath());
+    assertEquals(Type.BLAME, view.getType());
+    assertEquals("host", view.getHostName());
+    assertEquals("foo/bar", view.getRepositoryName());
+    assertEquals(id, view.getRevision().getId());
+    assertEquals("master", view.getRevision().getName());
+    assertEquals(Revision.NULL, view.getOldRevision());
+    assertEquals("dir/file", view.getPathPart());
+    assertTrue(HOST.getParameters().isEmpty());
+    assertEquals("/b/foo/bar/+blame/master/dir/file", view.toUrl());
+    assertEquals(
+        ImmutableList.of(
+            breadcrumb("host", "/b/?format=HTML"),
+            breadcrumb("foo/bar", "/b/foo/bar/"),
+            breadcrumb("master", "/b/foo/bar/+/master"),
+            breadcrumb(".", "/b/foo/bar/+/master/"),
+            breadcrumb("dir", "/b/foo/bar/+/master/dir"),
+            breadcrumb("file", "/b/foo/bar/+blame/master/dir/file")),
+        view.getBreadcrumbs());
+  }
+
   public void testEscaping() throws Exception {
     ObjectId id = ObjectId.fromString("abcd1234abcd1234abcd1234abcd1234abcd1234");
     ObjectId parent = ObjectId.fromString("efab5678efab5678efab5678efab5678efab5678");

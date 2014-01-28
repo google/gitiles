@@ -62,7 +62,8 @@ public class GitilesView {
     DIFF,
     LOG,
     DESCRIBE,
-    ARCHIVE;
+    ARCHIVE,
+    BLAME;
   }
 
   /** Exception thrown when building a view that is invalid. */
@@ -102,6 +103,7 @@ public class GitilesView {
           // Fallthrough.
         case PATH:
         case ARCHIVE:
+        case BLAME:
           path = other.path;
           // Fallthrough.
         case REVISION:
@@ -219,6 +221,7 @@ public class GitilesView {
         case DIFF:
           checkState(path != null, "cannot set null path on %s view", type);
           break;
+        case BLAME:
         case ARCHIVE:
         case DESCRIBE:
         case REFS:
@@ -313,6 +316,9 @@ public class GitilesView {
         case ARCHIVE:
           checkArchive();
           break;
+        case BLAME:
+          checkBlame();
+          break;
       }
       return new GitilesView(type, hostName, servletPath, repositoryName, revision,
           oldRevision, path, extension, params, anchor);
@@ -367,6 +373,10 @@ public class GitilesView {
     private void checkArchive() {
       checkRevision();
     }
+
+    private void checkBlame() {
+      checkPath();
+    }
   }
 
   public static Builder hostIndex() {
@@ -403,6 +413,10 @@ public class GitilesView {
 
   public static Builder archive() {
     return new Builder(Type.ARCHIVE);
+  }
+
+  public static Builder blame() {
+    return new Builder(Type.BLAME);
   }
 
   static String maybeTrimLeadingAndTrailingSlash(String str) {
@@ -580,6 +594,10 @@ public class GitilesView {
           }
         }
         break;
+      case BLAME:
+        url.append(repositoryName).append("/+blame/").append(revision.getName()).append('/')
+            .append(path);
+        break;
       default:
         throw new IllegalStateException("Unknown view type: " + type);
     }
@@ -651,7 +669,7 @@ public class GitilesView {
     if (path != null) {
       if (type != Type.LOG && type != Type.REFS) {
         // The "." breadcrumb would be no different for LOG or REFS.
-        breadcrumbs.add(breadcrumb(".", copyWithPath().setPathPart("")));
+        breadcrumbs.add(breadcrumb(".", copyWithPath(false).setPathPart("")));
       }
       StringBuilder cur = new StringBuilder();
       List<String> parts = ImmutableList.copyOf(Paths.SPLITTER.omitEmptyStrings().split(path));
@@ -663,7 +681,8 @@ public class GitilesView {
         String part = parts.get(i);
         cur.append(part).append('/');
         String curPath = cur.toString();
-        Builder builder = copyWithPath().setPathPart(curPath);
+        boolean isLeaf = i == parts.size() - 1;
+        Builder builder = copyWithPath(isLeaf).setPathPart(curPath);
         if (hasSingleTree != null && i < parts.size() - 1 && hasSingleTree.get(i)) {
           builder.replaceParam(PathServlet.AUTODIVE_PARAM, PathServlet.NO_AUTODIVE_VALUE);
         }
@@ -677,7 +696,7 @@ public class GitilesView {
     return ImmutableMap.of("text", text, "url", url.toUrl());
   }
 
-  private Builder copyWithPath() {
+  private Builder copyWithPath(boolean isLeaf) {
     Builder copy;
     switch (type) {
       case DIFF:
@@ -685,6 +704,9 @@ public class GitilesView {
         break;
       case LOG:
         copy = log();
+        break;
+      case BLAME:
+        copy = isLeaf ? blame() : path();
         break;
       default:
         copy = path();

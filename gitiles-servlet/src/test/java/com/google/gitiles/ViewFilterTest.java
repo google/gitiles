@@ -422,6 +422,25 @@ public class ViewFilterTest extends TestCase {
     assertEquals("foo/bar", view.getPathPart());
   }
 
+  public void testBlame() throws Exception {
+    RevCommit master = repo.branch("refs/heads/master").commit().create();
+    repo.branch("refs/heads/branch").commit().create();
+    GitilesView view;
+
+    assertNull(getView("/repo/+blame"));
+    assertNull(getView("/repo/+blame/"));
+    assertNull(getView("/repo/+blame/master"));
+    assertNull(getView("/repo/+blame/master..branch"));
+
+    view = getView("/repo/+blame/master/foo/bar");
+    assertEquals(Type.BLAME, view.getType());
+    assertEquals("repo", view.getRepositoryName());
+    assertEquals("master", view.getRevision().getName());
+    assertEquals(master, view.getRevision().getId());
+    assertEquals(Revision.NULL, view.getOldRevision());
+    assertEquals("foo/bar", view.getPathPart());
+  }
+
   private GitilesView getView(String pathAndQuery) throws ServletException, IOException {
     final AtomicReference<GitilesView> view = Atomics.newReference();
     HttpServlet testServlet = new HttpServlet() {
