@@ -162,6 +162,7 @@ class GitilesFilter extends MetaFilter {
   private RepositoryResolver<HttpServletRequest> resolver;
   private VisibilityCache visibilityCache;
   private TimeCache timeCache;
+  private BlameCache blameCache;
   private GitwebRedirectFilter gitwebRedirect;
   private boolean initialized;
 
@@ -245,7 +246,7 @@ class GitilesFilter extends MetaFilter {
       case ARCHIVE:
         return new ArchiveServlet(config);
       case BLAME:
-        return new BlameServlet(config, renderer);
+        return new BlameServlet(config, renderer, blameCache);
       default:
         throw new IllegalArgumentException("Invalid view type: " + view);
     }
@@ -299,6 +300,7 @@ class GitilesFilter extends MetaFilter {
     setDefaultAccess();
     setDefaultVisbilityCache();
     setDefaultTimeCache();
+    setDefaultBlameCache();
     setDefaultGitwebRedirect();
   }
 
@@ -384,6 +386,16 @@ class GitilesFilter extends MetaFilter {
         timeCache = new TimeCache(ConfigUtil.getCacheBuilder(config, "tagTime"));
       } else {
         timeCache = new TimeCache();
+      }
+    }
+  }
+
+  private void setDefaultBlameCache() {
+    if (blameCache == null) {
+      if (config.getSubsections("cache").contains("blame")) {
+        blameCache = new BlameCache(ConfigUtil.getCacheBuilder(config, "blame"));
+      } else {
+        blameCache = new BlameCache();
       }
     }
   }

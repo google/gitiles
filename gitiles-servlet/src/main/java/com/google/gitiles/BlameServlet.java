@@ -14,15 +14,14 @@
 
 package com.google.gitiles;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
-import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.gitiles.BlameCache.Region;
 
-import org.eclipse.jgit.blame.BlameGenerator;
-import org.eclipse.jgit.blame.BlameResult;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.http.server.ServletUtils;
 import org.eclipse.jgit.lib.Config;
@@ -47,8 +46,11 @@ import javax.servlet.http.HttpServletResponse;
 public class BlameServlet extends BaseServlet {
   private static final long serialVersionUID = 1L;
 
-  public BlameServlet(Config cfg, Renderer renderer) {
+  private final BlameCache cache;
+
+  public BlameServlet(Config cfg, Renderer renderer, BlameCache cache) {
     super(cfg, renderer);
+    this.cache = checkNotNull(cache, "cache");
   }
 
   @Override
@@ -59,7 +61,8 @@ public class BlameServlet extends BaseServlet {
 
     RevWalk rw = new RevWalk(repo);
     try {
-      ObjectId blobId = resolveBlob(view, rw);
+      RevCommit commit = rw.parseCommit(view.getRevision().getId());
+      ObjectId blobId = resolveBlob(view, rw, commit);
       if (blobId == null) {
         res.setStatus(SC_NOT_FOUND);
         return;
@@ -68,19 +71,17 @@ public class BlameServlet extends BaseServlet {
       String title = "Blame - " + view.getPathPart();
       Map<String, ?> blobData = new BlobSoyData(rw, view).toSoyData(view.getPathPart(), blobId);
       if (blobData.get("data") != null) {
-        BlameResult blame = doBlame(repo, view);
-        if (blame == null) {
+        List<Region> regions = cache.get(repo, commit, view.getPathPart());
+        if (regions.isEmpty()) {
           res.setStatus(SC_NOT_FOUND);
           return;
         }
         GitDateFormatter df = new GitDateFormatter(Format.DEFAULT);
-        int lineCount = blame.getResultContents().size();
-        blame.discardResultContents();
         renderHtml(req, res, "gitiles.blameDetail", ImmutableMap.of(
             "title", title,
             "breadcrumbs", view.getBreadcrumbs(),
             "data", blobData,
-            "regions", toRegionData(view, rw.getObjectReader(), blame, lineCount, df)));
+            "regions", toSoyData(view, rw.getObjectReader(), regions, df)));
       } else {
         renderHtml(req, res, "gitiles.blameDetail", ImmutableMap.of(
             "title", title,
@@ -92,10 +93,10 @@ public class BlameServlet extends BaseServlet {
     }
   }
 
-  private static ObjectId resolveBlob(GitilesView view, RevWalk rw) throws IOException {
+  private static ObjectId resolveBlob(GitilesView view, RevWalk rw, RevCommit commit)
+      throws IOException {
     try {
-      TreeWalk tw = TreeWalk.forPath(rw.getObjectReader(), view.getPathPart(),
-          rw.parseTree(view.getRevision().getId()));
+      TreeWalk tw = TreeWalk.forPath(rw.getObjectReader(), view.getPathPart(), commit.getTree());
       if ((tw.getRawMode(0) & FileMode.TYPE_FILE) == 0) {
         return null;
       }
@@ -105,79 +106,31 @@ public class BlameServlet extends BaseServlet {
     }
   }
 
-  private static BlameResult doBlame(Repository repo, GitilesView view) throws IOException {
-    BlameGenerator gen = new BlameGenerator(repo, view.getPathPart());
-    BlameResult blame;
-    try {
-      // TODO: works on annotated tag?
-      gen.push(null, view.getRevision().getId());
-      blame = gen.computeBlameResult();
-    } finally {
-      gen.release();
-    }
-    return blame;
-  }
-
-  private List<Map<String, ?>> toRegionData(GitilesView view, ObjectReader reader,
-      BlameResult blame, int lineCount, GitDateFormatter df) throws IOException {
-    List<Region> regions = Lists.newArrayList();
-    for (int i = 0; i < lineCount; i++) {
-      if (regions.isEmpty() || !regions.get(regions.size() - 1).growFrom(blame, i)) {
-        regions.add(new Region(blame, i));
-      }
-    }
-
+  private static List<Map<String, ?>> toSoyData(GitilesView view, ObjectReader reader,
+      List<Region> regions, GitDateFormatter df) throws IOException {
     Map<ObjectId, String> abbrevShas = Maps.newHashMap();
     List<Map<String, ?>> result = Lists.newArrayListWithCapacity(regions.size());
-    for (Region r : regions) {
-      result.add(r.toSoyData(view, reader, abbrevShas, df));
-    }
-    return result;
-  }
-
-  private class Region {
-    private final String sourcePath;
-    private final RevCommit sourceCommit;
-    private int count;
-
-    private Region(BlameResult blame, int start) {
-      this.sourcePath = blame.getSourcePath(start);
-      this.sourceCommit = blame.getSourceCommit(start);
-      this.count = 1;
-    }
-
-    private boolean growFrom(BlameResult blame, int i) {
-      // Don't compare line numbers, so we collapse regions from the same source
-      // but with deleted lines into one.
-      if (Objects.equal(blame.getSourcePath(i), sourcePath)
-          && Objects.equal(blame.getSourceCommit(i), sourceCommit)) {
-        count++;
-        return true;
-      } else {
-        return false;
-      }
-    }
-
-    private Map<String, ?> toSoyData(GitilesView view, ObjectReader reader,
-        Map<ObjectId, String> abbrevShas, GitDateFormatter df) throws IOException {
-      if (sourceCommit == null) {
+    for (BlameCache.Region r : regions) {
+      if (r.getSourceCommit() == null) {
         // JGit bug may fail to blame some regions. We should fix this
         // upstream, but handle it for now.
-        return ImmutableMap.of("count", count);
+        result.add(ImmutableMap.of("count", r.getCount()));
+      } else {
+        String abbrevSha = abbrevShas.get(r.getSourceCommit());
+        if (abbrevSha == null) {
+          abbrevSha = reader.abbreviate(r.getSourceCommit()).name();
+          abbrevShas.put(r.getSourceCommit(), abbrevSha);
+        }
+        result.add(ImmutableMap.of(
+            "abbrevSha", abbrevSha,
+            "url", GitilesView.blame().copyFrom(view)
+                .setRevision(r.getSourceCommit().name())
+                .setPathPart(r.getSourcePath())
+                .toUrl(),
+            "author", CommitSoyData.toSoyData(r.getSourceAuthor(), df),
+            "count", r.getCount()));
       }
-      String abbrevSha = abbrevShas.get(sourceCommit);
-      if (abbrevSha == null) {
-        abbrevSha = reader.abbreviate(sourceCommit).name();
-        abbrevShas.put(sourceCommit, abbrevSha);
-      }
-      return ImmutableMap.of(
-          "abbrevSha", abbrevSha,
-          "url", GitilesView.blame().copyFrom(view)
-              .setRevision(sourceCommit.name())
-              .setPathPart(sourcePath)
-              .toUrl(),
-          "author", CommitSoyData.toSoyData(sourceCommit.getAuthorIdent(), df),
-          "count", count);
     }
+    return result;
   }
 }
