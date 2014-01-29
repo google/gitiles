@@ -293,25 +293,37 @@ class GitilesFilter extends MetaFilter {
   }
 
   private void setDefaultFields(FilterConfig filterConfig) throws ServletException {
-    Config config;
-    if (this.config != null) {
-      config = this.config;
-    } else {
+    setDefaultConfig(filterConfig);
+    setDefaultRenderer(filterConfig);
+    setDefaultUrls();
+    setDefaultAccess();
+    setDefaultVisbilityCache();
+    setDefaultTimeCache();
+    setDefaultGitwebRedirect();
+  }
+
+  private void setDefaultConfig(FilterConfig filterConfig) throws ServletException {
+    if (config == null) {
       try {
-        this.config = config = GitilesConfig.loadDefault(filterConfig);
+        config = GitilesConfig.loadDefault(filterConfig);
       } catch (IOException e) {
         throw new ServletException(e);
       } catch (ConfigInvalidException e) {
         throw new ServletException(e);
       }
     }
+  }
 
+  private void setDefaultRenderer(FilterConfig filterConfig) {
     if (renderer == null) {
       renderer = new DefaultRenderer(
           filterConfig.getServletContext().getContextPath() + STATIC_PREFIX,
           Renderer.toFileURL(config.getString("gitiles", null, "customTemplates")),
           Objects.firstNonNull(config.getString("gitiles", null, "siteTitle"), "Gitiles"));
     }
+  }
+
+  private void setDefaultUrls() throws ServletException {
     if (urls == null) {
       try {
         urls = new DefaultUrls(
@@ -322,6 +334,9 @@ class GitilesFilter extends MetaFilter {
         throw new ServletException(e);
       }
     }
+  }
+
+  private void setDefaultAccess() throws ServletException {
     if (accessFactory == null || resolver == null) {
       String basePath = config.getString("gitiles", null, "basePath");
       if (basePath == null) {
@@ -350,6 +365,9 @@ class GitilesFilter extends MetaFilter {
         }
       }
     }
+  }
+
+  private void setDefaultVisbilityCache() {
     if (visibilityCache == null) {
       if (config.getSubsections("cache").contains("visibility")) {
         visibilityCache =
@@ -358,6 +376,9 @@ class GitilesFilter extends MetaFilter {
         visibilityCache = new VisibilityCache(false);
       }
     }
+  }
+
+  private void setDefaultTimeCache() {
     if (timeCache == null) {
       if (config.getSubsections("cache").contains("tagTime")) {
         timeCache = new TimeCache(ConfigUtil.getCacheBuilder(config, "tagTime"));
@@ -365,6 +386,9 @@ class GitilesFilter extends MetaFilter {
         timeCache = new TimeCache();
       }
     }
+  }
+
+  private void setDefaultGitwebRedirect() {
     if (gitwebRedirect == null) {
       if (config.getBoolean("gitiles", null, "redirectGitweb", true)) {
         gitwebRedirect = new GitwebRedirectFilter();
