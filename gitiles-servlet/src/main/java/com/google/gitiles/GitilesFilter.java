@@ -296,7 +296,7 @@ class GitilesFilter extends MetaFilter {
       config = this.config;
     } else {
       try {
-        config = GitilesConfig.loadDefault(filterConfig);
+        this.config = config = GitilesConfig.loadDefault(filterConfig);
       } catch (IOException e) {
         throw new ServletException(e);
       } catch (ConfigInvalidException e) {
