@@ -333,6 +333,43 @@ a.diff-git:hover {
 }
 
 
+/* Styles for the blame detail template. */
+
+#blame {
+  margin: 0;
+  padding: 0;
+}
+#blame td {
+  padding: 0;
+}
+#regions {
+  padding-top: 2px;
+  padding-right: 2px;
+  padding-bottom: 5px;
+  padding-left: 2px;
+
+  /* Matching pre.git-blob below. */
+  font-family: monospace;
+  font-size: 8pt;
+  border-bottom: #ddd solid 1px; /* BORDER */
+}
+#regions ul {
+  list-style-type: none;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-left: 0;
+}
+#blame .time, #blame .sha1 {
+  /* Smaller than SHORTLOG_SMALL_FONT_SIZE to match pre. */
+  font-size: 8pt;
+}
+#blame .author {
+  padding-left: 0px;
+}
+#blame pre.git-blob {
+  border-top: 0;
+}
+
 /* Override some styles from the default prettify.css. */
 
 /* Line numbers on all lines. */

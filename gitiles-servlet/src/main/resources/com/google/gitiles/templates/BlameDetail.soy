@@ -1,0 +1,83 @@
+// Copyright 2014 Google Inc. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+{namespace gitiles autoescape="contextual"}
+
+/**
+ * Detail page showing blame info for a file.
+ *
+ * @param title human-readable revision name.
+ * @param repositoryName name of this repository.
+ * @param? menuEntries menu entries.
+ * @param breadcrumbs breadcrumbs for this page.
+ * @param data blob data, matching the params for .blobBox.
+ * @param? regions for non-binary files, list of blame regions with the
+ *     following keys:
+ *       abbrevSha: abbreviated SHA-1 of revision for this line; if missing,
+ *           assume blame info is missing.
+ *       url: URL for detail about the revision
+ *       author: author information with at least "name" and "relativeTime"
+ *           keys.
+ *       relativeTime: relative time of the revision
+ *       count: line count
+ */
+{template .blameDetail}
+{if $regions}
+  {call .header}
+    {param title: $title /}
+    {param repositoryName: $repositoryName /}
+    {param menuEntries: $menuEntries /}
+    {param breadcrumbs: $breadcrumbs /}
+    {param css: [gitiles.PRETTIFY_CSS_URL] /}
+    {param js: [gitiles.PRETTIFY_JS_URL] /}
+    {param onLoad: 'prettyPrint()' /}
+  {/call}
+
+  <table id="blame">
+    <tr>
+      <td>
+        <pre id="regions">
+          <ul>
+            {foreach $region in $regions}
+              <li>
+                {if $region.abbrevSha}
+                  <a href="{$region.url}">
+                    <span class="sha1">{$region.abbrevSha}</span>
+                    {sp}<span class="author">{$region.author.name}</span>
+                    {sp}<span class="time">- {$region.author.relativeTime}</span>
+                  </a>
+                {else}
+                  &nbsp;
+                {/if}
+              </li>
+              {for $i in range($region.count - 1)}
+                <li>&nbsp;</li>
+              {/for}
+            {/foreach}
+          </ul>
+        </pre>
+      </td>
+      <td>
+        {call .blobBox data="$data" /}
+      </td>
+    </tr>
+  </table>
+
+  </div>
+{else}
+  {call .header data="all" /}
+  {call .blobDetail data="all" /}
+{/if}
+
+{call .footer /}
+{/template}

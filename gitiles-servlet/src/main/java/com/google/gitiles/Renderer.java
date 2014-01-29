@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletResponse;
 /** Renderer for Soy templates used by Gitiles. */
 public abstract class Renderer {
   private static final List<String> SOY_FILENAMES = ImmutableList.of(
+      "BlameDetail.soy",
       "Common.soy",
       "DiffDetail.soy",
       "HostIndex.soy",

@@ -209,6 +209,7 @@
  *
  * @param sha SHA of this file's blob.
  * @param? logUrl optional URL to a log for this file.
+ * @param? blameUrl optional URL to a blame for this file.
  * @param data file data (may be empty), or null for a binary file.
  * @param? lang prettyprint language extension for text file.
  * @param? size for binary files only, size in bytes.
@@ -217,23 +218,35 @@
 <div class="sha1">
   {msg desc="SHA-1 for the file's blob"}blob: {$sha}{/msg}
   {if $logUrl}{sp}[<a href="{$logUrl}">{msg desc="history for a file"}file history{/msg}</a>]{/if}
+  {if $blameUrl}{sp}[<a href="{$blameUrl}">{msg desc="blame for a file"}blame{/msg}</a>]{/if}
 </div>
 
-{if $data != null}
-  {if $data}
-    {if $lang != null}
-      <pre class="git-blob prettyprint linenums lang-{$lang}">{$data}</pre>
+{call .blobBox data="all" /}
+{/template}
+
+/**
+ * Preformatted box containing blob contents.
+ *
+ * @param data file data (may be empty), or null for a binary file.
+ * @param? lang prettyprint language extension for text file.
+ * @param? size for binary files only, size in bytes.
+ */
+{template .blobBox}
+  {if $data != null}
+    {if $data}
+      {if $lang != null}
+        <pre class="git-blob prettyprint linenums lang-{$lang}">{$data}</pre>
+      {else}
+        <pre class="git-blob">{$data}</pre>
+      {/if}
     {else}
-      <pre class="git-blob">{$data}</pre>
+      <div class="file-empty">Empty file</div>
     {/if}
   {else}
-    <div class="file-empty">Empty file</div>
+    <div class="file-binary">
+      {msg desc="size of binary file in bytes"}{$size}-byte binary file{/msg}
+    </div>
   {/if}
-{else}
-  <div class="file-binary">
-    {msg desc="size of binary file in bytes"}{$size}-byte binary file{/msg}
-  </div>
-{/if}
 {/template}
 
 /**
