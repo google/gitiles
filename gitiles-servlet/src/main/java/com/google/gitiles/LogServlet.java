@@ -45,6 +45,8 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
+import org.eclipse.jgit.util.GitDateFormatter;
+import org.eclipse.jgit.util.GitDateFormatter.Format;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,13 +86,14 @@ public class LogServlet extends BaseServlet {
     }
 
     try {
-      Map<String, Object> data = new LogSoyData(req, view).toSoyData(paginator, null);
+      GitDateFormatter df = new GitDateFormatter(Format.DEFAULT);
+      Map<String, Object> data = new LogSoyData(req, view).toSoyData(paginator, null, df);
 
       if (!view.getRevision().nameIsId()) {
         List<Map<String, Object>> tags = Lists.newArrayListWithExpectedSize(1);
         for (RevObject o : RevisionServlet.listObjects(paginator.getWalk(), view.getRevision())) {
           if (o instanceof RevTag) {
-            tags.add(new TagSoyData(linkifier, req).toSoyData((RevTag) o));
+            tags.add(new TagSoyData(linkifier, req).toSoyData((RevTag) o, df));
           }
         }
         if (!tags.isEmpty()) {
@@ -128,11 +131,12 @@ public class LogServlet extends BaseServlet {
     }
 
     try {
+      GitDateFormatter df = new GitDateFormatter(Format.DEFAULT);
       Map<String, Object> result = Maps.newLinkedHashMap();
       List<CommitJsonData.Commit> entries = Lists.newArrayListWithCapacity(paginator.getLimit());
       for (RevCommit c : paginator) {
         paginator.getWalk().parseBody(c);
-        entries.add(CommitJsonData.toJsonData(c));
+        entries.add(CommitJsonData.toJsonData(c, df));
       }
       result.put("log", entries);
       if (paginator.getPreviousStart() != null) {

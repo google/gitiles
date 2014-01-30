@@ -44,7 +44,6 @@ import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.EmptyTreeIterator;
 import org.eclipse.jgit.util.GitDateFormatter;
-import org.eclipse.jgit.util.GitDateFormatter.Format;
 import org.eclipse.jgit.util.RelativeDateFormatter;
 import org.eclipse.jgit.util.io.NullOutputStream;
 
@@ -82,7 +81,6 @@ public class CommitSoyData {
     }
   }
 
-  private final GitDateFormatter dateFormatter = new GitDateFormatter(Format.DEFAULT);
   private Linkifier linkifier;
   private Repository repo;
   private RevWalk walk;
@@ -105,8 +103,8 @@ public class CommitSoyData {
     return this;
   }
 
-  public Map<String, Object> toSoyData(HttpServletRequest req, RevCommit commit, KeySet ks)
-      throws IOException {
+  public Map<String, Object> toSoyData(HttpServletRequest req, RevCommit commit, KeySet ks,
+      GitDateFormatter df) throws IOException {
     checkKeys(ks);
     checkNotNull(req, "request");
     repo = ServletUtils.getRepository(req);
@@ -114,10 +112,10 @@ public class CommitSoyData {
 
     Map<String, Object> data = Maps.newHashMapWithExpectedSize(KeySet.DEFAULT.keys.size());
     if (ks.contains("author")) {
-      data.put("author", toSoyData(commit.getAuthorIdent(), dateFormatter));
+      data.put("author", toSoyData(commit.getAuthorIdent(), df));
     }
     if (ks.contains("committer")) {
-      data.put("committer", toSoyData(commit.getCommitterIdent(), dateFormatter));
+      data.put("committer", toSoyData(commit.getCommitterIdent(), df));
     }
     if (ks.contains("sha")) {
       data.put("sha", ObjectId.toString(commit));
@@ -179,9 +177,9 @@ public class CommitSoyData {
     return ImmutableMap.copyOf(data);
   }
 
-  public Map<String, Object> toSoyData(HttpServletRequest req, RevCommit commit)
-      throws IOException {
-    return toSoyData(req, commit, KeySet.DEFAULT);
+  public Map<String, Object> toSoyData(HttpServletRequest req, RevCommit commit,
+      GitDateFormatter df) throws IOException {
+    return toSoyData(req, commit, KeySet.DEFAULT, df);
   }
 
   private void checkKeys(KeySet ks) {
@@ -192,11 +190,11 @@ public class CommitSoyData {
   }
 
   // TODO(dborowitz): Extract this.
-  static Map<String, String> toSoyData(PersonIdent ident, GitDateFormatter dateFormatter) {
+  static Map<String, String> toSoyData(PersonIdent ident, GitDateFormatter df) {
     return ImmutableMap.of(
         "name", ident.getName(),
         "email", ident.getEmailAddress(),
-        "time", dateFormatter.formatDate(ident),
+        "time", df.formatDate(ident),
         // TODO(dborowitz): Switch from relative to absolute at some threshold.
         "relativeTime", RelativeDateFormatter.format(ident.getWhen()));
   }

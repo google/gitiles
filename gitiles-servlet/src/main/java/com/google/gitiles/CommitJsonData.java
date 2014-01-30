@@ -19,13 +19,10 @@ import com.google.common.collect.Lists;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.util.GitDateFormatter;
-import org.eclipse.jgit.util.GitDateFormatter.Format;
 
 import java.util.List;
 
 class CommitJsonData {
-  private static final GitDateFormatter dateFormatter = new GitDateFormatter(Format.DEFAULT);
-
   static class Commit {
     String commit;
     List<String> parents;
@@ -40,24 +37,24 @@ class CommitJsonData {
     String time;
   }
 
-  static Commit toJsonData(RevCommit c) {
+  static Commit toJsonData(RevCommit c, GitDateFormatter df) {
     Commit result = new Commit();
     result.commit = c.name();
     result.parents = Lists.newArrayListWithCapacity(c.getParentCount());
     for (RevCommit parent : c.getParents()) {
       result.parents.add(parent.name());
     }
-    result.author = toJsonData(c.getAuthorIdent());
-    result.committer = toJsonData(c.getCommitterIdent());
+    result.author = toJsonData(c.getAuthorIdent(), df);
+    result.committer = toJsonData(c.getCommitterIdent(), df);
     result.message = c.getFullMessage();
     return result;
   }
 
-  private static Ident toJsonData(PersonIdent ident) {
+  private static Ident toJsonData(PersonIdent ident, GitDateFormatter df) {
     Ident result = new Ident();
     result.name = ident.getName();
     result.email = ident.getEmailAddress();
-    result.time = dateFormatter.formatDate(ident);
+    result.time = df.formatDate(ident);
     return result;
   }
 

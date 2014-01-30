@@ -29,6 +29,8 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevObject;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.util.GitDateFormatter;
+import org.eclipse.jgit.util.GitDateFormatter.Format;
 
 import java.io.IOException;
 import java.util.List;
@@ -75,8 +77,8 @@ public class RepositoryIndexServlet extends BaseServlet {
         if (head.getType() == Constants.OBJ_COMMIT) {
           walk.reset();
           walk.markStart((RevCommit) head);
-          data =
-              new LogSoyData(req, view).toSoyData(walk, LOG_LIMIT, "HEAD", null);
+          GitDateFormatter df = new GitDateFormatter(Format.DEFAULT);
+          data = new LogSoyData(req, view).toSoyData(walk, LOG_LIMIT, "HEAD", null, df);
         } else {
           // TODO(dborowitz): Handle non-commit or missing HEAD?
           data = Maps.newHashMapWithExpectedSize(6);

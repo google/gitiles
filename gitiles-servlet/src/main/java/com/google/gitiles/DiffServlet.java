@@ -15,7 +15,6 @@
 package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
 import com.google.common.base.Charsets;
@@ -33,6 +32,8 @@ import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.EmptyTreeIterator;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
+import org.eclipse.jgit.util.GitDateFormatter;
+import org.eclipse.jgit.util.GitDateFormatter.Format;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -81,10 +82,11 @@ public class DiffServlet extends BaseServlet {
       Map<String, Object> data = getData(req);
       data.put("title", "Diff - " + view.getRevisionRange());
       if (showCommit) {
+        GitDateFormatter df = new GitDateFormatter(Format.DEFAULT);
         data.put("commit", new CommitSoyData()
             .setLinkifier(linkifier)
             .setArchiveFormat(archiveFormat)
-            .toSoyData(req, walk.parseCommit(view.getRevision().getId())));
+            .toSoyData(req, walk.parseCommit(view.getRevision().getId()), df));
       }
       if (!data.containsKey("repositoryName") && (view.getRepositoryName() != null)) {
         data.put("repositoryName", view.getRepositoryName());

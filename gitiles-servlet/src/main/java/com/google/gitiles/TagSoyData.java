@@ -19,7 +19,6 @@ import com.google.common.collect.Maps;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevTag;
 import org.eclipse.jgit.util.GitDateFormatter;
-import org.eclipse.jgit.util.GitDateFormatter.Format;
 
 import java.util.Map;
 
@@ -29,19 +28,17 @@ import javax.servlet.http.HttpServletRequest;
 public class TagSoyData {
   private final Linkifier linkifier;
   private final HttpServletRequest req;
-  private final GitDateFormatter dateFormatter;
 
   public TagSoyData(Linkifier linkifier, HttpServletRequest req) {
     this.linkifier = linkifier;
     this.req = req;
-    this.dateFormatter = new GitDateFormatter(Format.DEFAULT);
   }
 
-  public Map<String, Object> toSoyData(RevTag tag) {
+  public Map<String, Object> toSoyData(RevTag tag, GitDateFormatter df) {
     Map<String, Object> data = Maps.newHashMapWithExpectedSize(4);
     data.put("sha", ObjectId.toString(tag));
     if (tag.getTaggerIdent() != null) {
-      data.put("tagger", CommitSoyData.toSoyData(tag.getTaggerIdent(), dateFormatter));
+      data.put("tagger", CommitSoyData.toSoyData(tag.getTaggerIdent(), df));
     }
     data.put("object", ObjectId.toString(tag.getObject()));
     data.put("message", linkifier.linkify(req, tag.getFullMessage()));

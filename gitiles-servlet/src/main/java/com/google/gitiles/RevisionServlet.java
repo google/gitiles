@@ -36,6 +36,8 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevObject;
 import org.eclipse.jgit.revwalk.RevTag;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.util.GitDateFormatter;
+import org.eclipse.jgit.util.GitDateFormatter.Format;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,6 +67,7 @@ public class RevisionServlet extends BaseServlet {
 
     RevWalk walk = new RevWalk(repo);
     try {
+      GitDateFormatter df = new GitDateFormatter(Format.DEFAULT);
       List<RevObject> objects = listObjects(walk, view.getRevision());
       List<Map<String, ?>> soyObjects = Lists.newArrayListWithCapacity(objects.size());
       boolean hasBlob = false;
@@ -80,7 +83,7 @@ public class RevisionServlet extends BaseServlet {
                       .setLinkifier(linkifier)
                       .setRevWalk(walk)
                       .setArchiveFormat(archiveFormat)
-                      .toSoyData(req, (RevCommit) obj, KeySet.DETAIL_DIFF_TREE)));
+                      .toSoyData(req, (RevCommit) obj, KeySet.DETAIL_DIFF_TREE, df)));
               break;
             case OBJ_TREE:
               soyObjects.add(ImmutableMap.of(
@@ -96,7 +99,7 @@ public class RevisionServlet extends BaseServlet {
             case OBJ_TAG:
               soyObjects.add(ImmutableMap.of(
                   "type", Constants.TYPE_TAG,
-                  "data", new TagSoyData(linkifier, req).toSoyData((RevTag) obj)));
+                  "data", new TagSoyData(linkifier, req).toSoyData((RevTag) obj, df)));
               break;
             default:
               log.warn("Bad object type for {}: {}", ObjectId.toString(obj.getId()), obj.getType());

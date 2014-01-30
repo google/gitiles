@@ -21,6 +21,7 @@ import com.google.gitiles.CommitSoyData.KeySet;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.util.GitDateFormatter;
 
 import java.io.IOException;
 import java.util.List;
@@ -39,17 +40,17 @@ public class LogSoyData {
   }
 
   public Map<String, Object> toSoyData(RevWalk walk, int limit, @Nullable String revision,
-      @Nullable ObjectId start) throws IOException {
-    return toSoyData(new Paginator(walk, limit, start), revision);
+      @Nullable ObjectId start, GitDateFormatter df) throws IOException {
+    return toSoyData(new Paginator(walk, limit, start), revision, df);
   }
 
-  public Map<String, Object> toSoyData(Paginator paginator, @Nullable String revision)
-      throws IOException {
+  public Map<String, Object> toSoyData(Paginator paginator, @Nullable String revision,
+      GitDateFormatter df) throws IOException {
     Map<String, Object> data = Maps.newHashMapWithExpectedSize(3);
 
     List<Map<String, Object>> entries = Lists.newArrayListWithCapacity(paginator.getLimit());
     for (RevCommit c : paginator) {
-      entries.add(new CommitSoyData().toSoyData(req, c, KeySet.SHORTLOG));
+      entries.add(new CommitSoyData().toSoyData(req, c, KeySet.SHORTLOG, df));
     }
 
     data.put("entries", entries);
