@@ -116,6 +116,10 @@ public class BlameCache {
     this(newBuilder());
   }
 
+  public LoadingCache<?, ?> getCache() {
+    return cache;
+  }
+
   public BlameCache(CacheBuilder<Object, Object> builder) {
     this.cache = builder.weigher(new Weigher<Key, List<BlameCache.Region>>() {
       @Override
