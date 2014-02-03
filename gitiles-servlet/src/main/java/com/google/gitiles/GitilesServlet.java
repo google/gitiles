@@ -52,9 +52,10 @@ public class GitilesServlet extends MetaServlet {
       @Nullable RepositoryResolver<HttpServletRequest> resolver,
       @Nullable VisibilityCache visibilityCache,
       @Nullable TimeCache timeCache,
+      @Nullable BlameCache blameCache,
       @Nullable GitwebRedirectFilter gitwebRedirect) {
     super(new GitilesFilter(
-        config, renderer, urls, accessFactory, resolver, visibilityCache, timeCache,
+        config, renderer, urls, accessFactory, resolver, visibilityCache, timeCache, blameCache,
         gitwebRedirect));
   }
 

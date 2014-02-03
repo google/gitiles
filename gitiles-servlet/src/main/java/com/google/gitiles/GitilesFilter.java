@@ -177,6 +177,7 @@ class GitilesFilter extends MetaFilter {
       final RepositoryResolver<HttpServletRequest> resolver,
       VisibilityCache visibilityCache,
       TimeCache timeCache,
+      BlameCache blameCache,
       GitwebRedirectFilter gitwebRedirect) {
     this.config = checkNotNull(config, "config");
     this.renderer = renderer;
@@ -184,6 +185,7 @@ class GitilesFilter extends MetaFilter {
     this.accessFactory = accessFactory;
     this.visibilityCache = visibilityCache;
     this.timeCache = timeCache;
+    this.blameCache = blameCache;
     this.gitwebRedirect = gitwebRedirect;
     if (resolver != null) {
       this.resolver = wrapResolver(resolver);
