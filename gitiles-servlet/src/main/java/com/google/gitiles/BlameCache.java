@@ -49,8 +49,14 @@ public class BlameCache {
     Region(BlameResult blame, int start) {
       this.sourcePath = blame.getSourcePath(start);
       RevCommit c = blame.getSourceCommit(start);
-      this.sourceCommit = c.copy();
-      this.sourceAuthor = c.getAuthorIdent();
+      if (c != null) {
+        this.sourceCommit = c.copy();
+        this.sourceAuthor = c.getAuthorIdent();
+      } else {
+        // Unknown source commit due to JGit bug.
+        this.sourceCommit = null;
+        this.sourceAuthor = null;
+      }
       this.count = 1;
     }
 
