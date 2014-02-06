@@ -76,7 +76,12 @@
   </div>
 {else}
   {call .header data="all" /}
-  {call .blobDetail data="all" /}
+  {call .blobDetail data="$data" /}
+  <div class="file-binary">
+    {msg desc="blame not available for binary file"}
+      No blame information available
+    {/msg}
+  </div>
 {/if}
 
 {call .footer /}
