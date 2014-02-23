@@ -1,0 +1,6 @@
+# Maven style API version (e.g. '2.x-SNAPSHOT').
+# Used by :imaven_install when talking to the
+# destination repository.
+#
+GITILES_VERSION = '1.0'
+

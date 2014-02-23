@@ -1,0 +1,81 @@
+include_defs('//bucklets/maven_jar.bucklet')
+
+VERS = '3.1.0.201310021548-r'
+
+maven_jar(
+  name = 'jgit',
+  id = 'org.eclipse.jgit:org.eclipse.jgit:' + VERS,
+  bin_sha1 = 'df1410e5d1deaacfb70a2441b4766b61f2795bc3',
+  src_sha1 = 'b4e3d9c9c3da39b72acf72bd913ce9dbee88a9d4',
+  unsign = True,
+  deps = [':ewah'],
+  exclude = [
+    'META-INF/eclipse.inf',
+    'about.html',
+    'plugin.properties',
+  ],
+)
+
+maven_jar(
+  name = 'jgit-servlet',
+  id = 'org.eclipse.jgit:org.eclipse.jgit.http.server:' + VERS,
+  sha1 = 'bcac91120afac59c195230537bde07175578fe79',
+  deps = [':jgit'],
+  unsign = True,
+  exclude = [
+    'about.html',
+    'plugin.properties',
+  ],
+)
+
+java_library(
+  name = 'jgit-archive',
+  exported_deps = [
+    ':jgit-archive_library',
+    ':commons-compress',
+    ':tukaani-xz',
+  ],
+  visibility = ['PUBLIC'],
+)
+
+maven_jar(
+  name = 'jgit-archive_library',
+  id = 'org.eclipse.jgit:org.eclipse.jgit.archive:' + VERS,
+  sha1 = '1b34da51d8d46cd04b09454ee84b11f1d117e801',
+  deps = [':jgit'],
+  unsign = True,
+  exclude = [
+    'about.html',
+    'plugin.properties',
+  ],
+)
+
+maven_jar(
+  name = 'junit',
+  id = 'org.eclipse.jgit:org.eclipse.jgit.junit:' + VERS,
+  sha1 = 'a8b47bb41cec25b1d128f7d267badbc7dcf6d9aa',
+  unsign = True,
+  deps = [':jgit'],
+)
+
+maven_jar(
+  name = 'ewah',
+  id = 'com.googlecode.javaewah:JavaEWAH:0.7.9',
+  sha1 = 'eceaf316a8faf0e794296ebe158ae110c7d72a5a',
+)
+
+maven_jar(
+  name = 'commons-compress',
+  id = 'org.apache.commons:commons-compress:1.7',
+  sha1 = 'ab365c96ee9bc88adcc6fa40d185c8e15a31410d',
+  exclude = ['META-INF/LICENSE.txt', 'META-INF/NOTICE.txt'],
+  visibility = ['//lib/jgit:jgit-archive'],
+)
+
+maven_jar(
+  name = 'tukaani-xz',
+  id = 'org.tukaani:xz:1.4',
+  sha1 = '18a9a2ce6abf32ea1b5fd31dae5210ad93f4e5e3',
+  attach_source = False,
+  visibility = ['//lib/jgit:jgit-archive'],
+)

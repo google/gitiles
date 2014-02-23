@@ -1,0 +1,6 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.google.gitiles</groupId>
+  <artifactId>Gitiles-Simple-Git-Repository-Browser</artifactId>
+  <version>1</version>
+</project>

@@ -1,0 +1,19 @@
+include_defs('//bucklets/maven_jar.bucklet')
+
+VERS = '1.6.1'
+
+maven_jar(
+  name = 'slf4j-api',
+  id = 'org.slf4j:slf4j-api:' + VERS,
+  sha1 = '6f3b8a24bf970f17289b234284c94f43eb42f0e4',
+  visibility = ['PUBLIC'],
+)
+
+
+maven_jar(
+  name = 'slf4j-simple',
+  id = 'org.slf4j:slf4j-simple:' + VERS,
+  sha1 = '58e59bfb3e247097b8122243b3bfe0049c8cfae8',
+  deps = [':slf4j-api'],
+  visibility = ['PUBLIC'],
+)

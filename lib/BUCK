@@ -1,0 +1,61 @@
+include_defs('//bucklets/maven_jar.bucklet')
+
+maven_jar(
+  name = 'guava',
+  id = 'com.google.guava:guava:16.0',
+  sha1 = 'aca09d2e5e8416bf91550e72281958e35460be52',
+)
+
+maven_jar(
+  name = 'soy',
+  id = 'com.google.template:soy:2011-22-12',
+  sha1 = '018c567dd937176a3c4f81623b899cea3fe61458',
+)
+
+maven_jar(
+  name = 'servlet-api_2_5',
+  id = 'org.eclipse.jetty.orbit:javax.servlet:2.5.0.v201103041518',
+  sha1 = '9c16011c06bc6fe5e9dba080fcb40ddb4b75dc85',
+)
+
+maven_jar(
+  name = 'servlet-api_3_0',
+  id = 'org.eclipse.jetty.orbit:javax.servlet:3.0.0.v201112011016',
+  sha1 = '0aaaa85845fb5c59da00193f06b8e5278d8bf3f8',
+)
+
+maven_jar(
+  name = 'joda-time',
+  id = 'joda-time:joda-time:2.3',
+  sha1 = '56498efd17752898cfcc3868c1b6211a07b12b8f',
+  exclude = [
+    'META-INF/LICENSE.txt',
+    'META-INF/NOTICE.txt',
+  ],
+)
+
+maven_jar(
+  name = 'gson',
+  id = 'com.google.code.gson:gson:2.1',
+  sha1 = '2e66da15851f9f5b5079228f856c2f090ba98c38',
+)
+
+maven_jar(
+  name = 'commons-lang',
+  id = 'org.apache.commons:commons-lang3:3.1',
+  sha1 = '905075e6c80f206bbe6cf1e809d2caa69f420c76',
+)
+
+maven_jar(
+  name = 'junit',
+  id = 'junit:junit:4.11',
+  sha1 = '4e031bb61df09069aeb2bffb4019e7a5034a4ee0',
+  deps = [':hamcrest-core'],
+)
+
+maven_jar(
+  name = 'hamcrest-core',
+  id = 'org.hamcrest:hamcrest-core:1.3',
+  sha1 = '42a25dc3219429f0e5d060061f71acb49bf010a0',
+  visibility = ['//lib:junit'],
+)

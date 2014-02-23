@@ -110,9 +110,9 @@ class DevServer {
       throw badSourceRoot(targetUri);
     }
     String targetPath = targetUri.getPath();
-    // targetPath is an arbitrary path under gitiles-dev/target in the standard
-    // Maven package layout.
-    int targetIndex = targetPath.lastIndexOf("gitiles-dev/target/");
+    // targetPath is an arbitrary path under buck-out/ in our Buck package
+    // layout.
+    int targetIndex = targetPath.lastIndexOf("buck-out/");
     if (targetIndex < 0) {
       throw badSourceRoot(targetUri);
     }

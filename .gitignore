@@ -1,8 +1,5 @@
-.classpath
-.project
-.settings
-*/.classpath
-*/.project
-*/.settings
-*/target
-gitiles.config
+/.classpath
+/.project
+/.settings
+/buck-out
+/gitiles.config
