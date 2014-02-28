@@ -195,11 +195,8 @@ public abstract class BaseServlet extends HttpServlet {
 
       Map<String, Object> allData = getData(req);
 
-      String headerVariant = getAccess(req).getConfig().getString("template", null, "customHeader");
-      if (headerVariant != null) {
-        allData.put("headerVariant", headerVariant);
-      }
-
+      GitilesConfig.putVariant(
+          getAccess(req).getConfig(), "customHeader", "headerVariant", allData);
       allData.putAll(soyData);
       GitilesView view = ViewFilter.getView(req);
       if (!allData.containsKey("repositoryName") && view.getRepositoryName() != null) {

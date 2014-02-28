@@ -23,6 +23,7 @@
  * @param breadcrumbs breadcrumbs for this page.
  * @param? tags optional list of tags encountered when peeling this object, with
  *     keys corresponding to gitiles.tagDetail.
+ * @param? logEntryVariant variant name for log entry template.
  * @param entries list of log entries; see .logEntry.
  * @param? nextUrl URL for the next page of results.
  * @param? previousUrl URL for the previous page of results.
@@ -44,6 +45,7 @@
 /**
  * List of log entries.
  *
+ * @param? logEntryVariant variant name for log entry template.
  * @param entries list of log entries; see .logEntry.
  * @param? nextUrl URL for the next page of results.
  * @param? previousUrl URL for the previous page of results.
@@ -59,7 +61,8 @@
   <ol class="shortlog">
     {foreach $entry in $entries}
       <li{if $previousUrl and isFirst($entry)} class="first"{/if}>
-        {call .logEntry data="$entry" /}
+        {delcall gitiles.logEntry variant="$logEntryVariant ?: 'default'"
+            data="$entry" /}
       </li>
     {/foreach}
   </ol>
@@ -85,7 +88,7 @@
  * @param branches list of branches for this entry, with "name" and "url" keys.
  * @param tags list of tags for this entry, with "name" and "url" keys.
  */
-{template .logEntry}
+{deltemplate gitiles.logEntry variant="'default'"}
 <a href="{$url}">
   <span class="sha1">{$abbrevSha}</span>
   // nbsp instad of CSS padding/margin because those cause a break in the
@@ -105,4 +108,4 @@
     {sp}<a href="{$tag.url}" class="tag-label">{$tag.name}</a>
   {/foreach}
 {/if}
-{/template}
+{/deltemplate}

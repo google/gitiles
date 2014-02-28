@@ -21,6 +21,7 @@ import org.eclipse.jgit.util.FS;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 import javax.servlet.FilterConfig;
 
@@ -50,6 +51,14 @@ public class GitilesConfig {
     FileBasedConfig config = new FileBasedConfig(defaultFile(filterConfig), FS.DETECTED);
     config.load();
     return config;
+  }
+
+  public static void putVariant(Config config, String templateName, String keyName,
+      Map<String, ? super String> out) {
+    String variant = config.getString("template", null, templateName);
+    if (variant != null) {
+      out.put(keyName, variant);
+    }
   }
 
   private GitilesConfig() {}

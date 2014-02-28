@@ -34,7 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 
 public class LogSoyData {
   private static final ImmutableSet<Field> FIELDS = Sets.immutableEnumSet(Field.ABBREV_SHA,
-      Field.URL, Field.SHORT_MESSAGE, Field.AUTHOR, Field.BRANCHES, Field.TAGS);
+      Field.URL, Field.SHORT_MESSAGE, Field.AUTHOR, Field.COMMITTER, Field.BRANCHES, Field.TAGS);
 
   private final HttpServletRequest req;
   private final GitilesView view;

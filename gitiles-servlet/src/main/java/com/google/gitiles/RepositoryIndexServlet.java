@@ -78,10 +78,10 @@ public class RepositoryIndexServlet extends BaseServlet {
           data = new LogSoyData(req, view).toSoyData(walk, LOG_LIMIT, "HEAD", null, df);
         } else {
           // TODO(dborowitz): Handle non-commit or missing HEAD?
-          data = Maps.newHashMapWithExpectedSize(6);
+          data = Maps.newHashMapWithExpectedSize(7);
         }
       } else {
-        data = Maps.newHashMapWithExpectedSize(6);
+        data = Maps.newHashMapWithExpectedSize(7);
       }
     } finally {
       walk.release();
@@ -102,6 +102,7 @@ public class RepositoryIndexServlet extends BaseServlet {
     if (tags.size() > REF_LIMIT) {
       data.put("moreTagsUrl", GitilesView.refs().copyFrom(view).toUrl());
     }
+    GitilesConfig.putVariant(getAccess(req).getConfig(), "logEntry", "logEntryVariant", data);
     return data;
   }
 
