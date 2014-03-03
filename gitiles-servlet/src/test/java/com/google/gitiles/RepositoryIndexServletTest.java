@@ -25,7 +25,6 @@ import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
 import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
 import org.eclipse.jgit.junit.TestRepository;
-import org.eclipse.jgit.lib.Config;
 
 import java.io.IOException;
 import java.util.Map;
@@ -42,7 +41,6 @@ public class RepositoryIndexServletTest extends TestCase {
     repo = new TestRepository<DfsRepository>(
         new InMemoryRepository(new DfsRepositoryDescription("test")));
     servlet = new RepositoryIndexServlet(
-        new Config(),
         new DefaultRenderer(),
         new TestGitilesAccess(repo.getRepository()),
         new TimeCache());

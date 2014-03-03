@@ -32,7 +32,6 @@ import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.errors.RevWalkException;
 import org.eclipse.jgit.http.server.ServletUtils;
 import org.eclipse.jgit.lib.AbbreviatedObjectId;
-import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
@@ -70,8 +69,8 @@ public class LogServlet extends BaseServlet {
 
   private final Linkifier linkifier;
 
-  public LogServlet(Config cfg, Renderer renderer, Linkifier linkifier) {
-    super(cfg, renderer);
+  public LogServlet(Renderer renderer, Linkifier linkifier) {
+    super(renderer);
     this.linkifier = checkNotNull(linkifier, "linkifier");
   }
 

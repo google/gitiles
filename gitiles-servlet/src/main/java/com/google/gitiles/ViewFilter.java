@@ -20,7 +20,6 @@ import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.Sets;
 
 import org.eclipse.jgit.http.server.ServletUtils;
 import org.eclipse.jgit.http.server.glue.WrappedRequest;
@@ -30,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -85,14 +83,12 @@ public class ViewFilter extends AbstractHttpFilter {
   private final GitilesUrls urls;
   private final GitilesAccess.Factory accessFactory;
   private final VisibilityCache visibilityCache;
-  private final Set<String> archiveExts;
 
   public ViewFilter(Config cfg, GitilesAccess.Factory accessFactory,
       GitilesUrls urls, VisibilityCache visibilityCache) {
     this.urls = checkNotNull(urls, "urls");
     this.accessFactory = checkNotNull(accessFactory, "accessFactory");
     this.visibilityCache = checkNotNull(visibilityCache, "visibilityCache");
-    this.archiveExts = Sets.newHashSet(ArchiveFormat.byExtension(cfg).keySet());
   }
 
   @Override
@@ -162,7 +158,7 @@ public class ViewFilter extends AbstractHttpFilter {
   private GitilesView.Builder parseArchiveCommand(
       HttpServletRequest req, String repoName, String path) throws IOException {
     String ext = null;
-    for (String e : archiveExts) {
+    for (String e : ArchiveFormat.allExtensions()) {
       if (path.endsWith(e)) {
         path = path.substring(0, path.length() - e.length());
         ext = e;

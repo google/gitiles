@@ -28,7 +28,6 @@ import com.google.template.soy.data.SoyListData;
 import com.google.template.soy.data.SoyMapData;
 
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
-import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.transport.ServiceMayNotContinueException;
 import org.eclipse.jgit.transport.resolver.ServiceNotAuthorizedException;
 import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
@@ -52,9 +51,9 @@ public class HostIndexServlet extends BaseServlet {
   protected final GitilesUrls urls;
   private final GitilesAccess.Factory accessFactory;
 
-  public HostIndexServlet(Config cfg, Renderer renderer, GitilesUrls urls,
+  public HostIndexServlet(Renderer renderer, GitilesUrls urls,
       GitilesAccess.Factory accessFactory) {
-    super(cfg, renderer);
+    super(renderer);
     this.urls = checkNotNull(urls, "urls");
     this.accessFactory = checkNotNull(accessFactory, "accessFactory");
   }

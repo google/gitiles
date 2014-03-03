@@ -14,7 +14,10 @@
 
 package com.google.gitiles;
 
-import com.google.common.collect.Maps;
+import com.google.common.base.Enums;
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 
 import org.eclipse.jgit.api.ArchiveCommand;
 import org.eclipse.jgit.archive.TarFormat;
@@ -22,11 +25,6 @@ import org.eclipse.jgit.archive.Tbz2Format;
 import org.eclipse.jgit.archive.TgzFormat;
 import org.eclipse.jgit.archive.TxzFormat;
 import org.eclipse.jgit.lib.Config;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Collections;
-import java.util.Map;
 
 enum ArchiveFormat {
   TGZ("application/x-gzip", new TgzFormat()),
@@ -36,7 +34,16 @@ enum ArchiveFormat {
   // Zip is not supported because it may be interpreted by a Java plugin as a
   // valid JAR file, whose code would have access to cookies on the domain.
 
-  static final Logger log = LoggerFactory.getLogger(ArchiveFormat.class);
+  private static final ImmutableMap<String, ArchiveFormat> BY_EXT;
+  static {
+    ImmutableMap.Builder<String, ArchiveFormat> byExt = ImmutableMap.builder();
+    for (ArchiveFormat format : ArchiveFormat.values()) {
+      for (String ext : format.getSuffixes()) {
+        byExt.put(ext.toLowerCase(), format);
+      }
+    }
+    BY_EXT = byExt.build();
+  }
 
   private final ArchiveCommand.Format<?> format;
   private final String mimeType;
@@ -64,28 +71,34 @@ enum ArchiveFormat {
   }
 
   static ArchiveFormat getDefault(Config cfg) {
-    return byExtension(cfg).values().iterator().next();
+    for (String allowed : cfg.getStringList("archive", null, "format")) {
+      Optional<ArchiveFormat> result =
+          Enums.getIfPresent(ArchiveFormat.class, allowed.toUpperCase());
+      if (result.isPresent()) {
+        return result.get();
+      }
+    }
+    return TGZ;
   }
 
-  static Map<String, ArchiveFormat> byExtension(Config cfg) {
+  static ImmutableSet<String> allExtensions() {
+    return BY_EXT.keySet();
+  }
+
+  static Optional<ArchiveFormat> byExtension(String ext, Config cfg) {
+    ArchiveFormat format = BY_EXT.get(ext);
+    if (format == null) {
+      return Optional.absent();
+    }
     String[] formats = cfg.getStringList("archive", null, "format");
     if (formats.length == 0) {
-      formats = new String[values().length];
-      for (int i = 0; i < values().length; i++) {
-        formats[i] = values()[i].name();
+      return Optional.of(format);
+    }
+    for (String allowed : formats) {
+      if (format.name().equals(allowed.toUpperCase())) {
+        return Optional.of(format);
       }
     }
-    Map<String, ArchiveFormat> exts = Maps.newLinkedHashMap();
-    for (String name : formats) {
-      try {
-        ArchiveFormat format = valueOf(name.toUpperCase());
-        for (String ext : format.getSuffixes()) {
-          exts.put(ext, format);
-        }
-      } catch (IllegalArgumentException e) {
-        log.warn("Invalid archive.format {}", name);
-      }
-    }
-    return Collections.unmodifiableMap(exts);
+    return Optional.absent();
   }
 }

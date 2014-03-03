@@ -14,7 +14,6 @@
 
 package com.google.gitiles;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.gitiles.FormatType.DEFAULT;
 import static com.google.gitiles.FormatType.HTML;
 import static com.google.gitiles.FormatType.JSON;
@@ -30,7 +29,6 @@ import com.google.common.net.HttpHeaders;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.GsonBuilder;
 
-import org.eclipse.jgit.lib.Config;
 import org.joda.time.Instant;
 
 import java.io.IOException;
@@ -56,7 +54,7 @@ public abstract class BaseServlet extends HttpServlet {
   }
 
   public static BaseServlet notFoundServlet() {
-    return new BaseServlet(new Config(), null) {
+    return new BaseServlet(null) {
       private static final long serialVersionUID = 1L;
       @Override
       public void service(HttpServletRequest req, HttpServletResponse res) {
@@ -71,6 +69,10 @@ public abstract class BaseServlet extends HttpServlet {
     } else {
       return ImmutableMap.of("text", text);
     }
+  }
+
+  protected static ArchiveFormat getArchiveFormat(GitilesAccess access) throws IOException {
+    return ArchiveFormat.getDefault(access.getConfig());
   }
 
   /**
@@ -166,11 +168,9 @@ public abstract class BaseServlet extends HttpServlet {
   }
 
   protected final Renderer renderer;
-  protected final ArchiveFormat archiveFormat;
 
-  protected BaseServlet(Config cfg, Renderer renderer) {
+  protected BaseServlet(Renderer renderer) {
     this.renderer = renderer;
-    this.archiveFormat = ArchiveFormat.getDefault(checkNotNull(cfg, "cfg"));
   }
 
   /**

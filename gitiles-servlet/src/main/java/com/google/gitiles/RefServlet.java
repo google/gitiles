@@ -26,7 +26,6 @@ import com.google.common.util.concurrent.UncheckedExecutionException;
 
 import org.eclipse.jgit.http.server.ServletUtils;
 import org.eclipse.jgit.lib.AnyObjectId;
-import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.RefComparator;
@@ -50,8 +49,8 @@ public class RefServlet extends BaseServlet {
 
   private final TimeCache timeCache;
 
-  protected RefServlet(Config cfg, Renderer renderer, TimeCache timeCache) {
-    super(cfg, renderer);
+  protected RefServlet(Renderer renderer, TimeCache timeCache) {
+    super(renderer);
     this.timeCache = checkNotNull(timeCache, "timeCache");
   }
 

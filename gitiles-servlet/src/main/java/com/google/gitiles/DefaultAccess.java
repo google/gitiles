@@ -24,6 +24,7 @@ import com.google.common.collect.Queues;
 import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.http.server.ServletUtils;
+import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
@@ -64,12 +65,14 @@ public class DefaultAccess implements GitilesAccess {
     private final File basePath;
     private final String canonicalBasePath;
     private final String baseGitUrl;
+    private final Config baseConfig;
     private final FileResolver<HttpServletRequest> resolver;
 
-    Factory(File basePath, String baseGitUrl, FileResolver<HttpServletRequest> resolver)
-        throws IOException {
+    Factory(File basePath, String baseGitUrl, Config baseConfig,
+        FileResolver<HttpServletRequest> resolver) throws IOException {
       this.basePath = checkNotNull(basePath, "basePath");
       this.baseGitUrl = checkNotNull(baseGitUrl, "baseGitUrl");
+      this.baseConfig = checkNotNull(baseConfig, "baseConfig");
       this.resolver = checkNotNull(resolver, "resolver");
       this.canonicalBasePath = basePath.getCanonicalPath();
     }
@@ -81,21 +84,23 @@ public class DefaultAccess implements GitilesAccess {
 
     protected DefaultAccess newAccess(File basePath, String canonicalBasePath, String baseGitUrl,
         FileResolver<HttpServletRequest> resolver, HttpServletRequest req) {
-      return new DefaultAccess(basePath, canonicalBasePath, baseGitUrl, resolver, req);
+      return new DefaultAccess(basePath, canonicalBasePath, baseGitUrl, baseConfig, resolver, req);
     }
   }
 
   protected final File basePath;
   protected final String canonicalBasePath;
   protected final String baseGitUrl;
+  protected final Config baseConfig;
   protected final FileResolver<HttpServletRequest> resolver;
   protected final HttpServletRequest req;
 
   protected DefaultAccess(File basePath, String canonicalBasePath, String baseGitUrl,
-      FileResolver<HttpServletRequest> resolver, HttpServletRequest req) {
+      Config baseConfig, FileResolver<HttpServletRequest> resolver, HttpServletRequest req) {
     this.basePath = checkNotNull(basePath, "basePath");
     this.canonicalBasePath = checkNotNull(canonicalBasePath, "canonicalBasePath");
     this.baseGitUrl = checkNotNull(baseGitUrl, "baseGitUrl");
+    this.baseConfig = checkNotNull(baseConfig, "baseConfig");
     this.resolver = checkNotNull(resolver, "resolver");
     this.req = checkNotNull(req, "req");
   }
@@ -126,6 +131,11 @@ public class DefaultAccess implements GitilesAccess {
   @Override
   public RepositoryDescription getRepositoryDescription() throws IOException {
     return buildDescription(ServletUtils.getRepository(req), Collections.<String> emptySet());
+  }
+
+  @Override
+  public Config getConfig() {
+    return baseConfig;
   }
 
   private String getRepositoryName(Repository repo) {

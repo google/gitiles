@@ -14,6 +14,7 @@
 
 package com.google.gitiles;
 
+import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.transport.resolver.ServiceNotAuthorizedException;
 import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
 
@@ -65,4 +66,10 @@ public interface GitilesAccess {
    *         the repository.
    */
   public RepositoryDescription getRepositoryDescription() throws IOException;
+
+  /**
+   * @return configuration to apply to the host/repository for this request.
+   * @throws IOException an error occurred reading the configuration.
+   */
+  public Config getConfig() throws IOException;
 }

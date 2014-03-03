@@ -24,7 +24,6 @@ import com.google.gitiles.BlameCache.Region;
 
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.http.server.ServletUtils;
-import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
@@ -48,8 +47,8 @@ public class BlameServlet extends BaseServlet {
 
   private final BlameCache cache;
 
-  public BlameServlet(Config cfg, Renderer renderer, BlameCache cache) {
-    super(cfg, renderer);
+  public BlameServlet(Renderer renderer, BlameCache cache) {
+    super(renderer);
     this.cache = checkNotNull(cache, "cache");
   }
 

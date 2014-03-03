@@ -16,14 +16,15 @@ package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableMap;
+
+import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
+import org.eclipse.jgit.lib.Config;
+
 import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
-
-import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
-
-import com.google.common.collect.ImmutableMap;
 
 /** Gitiles access for testing. */
 public class TestGitilesAccess implements GitilesAccess.Factory {
@@ -64,6 +65,11 @@ public class TestGitilesAccess implements GitilesAccess.Factory {
         d.description = "a test data set";
         d.cloneUrl = TestGitilesUrls.URLS.getBaseGitUrl(req) + "/" + d.name;
         return d;
+      }
+
+      @Override
+      public Config getConfig() {
+        return new Config();
       }
     };
   }

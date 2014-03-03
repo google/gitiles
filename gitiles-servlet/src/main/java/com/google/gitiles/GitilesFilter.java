@@ -230,25 +230,25 @@ class GitilesFilter extends MetaFilter {
     checkNotInitialized();
     switch (view) {
       case HOST_INDEX:
-        return new HostIndexServlet(config, renderer, urls, accessFactory);
+        return new HostIndexServlet(renderer, urls, accessFactory);
       case REPOSITORY_INDEX:
-        return new RepositoryIndexServlet(config, renderer, accessFactory, timeCache);
+        return new RepositoryIndexServlet(renderer, accessFactory, timeCache);
       case REFS:
-        return new RefServlet(config, renderer, timeCache);
+        return new RefServlet(renderer, timeCache);
       case REVISION:
-        return new RevisionServlet(config, renderer, linkifier());
+        return new RevisionServlet(accessFactory, renderer, linkifier());
       case PATH:
-        return new PathServlet(config, renderer, urls);
+        return new PathServlet(accessFactory, renderer, urls);
       case DIFF:
-        return new DiffServlet(config, renderer, linkifier());
+        return new DiffServlet(accessFactory, renderer, linkifier());
       case LOG:
-        return new LogServlet(config, renderer, linkifier());
+        return new LogServlet(renderer, linkifier());
       case DESCRIBE:
-        return new DescribeServlet(config);
+        return new DescribeServlet();
       case ARCHIVE:
-        return new ArchiveServlet(config);
+        return new ArchiveServlet(accessFactory);
       case BLAME:
-        return new BlameServlet(config, renderer, blameCache);
+        return new BlameServlet(renderer, blameCache);
       default:
         throw new IllegalArgumentException("Invalid view type: " + view);
     }
@@ -363,6 +363,7 @@ class GitilesFilter extends MetaFilter {
         accessFactory = new DefaultAccess.Factory(
             new File(basePath),
             getBaseGitUrl(config),
+            config,
             fileResolver);
         } catch (IOException e) {
           throw new ServletException(e);

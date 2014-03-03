@@ -28,7 +28,6 @@ import com.google.gitiles.CommitSoyData.KeySet;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.http.server.ServletUtils;
-import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
@@ -53,10 +52,13 @@ public class RevisionServlet extends BaseServlet {
   private static final long serialVersionUID = 1L;
   private static final Logger log = LoggerFactory.getLogger(RevisionServlet.class);
 
+  private final GitilesAccess.Factory accessFactory;
   private final Linkifier linkifier;
 
-  public RevisionServlet(Config cfg, Renderer renderer, Linkifier linkifier) {
-    super(cfg, renderer);
+  public RevisionServlet(GitilesAccess.Factory accessFactory, Renderer renderer,
+      Linkifier linkifier) {
+    super(renderer);
+    this.accessFactory = accessFactory;
     this.linkifier = checkNotNull(linkifier, "linkifier");
   }
 
@@ -82,7 +84,7 @@ public class RevisionServlet extends BaseServlet {
                   "data", new CommitSoyData()
                       .setLinkifier(linkifier)
                       .setRevWalk(walk)
-                      .setArchiveFormat(archiveFormat)
+                      .setArchiveFormat(getArchiveFormat(accessFactory.forRequest(req)))
                       .toSoyData(req, (RevCommit) obj, KeySet.DETAIL_DIFF_TREE, df)));
               break;
             case OBJ_TREE:

@@ -23,7 +23,6 @@ import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.http.server.ServletUtils;
-import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -48,10 +47,13 @@ public class DiffServlet extends BaseServlet {
   private static final long serialVersionUID = 1L;
   private static final String PLACEHOLDER = "id=\"DIFF_OUTPUT_BLOCK\"";
 
+  private final GitilesAccess.Factory accessFactory;
   private final Linkifier linkifier;
 
-  public DiffServlet(Config cfg, Renderer renderer, Linkifier linkifier) {
-    super(cfg, renderer);
+  public DiffServlet(GitilesAccess.Factory accessFactory, Renderer renderer,
+      Linkifier linkifier) {
+    super(renderer);
+    this.accessFactory = checkNotNull(accessFactory, "accessFactory");
     this.linkifier = checkNotNull(linkifier, "linkifier");
   }
 
@@ -85,7 +87,7 @@ public class DiffServlet extends BaseServlet {
         GitDateFormatter df = new GitDateFormatter(Format.DEFAULT);
         data.put("commit", new CommitSoyData()
             .setLinkifier(linkifier)
-            .setArchiveFormat(archiveFormat)
+            .setArchiveFormat(getArchiveFormat(accessFactory.forRequest(req)))
             .toSoyData(req, walk.parseCommit(view.getRevision().getId()), df));
       }
       if (!data.containsKey("repositoryName") && (view.getRepositoryName() != null)) {

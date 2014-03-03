@@ -27,7 +27,6 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.AmbiguousObjectException;
 import org.eclipse.jgit.errors.RevisionSyntaxException;
 import org.eclipse.jgit.http.server.ServletUtils;
-import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
@@ -54,8 +53,8 @@ public class DescribeServlet extends BaseServlet {
         && (values.get(0).equals("") || values.get(0).equals("1"));
   }
 
-  protected DescribeServlet(Config cfg) {
-    super(cfg, null);
+  protected DescribeServlet() {
+    super(null);
   }
 
   @Override

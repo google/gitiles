@@ -35,7 +35,6 @@ import org.eclipse.jgit.errors.LargeObjectException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.errors.StopWalkException;
 import org.eclipse.jgit.http.server.ServletUtils;
-import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
@@ -105,10 +104,12 @@ public class PathServlet extends BaseServlet {
     }
   }
 
+  private final GitilesAccess.Factory accessFactory;
   private final GitilesUrls urls;
 
-  public PathServlet(Config cfg, Renderer renderer, GitilesUrls urls) {
-    super(cfg, renderer);
+  public PathServlet(GitilesAccess.Factory accessFactory, Renderer renderer, GitilesUrls urls) {
+    super(renderer);
+    this.accessFactory = checkNotNull(accessFactory, "accessFactory");
     this.urls = checkNotNull(urls, "urls");
   }
 
@@ -294,7 +295,7 @@ public class PathServlet extends BaseServlet {
         "breadcrumbs", view.getBreadcrumbs(hasSingleTree),
         "type", FileType.TREE.toString(),
         "data", new TreeSoyData(rw, view)
-            .setArchiveFormat(archiveFormat)
+            .setArchiveFormat(getArchiveFormat(accessFactory.forRequest(req)))
             .toSoyData(id, tw)));
   }
 

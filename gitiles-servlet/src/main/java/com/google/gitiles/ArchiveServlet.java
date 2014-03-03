@@ -14,14 +14,16 @@
 
 package com.google.gitiles;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
+
+import com.google.common.base.Optional;
 
 import org.eclipse.jgit.api.ArchiveCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.http.server.ServletUtils;
-import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
@@ -30,7 +32,6 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
 
 import java.io.IOException;
-import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -39,11 +40,11 @@ import javax.servlet.http.HttpServletResponse;
 public class ArchiveServlet extends BaseServlet {
   private static final long serialVersionUID = 1L;
 
-  private final Map<String, ArchiveFormat> byExt;
+  private final GitilesAccess.Factory accessFactory;
 
-  public ArchiveServlet(Config cfg) {
-    super(cfg, null);
-    byExt = ArchiveFormat.byExtension(cfg);
+  public ArchiveServlet(GitilesAccess.Factory accessFactory) {
+    super(null);
+    this.accessFactory = checkNotNull(accessFactory, "accessFactory");
   }
 
   @Override
@@ -59,14 +60,19 @@ public class ArchiveServlet extends BaseServlet {
       return;
     }
 
-    ArchiveFormat format = byExt.get(view.getExtension());
+    Optional<ArchiveFormat> format = ArchiveFormat.byExtension(
+        view.getExtension(), accessFactory.forRequest(req).getConfig());
+    if (!format.isPresent()) {
+      res.setStatus(SC_NOT_FOUND);
+      return;
+    }
     String filename = getFilename(view, rev, view.getExtension());
-    setDownloadHeaders(res, filename, format.getMimeType());
+    setDownloadHeaders(res, filename, format.get().getMimeType());
     res.setStatus(SC_OK);
 
     try {
       new ArchiveCommand(repo)
-          .setFormat(format.name())
+          .setFormat(format.get().name())
           .setTree(treeId)
           .setOutputStream(res.getOutputStream())
           .call();
