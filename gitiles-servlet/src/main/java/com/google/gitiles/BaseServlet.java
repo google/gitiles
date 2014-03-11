@@ -194,6 +194,12 @@ public abstract class BaseServlet extends HttpServlet {
       setCacheHeaders(res);
 
       Map<String, Object> allData = getData(req);
+
+      String headerVariant = getAccess(req).getConfig().getString("template", null, "customHeader");
+      if (headerVariant != null) {
+        allData.put("headerVariant", headerVariant);
+      }
+
       allData.putAll(soyData);
       GitilesView view = ViewFilter.getView(req);
       if (!allData.containsKey("repositoryName") && view.getRepositoryName() != null) {

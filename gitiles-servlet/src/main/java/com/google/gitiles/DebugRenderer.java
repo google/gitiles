@@ -16,7 +16,7 @@ package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.common.base.Function;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableMap;
 import com.google.template.soy.SoyFileSet;
 import com.google.template.soy.tofu.SoyTofu;
@@ -27,17 +27,13 @@ import java.net.URL;
 
 /** Renderer that reloads Soy templates from the filesystem on every request. */
 public class DebugRenderer extends Renderer {
-  public DebugRenderer(String staticPrefix, String customTemplatesFilename,
+  public DebugRenderer(String staticPrefix, Iterable<String> customTemplatesFilenames,
       final String soyTemplatesRoot, String siteTitle) {
     super(
-        new Function<String, URL>() {
-          @Override
-          public URL apply(String name) {
-            return toFileURL(soyTemplatesRoot + File.separator + name);
-          }
-        },
+        new FileUrlMapper(soyTemplatesRoot + File.separator),
         ImmutableMap.<String, String> of(), staticPrefix,
-        toFileURL(customTemplatesFilename), siteTitle);
+        FluentIterable.from(customTemplatesFilenames).transform(new FileUrlMapper()),
+        siteTitle);
   }
 
   @Override

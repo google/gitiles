@@ -18,9 +18,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Function;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.template.soy.tofu.SoyTofu;
 
@@ -52,14 +53,27 @@ public abstract class Renderer {
       "gitiles.PRETTIFY_CSS_URL", "prettify/prettify.css",
       "gitiles.PRETTIFY_JS_URL", "prettify/prettify.js");
 
-  protected static final URL toFileURL(String filename) {
-    if (filename == null) {
-      return null;
+  protected static class FileUrlMapper implements Function<String, URL> {
+    private final String prefix;
+
+    protected FileUrlMapper() {
+      this("");
     }
-    try {
-      return new File(filename).toURI().toURL();
-    } catch (MalformedURLException e) {
-      throw new IllegalArgumentException(e);
+
+    protected FileUrlMapper(String prefix) {
+      this.prefix = checkNotNull(prefix, "prefix");
+    }
+
+    @Override
+    public URL apply(String filename) {
+      if (filename == null) {
+        return null;
+      }
+      try {
+        return new File(prefix + filename).toURI().toURL();
+      } catch (MalformedURLException e) {
+        throw new IllegalArgumentException(e);
+      }
     }
   }
 
@@ -67,18 +81,10 @@ public abstract class Renderer {
   protected ImmutableMap<String, String> globals;
 
   protected Renderer(Function<String, URL> resourceMapper, Map<String, String> globals,
-      String staticPrefix, URL customTemplates, String siteTitle) {
+      String staticPrefix, Iterable<URL> customTemplates, String siteTitle) {
     checkNotNull(staticPrefix, "staticPrefix");
-    List<URL> allTemplates = Lists.newArrayListWithCapacity(SOY_FILENAMES.size() + 1);
-    for (String filename : SOY_FILENAMES) {
-      allTemplates.add(resourceMapper.apply(filename));
-    }
-    if (customTemplates != null) {
-      allTemplates.add(customTemplates);
-    } else {
-      allTemplates.add(resourceMapper.apply("DefaultCustomTemplates.soy"));
-    }
-    templates = ImmutableList.copyOf(allTemplates);
+    Iterable<URL> allTemplates = FluentIterable.from(SOY_FILENAMES).transform(resourceMapper);
+    templates = ImmutableList.copyOf(Iterables.concat(allTemplates, customTemplates));
 
     Map<String, String> allGlobals = Maps.newHashMap();
     for (Map.Entry<String, String> e : STATIC_URL_GLOBALS.entrySet()) {

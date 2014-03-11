@@ -31,12 +31,12 @@ public class DefaultRenderer extends Renderer {
     this("", null, "");
   }
 
-  public DefaultRenderer(String staticPrefix, URL customTemplates, String siteTitle) {
+  public DefaultRenderer(String staticPrefix, Iterable<URL> customTemplates, String siteTitle) {
     this(ImmutableMap.<String, String> of(), staticPrefix, customTemplates, siteTitle);
   }
 
-  public DefaultRenderer(Map<String, String> globals, String staticPrefix, URL customTemplates,
-      String siteTitle) {
+  public DefaultRenderer(Map<String, String> globals, String staticPrefix,
+      Iterable<URL> customTemplates, String siteTitle) {
     super(
         new Function<String, URL>() {
           @Override

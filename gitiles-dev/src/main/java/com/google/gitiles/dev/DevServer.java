@@ -47,6 +47,7 @@ import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 
 class DevServer {
   private static final Logger log = LoggerFactory.getLogger(PathServlet.class);
@@ -187,7 +188,7 @@ class DevServer {
         cfg,
         new DebugRenderer(
             STATIC_PREFIX,
-            cfg.getString("gitiles", null, "customTemplates"),
+            Arrays.asList(cfg.getStringList("gitiles", null, "customTemplates")),
             new File(sourceRoot, "gitiles-servlet/src/main/resources/com/google/gitiles/templates")
                 .getPath(),
             Objects.firstNonNull(cfg.getString("gitiles", null, "siteTitle"), "Gitiles")),

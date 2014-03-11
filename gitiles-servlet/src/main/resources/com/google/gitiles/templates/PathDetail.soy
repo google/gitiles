@@ -19,6 +19,7 @@
  * @param title human-readable name of this path.
  * @param repositoryName name of this repository.
  * @param? menuEntries menu entries.
+ * @param? headerVariant variant name for custom header.
  * @param breadcrumbs breadcrumbs for this page.
  * @param type path type, matching one of the constant names defined in
  *         org.eclipse.jgit.lib.FileMode.
@@ -31,6 +32,7 @@
     {param title: $title /}
     {param repositoryName: $repositoryName /}
     {param menuEntries: $menuEntries /}
+    {param headerVariant: $headerVariant /}
     {param breadcrumbs: $breadcrumbs /}
     {param css: [gitiles.PRETTIFY_CSS_URL] /}
     {param js: [gitiles.PRETTIFY_JS_URL] /}

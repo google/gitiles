@@ -21,10 +21,12 @@ import static com.google.gitiles.ViewFilter.getRegexGroup;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
+import com.google.gitiles.Renderer.FileUrlMapper;
 
 import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
@@ -42,6 +44,7 @@ import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
 import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -322,7 +325,9 @@ class GitilesFilter extends MetaFilter {
     if (renderer == null) {
       renderer = new DefaultRenderer(
           filterConfig.getServletContext().getContextPath() + STATIC_PREFIX,
-          Renderer.toFileURL(config.getString("gitiles", null, "customTemplates")),
+          FluentIterable.from(Arrays.asList(
+                config.getStringList("gitiles", null, "customTemplates")))
+              .transform(new FileUrlMapper()),
           Objects.firstNonNull(config.getString("gitiles", null, "siteTitle"), "Gitiles"));
     }
   }

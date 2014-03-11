@@ -21,6 +21,7 @@
  * @param? repositoryName repository name for this page, if applicable.
  * @param? menuEntries optional list of menu entries with "text" and optional
  *     "url" keys.
+ * @param? headerVariant variant name for custom header.
  * @param breadcrumbs navigation breadcrumbs for this page.
  * @param? css optional list of CSS URLs to include.
  * @param? js optional list of Javascript URLs to include.
@@ -56,7 +57,7 @@
   {/if}
 </head>
 <body {if $onLoad}onload="{$onLoad|id}"{/if}>
-  {call .customHeader /}
+  {delcall gitiles.customHeader variant="$headerVariant ?: 'default'" /}
 
   {if $menuEntries and length($menuEntries)}
     <div class="menu">
@@ -85,6 +86,13 @@
     </div>
   {/if}
 {/template}
+
+/**
+ * Default custom header implementation for Gitiles.
+ */
+{deltemplate gitiles.customHeader variant="'default'"}
+<h1>{msg desc="short name of the application"}{gitiles.SITE_TITLE}{/msg}</h1>
+{/deltemplate}
 
 /**
  * Standard footer.

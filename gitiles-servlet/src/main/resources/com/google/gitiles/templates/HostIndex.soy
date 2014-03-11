@@ -18,6 +18,7 @@
  *
  * @param hostName host name.
  * @param? menuEntries menu entries.
+ * @param? headerVariant variant name for custom header.
  * @param baseUrl base URL for repositories.
  * @param repositories list of repository description maps with name, cloneUrl,
  *     and optional description values.
@@ -27,6 +28,7 @@
   {param title: $hostName ? $hostName + ' Git repositories' : 'Git repositories' /}
   {param menuEntries: $menuEntries /}
   {param breadcrumbs: null /}
+  {param headerVariant: $headerVariant /}
 {/call}
 
 {if length($repositories)}
