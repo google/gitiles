@@ -1,12 +1,11 @@
 include_defs('//bucklets/maven_jar.bucklet')
 
-VERS = '3.1.0.201310021548-r'
+VERS = '3.3.0.201403021825-r'
 
 maven_jar(
   name = 'jgit',
   id = 'org.eclipse.jgit:org.eclipse.jgit:' + VERS,
-  bin_sha1 = 'df1410e5d1deaacfb70a2441b4766b61f2795bc3',
-  src_sha1 = 'b4e3d9c9c3da39b72acf72bd913ce9dbee88a9d4',
+  sha1 = '01aa346a5040bd541502dfb40e83edb1d1981c67',
   unsign = True,
   deps = [':ewah'],
   exclude = [
@@ -19,7 +18,7 @@ maven_jar(
 maven_jar(
   name = 'jgit-servlet',
   id = 'org.eclipse.jgit:org.eclipse.jgit.http.server:' + VERS,
-  sha1 = 'bcac91120afac59c195230537bde07175578fe79',
+  sha1 = 'e141488647b80ef25d8d3febffd434a5e2a0a817',
   deps = [':jgit'],
   unsign = True,
   exclude = [
@@ -41,7 +40,7 @@ java_library(
 maven_jar(
   name = 'jgit-archive_library',
   id = 'org.eclipse.jgit:org.eclipse.jgit.archive:' + VERS,
-  sha1 = '1b34da51d8d46cd04b09454ee84b11f1d117e801',
+  sha1 = '87b2b50eb6e7a18a70fd684cc173f3bd2d8e24e8',
   deps = [':jgit'],
   unsign = True,
   exclude = [
@@ -53,7 +52,7 @@ maven_jar(
 maven_jar(
   name = 'junit',
   id = 'org.eclipse.jgit:org.eclipse.jgit.junit:' + VERS,
-  sha1 = 'a8b47bb41cec25b1d128f7d267badbc7dcf6d9aa',
+  sha1 = '13d0303a669bc2c44db69f8581e3634412b70eed',
   unsign = True,
   deps = [':jgit'],
 )

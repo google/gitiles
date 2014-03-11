@@ -8,8 +8,8 @@ maven_jar(
 
 maven_jar(
   name = 'soy',
-  id = 'com.google.template:soy:2011-22-12',
-  sha1 = '018c567dd937176a3c4f81623b899cea3fe61458',
+  id = 'com.google.template:soy:2012-12-21',
+  sha1 = 'cc28da103845a0f08cfd3fa5abdd45899b0adae1',
 )
 
 maven_jar(
