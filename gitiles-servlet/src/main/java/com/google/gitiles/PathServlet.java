@@ -27,6 +27,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.io.BaseEncoding;
 import com.google.common.primitives.Bytes;
 
 import org.eclipse.jgit.errors.ConfigInvalidException;
@@ -53,6 +54,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -114,27 +116,13 @@ public class PathServlet extends BaseServlet {
   }
 
   @Override
-  protected void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException {
+  protected void doGetHtml(HttpServletRequest req, HttpServletResponse res) throws IOException {
     GitilesView view = ViewFilter.getView(req);
     Repository repo = ServletUtils.getRepository(req);
 
     RevWalk rw = new RevWalk(repo);
     try {
-      RevObject obj = rw.peel(rw.parseAny(view.getRevision().getId()));
-      RevTree root;
-
-      switch (obj.getType()) {
-        case OBJ_COMMIT:
-          root = ((RevCommit) obj).getTree();
-          break;
-        case OBJ_TREE:
-          root = (RevTree) obj;
-          break;
-        default:
-          res.setStatus(SC_NOT_FOUND);
-          return;
-      }
-
+      RevTree root = getRoot(view, rw);
       TreeWalk tw = new TreeWalk(rw.getObjectReader());
       tw.addTree(root);
       tw.setRecursive(false);
@@ -185,6 +173,63 @@ public class PathServlet extends BaseServlet {
       res.setStatus(SC_INTERNAL_SERVER_ERROR);
     } finally {
       rw.release();
+    }
+  }
+
+  @Override
+  protected void doGetText(HttpServletRequest req, HttpServletResponse res) throws IOException {
+    GitilesView view = ViewFilter.getView(req);
+    Repository repo = ServletUtils.getRepository(req);
+
+    RevWalk rw = new RevWalk(repo);
+    try {
+      RevTree root = getRoot(view, rw);
+      TreeWalk tw = new TreeWalk(rw.getObjectReader());
+      tw.addTree(root);
+      tw.setRecursive(false);
+
+      String path = view.getPathPart();
+      if (path.isEmpty()) {
+        res.setStatus(SC_NOT_FOUND);
+        return;
+      }
+      if (walkToPath(tw, path) == null) {
+        res.setStatus(SC_NOT_FOUND);
+        return;
+      }
+
+      switch (FileType.forEntry(tw)) {
+        case SYMLINK:
+        case REGULAR_FILE:
+        case EXECUTABLE_FILE:
+          // Write base64 as plain text without modifying any other headers,
+          // under the assumption that any hint we can give to a browser that
+          // this is base64 data might cause it to try to decode it and render
+          // as HTML, which would be bad.
+          res.setHeader("X-Gitiles-Path-Mode", String.format("%06o", tw.getRawMode(0)));
+          try (OutputStream out = BaseEncoding.base64().encodingStream(startRenderText(req, res))) {
+            rw.getObjectReader().open(tw.getObjectId(0)).copyTo(out);
+          }
+        default:
+          renderTextError(req, res, SC_NOT_FOUND, "Not a file");
+          break;
+      }
+    } catch (LargeObjectException e) {
+      res.setStatus(SC_INTERNAL_SERVER_ERROR);
+    } finally {
+      rw.release();
+    }
+  }
+
+  private static RevTree getRoot(GitilesView view, RevWalk rw) throws IOException {
+    RevObject obj = rw.peel(rw.parseAny(view.getRevision().getId()));
+    switch (obj.getType()) {
+      case OBJ_COMMIT:
+        return ((RevCommit) obj).getTree();
+      case OBJ_TREE:
+        return (RevTree) obj;
+      default:
+        return null;
     }
   }
 
