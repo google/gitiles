@@ -23,7 +23,7 @@ import static org.eclipse.jgit.lib.Constants.OBJ_TREE;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.google.gitiles.CommitSoyData.KeySet;
+import com.google.gitiles.CommitSoyData.FieldSet;
 
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
@@ -85,7 +85,7 @@ public class RevisionServlet extends BaseServlet {
                       .setLinkifier(linkifier)
                       .setRevWalk(walk)
                       .setArchiveFormat(getArchiveFormat(accessFactory.forRequest(req)))
-                      .toSoyData(req, (RevCommit) obj, KeySet.DETAIL_DIFF_TREE, df)));
+                      .toSoyData(req, (RevCommit) obj, FieldSet.DETAIL_DIFF_TREE, df)));
               break;
             case OBJ_TREE:
               soyObjects.add(ImmutableMap.of(

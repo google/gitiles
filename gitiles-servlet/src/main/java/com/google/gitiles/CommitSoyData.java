@@ -23,8 +23,10 @@ import static org.eclipse.jgit.diff.DiffEntry.ChangeType.RENAME;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.template.soy.data.restricted.NullData;
 
 import org.eclipse.jgit.diff.DiffEntry;
@@ -48,6 +50,7 @@ import org.eclipse.jgit.util.RelativeDateFormatter;
 import org.eclipse.jgit.util.io.NullOutputStream;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -58,26 +61,46 @@ import javax.servlet.http.HttpServletRequest;
 
 /** Soy data converter for git commits. */
 public class CommitSoyData {
-  /** Valid sets of keys to include in Soy data for commits. */
-  public static enum KeySet {
-    DETAIL("author", "committer", "sha", "tree", "treeUrl", "parents", "message", "logUrl",
-        "archiveUrl", "archiveType"),
-    DETAIL_DIFF_TREE(DETAIL, "diffTree"),
-    SHORTLOG("abbrevSha", "url", "shortMessage", "author", "branches", "tags"),
+  static enum Field {
+    ABBREV_SHA,
+    ARCHIVE_TYPE,
+    ARCHIVE_URL,
+    AUTHOR,
+    BRANCHES,
+    COMMITTER,
+    DIFF_TREE,
+    LOG_URL,
+    MESSAGE,
+    PARENTS,
+    SHA,
+    SHORT_MESSAGE,
+    TAGS,
+    TREE,
+    TREE_URL,
+    URL;
+  }
+
+  /** Valid sets of fields to include in data for commits. */
+  static enum FieldSet {
+    DETAIL(Field.AUTHOR, Field.COMMITTER, Field.SHA, Field.TREE, Field.TREE_URL, Field.PARENTS,
+        Field.MESSAGE, Field.LOG_URL, Field.ARCHIVE_URL, Field.ARCHIVE_TYPE),
+    DETAIL_DIFF_TREE(DETAIL, Field.DIFF_TREE),
+    SHORTLOG(Field.ABBREV_SHA, Field.URL, Field.SHORT_MESSAGE, Field.AUTHOR, Field.BRANCHES,
+        Field.TAGS),
     DEFAULT(DETAIL);
 
-    private final Set<String> keys;
+    private final ImmutableSet<Field> fields;
 
-    private KeySet(String... keys) {
-      this.keys = ImmutableSet.copyOf(keys);
+    private FieldSet(Field... fields) {
+      this.fields = Sets.immutableEnumSet(Arrays.asList(fields));
     }
 
-    private KeySet(KeySet other, String... keys) {
-      this.keys = ImmutableSet.<String> builder().addAll(other.keys).add(keys).build();
+    private FieldSet(FieldSet other, Field... fields) {
+      this.fields = Sets.immutableEnumSet(Iterables.concat(other.fields, Arrays.asList(fields)));
     }
 
-    private boolean contains(String key) {
-      return keys.contains(key);
+    private boolean contains(Field field) {
+      return fields.contains(field);
     }
   }
 
@@ -103,24 +126,24 @@ public class CommitSoyData {
     return this;
   }
 
-  public Map<String, Object> toSoyData(HttpServletRequest req, RevCommit commit, KeySet ks,
+  public Map<String, Object> toSoyData(HttpServletRequest req, RevCommit commit, FieldSet fs,
       GitDateFormatter df) throws IOException {
-    checkKeys(ks);
+    checkFields(fs);
     checkNotNull(req, "request");
     repo = ServletUtils.getRepository(req);
     view = ViewFilter.getView(req);
 
-    Map<String, Object> data = Maps.newHashMapWithExpectedSize(KeySet.DEFAULT.keys.size());
-    if (ks.contains("author")) {
+    Map<String, Object> data = Maps.newHashMapWithExpectedSize(FieldSet.DEFAULT.fields.size());
+    if (fs.contains(Field.AUTHOR)) {
       data.put("author", toSoyData(commit.getAuthorIdent(), df));
     }
-    if (ks.contains("committer")) {
+    if (fs.contains(Field.COMMITTER)) {
       data.put("committer", toSoyData(commit.getCommitterIdent(), df));
     }
-    if (ks.contains("sha")) {
+    if (fs.contains(Field.SHA)) {
       data.put("sha", ObjectId.toString(commit));
     }
-    if (ks.contains("abbrevSha")) {
+    if (fs.contains(Field.ABBREV_SHA)) {
       ObjectReader reader = repo.getObjectDatabase().newReader();
       try {
         data.put("abbrevSha", reader.abbreviate(commit).name());
@@ -128,63 +151,63 @@ public class CommitSoyData {
         reader.release();
       }
     }
-    if (ks.contains("url")) {
+    if (fs.contains(Field.URL)) {
       data.put("url", GitilesView.revision()
           .copyFrom(view)
           .setRevision(commit)
           .toUrl());
     }
-    if (ks.contains("logUrl")) {
+    if (fs.contains(Field.LOG_URL)) {
       data.put("logUrl", urlFromView(view, commit, GitilesView.log()));
     }
-    if (ks.contains("archiveUrl")) {
+    if (fs.contains(Field.ARCHIVE_URL)) {
       data.put("archiveUrl", urlFromView(view, commit,
           GitilesView.archive().setExtension(archiveFormat.getDefaultSuffix())));
     }
-    if (ks.contains("archiveType")) {
+    if (fs.contains(Field.ARCHIVE_TYPE)) {
       data.put("archiveType", archiveFormat.getShortName());
     }
-    if (ks.contains("tree")) {
+    if (fs.contains(Field.TREE)) {
       data.put("tree", ObjectId.toString(commit.getTree()));
     }
-    if (ks.contains("treeUrl")) {
+    if (fs.contains(Field.TREE_URL)) {
       data.put("treeUrl", GitilesView.path().copyFrom(view).setPathPart("/").toUrl());
     }
-    if (ks.contains("parents")) {
+    if (fs.contains(Field.PARENTS)) {
       data.put("parents", toSoyData(view, commit.getParents()));
     }
-    if (ks.contains("shortMessage")) {
+    if (fs.contains(Field.SHORT_MESSAGE)) {
       data.put("shortMessage", commit.getShortMessage());
     }
-    if (ks.contains("branches")) {
+    if (fs.contains(Field.BRANCHES)) {
       data.put("branches", getRefsById(commit, Constants.R_HEADS));
     }
-    if (ks.contains("tags")) {
+    if (fs.contains(Field.TAGS)) {
       data.put("tags", getRefsById(commit, Constants.R_TAGS));
     }
-    if (ks.contains("message")) {
+    if (fs.contains(Field.MESSAGE)) {
       if (linkifier != null) {
         data.put("message", linkifier.linkify(req, commit.getFullMessage()));
       } else {
         data.put("message", commit.getFullMessage());
       }
     }
-    if (ks.contains("diffTree")) {
+    if (fs.contains(Field.DIFF_TREE)) {
       data.put("diffTree", computeDiffTree(commit));
     }
-    checkState(ks.keys.size() == data.size(), "bad commit data keys: %s != %s", ks.keys,
+    checkState(fs.fields.size() == data.size(), "bad commit data fields: %s != %s", fs.fields,
         data.keySet());
     return ImmutableMap.copyOf(data);
   }
 
   public Map<String, Object> toSoyData(HttpServletRequest req, RevCommit commit,
       GitDateFormatter df) throws IOException {
-    return toSoyData(req, commit, KeySet.DEFAULT, df);
+    return toSoyData(req, commit, FieldSet.DEFAULT, df);
   }
 
-  private void checkKeys(KeySet ks) {
-    checkState(!ks.contains("diffTree") || walk != null, "RevWalk required for diffTree");
-    if (ks.contains("archiveUrl") || ks.contains("archiveType")) {
+  private void checkFields(FieldSet fs) {
+    checkState(!fs.contains(Field.DIFF_TREE) || walk != null, "RevWalk required for diffTree");
+    if (fs.contains(Field.ARCHIVE_URL) || fs.contains(Field.ARCHIVE_TYPE)) {
       checkState(archiveFormat != null, "archive format required");
     }
   }

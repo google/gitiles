@@ -16,7 +16,7 @@ package com.google.gitiles;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.gitiles.CommitSoyData.KeySet;
+import com.google.gitiles.CommitSoyData.FieldSet;
 
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -50,7 +50,7 @@ public class LogSoyData {
 
     List<Map<String, Object>> entries = Lists.newArrayListWithCapacity(paginator.getLimit());
     for (RevCommit c : paginator) {
-      entries.add(new CommitSoyData().toSoyData(req, c, KeySet.SHORTLOG, df));
+      entries.add(new CommitSoyData().toSoyData(req, c, FieldSet.SHORTLOG, df));
     }
 
     data.put("entries", entries);
