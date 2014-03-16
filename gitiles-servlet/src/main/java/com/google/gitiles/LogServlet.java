@@ -69,8 +69,8 @@ public class LogServlet extends BaseServlet {
 
   private final Linkifier linkifier;
 
-  public LogServlet(Renderer renderer, Linkifier linkifier) {
-    super(renderer);
+  public LogServlet(GitilesAccess.Factory accessFactory, Renderer renderer, Linkifier linkifier) {
+    super(renderer, accessFactory);
     this.linkifier = checkNotNull(linkifier, "linkifier");
   }
 

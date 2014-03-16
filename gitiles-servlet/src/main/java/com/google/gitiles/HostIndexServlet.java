@@ -49,13 +49,11 @@ public class HostIndexServlet extends BaseServlet {
   private static final Logger log = LoggerFactory.getLogger(HostIndexServlet.class);
 
   protected final GitilesUrls urls;
-  private final GitilesAccess.Factory accessFactory;
 
-  public HostIndexServlet(Renderer renderer, GitilesUrls urls,
-      GitilesAccess.Factory accessFactory) {
-    super(renderer);
+  public HostIndexServlet(GitilesAccess.Factory accessFactory, Renderer renderer,
+      GitilesUrls urls) {
+    super(renderer, accessFactory);
     this.urls = checkNotNull(urls, "urls");
-    this.accessFactory = checkNotNull(accessFactory, "accessFactory");
   }
 
   private Map<String, RepositoryDescription> getDescriptions(HttpServletRequest req,
@@ -67,7 +65,7 @@ public class HostIndexServlet extends BaseServlet {
       HttpServletResponse res, Set<String> branches) throws IOException {
     Map<String, RepositoryDescription> descs;
     try {
-      descs = accessFactory.forRequest(req).listRepositories(branches);
+      descs = getAccess(req).listRepositories(branches);
     } catch (RepositoryNotFoundException e) {
       res.sendError(SC_NOT_FOUND);
       return null;

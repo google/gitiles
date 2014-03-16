@@ -230,11 +230,11 @@ class GitilesFilter extends MetaFilter {
     checkNotInitialized();
     switch (view) {
       case HOST_INDEX:
-        return new HostIndexServlet(renderer, urls, accessFactory);
+        return new HostIndexServlet(accessFactory, renderer, urls);
       case REPOSITORY_INDEX:
-        return new RepositoryIndexServlet(renderer, accessFactory, timeCache);
+        return new RepositoryIndexServlet(accessFactory, renderer, timeCache);
       case REFS:
-        return new RefServlet(renderer, timeCache);
+        return new RefServlet(accessFactory, renderer, timeCache);
       case REVISION:
         return new RevisionServlet(accessFactory, renderer, linkifier());
       case PATH:
@@ -242,13 +242,13 @@ class GitilesFilter extends MetaFilter {
       case DIFF:
         return new DiffServlet(accessFactory, renderer, linkifier());
       case LOG:
-        return new LogServlet(renderer, linkifier());
+        return new LogServlet(accessFactory, renderer, linkifier());
       case DESCRIBE:
-        return new DescribeServlet();
+        return new DescribeServlet(accessFactory);
       case ARCHIVE:
         return new ArchiveServlet(accessFactory);
       case BLAME:
-        return new BlameServlet(renderer, blameCache);
+        return new BlameServlet(accessFactory, renderer, blameCache);
       default:
         throw new IllegalArgumentException("Invalid view type: " + view);
     }

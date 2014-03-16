@@ -45,13 +45,11 @@ public class RepositoryIndexServlet extends BaseServlet {
   static final int REF_LIMIT = 10;
   private static final int LOG_LIMIT = 20;
 
-  private final GitilesAccess.Factory accessFactory;
   private final TimeCache timeCache;
 
-  public RepositoryIndexServlet(Renderer renderer, GitilesAccess.Factory accessFactory,
+  public RepositoryIndexServlet(GitilesAccess.Factory accessFactory, Renderer renderer,
       TimeCache timeCache) {
-    super(renderer);
-    this.accessFactory = checkNotNull(accessFactory, "accessFactory");
+    super(renderer, accessFactory);
     this.timeCache = checkNotNull(timeCache, "timeCache");
   }
 
@@ -64,7 +62,7 @@ public class RepositoryIndexServlet extends BaseServlet {
   Map<String, ?> buildData(HttpServletRequest req) throws IOException {
     GitilesView view = ViewFilter.getView(req);
     Repository repo = ServletUtils.getRepository(req);
-    RepositoryDescription desc = accessFactory.forRequest(req).getRepositoryDescription();
+    RepositoryDescription desc = getAccess(req).getRepositoryDescription();
     RevWalk walk = new RevWalk(repo);
     List<Map<String, Object>> tags;
     Map<String, Object> data;

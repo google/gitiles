@@ -53,8 +53,8 @@ public class DescribeServlet extends BaseServlet {
         && (values.get(0).equals("") || values.get(0).equals("1"));
   }
 
-  protected DescribeServlet() {
-    super(null);
+  protected DescribeServlet(GitilesAccess.Factory accessFactory) {
+    super(null, accessFactory);
   }
 
   @Override

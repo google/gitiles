@@ -106,12 +106,10 @@ public class PathServlet extends BaseServlet {
     }
   }
 
-  private final GitilesAccess.Factory accessFactory;
   private final GitilesUrls urls;
 
   public PathServlet(GitilesAccess.Factory accessFactory, Renderer renderer, GitilesUrls urls) {
-    super(renderer);
-    this.accessFactory = checkNotNull(accessFactory, "accessFactory");
+    super(renderer, accessFactory);
     this.urls = checkNotNull(urls, "urls");
   }
 
@@ -341,7 +339,7 @@ public class PathServlet extends BaseServlet {
         "breadcrumbs", view.getBreadcrumbs(hasSingleTree),
         "type", FileType.TREE.toString(),
         "data", new TreeSoyData(rw, view)
-            .setArchiveFormat(getArchiveFormat(accessFactory.forRequest(req)))
+            .setArchiveFormat(getArchiveFormat(getAccess(req)))
             .toSoyData(id, tw)));
   }
 

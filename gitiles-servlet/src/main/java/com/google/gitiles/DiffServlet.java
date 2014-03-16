@@ -47,13 +47,11 @@ public class DiffServlet extends BaseServlet {
   private static final long serialVersionUID = 1L;
   private static final String PLACEHOLDER = "id=\"DIFF_OUTPUT_BLOCK\"";
 
-  private final GitilesAccess.Factory accessFactory;
   private final Linkifier linkifier;
 
   public DiffServlet(GitilesAccess.Factory accessFactory, Renderer renderer,
       Linkifier linkifier) {
-    super(renderer);
-    this.accessFactory = checkNotNull(accessFactory, "accessFactory");
+    super(renderer, accessFactory);
     this.linkifier = checkNotNull(linkifier, "linkifier");
   }
 
@@ -87,7 +85,7 @@ public class DiffServlet extends BaseServlet {
         GitDateFormatter df = new GitDateFormatter(Format.DEFAULT);
         data.put("commit", new CommitSoyData()
             .setLinkifier(linkifier)
-            .setArchiveFormat(getArchiveFormat(accessFactory.forRequest(req)))
+            .setArchiveFormat(getArchiveFormat(getAccess(req)))
             .toSoyData(req, walk.parseCommit(view.getRevision().getId()), df));
       }
       if (!data.containsKey("repositoryName") && (view.getRepositoryName() != null)) {

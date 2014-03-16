@@ -47,8 +47,8 @@ public class BlameServlet extends BaseServlet {
 
   private final BlameCache cache;
 
-  public BlameServlet(Renderer renderer, BlameCache cache) {
-    super(renderer);
+  public BlameServlet(GitilesAccess.Factory accessFactory, Renderer renderer, BlameCache cache) {
+    super(renderer, accessFactory);
     this.cache = checkNotNull(cache, "cache");
   }
 

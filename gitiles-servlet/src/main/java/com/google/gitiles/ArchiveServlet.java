@@ -14,7 +14,6 @@
 
 package com.google.gitiles;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 
@@ -40,11 +39,8 @@ import javax.servlet.http.HttpServletResponse;
 public class ArchiveServlet extends BaseServlet {
   private static final long serialVersionUID = 1L;
 
-  private final GitilesAccess.Factory accessFactory;
-
   public ArchiveServlet(GitilesAccess.Factory accessFactory) {
-    super(null);
-    this.accessFactory = checkNotNull(accessFactory, "accessFactory");
+    super(null, accessFactory);
   }
 
   @Override
@@ -61,7 +57,7 @@ public class ArchiveServlet extends BaseServlet {
     }
 
     Optional<ArchiveFormat> format = ArchiveFormat.byExtension(
-        view.getExtension(), accessFactory.forRequest(req).getConfig());
+        view.getExtension(), getAccess(req).getConfig());
     if (!format.isPresent()) {
       res.setStatus(SC_NOT_FOUND);
       return;

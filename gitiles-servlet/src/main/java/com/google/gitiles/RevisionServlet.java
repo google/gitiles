@@ -59,13 +59,11 @@ public class RevisionServlet extends BaseServlet {
   private static final long serialVersionUID = 1L;
   private static final Logger log = LoggerFactory.getLogger(RevisionServlet.class);
 
-  private final GitilesAccess.Factory accessFactory;
   private final Linkifier linkifier;
 
   public RevisionServlet(GitilesAccess.Factory accessFactory, Renderer renderer,
       Linkifier linkifier) {
-    super(renderer);
-    this.accessFactory = accessFactory;
+    super(renderer, accessFactory);
     this.linkifier = checkNotNull(linkifier, "linkifier");
   }
 
@@ -91,7 +89,7 @@ public class RevisionServlet extends BaseServlet {
                   "data", new CommitSoyData()
                       .setLinkifier(linkifier)
                       .setRevWalk(walk)
-                      .setArchiveFormat(getArchiveFormat(accessFactory.forRequest(req)))
+                      .setArchiveFormat(getArchiveFormat(getAccess(req)))
                       .toSoyData(req, (RevCommit) obj, COMMIT_SOY_FIELDS, df)));
               break;
             case OBJ_TREE:

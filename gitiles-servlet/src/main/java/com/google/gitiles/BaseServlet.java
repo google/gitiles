@@ -45,6 +45,7 @@ import javax.servlet.http.HttpServletResponse;
 public abstract class BaseServlet extends HttpServlet {
   private static final long serialVersionUID = 1L;
   private static final String DATA_ATTRIBUTE = BaseServlet.class.getName() + "/Data";
+  private static final String ACCESS_ATTRIBUTE = BaseServlet.class.getName() + "/GitilesAccess";
 
   static void setNotCacheable(HttpServletResponse res) {
     res.setHeader(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, max-age=0, must-revalidate");
@@ -54,7 +55,7 @@ public abstract class BaseServlet extends HttpServlet {
   }
 
   public static BaseServlet notFoundServlet() {
-    return new BaseServlet(null) {
+    return new BaseServlet(null, null) {
       private static final long serialVersionUID = 1L;
       @Override
       public void service(HttpServletRequest req, HttpServletResponse res) {
@@ -168,9 +169,11 @@ public abstract class BaseServlet extends HttpServlet {
   }
 
   protected final Renderer renderer;
+  private final GitilesAccess.Factory accessFactory;
 
-  protected BaseServlet(Renderer renderer) {
+  protected BaseServlet(Renderer renderer, GitilesAccess.Factory accessFactory) {
     this.renderer = renderer;
+    this.accessFactory = accessFactory;
   }
 
   /**
@@ -270,6 +273,15 @@ public abstract class BaseServlet extends HttpServlet {
     PrintWriter out = res.getWriter();
     out.write(message);
     out.close();
+  }
+
+  protected GitilesAccess getAccess(HttpServletRequest req) {
+    GitilesAccess access = (GitilesAccess) req.getAttribute(ACCESS_ATTRIBUTE);
+    if (access == null) {
+      access = accessFactory.forRequest(req);
+      req.setAttribute(ACCESS_ATTRIBUTE, access);
+    }
+    return access;
   }
 
   protected void setCacheHeaders(HttpServletResponse res) {
