@@ -14,15 +14,26 @@
 
 package com.google.gitiles;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import com.google.gitiles.CommitData.Field;
 
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.util.GitDateFormatter;
 
+import java.io.IOException;
 import java.util.List;
 
+import javax.annotation.Nullable;
+import javax.servlet.http.HttpServletRequest;
+
 class CommitJsonData {
+  private static final ImmutableSet<Field> DEFAULT_FIELDS = Sets.immutableEnumSet(
+      Field.SHA, Field.PARENTS, Field.AUTHOR, Field.COMMITTER, Field.MESSAGE);
+
   static class Commit {
     String commit;
     List<String> parents;
@@ -37,16 +48,38 @@ class CommitJsonData {
     String time;
   }
 
-  static Commit toJsonData(RevCommit c, GitDateFormatter df) {
+  private RevWalk walk;
+
+  CommitJsonData setRevWalk(@Nullable RevWalk walk) {
+    this.walk = walk;
+    return this;
+  }
+
+  Commit toJsonData(HttpServletRequest req, RevCommit c, GitDateFormatter df)
+      throws IOException {
+    CommitData cd = new CommitData.Builder()
+        .setRevWalk(walk)
+        .build(req, c, DEFAULT_FIELDS);
+
     Commit result = new Commit();
-    result.commit = c.name();
-    result.parents = Lists.newArrayListWithCapacity(c.getParentCount());
-    for (RevCommit parent : c.getParents()) {
-      result.parents.add(parent.name());
+    if (cd.sha != null) {
+      result.commit = cd.sha.name();
     }
-    result.author = toJsonData(c.getAuthorIdent(), df);
-    result.committer = toJsonData(c.getCommitterIdent(), df);
-    result.message = c.getFullMessage();
+    if (cd.parents != null) {
+      result.parents = Lists.newArrayListWithCapacity(cd.parents.size());
+      for (RevCommit parent : cd.parents) {
+        result.parents.add(parent.name());
+      }
+    }
+    if (cd.author != null) {
+      result.author = toJsonData(cd.author, df);
+    }
+    if (cd.committer != null) {
+      result.committer = toJsonData(cd.committer, df);
+    }
+    if (cd.message != null) {
+      result.message = cd.message;
+    }
     return result;
   }
 
@@ -56,8 +89,5 @@ class CommitJsonData {
     result.email = ident.getEmailAddress();
     result.time = df.formatDate(ident);
     return result;
-  }
-
-  private CommitJsonData() {
   }
 }
