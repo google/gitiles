@@ -14,9 +14,11 @@
 
 package com.google.gitiles;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.gitiles.CommitSoyData.FieldSet;
+import com.google.common.collect.Sets;
+import com.google.gitiles.CommitData.Field;
 
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -31,6 +33,9 @@ import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 
 public class LogSoyData {
+  private static final ImmutableSet<Field> FIELDS = Sets.immutableEnumSet(Field.ABBREV_SHA,
+      Field.URL, Field.SHORT_MESSAGE, Field.AUTHOR, Field.BRANCHES, Field.TAGS);
+
   private final HttpServletRequest req;
   private final GitilesView view;
 
@@ -50,7 +55,7 @@ public class LogSoyData {
 
     List<Map<String, Object>> entries = Lists.newArrayListWithCapacity(paginator.getLimit());
     for (RevCommit c : paginator) {
-      entries.add(new CommitSoyData().toSoyData(req, c, FieldSet.SHORTLOG, df));
+      entries.add(new CommitSoyData().toSoyData(req, c, FIELDS, df));
     }
 
     data.put("entries", entries);

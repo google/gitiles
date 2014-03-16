@@ -21,9 +21,13 @@ import static org.eclipse.jgit.lib.Constants.OBJ_COMMIT;
 import static org.eclipse.jgit.lib.Constants.OBJ_TAG;
 import static org.eclipse.jgit.lib.Constants.OBJ_TREE;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.gitiles.CommitSoyData.FieldSet;
+import com.google.common.collect.Sets;
+import com.google.gitiles.CommitData.Field;
 
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
@@ -49,6 +53,9 @@ import javax.servlet.http.HttpServletResponse;
 
 /** Serves an HTML page with detailed information about a ref. */
 public class RevisionServlet extends BaseServlet {
+  private static final ImmutableSet<Field> COMMIT_FIELDS = Sets.immutableEnumSet(
+      Iterables.concat(CommitSoyData.DEFAULT_FIELDS, ImmutableList.of(Field.DIFF_TREE)));
+
   private static final long serialVersionUID = 1L;
   private static final Logger log = LoggerFactory.getLogger(RevisionServlet.class);
 
@@ -85,7 +92,7 @@ public class RevisionServlet extends BaseServlet {
                       .setLinkifier(linkifier)
                       .setRevWalk(walk)
                       .setArchiveFormat(getArchiveFormat(accessFactory.forRequest(req)))
-                      .toSoyData(req, (RevCommit) obj, FieldSet.DETAIL_DIFF_TREE, df)));
+                      .toSoyData(req, (RevCommit) obj, COMMIT_FIELDS, df)));
               break;
             case OBJ_TREE:
               soyObjects.add(ImmutableMap.of(
