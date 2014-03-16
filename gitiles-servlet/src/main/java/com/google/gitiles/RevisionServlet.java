@@ -21,13 +21,11 @@ import static org.eclipse.jgit.lib.Constants.OBJ_COMMIT;
 import static org.eclipse.jgit.lib.Constants.OBJ_TAG;
 import static org.eclipse.jgit.lib.Constants.OBJ_TREE;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.google.gitiles.CommitData.Field;
+import com.google.gitiles.CommitJsonData.Commit;
 
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
@@ -53,8 +51,10 @@ import javax.servlet.http.HttpServletResponse;
 
 /** Serves an HTML page with detailed information about a ref. */
 public class RevisionServlet extends BaseServlet {
-  private static final ImmutableSet<Field> COMMIT_FIELDS = Sets.immutableEnumSet(
-      Iterables.concat(CommitSoyData.DEFAULT_FIELDS, ImmutableList.of(Field.DIFF_TREE)));
+  private static final ImmutableSet<Field> COMMIT_SOY_FIELDS =
+      Field.setOf(CommitSoyData.DEFAULT_FIELDS, Field.DIFF_TREE);
+  private static final ImmutableSet<Field> COMMIT_JSON_FIELDS =
+      Field.setOf(CommitJsonData.DEFAULT_FIELDS, Field.DIFF_TREE);
 
   private static final long serialVersionUID = 1L;
   private static final Logger log = LoggerFactory.getLogger(RevisionServlet.class);
@@ -70,7 +70,7 @@ public class RevisionServlet extends BaseServlet {
   }
 
   @Override
-  protected void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException {
+  protected void doGetHtml(HttpServletRequest req, HttpServletResponse res) throws IOException {
     GitilesView view = ViewFilter.getView(req);
     Repository repo = ServletUtils.getRepository(req);
 
@@ -92,7 +92,7 @@ public class RevisionServlet extends BaseServlet {
                       .setLinkifier(linkifier)
                       .setRevWalk(walk)
                       .setArchiveFormat(getArchiveFormat(accessFactory.forRequest(req)))
-                      .toSoyData(req, (RevCommit) obj, COMMIT_FIELDS, df)));
+                      .toSoyData(req, (RevCommit) obj, COMMIT_SOY_FIELDS, df)));
               break;
             case OBJ_TREE:
               soyObjects.add(ImmutableMap.of(
@@ -130,6 +130,32 @@ public class RevisionServlet extends BaseServlet {
           "title", view.getRevision().getName(),
           "objects", soyObjects,
           "hasBlob", hasBlob));
+    } finally {
+      walk.release();
+    }
+  }
+
+  @Override
+  protected void doGetJson(HttpServletRequest req, HttpServletResponse res) throws IOException {
+    GitilesView view = ViewFilter.getView(req);
+    Repository repo = ServletUtils.getRepository(req);
+
+    RevWalk walk = new RevWalk(repo);
+    try {
+      GitDateFormatter df = new GitDateFormatter(Format.DEFAULT);
+      RevObject obj = walk.parseAny(view.getRevision().getId());
+      switch (obj.getType()) {
+        case OBJ_COMMIT:
+          renderJson(req, res, new CommitJsonData()
+                .setRevWalk(walk)
+                .toJsonData(req, (RevCommit) obj, COMMIT_JSON_FIELDS, df),
+              Commit.class);
+          break;
+        default:
+          // TODO(dborowitz): Support showing other types.
+          res.setStatus(SC_NOT_FOUND);
+          break;
+      }
     } finally {
       walk.release();
     }

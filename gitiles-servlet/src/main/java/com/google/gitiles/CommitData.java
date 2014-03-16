@@ -22,7 +22,9 @@ import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
+import com.google.common.collect.Sets;
 
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
@@ -70,6 +72,10 @@ class CommitData {
     TREE,
     TREE_URL,
     URL;
+
+    static ImmutableSet<Field> setOf(Iterable<Field> base, Field... fields) {
+      return Sets.immutableEnumSet(Iterables.concat(base, Arrays.asList(fields)));
+    }
   }
 
   static class DiffList {
