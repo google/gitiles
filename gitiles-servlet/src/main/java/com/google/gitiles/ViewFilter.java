@@ -23,7 +23,6 @@ import com.google.common.base.Strings;
 
 import org.eclipse.jgit.http.server.ServletUtils;
 import org.eclipse.jgit.http.server.glue.WrappedRequest;
-import org.eclipse.jgit.lib.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,8 +83,8 @@ public class ViewFilter extends AbstractHttpFilter {
   private final GitilesAccess.Factory accessFactory;
   private final VisibilityCache visibilityCache;
 
-  public ViewFilter(Config cfg, GitilesAccess.Factory accessFactory,
-      GitilesUrls urls, VisibilityCache visibilityCache) {
+  public ViewFilter(GitilesAccess.Factory accessFactory, GitilesUrls urls,
+      VisibilityCache visibilityCache) {
     this.urls = checkNotNull(urls, "urls");
     this.accessFactory = checkNotNull(accessFactory, "accessFactory");
     this.visibilityCache = checkNotNull(visibilityCache, "visibilityCache");
