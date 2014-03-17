@@ -210,6 +210,7 @@ public class PathServlet extends BaseServlet {
           try (OutputStream out = BaseEncoding.base64().encodingStream(startRenderText(req, res))) {
             rw.getObjectReader().open(tw.getObjectId(0)).copyTo(out);
           }
+          break;
         default:
           renderTextError(req, res, SC_NOT_FOUND, "Not a file");
           break;
