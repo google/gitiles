@@ -57,8 +57,8 @@ public class TestGitilesServlet {
     final String repoName =
         repo.getRepository().getDescription().getRepositoryName();
     GitilesServlet servlet =
-        new GitilesServlet(new Config(), new DebugRenderer(
-            GitilesServlet.STATIC_PREFIX, null, null, repoName + " test site"),
+        new GitilesServlet(new Config(), new DebugRenderer(GitilesServlet.STATIC_PREFIX,
+              ImmutableList.<String> of(), null, repoName + " test site"),
             TestGitilesUrls.URLS, new TestGitilesAccess(repo.getRepository()),
             new RepositoryResolver<HttpServletRequest>() {
               @Override

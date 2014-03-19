@@ -15,6 +15,7 @@
 package com.google.gitiles;
 
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
 import com.google.template.soy.SoyFileSet;
@@ -28,7 +29,7 @@ public class DefaultRenderer extends Renderer {
   private final SoyTofu tofu;
 
   DefaultRenderer() {
-    this("", null, "");
+    this("", ImmutableList.<URL> of(), "");
   }
 
   public DefaultRenderer(String staticPrefix, Iterable<URL> customTemplates, String siteTitle) {
