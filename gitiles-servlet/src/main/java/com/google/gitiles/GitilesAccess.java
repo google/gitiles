@@ -52,8 +52,8 @@ public interface GitilesAccess {
 
   /**
    * @return an opaque object that uniquely identifies the end-user making the
-   *     request, and supports {@link #equals(Object)} and {@link #hashCode()}.
-   *     Never null.
+   *     request, and supports {@link Object#equals(Object)} and
+   *     {@link Object#hashCode()}. Never null.
    */
   public Object getUserKey();
 
