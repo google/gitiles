@@ -3,6 +3,7 @@ include_defs('//bucklets/maven_package.bucklet')
 TYPE = 'snapshot' if GITILES_VERSION.endswith('-SNAPSHOT') else 'release'
 
 DEPS = [
+  '//gitiles-dev:dev',
   '//gitiles-servlet:servlet',
   '//gitiles-servlet:src',
   '//gitiles-servlet:javadoc',
@@ -14,7 +15,7 @@ java_library(
   deps = [
     '//gitiles-servlet:servlet',
     '//gitiles-servlet:servlet_tests',
-    '//gitiles-dev:dev',
+    '//gitiles-dev:lib',
   ]
 )
 

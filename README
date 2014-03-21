@@ -8,30 +8,38 @@ access, no fancy Javascript, etc.
 
 BUILDING
 
-Gitiles requires Maven (http://maven.apache.org/) to build.
+Gitiles requires Buck (http://facebook.github.io/buck/) to build.
 
-sudo apt-get install maven
-cd gitiles
-mvn compile
+  sudo apt-get install ant
+  cd ${HOME}
+  git clone https://github.com/facebook/buck.git
+  cd buck
+  ant
+  sudo ln -s ${PWD}/bin/buck /usr/bin/buck
+  cd /path/to/gitiles
+  buck build all
 
 
 TESTING
 
-cd gitiles
-mvn package
-./tools/run_dev.sh
-open http://localhost:8080/ to view your local copy of gitiles.
+  cd /path/to/repositories
+  /path/to/gitiles/tools/run_dev.sh
+
+This will recompile and start a development server.
+Open http://localhost:8080/ to view your local copy of gitiles.
 
 
 ECLIPSE
 
-If you'd like to use Eclipse to edit Gitiles, you will need the m2e
-Eclipse plugin: http://eclipse.org/m2e/
+If you'd like to use Eclipse to edit Gitiles, first generate a project file:
+  ./bucklets/tools/eclipse.py && ./bucklets/tools/eclipse.py --src
 
-File -> Import -> Maven -> Existing Maven Project
+Import the project in Eclipse:
+  File -> Import -> Existing Projects into Workpace
 
-Make sure that all 4 projects are imported:
-gitiles-parent, gitiles-dev, gitiles-servlet, gitiles-war
+The project only needs to be rebuilt if the source roots or third-party
+libraries have changed. For best results, ensure the project is closed in
+Eclipse before rebuilding.
 
 
 CODE REVIEW
