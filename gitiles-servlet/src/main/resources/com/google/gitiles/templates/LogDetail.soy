@@ -96,8 +96,8 @@
   &nbsp;
   {sp}<span class="commit-message">{$shortMessage}</span>
 </a>
-{sp}<span class="author">{msg desc="commit author name"}by {$author.name}{/msg}</span>
-{sp}<span class="time">- {$author.relativeTime}</span>
+{sp}<span class="author" title="{$author.email}">{msg desc="commit author name"}by {$author.name}{/msg}</span>
+{sp}<span class="time" title="{$author.time}">- {$author.relativeTime}</span>
 {if length($branches)}
   {foreach $branch in $branches}
     {sp}<a href="{$branch.url}" class="branch-label">{$branch.name}</a>
