@@ -17,6 +17,7 @@ package com.google.gitiles;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -95,8 +96,11 @@ public class BlameServlet extends BaseServlet {
   private static ObjectId resolveBlob(GitilesView view, RevWalk rw, RevCommit commit)
       throws IOException {
     try {
+      if (Strings.isNullOrEmpty(view.getPathPart())) {
+        return null;
+      }
       TreeWalk tw = TreeWalk.forPath(rw.getObjectReader(), view.getPathPart(), commit.getTree());
-      if ((tw.getRawMode(0) & FileMode.TYPE_FILE) == 0) {
+      if (tw == null || (tw.getRawMode(0) & FileMode.TYPE_FILE) == 0) {
         return null;
       }
       return tw.getObjectId(0);

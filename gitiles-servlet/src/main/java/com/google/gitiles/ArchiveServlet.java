@@ -18,6 +18,7 @@ import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Strings;
 
 import org.eclipse.jgit.api.ArchiveCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -81,11 +82,11 @@ public class ArchiveServlet extends BaseServlet {
     RevWalk rw = new RevWalk(repo);
     try {
       RevTree tree = rw.parseTree(rev.getId());
-      if (view.getPathPart() == null) {
+      if (Strings.isNullOrEmpty(view.getPathPart())) {
         return tree;
       }
       TreeWalk tw = TreeWalk.forPath(rw.getObjectReader(), view.getPathPart(), tree);
-      if (tw.getFileMode(0) != FileMode.TREE) {
+      if (tw == null || tw.getFileMode(0) != FileMode.TREE) {
         return ObjectId.zeroId();
       }
       return tw.getObjectId(0);
