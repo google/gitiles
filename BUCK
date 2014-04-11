@@ -19,8 +19,8 @@ java_library(
 )
 
 maven_package(
-  repository = 'gerrit-api-repository',
-  url = 'gs://gerrit-api/release',
+  repository = 'gerrit-maven-repository',
+  url = 'gs://gerrit-maven',
   version = GITILES_VERSION,
   jar = {'gitiles-servlet': '//gitiles-servlet:servlet'},
   src = {'gitiles-servlet': '//gitiles-servlet:src'},
