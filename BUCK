@@ -1,6 +1,5 @@
 include_defs('//VERSION')
 include_defs('//bucklets/maven_package.bucklet')
-TYPE = 'snapshot' if GITILES_VERSION.endswith('-SNAPSHOT') else 'release'
 
 DEPS = [
   '//gitiles-dev:dev',
@@ -21,7 +20,7 @@ java_library(
 
 maven_package(
   repository = 'gerrit-api-repository',
-  url = 'gs://gerrit-api/%s' % TYPE,
+  url = 'gs://gerrit-api/release',
   version = GITILES_VERSION,
   jar = {'gitiles-servlet': '//gitiles-servlet:servlet'},
   src = {'gitiles-servlet': '//gitiles-servlet:src'},
