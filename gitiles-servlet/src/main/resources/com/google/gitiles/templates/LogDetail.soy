@@ -46,6 +46,7 @@
  * List of log entries.
  *
  * @param? logEntryVariant variant name for log entry template.
+ * @param? logEntryPretty base "pretty" format for the log entry template.
  * @param entries list of log entries; see .logEntry.
  * @param? nextUrl URL for the next page of results.
  * @param? previousUrl URL for the previous page of results.
@@ -58,7 +59,7 @@
 {/if}
 
 {if length($entries)}
-  <ol class="shortlog">
+  <ol class="{$logEntryPretty ?: 'default'} log">
     {foreach $entry in $entries}
       <li{if $previousUrl and isFirst($entry)} class="first"{/if}>
         {delcall gitiles.logEntry variant="$logEntryVariant ?: 'default'"
@@ -79,23 +80,27 @@
 
 
 /**
- * Single shortlog entry.
+ * Single pretty log entry, similar to --pretty=oneline.
  *
  * @param abbrevSha abbreviated SHA-1.
+ * @param sha commit SHA-1.
  * @param url URL to commit detail page.
  * @param shortMessage short commit message.
- * @param author author information with at least "name", "time", and "relativeTime" keys.
- * @param committer committer information with at least "name", "time", and "relativeTime" keys.
+ * @param message list of commit message parts, where each part contains:
+ *     text: raw text of the part.
+ *     url: optional URL that should be linked to from the part.
+ * @param author author information with at least "name" and "relativeTime" keys.
+ * @param committer committer information with at least "time" and "relativeTime" keys.
  * @param branches list of branches for this entry, with "name" and "url" keys.
  * @param tags list of tags for this entry, with "name" and "url" keys.
  */
-{deltemplate gitiles.logEntry variant="'default'"}
+{deltemplate gitiles.logEntry variant="'oneline'"}
 <a href="{$url}">
   <span class="sha1">{$abbrevSha}</span>
   // nbsp instad of CSS padding/margin because those cause a break in the
   // underline.
   &nbsp;
-  {sp}<span class="commit-message">{$shortMessage}</span>
+  {sp}<span>{$shortMessage}</span>
 </a>
 {sp}<span class="author" title="{$author.email}">{msg desc="commit author name"}by {$author.name}{/msg}</span>
 {sp}<span class="time" title="{$author.time}">- {$author.relativeTime}</span>
@@ -109,4 +114,80 @@
     {sp}<a href="{$tag.url}" class="tag-label">{$tag.name}</a>
   {/foreach}
 {/if}
+{/deltemplate}
+
+
+/**
+ * Default single log entry (oneline format).
+ *
+ * @param abbrevSha abbreviated SHA-1.
+ * @param sha commit SHA-1.
+ * @param url URL to commit detail page.
+ * @param shortMessage short commit message.
+ * @param message list of commit message parts, where each part contains:
+ *     text: raw text of the part.
+ *     url: optional URL that should be linked to from the part.
+ * @param author author information with at least "name" and "relativeTime" keys.
+ * @param committer committer information with at least "time" and "relativeTime" keys.
+ * @param branches list of branches for this entry, with "name" and "url" keys.
+ * @param tags list of tags for this entry, with "name" and "url" keys.
+ */
+{deltemplate gitiles.logEntry variant="'default'"}
+{delcall gitiles.logEntry variant="'oneline'" data="all" /}
+{/deltemplate}
+
+
+/**
+ * Single pretty log entry, similar to --pretty=full.
+ *
+ * @param abbrevSha abbreviated SHA-1.
+ * @param sha commit SHA-1.
+ * @param url URL to commit detail page.
+ * @param shortMessage short commit message.
+ * @param message list of commit message parts, where each part contains:
+ *     text: raw text of the part.
+ *     url: optional URL that should be linked to from the part.
+ * @param author author information with at least "name" and "relativeTime" keys.
+ * @param committer committer information with at least "time" and "relativeTime" keys.
+ * @param branches list of branches for this entry, with "name" and "url" keys.
+ * @param tags list of tags for this entry, with "name" and "url" keys.
+ */
+{deltemplate gitiles.logEntry variant="'full'"}
+<div class="git-commit">
+<table>
+  <tr>
+    <th>{msg desc="Header for commit SHA entry"}commit{/msg}</th>
+    <td class="sha1">
+      <a href="{$url}">{$sha}</a>
+    </td>
+    <td>
+      {if length($branches)}
+        {foreach $branch in $branches}
+          {sp}<a href="{$branch.url}" class="branch-label">{$branch.name}</a>
+        {/foreach}
+      {/if}
+      {if length($tags)}
+        {foreach $tag in $tags}
+          {sp}<a href="{$tag.url}" class="tag-label">{$tag.name}</a>
+        {/foreach}
+      {else}
+        {sp}
+      {/if}
+    </td>
+  </tr>
+  <tr>
+    <th>{msg desc="Header for commit author"}author{/msg}</th>
+    <td>{call .person_ data="$author" /}</td>
+    <td>{$author.time}</td>
+  </tr>
+  <tr>
+    <th>{msg desc="Header for committer"}committer{/msg}</th>
+    <td>{call .person_ data="$committer" /}</td>
+    <td>{$committer.time}</td>
+  </tr>
+</table>
+</div>
+<pre class="commit-message">
+  {$message}
+</pre>
 {/deltemplate}

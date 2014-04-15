@@ -183,14 +183,18 @@ div.sha1 {
   text-align: right;
 }
 pre.commit-message, pre.tag-message {
-  border-bottom: #ddd solid 1px; /* BORDER */
   padding: 5px 2em; /* PADDING */
   color: #000;
   font-size: 9pt;
   margin: 0;
 }
 
+ol.log ul.diff-tree {
+  margin-left: 2em;
+  padding: 5px 0 5px 0;
+}
 ul.diff-tree {
+  border-top: #ddd solid 1px; /* BORDER */
   font-size: 9pt;
   list-style-type: none;
   margin: 0;
@@ -260,23 +264,29 @@ ol.files li.gitlink{
 
 /* Styles for the log detail page. */
 
-ol.shortlog {
+ol.log {
   list-style-type: none;
   margin: 0;
+  padding-left: 0;
+}
+ol.oneline.log, ol.default.log {
   padding: 5px 2em; /* PADDING */
 }
-ol.shortlog li {
+ol.log > li {
   border-bottom: #ddd solid 1px; /* BORDER */
   padding-top: 2px;
   padding-bottom: 2px;
 }
-ol.shortlog li.first {
+ol.full.log > li, ol.fuller.log > li {
+  padding-bottom: 5px;
+}
+ol.log > li.first {
   border-top: #ddd solid 1px; /* BORDER */
 }
-ol.shortlog li:hover {
+ol.log > li:hover {
   background: #eee; /* HOVER_BACKGROUND */
 }
-ol.shortlog .sha1 {
+ol.log span.sha1 {
   font-family: monospace;
 }
 .log-nav {
@@ -289,10 +299,11 @@ ol.shortlog .sha1 {
 .time {
   font-size: 9pt; /* SHORTLOG_SMALL_FONT_SIZE */
   font-style: italic;
+  margin-right: 3px;
 }
 .branch-label, .tag-label {
   font-size: 9pt; /* SHORTLOG_SMALL_FONT_SIZE */
-  margin-left: 3px;
+  margin-right: 3px;
 }
 a.branch-label {
   color: #dd4b39;

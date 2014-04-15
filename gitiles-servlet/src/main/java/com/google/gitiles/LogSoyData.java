@@ -27,20 +27,29 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 
 public class LogSoyData {
   private static final ImmutableSet<Field> FIELDS = Sets.immutableEnumSet(Field.ABBREV_SHA,
-      Field.URL, Field.SHORT_MESSAGE, Field.AUTHOR, Field.COMMITTER, Field.BRANCHES, Field.TAGS);
+      Field.SHA, Field.URL, Field.SHORT_MESSAGE, Field.MESSAGE, Field.AUTHOR, Field.COMMITTER,
+      Field.BRANCHES, Field.TAGS);
+  private static final ImmutableSet<Field> VERBOSE_FIELDS = Field.setOf(FIELDS, Field.DIFF_TREE);
 
   private final HttpServletRequest req;
   private final GitilesView view;
+  private final boolean verbose;
 
   public LogSoyData(HttpServletRequest req, GitilesView view) {
+    this(req, view, false);
+  }
+
+  public LogSoyData(HttpServletRequest req, GitilesView view, boolean verbose) {
     this.req = req;
     this.view = view;
+    this.verbose = verbose;
   }
 
   public Map<String, Object> toSoyData(RevWalk walk, int limit, @Nullable String revision,
@@ -54,7 +63,8 @@ public class LogSoyData {
 
     List<Map<String, Object>> entries = Lists.newArrayListWithCapacity(paginator.getLimit());
     for (RevCommit c : paginator) {
-      entries.add(new CommitSoyData().toSoyData(req, c, FIELDS, df));
+      Set<Field> fs = verbose ? VERBOSE_FIELDS : FIELDS;
+      entries.add(new CommitSoyData().setRevWalk(paginator.getWalk()).toSoyData(req, c, fs, df));
     }
 
     data.put("entries", entries);

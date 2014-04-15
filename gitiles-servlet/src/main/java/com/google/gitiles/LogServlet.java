@@ -18,6 +18,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
@@ -33,6 +34,7 @@ import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.errors.RevWalkException;
 import org.eclipse.jgit.http.server.ServletUtils;
 import org.eclipse.jgit.lib.AbbreviatedObjectId;
+import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
@@ -63,6 +65,7 @@ public class LogServlet extends BaseServlet {
 
   static final String LIMIT_PARAM = "n";
   static final String START_PARAM = "s";
+  private static final String PRETTY_PARAM = "pretty";
   private static final int DEFAULT_LIMIT = 100;
   private static final int MAX_LIMIT = 10000;
 
@@ -85,8 +88,16 @@ public class LogServlet extends BaseServlet {
 
     try {
       GitilesAccess access = getAccess(req);
+      Config config = access.getConfig();
       DateFormatter df = new DateFormatter(access, Format.DEFAULT);
-      Map<String, Object> data = new LogSoyData(req, view).toSoyData(paginator, null, df);
+
+      // Allow the user to select a logView variant with the "pretty" param.
+      String pretty = Iterables.getFirst(view.getParameters().get(PRETTY_PARAM), "default");
+      Map<String, Object> data = new LogSoyData(req, view,
+          config.getBoolean("logFormat", pretty, "verbose", false)).toSoyData(paginator, null, df);
+      String variant = config.getString("logFormat", pretty, "variant");
+      data.put("logEntryPretty", pretty);
+      data.put("logEntryVariant", Objects.firstNonNull(variant, pretty));
 
       if (!view.getRevision().nameIsId()) {
         List<Map<String, Object>> tags = Lists.newArrayListWithExpectedSize(1);
@@ -108,7 +119,6 @@ public class LogServlet extends BaseServlet {
       }
 
       data.put("title", title);
-      GitilesConfig.putVariant(access.getConfig(), "logEntry", "logEntryVariant", data);
 
       renderHtml(req, res, "gitiles.logDetail", data);
     } catch (RevWalkException e) {
