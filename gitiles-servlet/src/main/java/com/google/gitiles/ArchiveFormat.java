@@ -26,7 +26,7 @@ import org.eclipse.jgit.archive.TgzFormat;
 import org.eclipse.jgit.archive.TxzFormat;
 import org.eclipse.jgit.lib.Config;
 
-enum ArchiveFormat {
+public enum ArchiveFormat {
   TGZ("application/x-gzip", new TgzFormat()),
   TAR("application/x-tar", new TarFormat()),
   TBZ2("application/x-bzip2", new Tbz2Format()),
@@ -45,13 +45,20 @@ enum ArchiveFormat {
     BY_EXT = byExt.build();
   }
 
+  /** Unregister all JGit archive formats supported by Gitiles. */
+  public static void unregisterAll() {
+    for (ArchiveFormat fmt : values()) {
+      ArchiveCommand.unregisterFormat(fmt.getShortName());
+    }
+  }
+
   private final ArchiveCommand.Format<?> format;
   private final String mimeType;
 
   private ArchiveFormat(String mimeType, ArchiveCommand.Format<?> format) {
     this.format = format;
     this.mimeType = mimeType;
-    ArchiveCommand.registerFormat(name(), format);
+    ArchiveCommand.registerFormat(getShortName(), format);
   }
 
   String getShortName() {
