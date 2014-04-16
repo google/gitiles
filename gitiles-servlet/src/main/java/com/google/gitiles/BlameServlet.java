@@ -21,7 +21,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.gitiles.BlameCache.Region;
 
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.http.server.ServletUtils;
@@ -71,7 +70,7 @@ public class BlameServlet extends BaseServlet {
       String title = "Blame - " + view.getPathPart();
       Map<String, ?> blobData = new BlobSoyData(rw, view).toSoyData(view.getPathPart(), blobId);
       if (blobData.get("data") != null) {
-        List<Region> regions = cache.get(repo, commit, view.getPathPart());
+        List<BlameCache.Region> regions = cache.get(repo, commit, view.getPathPart());
         if (regions.isEmpty()) {
           res.setStatus(SC_NOT_FOUND);
           return;
@@ -110,7 +109,7 @@ public class BlameServlet extends BaseServlet {
   }
 
   private static List<Map<String, ?>> toSoyData(GitilesView view, ObjectReader reader,
-      List<Region> regions, GitDateFormatter df) throws IOException {
+      List<BlameCache.Region> regions, GitDateFormatter df) throws IOException {
     Map<ObjectId, String> abbrevShas = Maps.newHashMap();
     List<Map<String, ?>> result = Lists.newArrayListWithCapacity(regions.size());
     for (BlameCache.Region r : regions) {

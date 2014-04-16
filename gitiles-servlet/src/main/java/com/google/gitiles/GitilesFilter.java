@@ -401,9 +401,9 @@ class GitilesFilter extends MetaFilter {
   private void setDefaultBlameCache() {
     if (blameCache == null) {
       if (config.getSubsections("cache").contains("blame")) {
-        blameCache = new BlameCache(ConfigUtil.getCacheBuilder(config, "blame"));
+        blameCache = new BlameCacheImpl(ConfigUtil.getCacheBuilder(config, "blame"));
       } else {
-        blameCache = new BlameCache();
+        blameCache = new BlameCacheImpl();
       }
     }
   }
