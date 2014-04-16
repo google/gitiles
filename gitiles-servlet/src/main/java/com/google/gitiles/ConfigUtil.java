@@ -102,7 +102,19 @@ public class ConfigUtil {
    * @return a new cache builder.
    */
   public static CacheBuilder<Object, Object> getCacheBuilder(Config config, String name) {
-    CacheBuilder<Object, Object> b = CacheBuilder.newBuilder();
+    return getCacheBuilder(CacheBuilder.newBuilder(), config, name);
+  }
+
+  /**
+   * Populate an existing {@link CacheBuilder} from a config.
+   *
+   * @param b cache builder.
+   * @param config JGit config object.
+   * @param name name of the cache subsection under the "cache" section.
+   * @return input cache builder after modifications.
+   */
+  public static <K, V> CacheBuilder<K, V> getCacheBuilder(CacheBuilder<K, V> b, Config config,
+      String name) {
     try {
       if (config.getString("cache", name, "maximumWeight") != null) {
         b.maximumWeight(config.getLong("cache", name, "maximumWeight", 20 << 20));
