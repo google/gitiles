@@ -14,39 +14,40 @@
 
 package com.google.gitiles.blame;
 
-import com.google.common.base.Objects;
+import static com.google.common.base.Preconditions.checkArgument;
 
-import org.eclipse.jgit.blame.BlameResult;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
-import org.eclipse.jgit.revwalk.RevCommit;
+
+import java.io.Serializable;
 
 /** Region of the blame of a file. */
-public class Region {
+public class Region implements Serializable, Comparable<Region> {
+  private static final long serialVersionUID = 1L;
+
   private final String sourcePath;
   private final ObjectId sourceCommit;
   private final PersonIdent sourceAuthor;
-  private int count;
+  private final int count;
+  private transient int start;
 
-  public Region(BlameResult blame, int start) {
-    this.sourcePath = blame.getSourcePath(start);
-    RevCommit c = blame.getSourceCommit(start);
-    if (c != null) {
-      this.sourceCommit = c.copy();
-      this.sourceAuthor = c.getAuthorIdent();
-    } else {
-      // Unknown source commit due to JGit bug.
-      this.sourceCommit = null;
-      this.sourceAuthor = null;
-    }
-    this.count = 1;
+  public Region(String path, ObjectId commit, PersonIdent author, int start, int end) {
+    checkArgument((path != null && commit != null && author != null)
+        || (path == null && commit == null && author == null),
+        "expected all null or none: %s, %s, %s", path, commit, author);
+    this.sourcePath = path;
+    this.sourceCommit = commit;
+    this.sourceAuthor = author;
+    this.start = start;
+    this.count = end - start;
   }
 
-  public Region(String sourcePath, ObjectId sourceCommit, PersonIdent sourceAuthor, int count) {
-    this.sourcePath = sourcePath;
-    this.sourceCommit = sourceCommit;
-    this.sourceAuthor = sourceAuthor;
-    this.count = count;
+  int getStart() {
+    return start;
+  }
+
+  int getEnd() {
+    return start + count;
   }
 
   public int getCount() {
@@ -65,15 +66,25 @@ public class Region {
     return sourceAuthor;
   }
 
-  public boolean growFrom(BlameResult blame, int i) {
-    // Don't compare line numbers, so we collapse regions from the same source
-    // but with deleted lines into one.
-    if (Objects.equal(blame.getSourcePath(i), sourcePath)
-        && Objects.equal(blame.getSourceCommit(i), sourceCommit)) {
-      count++;
-      return true;
+  @Override
+  public int compareTo(Region o) {
+    return start - o.start;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    if (sourceCommit != null) {
+      sb.append(sourceCommit.name().substring(0, 7))
+          .append(' ')
+          .append(sourceAuthor.toExternalString())
+          .append(" (").append(sourcePath).append(')');
     } else {
-      return false;
+      sb.append("<unblamed region>");
     }
+    sb.append(' ')
+        .append("start=").append(start)
+        .append(", count=").append(count);
+    return sb.toString();
   }
 }

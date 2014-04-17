@@ -14,22 +14,28 @@
 
 package com.google.gitiles.blame;
 
+import static com.google.common.base.Preconditions.checkState;
+
 import com.google.common.base.Objects;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.cache.Weigher;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Interner;
+import com.google.common.collect.Interners;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import org.eclipse.jgit.blame.BlameGenerator;
-import org.eclipse.jgit.blame.BlameResult;
 import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 /** Guava implementation of BlameCache, weighted by number of blame regions. */
@@ -112,31 +118,77 @@ public class BlameCacheImpl implements BlameCache {
     }
   }
 
-  private List<Region> loadBlame(Key key) throws IOException {
+  public static List<Region> loadBlame(Key key) throws IOException {
     try {
       BlameGenerator gen = new BlameGenerator(key.repo, key.path);
-      BlameResult blame;
       try {
         gen.push(null, key.commitId);
-        blame = gen.computeBlameResult();
+        return loadRegions(gen);
       } finally {
         gen.release();
       }
-      if (blame == null) {
-        return ImmutableList.of();
-      }
-      int lineCount = blame.getResultContents().size();
-      blame.discardResultContents();
-
-      List<Region> regions = Lists.newArrayList();
-      for (int i = 0; i < lineCount; i++) {
-        if (regions.isEmpty() || !regions.get(regions.size() - 1).growFrom(blame, i)) {
-          regions.add(new Region(blame, i));
-        }
-      }
-      return Collections.unmodifiableList(regions);
     } finally {
       key.repo = null;
     }
+  }
+
+  private static class PooledCommit {
+    final ObjectId commit;
+    final PersonIdent author;
+
+    private PooledCommit(ObjectId commit, PersonIdent author) {
+      this.commit = commit;
+      this.author = author;
+    }
+  }
+
+  private static List<Region> loadRegions(BlameGenerator gen) throws IOException {
+    Map<ObjectId, PooledCommit> commits = Maps.newHashMap();
+    Interner<String> strings = Interners.newStrongInterner();
+    int lineCount = gen.getResultContents().size();
+
+    List<Region> regions = Lists.newArrayList();
+    while (gen.next()) {
+      String path = gen.getSourcePath();
+      PersonIdent author = gen.getSourceAuthor();
+      ObjectId commit = gen.getSourceCommit();
+      checkState(path != null && author != null && commit != null);
+
+      PooledCommit pc = commits.get(commit);
+      if (pc == null) {
+        pc = new PooledCommit(commit.copy(),
+            new PersonIdent(
+              strings.intern(author.getName()),
+              strings.intern(author.getEmailAddress()),
+              author.getWhen(),
+              author.getTimeZone()));
+        commits.put(pc.commit, pc);
+      }
+      path = strings.intern(path);
+      commit = pc.commit;
+      author = pc.author;
+      regions.add(new Region(path, commit, author, gen.getResultStart(), gen.getResultEnd()));
+    }
+    Collections.sort(regions);
+
+    // Fill in any gaps left by bugs in JGit, since rendering code assumes the
+    // full set of contiguous regions.
+    List<Region> result = Lists.newArrayListWithExpectedSize(regions.size());
+    Region last = null;
+    for (Region r : regions) {
+      if (last != null) {
+        checkState(last.getEnd() <= r.getStart());
+        if (last.getEnd() < r.getStart()) {
+          result.add(new Region(null, null, null, last.getEnd(), r.getStart()));
+        }
+      }
+      result.add(r);
+      last = r;
+    }
+    if (last != null && last.getEnd() != lineCount) {
+      result.add(new Region(null, null, null, last.getEnd(), lineCount));
+    }
+
+    return ImmutableList.copyOf(result);
   }
 }
