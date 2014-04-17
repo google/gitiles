@@ -35,9 +35,9 @@ import java.util.concurrent.ExecutionException;
 /** Guava implementation of BlameCache, weighted by number of blame regions. */
 public class BlameCacheImpl implements BlameCache {
   public static CacheBuilder<Key, List<Region>> newBuilder() {
-    return CacheBuilder.newBuilder().weigher(new Weigher<Key, List<BlameCache.Region>>() {
+    return CacheBuilder.newBuilder().weigher(new Weigher<Key, List<Region>>() {
       @Override
-      public int weigh(Key key, List<BlameCache.Region> value) {
+      public int weigh(Key key, List<Region> value) {
         return value.size();
       }
     }).maximumWeight(10 << 10);
@@ -89,16 +89,16 @@ public class BlameCacheImpl implements BlameCache {
   }
 
   public BlameCacheImpl(CacheBuilder<Key, List<Region>> builder) {
-    this.cache = builder.build(new CacheLoader<Key, List<BlameCache.Region>>() {
+    this.cache = builder.build(new CacheLoader<Key, List<Region>>() {
       @Override
-      public List<BlameCache.Region> load(Key key) throws IOException {
+      public List<Region> load(Key key) throws IOException {
         return loadBlame(key);
       }
     });
   }
 
   @Override
-  public List<BlameCache.Region> get(Repository repo, ObjectId commitId, String path)
+  public List<Region> get(Repository repo, ObjectId commitId, String path)
       throws IOException {
     try {
       return cache.get(new Key(repo, commitId, path));
@@ -107,7 +107,7 @@ public class BlameCacheImpl implements BlameCache {
     }
   }
 
-  private List<BlameCache.Region> loadBlame(Key key) throws IOException {
+  private List<Region> loadBlame(Key key) throws IOException {
     try {
       BlameGenerator gen = new BlameGenerator(key.repo, key.path);
       BlameResult blame;
@@ -123,10 +123,10 @@ public class BlameCacheImpl implements BlameCache {
       int lineCount = blame.getResultContents().size();
       blame.discardResultContents();
 
-      List<BlameCache.Region> regions = Lists.newArrayList();
+      List<Region> regions = Lists.newArrayList();
       for (int i = 0; i < lineCount; i++) {
         if (regions.isEmpty() || !regions.get(regions.size() - 1).growFrom(blame, i)) {
-          regions.add(new BlameCache.Region(blame, i));
+          regions.add(new Region(blame, i));
         }
       }
       return Collections.unmodifiableList(regions);

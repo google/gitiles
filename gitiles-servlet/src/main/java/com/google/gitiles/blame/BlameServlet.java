@@ -77,7 +77,7 @@ public class BlameServlet extends BaseServlet {
       String title = "Blame - " + view.getPathPart();
       Map<String, ?> blobData = new BlobSoyData(rw, view).toSoyData(view.getPathPart(), blobId);
       if (blobData.get("data") != null) {
-        List<BlameCache.Region> regions = cache.get(repo, commit, view.getPathPart());
+        List<Region> regions = cache.get(repo, commit, view.getPathPart());
         if (regions.isEmpty()) {
           res.setStatus(SC_NOT_FOUND);
           return;
@@ -116,10 +116,10 @@ public class BlameServlet extends BaseServlet {
   }
 
   private static List<Map<String, ?>> toSoyData(GitilesView view, ObjectReader reader,
-      List<BlameCache.Region> regions, GitDateFormatter df) throws IOException {
+      List<Region> regions, GitDateFormatter df) throws IOException {
     Map<ObjectId, String> abbrevShas = Maps.newHashMap();
     List<Map<String, ?>> result = Lists.newArrayListWithCapacity(regions.size());
-    for (BlameCache.Region r : regions) {
+    for (Region r : regions) {
       if (r.getSourceCommit() == null) {
         // JGit bug may fail to blame some regions. We should fix this
         // upstream, but handle it for now.
