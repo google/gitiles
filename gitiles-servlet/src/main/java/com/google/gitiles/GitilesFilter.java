@@ -27,6 +27,9 @@ import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
 import com.google.gitiles.Renderer.FileUrlMapper;
+import com.google.gitiles.blame.BlameCache;
+import com.google.gitiles.blame.BlameCacheImpl;
+import com.google.gitiles.blame.BlameServlet;
 
 import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;

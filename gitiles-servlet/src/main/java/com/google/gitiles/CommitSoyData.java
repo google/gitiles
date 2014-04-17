@@ -47,7 +47,7 @@ import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 
 /** Soy data converter for git commits. */
-class CommitSoyData {
+public class CommitSoyData {
   static final ImmutableSet<Field> DEFAULT_FIELDS = Sets.immutableEnumSet(Field.AUTHOR,
       Field.COMMITTER, Field.SHA, Field.TREE, Field.TREE_URL, Field.PARENTS, Field.MESSAGE,
       Field.LOG_URL, Field.ARCHIVE_URL, Field.ARCHIVE_TYPE);
@@ -142,7 +142,7 @@ class CommitSoyData {
   }
 
   // TODO(dborowitz): Extract this.
-  static Map<String, String> toSoyData(PersonIdent ident, GitDateFormatter df) {
+  public static Map<String, String> toSoyData(PersonIdent ident, GitDateFormatter df) {
     return ImmutableMap.of(
         "name", ident.getName(),
         "email", ident.getEmailAddress(),

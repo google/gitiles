@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.gitiles;
+package com.google.gitiles.blame;
 
 import com.google.common.base.Objects;
 import com.google.common.cache.CacheBuilder;

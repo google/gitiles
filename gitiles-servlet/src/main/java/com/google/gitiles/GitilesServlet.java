@@ -14,6 +14,8 @@
 
 package com.google.gitiles;
 
+import com.google.gitiles.blame.BlameCache;
+
 import org.eclipse.jgit.http.server.glue.MetaServlet;
 import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.transport.resolver.RepositoryResolver;

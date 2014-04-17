@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.gitiles;
+package com.google.gitiles.blame;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
@@ -21,6 +21,13 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.gitiles.BaseServlet;
+import com.google.gitiles.BlobSoyData;
+import com.google.gitiles.CommitSoyData;
+import com.google.gitiles.GitilesAccess;
+import com.google.gitiles.GitilesView;
+import com.google.gitiles.Renderer;
+import com.google.gitiles.ViewFilter;
 
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.http.server.ServletUtils;
