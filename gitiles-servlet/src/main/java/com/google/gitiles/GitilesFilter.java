@@ -306,7 +306,7 @@ class GitilesFilter extends MetaFilter {
     setDefaultRenderer(filterConfig);
     setDefaultUrls();
     setDefaultAccess();
-    setDefaultVisbilityCache();
+    setDefaultVisibilityCache();
     setDefaultTimeCache();
     setDefaultBlameCache();
     setDefaultGitwebRedirect();
@@ -380,7 +380,7 @@ class GitilesFilter extends MetaFilter {
     }
   }
 
-  private void setDefaultVisbilityCache() {
+  private void setDefaultVisibilityCache() {
     if (visibilityCache == null) {
       if (config.getSubsections("cache").contains("visibility")) {
         visibilityCache = new VisibilityCache(
