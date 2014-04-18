@@ -132,9 +132,10 @@ public class BlameServlet extends BaseServlet {
         }
         result.add(ImmutableMap.of(
             "abbrevSha", abbrevSha,
-            "url", GitilesView.blame().copyFrom(view)
+            "url", GitilesView.diff().copyFrom(view)
                 .setRevision(r.getSourceCommit().name())
                 .setPathPart(r.getSourcePath())
+                .setAnchor("F0")
                 .toUrl(),
             "author", CommitSoyData.toSoyData(r.getSourceAuthor(), df),
             "count", r.getCount()));
