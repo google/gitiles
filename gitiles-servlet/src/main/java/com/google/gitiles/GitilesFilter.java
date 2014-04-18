@@ -383,8 +383,8 @@ class GitilesFilter extends MetaFilter {
   private void setDefaultVisibilityCache() {
     if (visibilityCache == null) {
       if (config.getSubsections("cache").contains("visibility")) {
-        visibilityCache = new VisibilityCache(
-            false, ConfigUtil.getCacheBuilder(VisibilityCache.newBuilder(), config, "visibility"));
+        visibilityCache =
+            new VisibilityCache(false, ConfigUtil.getCacheBuilder(config, "visibility"));
       } else {
         visibilityCache = new VisibilityCache(false);
       }
@@ -394,8 +394,7 @@ class GitilesFilter extends MetaFilter {
   private void setDefaultTimeCache() {
     if (timeCache == null) {
       if (config.getSubsections("cache").contains("tagTime")) {
-        timeCache = new TimeCache(
-            ConfigUtil.getCacheBuilder(TimeCache.newBuilder(), config, "tagTime"));
+        timeCache = new TimeCache(ConfigUtil.getCacheBuilder(config, "tagTime"));
       } else {
         timeCache = new TimeCache();
       }
@@ -405,8 +404,7 @@ class GitilesFilter extends MetaFilter {
   private void setDefaultBlameCache() {
     if (blameCache == null) {
       if (config.getSubsections("cache").contains("blame")) {
-        blameCache = new BlameCacheImpl(
-            ConfigUtil.getCacheBuilder(BlameCacheImpl.newBuilder(), config, "blame"));
+        blameCache = new BlameCacheImpl(ConfigUtil.getCacheBuilder(config, "blame"));
       } else {
         blameCache = new BlameCacheImpl();
       }

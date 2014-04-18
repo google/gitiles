@@ -88,7 +88,7 @@ public class BlameCacheImpl implements BlameCache {
     return cache;
   }
 
-  public BlameCacheImpl(CacheBuilder<Key, List<Region>> builder) {
+  public BlameCacheImpl(CacheBuilder<? super Key, ? super List<Region>> builder) {
     this.cache = builder.build(new CacheLoader<Key, List<Region>>() {
       @Override
       public List<Region> load(Key key) throws IOException {
