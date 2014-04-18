@@ -70,7 +70,13 @@
         </pre>
       </td>
       <td>
-        {call .blobBox data="$data" /}
+        {call .blobBox}
+          {param data: $data.data /}
+          {param size: $data.size /}
+          // No pretty printing; line spacing is different with/without, and
+          // JS rendering is a performance pain point.
+          {param lang: null /}
+        {/call}
       </td>
     </tr>
   </table>
