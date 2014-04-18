@@ -34,13 +34,18 @@ import java.util.concurrent.ExecutionException;
 
 /** Guava implementation of BlameCache, weighted by number of blame regions. */
 public class BlameCacheImpl implements BlameCache {
-  public static CacheBuilder<Key, List<Region>> newBuilder() {
-    return CacheBuilder.newBuilder().weigher(new Weigher<Key, List<Region>>() {
+  public static CacheBuilder<Key, List<Region>> defaultBuilder() {
+    return weigher(CacheBuilder.newBuilder()).maximumWeight(10 << 10);
+  }
+
+  public static CacheBuilder<Key, List<Region>> weigher(
+      CacheBuilder<? super Key, ? super List<Region>> builder) {
+    return builder.weigher(new Weigher<Key, List<Region>>() {
       @Override
       public int weigh(Key key, List<Region> value) {
         return value.size();
       }
-    }).maximumWeight(10 << 10);
+    });
   }
 
   public static class Key {
@@ -81,7 +86,7 @@ public class BlameCacheImpl implements BlameCache {
   private final LoadingCache<Key, List<Region>> cache;
 
   public BlameCacheImpl() {
-    this(newBuilder());
+    this(defaultBuilder());
   }
 
   public LoadingCache<Key, List<Region>> getCache() {

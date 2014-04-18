@@ -90,14 +90,14 @@ public class VisibilityCache {
   private final Cache<Key, Boolean> cache;
   private final boolean topoSort;
 
-  public static CacheBuilder<Object, Object> newBuilder() {
+  public static CacheBuilder<Object, Object> defaultBuilder() {
     return CacheBuilder.newBuilder()
         .maximumSize(1 << 10)
         .expireAfterWrite(30, TimeUnit.MINUTES);
   }
 
   public VisibilityCache(boolean topoSort) {
-    this(topoSort, newBuilder());
+    this(topoSort, defaultBuilder());
   }
 
   public VisibilityCache(boolean topoSort, CacheBuilder<Object, Object> builder) {

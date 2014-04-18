@@ -38,14 +38,14 @@ import java.util.concurrent.ExecutionException;
  * rather than searching for occurrences in the entire repository.
  */
 public class TimeCache {
-  public static CacheBuilder<Object, Object> newBuilder() {
+  public static CacheBuilder<Object, Object> defaultBuilder() {
     return CacheBuilder.newBuilder().maximumSize(10 << 10);
   }
 
   private final Cache<ObjectId, Long> cache;
 
   public TimeCache() {
-    this(newBuilder());
+    this(defaultBuilder());
   }
 
   public TimeCache(CacheBuilder<Object, Object> builder) {
