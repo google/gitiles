@@ -48,7 +48,7 @@ public enum ArchiveFormat {
   /** Unregister all JGit archive formats supported by Gitiles. */
   public static void unregisterAll() {
     for (ArchiveFormat fmt : values()) {
-      ArchiveCommand.unregisterFormat(fmt.getShortName());
+      ArchiveCommand.unregisterFormat(fmt.getRegisteredName());
     }
   }
 
@@ -58,7 +58,11 @@ public enum ArchiveFormat {
   private ArchiveFormat(String mimeType, ArchiveCommand.Format<?> format) {
     this.format = format;
     this.mimeType = mimeType;
-    ArchiveCommand.registerFormat(getShortName(), format);
+    ArchiveCommand.registerFormat(getRegisteredName(), format);
+  }
+
+  String getRegisteredName() {
+    return getShortName();
   }
 
   String getShortName() {

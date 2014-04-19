@@ -69,7 +69,7 @@ public class ArchiveServlet extends BaseServlet {
 
     try {
       new ArchiveCommand(repo)
-          .setFormat(format.get().name())
+          .setFormat(format.get().getRegisteredName())
           .setTree(treeId)
           .setOutputStream(res.getOutputStream())
           .call();
