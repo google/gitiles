@@ -20,6 +20,7 @@ import static com.google.gitiles.GitilesFilter.REPO_REGEX;
 import static com.google.gitiles.GitilesFilter.ROOT_REGEX;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.net.HttpHeaders;
 import com.google.common.util.concurrent.Atomics;
 import com.google.gitiles.GitilesView.Type;
 
@@ -440,8 +441,43 @@ public class ViewFilterTest extends TestCase {
     assertEquals("foo/bar", view.getPathPart());
   }
 
+  public void testNormalizeParents() throws Exception {
+    RevCommit parent = repo.commit().create();
+    RevCommit master = repo.branch("refs/heads/master").commit().parent(parent).create();
+    GitilesView view;
+
+    assertEquals("/b/repo/+/master", getView("/repo/+/master").toUrl());
+    assertEquals("/b/repo/+/" + master.name(), getView("/repo/+/" + master.name()).toUrl());
+    assertEquals("/b/repo/+/" + parent.name(), getRedirectUrl("/repo/+/master~"));
+    assertEquals("/b/repo/+/" + parent.name(), getRedirectUrl("/repo/+/master^"));
+
+    view = getView("/repo/+log/master~..master/");
+    assertEquals("master", view.getRevision().getName());
+    assertEquals("master~", view.getOldRevision().getName());
+
+    view = getView("/repo/+log/master^!/");
+    assertEquals("master", view.getRevision().getName());
+    assertEquals("master^", view.getOldRevision().getName());
+  }
+
+  private String getRedirectUrl(String pathAndQuery) throws ServletException, IOException {
+    FakeHttpServletResponse res = new FakeHttpServletResponse();
+    service(pathAndQuery, Atomics.<GitilesView> newReference(), res);
+    assertEquals(302, res.getStatus());
+    return res.getHeader(HttpHeaders.LOCATION);
+  }
+
   private GitilesView getView(String pathAndQuery) throws ServletException, IOException {
-    final AtomicReference<GitilesView> view = Atomics.newReference();
+    AtomicReference<GitilesView> view = Atomics.newReference();
+    FakeHttpServletResponse res = new FakeHttpServletResponse();
+    service(pathAndQuery, view, res);
+    assertTrue("expected non-redirect status, got " + res.getStatus(),
+        res.getStatus() < 300 || res.getStatus() >= 400);
+    return view.get();
+  }
+
+  private void service(String pathAndQuery, final AtomicReference<GitilesView> view,
+      FakeHttpServletResponse res) throws ServletException, IOException {
     HttpServlet testServlet = new HttpServlet() {
       private static final long serialVersionUID = 1L;
       @Override
@@ -470,9 +506,7 @@ public class ViewFilterTest extends TestCase {
     } else {
       req.setPathInfo(pathAndQuery);
     }
-    dummyServlet(mf).service(req, new FakeHttpServletResponse());
-
-    return view.get();
+    dummyServlet(mf).service(req, res);
   }
 
   private MetaServlet dummyServlet(MetaFilter mf) {

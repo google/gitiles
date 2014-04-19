@@ -196,7 +196,8 @@ public class GitilesView {
         case LOG:
           break;
         default:
-          checkState(revision == null, "cannot set old revision on %s view", type);
+          revision = Objects.firstNonNull(revision, Revision.NULL);
+          checkState(revision == Revision.NULL, "cannot set old revision on %s view", type);
           break;
       }
       this.oldRevision = revision;
@@ -212,7 +213,7 @@ public class GitilesView {
     }
 
     public Revision getOldRevision() {
-      return revision;
+      return oldRevision;
     }
 
     public Builder setPathPart(String path) {

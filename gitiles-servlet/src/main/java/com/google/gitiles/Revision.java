@@ -43,6 +43,14 @@ public class Revision {
   /** Common default branch given to clients. */
   public static final Revision HEAD = named("HEAD");
 
+  public static Revision normalizeParentExpressions(Revision rev) {
+    if (rev == null
+        || (rev.name.indexOf("~") < 0 && rev.name.indexOf("^") < 0)) {
+      return rev;
+    }
+    return new Revision(rev.id.name(), rev.id, rev.type, rev.peeledId, rev.peeledType);
+  }
+
   private final String name;
   private final ObjectId id;
   private final int type;
