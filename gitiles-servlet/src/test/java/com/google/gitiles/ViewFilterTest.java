@@ -18,13 +18,14 @@ import static com.google.gitiles.FakeHttpServletRequest.newRequest;
 import static com.google.gitiles.GitilesFilter.REPO_PATH_REGEX;
 import static com.google.gitiles.GitilesFilter.REPO_REGEX;
 import static com.google.gitiles.GitilesFilter.ROOT_REGEX;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.net.HttpHeaders;
 import com.google.common.util.concurrent.Atomics;
 import com.google.gitiles.GitilesView.Type;
-
-import junit.framework.TestCase;
 
 import org.eclipse.jgit.http.server.glue.MetaFilter;
 import org.eclipse.jgit.http.server.glue.MetaServlet;
@@ -33,6 +34,8 @@ import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
 import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
 import org.eclipse.jgit.junit.TestRepository;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
@@ -44,23 +47,25 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /** Tests for the view filter. */
-public class ViewFilterTest extends TestCase {
+public class ViewFilterTest {
   private TestRepository<DfsRepository> repo;
 
-  @Override
-  protected void setUp() throws Exception {
+  @Before
+  public void setUp() throws Exception {
     repo = new TestRepository<DfsRepository>(
         new InMemoryRepository(new DfsRepositoryDescription("test")));
   }
 
-  public void testNoCommand() throws Exception {
+  @Test
+  public void noCommand() throws Exception {
     assertEquals(Type.HOST_INDEX, getView("/").getType());
     assertEquals(Type.REPOSITORY_INDEX, getView("/repo").getType());
     assertNull(getView("/repo/+"));
     assertNull(getView("/repo/+/"));
   }
 
-  public void testAutoCommand() throws Exception {
+  @Test
+  public void autoCommand() throws Exception {
     RevCommit parent = repo.commit().create();
     RevCommit master = repo.branch("refs/heads/master").commit().parent(parent).create();
     String hex = master.name();
@@ -78,7 +83,8 @@ public class ViewFilterTest extends TestCase {
     assertEquals(Type.DIFF, getView("/repo/+/" + parent.name() + ".." + hex + "/").getType());
   }
 
-  public void testHostIndex() throws Exception {
+  @Test
+  public void hostIndex() throws Exception {
     GitilesView view = getView("/");
     assertEquals(Type.HOST_INDEX, view.getType());
     assertEquals("test-host", view.getHostName());
@@ -88,7 +94,8 @@ public class ViewFilterTest extends TestCase {
     assertNull(view.getPathPart());
   }
 
-  public void testRepositoryIndex() throws Exception {
+  @Test
+  public void repositoryIndex() throws Exception {
     GitilesView view = getView("/repo");
     assertEquals(Type.REPOSITORY_INDEX, view.getType());
     assertEquals("repo", view.getRepositoryName());
@@ -97,7 +104,8 @@ public class ViewFilterTest extends TestCase {
     assertNull(view.getPathPart());
   }
 
-  public void testRefs() throws Exception {
+  @Test
+  public void refs() throws Exception {
     GitilesView view;
 
     view = getView("/repo/+refs");
@@ -136,7 +144,8 @@ public class ViewFilterTest extends TestCase {
     assertEquals("heads/master", view.getPathPart());
   }
 
-  public void testDescribe() throws Exception {
+  @Test
+  public void describe() throws Exception {
     GitilesView view;
 
     assertNull(getView("/repo/+describe"));
@@ -157,7 +166,8 @@ public class ViewFilterTest extends TestCase {
     assertEquals("refs/heads/master~3^~2", view.getPathPart());
   }
 
-  public void testShowBranches() throws Exception {
+  @Test
+  public void showBranches() throws Exception {
     RevCommit master = repo.branch("refs/heads/master").commit().create();
     RevCommit stable = repo.branch("refs/heads/stable").commit().create();
     GitilesView view;
@@ -189,7 +199,8 @@ public class ViewFilterTest extends TestCase {
     assertNull(getView("/repo/+show/stable..master"));
   }
 
-  public void testAmbiguousBranchAndTag() throws Exception {
+  @Test
+  public void ambiguousBranchAndTag() throws Exception {
     RevCommit branch = repo.branch("refs/heads/name").commit().create();
     RevCommit tag = repo.branch("refs/tags/name").commit().create();
     GitilesView view;
@@ -225,7 +236,8 @@ public class ViewFilterTest extends TestCase {
     assertNull(view.getPathPart());
   }
 
-  public void testPath() throws Exception {
+  @Test
+  public void path() throws Exception {
     RevCommit master = repo.branch("refs/heads/master").commit().create();
     repo.branch("refs/heads/stable").commit().create();
     GitilesView view;
@@ -253,7 +265,8 @@ public class ViewFilterTest extends TestCase {
     assertNull(getView("/repo/+show/stable..master/foo"));
   }
 
-  public void testMultipleSlashes() throws Exception {
+  @Test
+  public void multipleSlashes() throws Exception {
     repo.branch("refs/heads/master").commit().create();
     assertEquals(Type.HOST_INDEX, getView("//").getType());
     assertEquals(Type.REPOSITORY_INDEX, getView("//repo").getType());
@@ -264,7 +277,8 @@ public class ViewFilterTest extends TestCase {
     assertNull(getView("/repo/+//master/foo//bar"));
   }
 
-  public void testDiff() throws Exception {
+  @Test
+  public void diff() throws Exception {
     RevCommit parent = repo.commit().create();
     RevCommit master = repo.branch("refs/heads/master").commit().parent(parent).create();
     GitilesView view;
@@ -302,7 +316,8 @@ public class ViewFilterTest extends TestCase {
     assertEquals("", view.getPathPart());
   }
 
-  public void testDiffAgainstEmptyCommit() throws Exception {
+  @Test
+  public void diffAgainstEmptyCommit() throws Exception {
     RevCommit master = repo.branch("refs/heads/master").commit().create();
     GitilesView view = getView("/repo/+diff/master^!");
     assertEquals(Type.DIFF, view.getType());
@@ -312,7 +327,8 @@ public class ViewFilterTest extends TestCase {
     assertEquals("", view.getPathPart());
   }
 
-  public void testLog() throws Exception {
+  @Test
+  public void log() throws Exception {
     RevCommit parent = repo.commit().create();
     RevCommit master = repo.branch("refs/heads/master").commit().parent(parent).create();
     GitilesView view;
@@ -381,7 +397,8 @@ public class ViewFilterTest extends TestCase {
     assertEquals("", view.getPathPart());
   }
 
-  public void testArchive() throws Exception {
+  @Test
+  public void archive() throws Exception {
     RevCommit master = repo.branch("refs/heads/master").commit().create();
     repo.branch("refs/heads/branch").commit().create();
     GitilesView view;
@@ -422,7 +439,8 @@ public class ViewFilterTest extends TestCase {
     assertEquals("foo/bar", view.getPathPart());
   }
 
-  public void testBlame() throws Exception {
+  @Test
+  public void blame() throws Exception {
     RevCommit master = repo.branch("refs/heads/master").commit().create();
     repo.branch("refs/heads/branch").commit().create();
     GitilesView view;

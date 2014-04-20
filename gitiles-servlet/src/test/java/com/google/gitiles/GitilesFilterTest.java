@@ -17,14 +17,18 @@ package com.google.gitiles;
 import static com.google.gitiles.GitilesFilter.REPO_PATH_REGEX;
 import static com.google.gitiles.GitilesFilter.REPO_REGEX;
 import static com.google.gitiles.GitilesFilter.ROOT_REGEX;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import org.junit.Test;
 
 import java.util.regex.Matcher;
 
-import junit.framework.TestCase;
-
 /** Tests for the Gitiles filter. */
-public class GitilesFilterTest extends TestCase {
-  public void testRootUrls() throws Exception {
+public class GitilesFilterTest {
+  @Test
+  public void rootUrls() throws Exception {
     assertFalse(ROOT_REGEX.matcher("").matches());
     assertFalse(ROOT_REGEX.matcher("/foo").matches());
     assertFalse(ROOT_REGEX.matcher("/foo/").matches());
@@ -53,7 +57,8 @@ public class GitilesFilterTest extends TestCase {
     assertEquals("", m.group(4));
   }
 
-  public void testRepoUrls() throws Exception {
+  @Test
+  public void repoUrls() throws Exception {
     assertFalse(REPO_REGEX.matcher("").matches());
 
     // These match the regex but are served by the root regex binder, which is
@@ -100,7 +105,8 @@ public class GitilesFilterTest extends TestCase {
     assertEquals("", m.group(4));
   }
 
-  public void testRepoPathUrls() throws Exception {
+  @Test
+  public void repoPathUrls() throws Exception {
     assertFalse(REPO_PATH_REGEX.matcher("").matches());
     assertFalse(REPO_PATH_REGEX.matcher("/").matches());
     assertFalse(REPO_PATH_REGEX.matcher("//").matches());

@@ -14,9 +14,7 @@
 
 package com.google.gitiles;
 
-import java.io.IOException;
-
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
 
 import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
@@ -30,9 +28,13 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTag;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.io.IOException;
 
 /** Unit tests for {@link TimeCache}. */
-public class TimeCacheTest extends TestCase {
+public class TimeCacheTest {
   private TestRepository<DfsRepository> repo;
   private RevWalk walk;
   private TimeCache cache;
@@ -44,8 +46,8 @@ public class TimeCacheTest extends TestCase {
    */
   private long start;
 
-  @Override
-  protected void setUp() throws Exception {
+  @Before
+  public void setUp() throws Exception {
     repo = new TestRepository<DfsRepository>(
         new InMemoryRepository(new DfsRepositoryDescription("test")));
     walk = new RevWalk(repo.getRepository());
@@ -57,14 +59,16 @@ public class TimeCacheTest extends TestCase {
     return cache.getTime(walk, id);
   }
 
-  public void testCommitTime() throws Exception {
+  @Test
+  public void commitTime() throws Exception {
     RevCommit root = repo.commit().create();
     RevCommit master = repo.commit().parent(root).create();
     assertEquals(start + 1, getTime(root));
     assertEquals(start + 2, getTime(master));
   }
 
-  public void testTaggedCommitTime() throws Exception {
+  @Test
+  public void taggedCommitTime() throws Exception {
     RevCommit commit = repo.commit().create();
     repo.tick(1);
     RevTag tag = repo.tag("tag", commit);
@@ -72,7 +76,8 @@ public class TimeCacheTest extends TestCase {
     assertEquals(start + 2, getTime(tag));
   }
 
-  public void testTaggedTreeAndBlobTime() throws Exception {
+  @Test
+  public void taggedTreeAndBlobTime() throws Exception {
     RevBlob blob = repo.blob("contents");
     RevTree tree = repo.tree(repo.file("foo", blob));
     repo.tick(1);
@@ -83,7 +88,8 @@ public class TimeCacheTest extends TestCase {
     assertEquals(start + 2, getTime(treeTag));
   }
 
-  public void testTaggedTagTime() throws Exception {
+  @Test
+  public void taggedTagTime() throws Exception {
     repo.tick(2);
     RevTag tag = repo.tag("tag", repo.commit().create());
     repo.tick(-1);
@@ -92,14 +98,16 @@ public class TimeCacheTest extends TestCase {
     assertEquals(start + 2, getTime(tagTag));
   }
 
-  public void testTreeAndBlobTime() throws Exception {
+  @Test
+  public void treeAndBlobTime() throws Exception {
     RevBlob blob = repo.blob("contents");
     RevTree tree = repo.tree(repo.file("foo", blob));
     assertEquals(Long.MIN_VALUE, getTime(blob));
     assertEquals(Long.MIN_VALUE, getTime(tree));
   }
 
-  public void testTagMissingTime() throws Exception {
+  @Test
+  public void tagMissingTime() throws Exception {
     RevCommit commit = repo.commit().create();
     TagBuilder builder = new TagBuilder();
     builder.setObjectId(commit);
@@ -117,7 +125,8 @@ public class TimeCacheTest extends TestCase {
     assertEquals(start + 1, getTime(id));
   }
 
-  public void testFirstTagMissingTime() throws Exception {
+  @Test
+  public void firstTagMissingTime() throws Exception {
     RevCommit commit = repo.commit().create();
     repo.tick(1);
     RevTag tag = repo.tag("tag", commit);

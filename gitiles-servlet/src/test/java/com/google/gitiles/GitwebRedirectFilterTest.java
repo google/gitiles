@@ -18,10 +18,9 @@ import static com.google.gitiles.FakeHttpServletRequest.SERVLET_PATH;
 import static com.google.gitiles.TestGitilesUrls.HOST_NAME;
 import static javax.servlet.http.HttpServletResponse.SC_GONE;
 import static javax.servlet.http.HttpServletResponse.SC_MOVED_PERMANENTLY;
+import static org.junit.Assert.assertEquals;
 
-import javax.servlet.http.HttpServletRequest;
-
-import junit.framework.TestCase;
+import com.google.common.net.HttpHeaders;
 
 import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
@@ -29,16 +28,18 @@ import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
 import org.eclipse.jgit.junit.TestRepository;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.junit.Before;
+import org.junit.Test;
 
-import com.google.common.net.HttpHeaders;
+import javax.servlet.http.HttpServletRequest;
 
 /** Tests for gitweb redirector. */
-public class GitwebRedirectFilterTest extends TestCase {
+public class GitwebRedirectFilterTest {
   private TestRepository<DfsRepository> repo;
   private GitilesServlet servlet;
 
-  @Override
-  protected void setUp() throws Exception {
+  @Before
+  public void setUp() throws Exception {
     repo = new TestRepository<DfsRepository>(
         new InMemoryRepository(new DfsRepositoryDescription("test")));
     servlet = TestGitilesServlet.create(repo);
@@ -64,7 +65,8 @@ public class GitwebRedirectFilterTest extends TestCase {
     return req;
   }
 
-  public void testHostIndex() throws Exception {
+  @Test
+  public void hostIndex() throws Exception {
     assertRedirectsTo(
         GitilesView.hostIndex()
             .setHostName(HOST_NAME)
@@ -73,7 +75,8 @@ public class GitwebRedirectFilterTest extends TestCase {
         newRequest("a=project_index"));
   }
 
-  public void testRepositoryIndex() throws Exception {
+  @Test
+  public void repositoryIndex() throws Exception {
     assertGone(newRequest("a=summary"));
     assertRedirectsTo(
         GitilesView.repositoryIndex()
@@ -84,7 +87,8 @@ public class GitwebRedirectFilterTest extends TestCase {
         newRequest("a=summary;p=test"));
   }
 
-  public void testShow() throws Exception {
+  @Test
+  public void show() throws Exception {
     assertGone(newRequest("a=commit"));
     assertGone(newRequest("a=commit;p=test"));
     RevCommit commit = repo.branch("refs/heads/master").commit().create();
@@ -98,7 +102,8 @@ public class GitwebRedirectFilterTest extends TestCase {
         newRequest("a=commit;p=test&h=" + ObjectId.toString(commit)));
   }
 
-  public void testNoStripDotGit() throws Exception {
+  @Test
+  public void noStripDotGit() throws Exception {
     assertRedirectsTo(
         GitilesView.repositoryIndex()
             .setHostName(HOST_NAME)
@@ -115,7 +120,8 @@ public class GitwebRedirectFilterTest extends TestCase {
         newRequest("a=summary;p=test"));
   }
 
-  public void testStripDotGit() throws Exception {
+  @Test
+  public void stripDotGit() throws Exception {
     servlet = TestGitilesServlet.create(repo, new GitwebRedirectFilter(true));
     assertRedirectsTo(
         GitilesView.repositoryIndex()

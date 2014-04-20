@@ -14,23 +14,28 @@
 
 package com.google.gitiles;
 
-import junit.framework.TestCase;
-
-import org.eclipse.jgit.lib.ObjectId;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.gitiles.GitilesView.Type;
 
+import org.eclipse.jgit.lib.ObjectId;
+import org.junit.Test;
+
 /** Tests for Gitiles views. */
-public class GitilesViewTest extends TestCase {
+public class GitilesViewTest {
   private static final GitilesView HOST = GitilesView.hostIndex()
       .setServletPath("/b")
       .setHostName("host")
       .build();
 
-  public void testEmptyServletPath() throws Exception {
+  @Test
+  public void emptyServletPath() throws Exception {
     GitilesView view = GitilesView.hostIndex()
         .setServletPath("")
         .setHostName("host")
@@ -48,7 +53,8 @@ public class GitilesViewTest extends TestCase {
         view.getBreadcrumbs());
   }
 
-  public void testHostIndex() throws Exception {
+  @Test
+  public void hostIndex() throws Exception {
     assertEquals("/b", HOST.getServletPath());
     assertEquals(Type.HOST_INDEX, HOST.getType());
     assertEquals("host", HOST.getHostName());
@@ -62,7 +68,8 @@ public class GitilesViewTest extends TestCase {
         HOST.getBreadcrumbs());
   }
 
-  public void testQueryParams() throws Exception {
+  @Test
+  public void queryParams() throws Exception {
     GitilesView view = GitilesView.hostIndex().copyFrom(HOST)
         .putParam("foo", "foovalue")
         .putParam("bar", "barvalue")
@@ -85,7 +92,8 @@ public class GitilesViewTest extends TestCase {
         view.getBreadcrumbs());
   }
 
-  public void testQueryParamsNotCopied() throws Exception {
+  @Test
+  public void queryParamsNotCopied() throws Exception {
     GitilesView view = GitilesView.hostIndex().copyFrom(HOST)
         .putParam("foo", "foovalue")
         .putParam("bar", "barvalue")
@@ -95,7 +103,8 @@ public class GitilesViewTest extends TestCase {
     assertTrue(copy.getParameters().isEmpty());
   }
 
-  public void testRepositoryIndex() throws Exception {
+  @Test
+  public void repositoryIndex() throws Exception {
     GitilesView view = GitilesView.repositoryIndex()
         .copyFrom(HOST)
         .setRepositoryName("foo/bar")
@@ -117,7 +126,8 @@ public class GitilesViewTest extends TestCase {
         view.getBreadcrumbs());
   }
 
-  public void testRefs() throws Exception {
+  @Test
+  public void refs() throws Exception {
     GitilesView view = GitilesView.refs()
         .copyFrom(HOST)
         .setRepositoryName("foo/bar")
@@ -139,7 +149,8 @@ public class GitilesViewTest extends TestCase {
         view.getBreadcrumbs());
   }
 
-  public void testRefWithRevision() throws Exception {
+  @Test
+  public void refWithRevision() throws Exception {
     ObjectId id = ObjectId.fromString("abcd1234abcd1234abcd1234abcd1234abcd1234");
     GitilesView view = GitilesView.revision()
         .copyFrom(HOST)
@@ -165,7 +176,8 @@ public class GitilesViewTest extends TestCase {
         view.getBreadcrumbs());
   }
 
-  public void testDescribe() throws Exception {
+  @Test
+  public void describe() throws Exception {
     GitilesView view = GitilesView.describe()
         .copyFrom(HOST)
         .setRepositoryName("foo/bar")
@@ -181,7 +193,8 @@ public class GitilesViewTest extends TestCase {
     assertTrue(HOST.getParameters().isEmpty());
   }
 
-  public void testNoPathComponents() throws Exception {
+  @Test
+  public void noPathComponents() throws Exception {
     ObjectId id = ObjectId.fromString("abcd1234abcd1234abcd1234abcd1234abcd1234");
     GitilesView view = GitilesView.path()
         .copyFrom(HOST)
@@ -209,7 +222,8 @@ public class GitilesViewTest extends TestCase {
         view.getBreadcrumbs());
   }
 
-  public void testOnePathComponent() throws Exception {
+  @Test
+  public void onePathComponent() throws Exception {
     ObjectId id = ObjectId.fromString("abcd1234abcd1234abcd1234abcd1234abcd1234");
     GitilesView view = GitilesView.path()
         .copyFrom(HOST)
@@ -238,7 +252,8 @@ public class GitilesViewTest extends TestCase {
         view.getBreadcrumbs());
   }
 
-  public void testMultiplePathComponents() throws Exception {
+  @Test
+  public void multiplePathComponents() throws Exception {
     ObjectId id = ObjectId.fromString("abcd1234abcd1234abcd1234abcd1234abcd1234");
     GitilesView view = GitilesView.path()
         .copyFrom(HOST)
@@ -270,7 +285,8 @@ public class GitilesViewTest extends TestCase {
         view.getBreadcrumbs());
   }
 
-  public void testDiffAgainstFirstParent() throws Exception {
+  @Test
+  public void diffAgainstFirstParent() throws Exception {
     ObjectId id = ObjectId.fromString("abcd1234abcd1234abcd1234abcd1234abcd1234");
     ObjectId parent = ObjectId.fromString("efab5678efab5678efab5678efab5678efab5678");
     GitilesView view = GitilesView.diff()
@@ -305,7 +321,8 @@ public class GitilesViewTest extends TestCase {
         view.getBreadcrumbs());
   }
 
-  public void testDiffAgainstEmptyRevision() throws Exception {
+  @Test
+  public void diffAgainstEmptyRevision() throws Exception {
     ObjectId id = ObjectId.fromString("abcd1234abcd1234abcd1234abcd1234abcd1234");
     GitilesView view = GitilesView.diff()
         .copyFrom(HOST)
@@ -338,7 +355,8 @@ public class GitilesViewTest extends TestCase {
         view.getBreadcrumbs());
   }
 
-  public void testDiffAgainstOther() throws Exception {
+  @Test
+  public void diffAgainstOther() throws Exception {
     ObjectId id = ObjectId.fromString("abcd1234abcd1234abcd1234abcd1234abcd1234");
     ObjectId other = ObjectId.fromString("efab5678efab5678efab5678efab5678efab5678");
     GitilesView view = GitilesView.diff()
@@ -373,7 +391,8 @@ public class GitilesViewTest extends TestCase {
         view.getBreadcrumbs());
   }
 
-  public void testBranchLogWithoutPath() throws Exception {
+  @Test
+  public void branchLogWithoutPath() throws Exception {
     ObjectId id = ObjectId.fromString("abcd1234abcd1234abcd1234abcd1234abcd1234");
     GitilesView view = GitilesView.log()
         .copyFrom(HOST)
@@ -400,7 +419,8 @@ public class GitilesViewTest extends TestCase {
         view.getBreadcrumbs());
   }
 
-  public void testIdLogWithoutPath() throws Exception {
+  @Test
+  public void idLogWithoutPath() throws Exception {
     ObjectId id = ObjectId.fromString("abcd1234abcd1234abcd1234abcd1234abcd1234");
     GitilesView view = GitilesView.log()
         .copyFrom(HOST)
@@ -427,7 +447,8 @@ public class GitilesViewTest extends TestCase {
         view.getBreadcrumbs());
   }
 
-  public void testLogWithoutOldRevision() throws Exception {
+  @Test
+  public void logWithoutOldRevision() throws Exception {
     ObjectId id = ObjectId.fromString("abcd1234abcd1234abcd1234abcd1234abcd1234");
     GitilesView view = GitilesView.log()
         .copyFrom(HOST)
@@ -459,7 +480,8 @@ public class GitilesViewTest extends TestCase {
         view.getBreadcrumbs());
   }
 
-  public void testLogWithOldRevision() throws Exception {
+  @Test
+  public void logWithOldRevision() throws Exception {
     ObjectId id = ObjectId.fromString("abcd1234abcd1234abcd1234abcd1234abcd1234");
     ObjectId parent = ObjectId.fromString("efab5678efab5678efab5678efab5678efab5678");
     GitilesView view = GitilesView.log()
@@ -493,7 +515,8 @@ public class GitilesViewTest extends TestCase {
         view.getBreadcrumbs());
   }
 
-  public void testLogWithNoRevision() throws Exception {
+  @Test
+  public void logWithNoRevision() throws Exception {
     GitilesView view = GitilesView.log()
         .copyFrom(HOST)
         .setRepositoryName("foo/bar")
@@ -516,7 +539,8 @@ public class GitilesViewTest extends TestCase {
         view.getBreadcrumbs());
   }
 
-  public void testArchiveWithNoPath() throws Exception {
+  @Test
+  public void archiveWithNoPath() throws Exception {
     ObjectId id = ObjectId.fromString("abcd1234abcd1234abcd1234abcd1234abcd1234");
     GitilesView view = GitilesView.archive()
         .copyFrom(HOST)
@@ -537,7 +561,8 @@ public class GitilesViewTest extends TestCase {
     assertEquals("/b/foo/bar/+archive/master.tar.bz2", view.toUrl());
   }
 
-  public void testArchiveWithPath() throws Exception {
+  @Test
+  public void archiveWithPath() throws Exception {
     ObjectId id = ObjectId.fromString("abcd1234abcd1234abcd1234abcd1234abcd1234");
     GitilesView view = GitilesView.archive()
         .copyFrom(HOST)
@@ -559,7 +584,8 @@ public class GitilesViewTest extends TestCase {
     assertEquals("/b/foo/bar/+archive/master/path/to/a/dir.tar.bz2", view.toUrl());
   }
 
-  public void testBlame() throws Exception {
+  @Test
+  public void blame() throws Exception {
     ObjectId id = ObjectId.fromString("abcd1234abcd1234abcd1234abcd1234abcd1234");
     GitilesView view = GitilesView.blame()
         .copyFrom(HOST)
@@ -589,7 +615,8 @@ public class GitilesViewTest extends TestCase {
         view.getBreadcrumbs());
   }
 
-  public void testEscaping() throws Exception {
+  @Test
+  public void escaping() throws Exception {
     ObjectId id = ObjectId.fromString("abcd1234abcd1234abcd1234abcd1234abcd1234");
     ObjectId parent = ObjectId.fromString("efab5678efab5678efab5678efab5678efab5678");
     // Some of these values are not valid for Git, but check them anyway.
@@ -632,7 +659,8 @@ public class GitilesViewTest extends TestCase {
         view.getBreadcrumbs());
   }
 
-  public void testBreadcrumbsHasSingleTree() throws Exception {
+  @Test
+  public void breadcrumbsHasSingleTree() throws Exception {
     ObjectId id = ObjectId.fromString("abcd1234abcd1234abcd1234abcd1234abcd1234");
     GitilesView view = GitilesView.path()
         .copyFrom(HOST)
@@ -666,7 +694,8 @@ public class GitilesViewTest extends TestCase {
         view.getBreadcrumbs(ImmutableList.of(true, false, false)));
   }
 
-  public void testBreadcrumbsHasSingleTreeRootPath() throws Exception {
+  @Test
+  public void breadcrumbsHasSingleTreeRootPath() throws Exception {
     ObjectId id = ObjectId.fromString("abcd1234abcd1234abcd1234abcd1234abcd1234");
     GitilesView view = GitilesView.path()
         .copyFrom(HOST)

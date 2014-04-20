@@ -14,9 +14,8 @@
 
 package com.google.gitiles;
 
-import java.io.IOException;
-
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
@@ -26,14 +25,18 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTag;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.io.IOException;
 
 /** Tests for {@link Linkifier}. */
-public class RefServletTest extends TestCase {
+public class RefServletTest {
   private TestRepository<DfsRepository> repo;
   private GitilesServlet servlet;
 
-  @Override
-  protected void setUp() throws Exception {
+  @Before
+  public void setUp() throws Exception {
     DfsRepository r = new InMemoryRepository(new DfsRepositoryDescription("test"));
     repo = new TestRepository<DfsRepository>(r);
 
@@ -56,7 +59,8 @@ public class RefServletTest extends TestCase {
           repo.getRepository().getRef(refName)).getPeeledObjectId());
   }
 
-  public void testEvilRefName() throws Exception {
+  @Test
+  public void evilRefName() throws Exception {
     String evilRefName = "refs/evil/<script>window.close();</script>/&foo";
     assertTrue(Repository.isValidRefName(evilRefName));
     repo.branch(evilRefName).commit().create();
@@ -72,7 +76,8 @@ public class RefServletTest extends TestCase {
         res.getActualBodyString());
   }
 
-  public void testGetRefsTextAll() throws Exception {
+  @Test
+  public void getRefsTextAll() throws Exception {
     FakeHttpServletRequest req = FakeHttpServletRequest.newRequest();
     req.setPathInfo("/test/+refs");
     req.setQueryString("format=TEXT");
@@ -90,7 +95,8 @@ public class RefServletTest extends TestCase {
         res.getActualBodyString());
   }
 
-  public void testGetRefsTextAllTrailingSlash() throws Exception {
+  @Test
+  public void getRefsTextAllTrailingSlash() throws Exception {
     FakeHttpServletRequest req = FakeHttpServletRequest.newRequest();
     req.setPathInfo("/test/+refs");
     req.setQueryString("format=TEXT");
@@ -108,7 +114,8 @@ public class RefServletTest extends TestCase {
         res.getActualBodyString());
   }
 
-  public void testGetRefsHeadsText() throws Exception {
+  @Test
+  public void getRefsHeadsText() throws Exception {
     FakeHttpServletRequest req = FakeHttpServletRequest.newRequest();
     req.setPathInfo("/test/+refs/heads");
     req.setQueryString("format=TEXT");
@@ -122,7 +129,8 @@ public class RefServletTest extends TestCase {
         res.getActualBodyString());
   }
 
-  public void testGetRefsHeadsTextTrailingSlash() throws Exception {
+  @Test
+  public void getRefsHeadsTextTrailingSlash() throws Exception {
     FakeHttpServletRequest req = FakeHttpServletRequest.newRequest();
     req.setPathInfo("/test/+refs/heads/");
     req.setQueryString("format=TEXT");
@@ -136,7 +144,8 @@ public class RefServletTest extends TestCase {
         res.getActualBodyString());
   }
 
-  public void testNoHeadText() throws Exception {
+  @Test
+  public void noHeadText() throws Exception {
     FakeHttpServletRequest req = FakeHttpServletRequest.newRequest();
     req.setPathInfo("/test/+refs/HEAD");
     req.setQueryString("format=TEXT");
@@ -148,7 +157,8 @@ public class RefServletTest extends TestCase {
     assertEquals("", res.getActualBodyString());
   }
 
-  public void testSingleHeadText() throws Exception {
+  @Test
+  public void singleHeadText() throws Exception {
     FakeHttpServletRequest req = FakeHttpServletRequest.newRequest();
     req.setPathInfo("/test/+refs/heads/master");
     req.setQueryString("format=TEXT");
@@ -161,7 +171,8 @@ public class RefServletTest extends TestCase {
         res.getActualBodyString());
   }
 
-  public void testSinglePeeledTagText() throws Exception {
+  @Test
+  public void singlePeeledTagText() throws Exception {
     FakeHttpServletRequest req = FakeHttpServletRequest.newRequest();
     req.setPathInfo("/test/+refs/tags/atag");
     req.setQueryString("format=TEXT");

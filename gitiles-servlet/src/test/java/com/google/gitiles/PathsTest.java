@@ -15,11 +15,15 @@
 package com.google.gitiles;
 
 import static com.google.gitiles.Paths.simplifyPathUpToRoot;
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
+import org.junit.Test;
 
 /** Tests for {@link Paths}. */
-public class PathsTest extends TestCase {
-  public void testSimplifyPathUpToRoot() throws Exception {
+public class PathsTest {
+  @Test
+  public void simplifyPathUpToRootSimplifiesPath() throws Exception {
     String root = "a/b/c";
     assertNull(simplifyPathUpToRoot("/foo", root));
     assertEquals("a", simplifyPathUpToRoot("../../", root));
@@ -33,7 +37,8 @@ public class PathsTest extends TestCase {
     assertNull(simplifyPathUpToRoot("../../a/../../..", root));
   }
 
-  public void testSimplifyPathUpToNullRoot() throws Exception {
+  @Test
+  public void simplifyPathUpToNullRootDetectsNullRoot() throws Exception {
     assertNull(simplifyPathUpToRoot("/foo", null));
     assertNull(simplifyPathUpToRoot("../", null));
     assertNull(simplifyPathUpToRoot("../../", null));

@@ -15,16 +15,17 @@
 package com.google.gitiles;
 
 import static com.google.gitiles.TestGitilesUrls.URLS;
+import static org.junit.Assert.assertEquals;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-
-import junit.framework.TestCase;
 
 import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
 import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
 import org.eclipse.jgit.junit.TestRepository;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Map;
@@ -32,12 +33,12 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 /** Tests for {@link RepositoryIndexServlet}. */
-public class RepositoryIndexServletTest extends TestCase {
+public class RepositoryIndexServletTest {
   private TestRepository<DfsRepository> repo;
   private RepositoryIndexServlet servlet;
 
-  @Override
-  protected void setUp() throws Exception {
+  @Before
+  public void setUp() throws Exception {
     repo = new TestRepository<DfsRepository>(
         new InMemoryRepository(new DfsRepositoryDescription("test")));
     servlet = new RepositoryIndexServlet(
@@ -46,13 +47,15 @@ public class RepositoryIndexServletTest extends TestCase {
         new TimeCache());
   }
 
-  public void testEmpty() throws Exception {
+  @Test
+  public void empty() throws Exception {
     Map<String, ?> data = buildData();
     assertEquals(ImmutableList.of(), data.get("branches"));
     assertEquals(ImmutableList.of(), data.get("tags"));
   }
 
-  public void testBranchesAndTags() throws Exception {
+  @Test
+  public void branchesAndTags() throws Exception {
     repo.branch("refs/heads/foo").commit().create();
     repo.branch("refs/heads/bar").commit().create();
     repo.branch("refs/tags/baz").commit().create();
@@ -70,7 +73,8 @@ public class RepositoryIndexServletTest extends TestCase {
         data.get("tags"));
   }
 
-  public void testAmbiguousBranch() throws Exception {
+  @Test
+  public void ambiguousBranch() throws Exception {
     repo.branch("refs/heads/foo").commit().create();
     repo.branch("refs/heads/bar").commit().create();
     repo.branch("refs/tags/foo").commit().create();
@@ -89,7 +93,8 @@ public class RepositoryIndexServletTest extends TestCase {
         data.get("tags"));
   }
 
-  public void testAmbiguousRelativeToNonBranchOrTag() throws Exception {
+  @Test
+  public void ambiguousRelativeToNonBranchOrTag() throws Exception {
     repo.branch("refs/foo").commit().create();
     repo.branch("refs/heads/foo").commit().create();
     repo.branch("refs/tags/foo").commit().create();
@@ -105,7 +110,8 @@ public class RepositoryIndexServletTest extends TestCase {
         data.get("tags"));
   }
 
-  public void testRefsHeads() throws Exception {
+  @Test
+  public void refsHeads() throws Exception {
     repo.branch("refs/heads/foo").commit().create();
     repo.branch("refs/heads/refs/heads/foo").commit().create();
     Map<String, ?> data = buildData();

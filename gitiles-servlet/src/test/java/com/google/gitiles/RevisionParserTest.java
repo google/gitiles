@@ -17,8 +17,11 @@ package com.google.gitiles;
 import static org.eclipse.jgit.lib.Constants.OBJ_BLOB;
 import static org.eclipse.jgit.lib.Constants.OBJ_COMMIT;
 import static org.eclipse.jgit.lib.Constants.OBJ_TAG;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
-import junit.framework.TestCase;
+import com.google.common.cache.CacheBuilder;
+import com.google.gitiles.RevisionParser.Result;
 
 import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
@@ -27,17 +30,16 @@ import org.eclipse.jgit.junit.TestRepository;
 import org.eclipse.jgit.revwalk.RevBlob;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTag;
-
-import com.google.common.cache.CacheBuilder;
-import com.google.gitiles.RevisionParser.Result;
+import org.junit.Before;
+import org.junit.Test;
 
 /** Tests for the revision parser. */
-public class RevisionParserTest extends TestCase {
+public class RevisionParserTest {
   private TestRepository<DfsRepository> repo;
   private RevisionParser parser;
 
-  @Override
-  protected void setUp() throws Exception {
+  @Before
+  public void setUp() throws Exception {
     repo = new TestRepository<DfsRepository>(
         new InMemoryRepository(new DfsRepositoryDescription("test")));
     parser = new RevisionParser(
@@ -46,7 +48,8 @@ public class RevisionParserTest extends TestCase {
         new VisibilityCache(false, CacheBuilder.newBuilder().maximumSize(0)));
   }
 
-  public void testParseRef() throws Exception {
+  @Test
+  public void parseRef() throws Exception {
     RevCommit master = repo.branch("refs/heads/master").commit().create();
     assertEquals(new Result(Revision.peeled("master", master)),
         parser.parse("master"));
@@ -56,7 +59,8 @@ public class RevisionParserTest extends TestCase {
     assertNull(parser.parse("refs heads master"));
   }
 
-  public void testParseRefParentExpression() throws Exception {
+  @Test
+  public void parseRefParentExpression() throws Exception {
     RevCommit root = repo.commit().create();
     RevCommit parent1 = repo.commit().parent(root).create();
     RevCommit parent2 = repo.commit().parent(root).create();
@@ -72,7 +76,8 @@ public class RevisionParserTest extends TestCase {
     assertEquals(new Result(Revision.peeled("master~2", root)), parser.parse("master~2"));
   }
 
-  public void testParseCommitShaVisibleFromHead() throws Exception {
+  @Test
+  public void parseCommitShaVisibleFromHead() throws Exception {
     RevCommit parent = repo.commit().create();
     RevCommit commit = repo.branch("master").commit().parent(parent).create();
     assertEquals(new Result(Revision.peeled(commit.name(), commit)), parser.parse(commit.name()));
@@ -82,7 +87,8 @@ public class RevisionParserTest extends TestCase {
     assertEquals(new Result(Revision.peeled(abbrev, commit)), parser.parse(abbrev));
   }
 
-  public void testParseCommitShaVisibleFromTag() throws Exception {
+  @Test
+  public void parseCommitShaVisibleFromTag() throws Exception {
     RevCommit parent = repo.commit().create();
     RevCommit commit = repo.commit().parent(parent).create();
     repo.branch("master").commit().create();
@@ -92,7 +98,8 @@ public class RevisionParserTest extends TestCase {
     assertEquals(new Result(Revision.peeled(parent.name(), parent)), parser.parse(parent.name()));
   }
 
-  public void testParseCommitShaVisibleFromOther() throws Exception {
+  @Test
+  public void parseCommitShaVisibleFromOther() throws Exception {
     RevCommit parent = repo.commit().create();
     RevCommit commit = repo.commit().parent(parent).create();
     repo.branch("master").commit().create();
@@ -103,7 +110,8 @@ public class RevisionParserTest extends TestCase {
     assertEquals(new Result(Revision.peeled(parent.name(), parent)), parser.parse(parent.name()));
   }
 
-  public void testParseCommitShaVisibleFromChange() throws Exception {
+  @Test
+  public void parseCommitShaVisibleFromChange() throws Exception {
     RevCommit parent = repo.commit().create();
     RevCommit commit = repo.commit().parent(parent).create();
     repo.branch("master").commit().create();
@@ -115,7 +123,8 @@ public class RevisionParserTest extends TestCase {
     assertEquals(null, parser.parse(parent.name()));
   }
 
-  public void testParseNonVisibleCommitSha() throws Exception {
+  @Test
+  public void parseNonVisibleCommitSha() throws Exception {
     RevCommit other = repo.commit().create();
     repo.branch("master").commit().create();
     assertEquals(null, parser.parse(other.name()));
@@ -124,7 +133,8 @@ public class RevisionParserTest extends TestCase {
     assertEquals(new Result(Revision.peeled(other.name(), other)), parser.parse(other.name()));
   }
 
-  public void testParseDiffRevisions() throws Exception {
+  @Test
+  public void parseDiffRevisions() throws Exception {
     RevCommit parent = repo.commit().create();
     RevCommit commit = repo.branch("master").commit().parent(parent).create();
     RevCommit other = repo.branch("other").commit().create();
@@ -176,7 +186,8 @@ public class RevisionParserTest extends TestCase {
         parser.parse("other..master"));
   }
 
-  public void testParseFirstParentExpression() throws Exception {
+  @Test
+  public void parseFirstParentExpression() throws Exception {
     RevCommit parent = repo.commit().create();
     RevCommit commit = repo.branch("master").commit().parent(parent).create();
 
@@ -214,7 +225,8 @@ public class RevisionParserTest extends TestCase {
         parser.parse("tag^^!"));
   }
 
-  public void testNonVisibleDiffShas() throws Exception {
+  @Test
+  public void nonVisibleDiffShas() throws Exception {
     RevCommit other = repo.commit().create();
     RevCommit master = repo.branch("master").commit().create();
     assertEquals(null, parser.parse("other..master"));
@@ -235,7 +247,8 @@ public class RevisionParserTest extends TestCase {
         parser.parse("master..other"));
   }
 
-  public void testParseTag() throws Exception {
+  @Test
+  public void parseTag() throws Exception {
     RevCommit master = repo.branch("master").commit().create();
     RevTag masterTag = repo.update("refs/tags/master-tag", repo.tag("master-tag", master));
     RevTag masterTagTag = repo.update("refs/tags/master-tag-tag",
@@ -255,7 +268,8 @@ public class RevisionParserTest extends TestCase {
         parser.parse("blob-tag"));
   }
 
-  public void testParseUnsupportedRevisionExpressions() throws Exception {
+  @Test
+  public void parseUnsupportedRevisionExpressions() throws Exception {
     RevBlob blob = repo.blob("blob contents");
     RevCommit master = repo.branch("master").commit().add("blob", blob).create();
 
@@ -273,7 +287,8 @@ public class RevisionParserTest extends TestCase {
     assertEquals(null, parser.parse("master@{0}"));
   }
 
-  public void testParseMissingSha() throws Exception {
+  @Test
+  public void parseMissingSha() throws Exception {
     assertNull(parser.parse("deadbeef"));
     assertNull(parser.parse("deadbeefdeadbeefdeadbeefdeadbeefdeadbeef"));
   }

@@ -15,10 +15,11 @@
 package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
-import java.util.List;
-
-import junit.framework.TestCase;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
@@ -26,28 +27,31 @@ import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
 import org.eclipse.jgit.junit.TestRepository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
+import java.util.List;
 
 /** Unit tests for {@link LogServlet}. */
-public class PaginatorTest extends TestCase {
+public class PaginatorTest {
   private TestRepository<DfsRepository> repo;
   private RevWalk walk;
 
-  @Override
-  protected void setUp() throws Exception {
+  @Before
+  public void setUp() throws Exception {
     repo = new TestRepository<DfsRepository>(
         new InMemoryRepository(new DfsRepositoryDescription("test")));
     walk = new RevWalk(repo.getRepository());
   }
 
-  @Override
-  protected void tearDown() throws Exception {
+  @After
+  public void tearDown() throws Exception {
     walk.release();
   }
 
-  public void testStart() throws Exception {
+  @Test
+  public void start() throws Exception {
     List<RevCommit> commits = linearCommits(10);
     walk.markStart(commits.get(9));
     Paginator p = new Paginator(walk, 3, commits.get(9));
@@ -61,7 +65,8 @@ public class PaginatorTest extends TestCase {
     assertEquals(commits.get(6), p.getNextStart());
   }
 
-  public void testNoStartCommit() throws Exception {
+  @Test
+  public void noStartCommit() throws Exception {
     List<RevCommit> commits = linearCommits(10);
     walk.markStart(commits.get(9));
     Paginator p = new Paginator(walk, 3, null);
@@ -75,7 +80,8 @@ public class PaginatorTest extends TestCase {
     assertEquals(commits.get(6), p.getNextStart());
   }
 
-  public void testLessThanOnePageIn() throws Exception {
+  @Test
+  public void lessThanOnePageIn() throws Exception {
     List<RevCommit> commits = linearCommits(10);
     walk.markStart(commits.get(9));
     Paginator p = new Paginator(walk, 3, commits.get(8));
@@ -89,7 +95,8 @@ public class PaginatorTest extends TestCase {
     assertEquals(commits.get(5), p.getNextStart());
   }
 
-  public void testAtLeastOnePageIn() throws Exception {
+  @Test
+  public void atLeastOnePageIn() throws Exception {
     List<RevCommit> commits = linearCommits(10);
     walk.markStart(commits.get(9));
     Paginator p = new Paginator(walk, 3, commits.get(7));
@@ -103,7 +110,8 @@ public class PaginatorTest extends TestCase {
     assertEquals(commits.get(4), p.getNextStart());
   }
 
-  public void testEnd() throws Exception {
+  @Test
+  public void end() throws Exception {
     List<RevCommit> commits = linearCommits(10);
     walk.markStart(commits.get(9));
     Paginator p = new Paginator(walk, 3, commits.get(2));
@@ -117,7 +125,8 @@ public class PaginatorTest extends TestCase {
     assertNull(p.getNextStart());
   }
 
-  public void testOnePastEnd() throws Exception {
+  @Test
+  public void onePastEnd() throws Exception {
     List<RevCommit> commits = linearCommits(10);
     walk.markStart(commits.get(9));
     Paginator p = new Paginator(walk, 3, commits.get(1));
@@ -130,7 +139,8 @@ public class PaginatorTest extends TestCase {
     assertNull(p.getNextStart());
   }
 
-  public void testManyPastEnd() throws Exception {
+  @Test
+  public void manyPastEnd() throws Exception {
     List<RevCommit> commits = linearCommits(10);
     walk.markStart(commits.get(9));
     Paginator p = new Paginator(walk, 5, commits.get(1));

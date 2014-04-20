@@ -16,15 +16,18 @@ package com.google.gitiles;
 
 import static com.google.gitiles.TreeSoyData.getTargetDisplayName;
 import static com.google.gitiles.TreeSoyData.resolveTargetUrl;
-import junit.framework.TestCase;
-
-import org.eclipse.jgit.lib.ObjectId;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import com.google.common.base.Strings;
 
+import org.eclipse.jgit.lib.ObjectId;
+import org.junit.Test;
+
 /** Tests for {@link TreeSoyData}. */
-public class TreeSoyDataTest extends TestCase {
-  public void testGetTargetDisplayName() throws Exception {
+public class TreeSoyDataTest {
+  @Test
+  public void getTargetDisplayNameReturnsDisplayName() throws Exception {
     assertEquals("foo", getTargetDisplayName("foo"));
     assertEquals("foo/bar", getTargetDisplayName("foo/bar"));
     assertEquals("a/a/a/a/a/a/a/a/a/a/bar",
@@ -37,7 +40,8 @@ public class TreeSoyDataTest extends TestCase {
         getTargetDisplayName(Strings.repeat("a", 80)));
   }
 
-  public void testResolveTargetUrl() throws Exception {
+  @Test
+  public void resolveTargetUrlReturnsUrl() throws Exception {
     ObjectId id = ObjectId.fromString("abcd1234abcd1234abcd1234abcd1234abcd1234");
     GitilesView view = GitilesView.path()
         .setServletPath("/x")
