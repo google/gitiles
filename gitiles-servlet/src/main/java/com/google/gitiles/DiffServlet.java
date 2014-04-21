@@ -104,7 +104,7 @@ public class DiffServlet extends BaseServlet {
       OutputStream out = res.getOutputStream();
       try {
         out.write(html[0].getBytes(Charsets.UTF_8));
-        formatHtmlDiff(out, repo, oldTree, newTree, view.getPathPart());
+        formatHtmlDiff(out, view, repo, oldTree, newTree, view.getPathPart());
         out.write(html[1].getBytes(Charsets.UTF_8));
       } finally {
         out.close();
@@ -138,11 +138,11 @@ public class DiffServlet extends BaseServlet {
     return new String[] {html.substring(0, lt), html.substring(gt + 1)};
   }
 
-  private void formatHtmlDiff(OutputStream out,
+  private void formatHtmlDiff(OutputStream out, GitilesView view,
       Repository repo, AbstractTreeIterator oldTree,
       AbstractTreeIterator newTree, String path)
       throws IOException {
-    DiffFormatter diff = new HtmlDiffFormatter(renderer, out);
+    DiffFormatter diff = new HtmlDiffFormatter(renderer, view, out);
     try {
       if (!path.equals("")) {
         diff.setPathFilter(PathFilter.create(path));

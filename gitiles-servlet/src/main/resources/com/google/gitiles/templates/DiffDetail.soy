@@ -38,13 +38,22 @@
 /**
  * File header for a single unified diff patch.
  *
- * @param first the first line of the header, with no trailing LF.
+ * @param firstParts parts of the first line of the header, with "text" and
+ *     optional "url" fields.
  * @param rest remaining lines of the header, if any.
  * @param fileIndex position of the file within the difference.
  */
 {template .diffHeader}
 <pre class="diff-header">
-<a name="F{$fileIndex}" class="diff-git">{$first}</a>{\n}
+<a name="F{$fileIndex}" class="diff-git"></a>
+{foreach $part in $firstParts}
+  {if not isFirst($part)}{sp}{/if}
+  {if $part.url}
+    <a href="{$part.url}">{$part.text}</a>
+  {else}
+    {$part.text}
+  {/if}
+{/foreach}{\n}
 {$rest}
 </pre>
 {/template}

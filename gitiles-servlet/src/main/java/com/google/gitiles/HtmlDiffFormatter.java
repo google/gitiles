@@ -15,12 +15,15 @@
 package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.eclipse.jgit.util.QuotedString.GIT_PATH;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.eclipse.jgit.diff.DiffEntry;
+import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.RawText;
 import org.eclipse.jgit.patch.FileHeader;
@@ -30,6 +33,7 @@ import org.eclipse.jgit.util.RawParseUtils;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Map;
 
 /** Formats a unified format patch as UTF-8 encoded HTML. */
 final class HtmlDiffFormatter extends DiffFormatter {
@@ -45,17 +49,21 @@ final class HtmlDiffFormatter extends DiffFormatter {
   private static final byte[] LINE_END = "</span>\n".getBytes(Charsets.UTF_8);
 
   private final Renderer renderer;
+  private final GitilesView view;
   private int fileIndex;
+  private DiffEntry entry;
 
-  HtmlDiffFormatter(Renderer renderer, OutputStream out) {
+  HtmlDiffFormatter(Renderer renderer, GitilesView view, OutputStream out) {
     super(out);
     this.renderer = checkNotNull(renderer, "renderer");
+    this.view = checkNotNull(view, "view");
   }
 
   @Override
   public void format(List<? extends DiffEntry> entries) throws IOException {
     for (fileIndex = 0; fileIndex < entries.size(); fileIndex++) {
-      format(entries.get(fileIndex));
+      entry = entries.get(fileIndex);
+      format(entry);
     }
   }
 
@@ -79,19 +87,41 @@ final class HtmlDiffFormatter extends DiffFormatter {
   private void renderHeader(String header)
       throws IOException {
     int lf = header.indexOf('\n');
-    String first;
-    String rest;
-    if (0 <= lf) {
-      first = header.substring(0, lf);
-      rest = header.substring(lf + 1);
+    String rest = 0 <= lf ?  header.substring(lf + 1) : "";
+
+    // Based on DiffFormatter.formatGitDiffFirstHeaderLine.
+    List<Map<String, String>> parts = Lists.newArrayListWithCapacity(3);
+    parts.add(ImmutableMap.of("text", "diff --git"));
+    if (entry.getChangeType() != ChangeType.ADD) {
+      parts.add(ImmutableMap.of(
+          "text", GIT_PATH.quote(getOldPrefix() + entry.getOldPath()),
+          "url", revisionUrl(view.getOldRevision(), entry.getOldPath())));
     } else {
-      first = header;
-      rest = "";
+      parts.add(ImmutableMap.of(
+          "text", GIT_PATH.quote(getOldPrefix() + entry.getNewPath())));
     }
+    if (entry.getChangeType() != ChangeType.DELETE) {
+      parts.add(ImmutableMap.of(
+          "text", GIT_PATH.quote(getNewPrefix() + entry.getNewPath()),
+          "url", revisionUrl(view.getRevision(), entry.getNewPath())));
+    } else {
+      parts.add(ImmutableMap.of(
+          "text", GIT_PATH.quote(getNewPrefix() + entry.getOldPath())));
+    }
+
     getOutputStream().write(renderer.newRenderer("gitiles.diffHeader")
-        .setData(ImmutableMap.of("first", first, "rest", rest, "fileIndex", fileIndex))
+        .setData(ImmutableMap.of("firstParts", parts, "rest", rest, "fileIndex", fileIndex))
         .render()
         .getBytes(Charsets.UTF_8));
+  }
+
+  private String revisionUrl(Revision rev, String path) {
+    return GitilesView.path()
+        .copyFrom(view)
+        .setOldRevision(Revision.NULL)
+        .setRevision(Revision.named(rev.getId().name()))
+        .setPathPart(path)
+        .toUrl();
   }
 
   @Override
