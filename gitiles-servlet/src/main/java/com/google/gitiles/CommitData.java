@@ -144,6 +144,7 @@ class CommitData {
         result.tree = c.getTree().copy();
       }
       if (fs.contains(Field.TREE_URL)) {
+        // Tree always implies the root tree.
         result.treeUrl = GitilesView.path().copyFrom(view).setPathPart("/").toUrl();
       }
       if (fs.contains(Field.PARENTS)) {
@@ -175,12 +176,12 @@ class CommitData {
       }
     }
 
-    private static String urlFromView(GitilesView view, RevCommit commit,
-        GitilesView.Builder builder) {
+    private static String urlFromView(GitilesView view, RevCommit commit, GitilesView.Builder builder) {
       Revision rev = view.getRevision();
       return builder.copyFrom(view)
+          .setOldRevision(Revision.NULL)
           .setRevision(rev.getId().equals(commit) ? rev.getName() : commit.name(), commit)
-          .setPathPart(null)
+          .setPathPart(view.getPathPart())
           .toUrl();
     }
 

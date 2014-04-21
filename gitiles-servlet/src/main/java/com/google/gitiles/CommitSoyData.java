@@ -158,6 +158,8 @@ public class CommitSoyData {
     // viewing a diff against one of the parents.
     for (RevCommit parent : parents) {
       String name = parent.name();
+      // Clear path on parent diff view, since this parent may not have a diff
+      // for the path in question.
       GitilesView.Builder diff = GitilesView.diff().copyFrom(view).setPathPart("");
       String parentName;
       if (parents.size() == 1) {
