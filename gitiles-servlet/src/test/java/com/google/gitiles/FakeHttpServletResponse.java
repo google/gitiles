@@ -208,8 +208,9 @@ public class FakeHttpServletResponse implements HttpServletResponse {
   }
 
   @Override
-  public synchronized void sendRedirect(String msg) {
+  public synchronized void sendRedirect(String loc) {
     status = SC_FOUND;
+    setHeader(HttpHeaders.LOCATION, loc);
     committed = true;
   }
 

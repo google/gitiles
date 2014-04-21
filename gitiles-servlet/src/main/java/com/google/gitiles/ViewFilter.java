@@ -106,17 +106,36 @@ public class ViewFilter extends AbstractHttpFilter {
       res.setStatus(SC_NOT_FOUND);
       return;
     }
+
     @SuppressWarnings("unchecked")
     Map<String, String[]> params = req.getParameterMap();
     view.setHostName(urls.getHostName(req))
         .setServletPath(req.getContextPath() + req.getServletPath())
         .putAllParams(params);
+    if (normalize(view, res)) {
+      return;
+    }
+
     setView(req, view.build());
     try {
       chain.doFilter(req, res);
     } finally {
       req.removeAttribute(VIEW_ATTRIBUTE);
     }
+  }
+
+  private boolean normalize(GitilesView.Builder view, HttpServletResponse res)
+      throws IOException {
+    if (view.getOldRevision() != Revision.NULL) {
+      return false;
+    }
+    Revision r = view.getRevision();
+    Revision nr = Revision.normalizeParentExpressions(r);
+    if (r != nr) {
+      res.sendRedirect(view.setRevision(nr).toUrl());
+      return true;
+    }
+    return false;
   }
 
   private GitilesView.Builder parse(HttpServletRequest req) throws IOException {
