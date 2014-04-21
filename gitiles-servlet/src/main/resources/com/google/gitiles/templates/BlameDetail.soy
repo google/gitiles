@@ -48,35 +48,27 @@
   <table id="blame">
     <tr>
       <td>
-        <pre id="regions">
-          <ul>
-            {foreach $region in $regions}
-              <li>
-                {if $region.abbrevSha}
-                  <a href="{$region.url}">
-                    <span class="sha1">{$region.abbrevSha}</span>
-                    {sp}<span class="author">{$region.author.name}</span>
-                    {sp}<span class="time">- {$region.author.relativeTime}</span>
-                  </a>
-                {else}
-                  &nbsp;
-                {/if}
-              </li>
-              {for $i in range($region.count - 1)}
-                <li>&nbsp;</li>
-              {/for}
-            {/foreach}
-          </ul>
-        </pre>
+        <ul id="regions">
+          {foreach $region in $regions}
+            <li>
+              {if $region.abbrevSha}
+                <a href="{$region.url}" class="commit">
+                  <span class="sha1">{$region.abbrevSha}</span>
+                  {sp}<span class="author">{$region.author.name}</span>
+                  {sp}<span class="time">- {$region.author.relativeTime}</span>
+                </a>
+              {else}
+                &nbsp;
+              {/if}
+            </li>
+            {for $i in range($region.count - 1)}
+              <li>&nbsp;</li>
+            {/for}
+          {/foreach}
+        </ul>
       </td>
       <td>
-        {call .blobBox}
-          {param data: $data.data /}
-          {param size: $data.size /}
-          // No pretty printing; line spacing is different with/without, and
-          // JS rendering is a performance pain point.
-          {param lang: null /}
-        {/call}
+        {call .blobBox data="$data" /}
       </td>
     </tr>
   </table>

@@ -234,10 +234,10 @@
 {template .blobBox}
   {if $data != null}
     {if $data}
-      {if $lang != null}
+      {if $lang}
         <pre class="git-blob prettyprint linenums lang-{$lang}">{$data}</pre>
       {else}
-        <pre class="git-blob">{$data}</pre>
+        <pre class="git-blob prettyprint linenums">{$data}</pre>
       {/if}
     {else}
       <div class="file-empty">Empty file</div>

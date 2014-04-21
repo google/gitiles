@@ -343,10 +343,12 @@ a.diff-git:hover {
   padding: 0;
 }
 #regions {
-  padding-top: 0px;
+  padding-top: 2px;
   padding-right: 2px;
   padding-bottom: 5px;
   padding-left: 2px;
+  white-space: nowrap;
+  list-style-type: none;
 
   /* Matching pre.git-blob below. */
   font-family: monospace;
