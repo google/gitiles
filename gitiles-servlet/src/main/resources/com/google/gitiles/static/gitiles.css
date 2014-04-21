@@ -372,6 +372,31 @@ a.diff-git:hover {
   border-top: 0;
 }
 
+#regions li {
+  position: relative;
+}
+#regions li.line:hover {
+  background-color: #eee;
+}
+#regions li .regionMenu {
+  position: absolute;
+  top: 13px;
+  left: 0;
+  visibility: hidden;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 8px;
+  padding-right: 8px;
+
+  background-color: #eee;
+  font-size: 8pt;
+  font-family: arial,sans-serif;
+  z-index: 101;
+}
+#regions li:hover .regionMenu {
+  visibility: visible;
+}
+
 /* Override some styles from the default prettify.css. */
 
 /* Line numbers on all lines. */

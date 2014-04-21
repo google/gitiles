@@ -26,11 +26,13 @@
  *     following keys:
  *       abbrevSha: abbreviated SHA-1 of revision for this line; if missing,
  *           assume blame info is missing.
- *       url: URL for detail about the revision
  *       author: author information with at least "name" and "relativeTime"
  *           keys.
  *       relativeTime: relative time of the revision
  *       count: line count
+ *       blameUrl: URL for a blame of this file at this commit
+ *       commitUrl: URL for detail about the commit
+ *       diffUrl: URL for a diff of this file at this commit
  */
 {template .blameDetail}
 {if $regions}
@@ -50,13 +52,18 @@
       <td>
         <ul id="regions">
           {foreach $region in $regions}
-            <li>
+            <li class="line">
               {if $region.abbrevSha}
-                <a href="{$region.url}" class="commit">
+                <a href="{$region.commitUrl}">
                   <span class="sha1">{$region.abbrevSha}</span>
                   {sp}<span class="author">{$region.author.name}</span>
                   {sp}<span class="time">- {$region.author.relativeTime}</span>
                 </a>
+                <div class="regionMenu">
+                  [<a href="{$region.commitUrl}">commit</a>]
+                  {sp}[<a href="{$region.diffUrl}">diff</a>]
+                  {sp}[<a href="{$region.blameUrl}">blame</a>]
+                </div>
               {else}
                 &nbsp;
               {/if}

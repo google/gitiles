@@ -130,15 +130,22 @@ public class BlameServlet extends BaseServlet {
           abbrevSha = reader.abbreviate(r.getSourceCommit()).name();
           abbrevShas.put(r.getSourceCommit(), abbrevSha);
         }
-        result.add(ImmutableMap.of(
-            "abbrevSha", abbrevSha,
-            "url", GitilesView.diff().copyFrom(view)
-                .setRevision(r.getSourceCommit().name())
-                .setPathPart(r.getSourcePath())
-                .setAnchor("F0")
-                .toUrl(),
-            "author", CommitSoyData.toSoyData(r.getSourceAuthor(), df),
-            "count", r.getCount()));
+        Map<String, Object> e = Maps.newHashMapWithExpectedSize(6);
+        e.put("abbrevSha", abbrevSha);
+        e.put("blameUrl", GitilesView.blame().copyFrom(view)
+            .setRevision(r.getSourceCommit().name())
+            .setPathPart(r.getSourcePath())
+            .toUrl());
+        e.put("commitUrl", GitilesView.revision().copyFrom(view)
+            .setRevision(r.getSourceCommit().name())
+            .toUrl());
+        e.put("diffUrl", GitilesView.diff().copyFrom(view)
+            .setRevision(r.getSourceCommit().name())
+            .setPathPart(r.getSourcePath())
+            .toUrl());
+        e.put("author", CommitSoyData.toSoyData(r.getSourceAuthor(), df));
+        e.put("count", r.getCount());
+        result.add(e);
       }
     }
     return result;
