@@ -66,6 +66,7 @@ class CommitData {
     LOG_URL,
     MESSAGE,
     PARENTS,
+    PARENT_BLAME_URL,
     SHA,
     SHORT_MESSAGE,
     TAGS,

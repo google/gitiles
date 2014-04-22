@@ -25,6 +25,7 @@
  *     sha: SHA-1.
  *     url: URL to view the parent commit.
  *     diffUrl: URL to display diffs relative to this parent.
+ *     blameUrl: optional URL to display blame of a file at this parent.
  * @param message list of commit message parts, where each part contains:
  *     text: raw text of the part.
  *     url: optional URL that should be linked to from the part.
@@ -74,6 +75,9 @@
           <a href="{$parent.url}">{$parent.sha}</a>
           <span class="diff-link">
             [<a href="{$parent.diffUrl}">{msg desc="text for the parent diff link"}diff{/msg}</a>]
+            {if isNonnull($parent.blameUrl)}
+              {sp}[<a href="{$parent.blameUrl}">{msg desc="text for the parent blame link"}blame{/msg}</a>]
+            {/if}
           </span>
         </td>
       </tr>

@@ -18,11 +18,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
 import com.google.common.base.Charsets;
+import com.google.gitiles.CommitData.Field;
 
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.http.server.ServletUtils;
+import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -30,6 +32,7 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.EmptyTreeIterator;
+import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.util.GitDateFormatter;
 import org.eclipse.jgit.util.GitDateFormatter.Format;
@@ -38,6 +41,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -62,19 +66,17 @@ public class DiffServlet extends BaseServlet {
 
     RevWalk walk = new RevWalk(repo);
     try {
-      boolean showCommit;
+      boolean showCommit, isFile;
       AbstractTreeIterator oldTree;
       AbstractTreeIterator newTree;
       try {
         // If we are viewing the diff between a commit and one of its parents,
         // include the commit detail in the rendered page.
         showCommit = isParentOf(walk, view.getOldRevision(), view.getRevision());
+        isFile = showCommit ? isFile(walk, view) : false;
         oldTree = getTreeIterator(walk, view.getOldRevision().getId());
         newTree = getTreeIterator(walk, view.getRevision().getId());
-      } catch (MissingObjectException e) {
-        res.setStatus(SC_NOT_FOUND);
-        return;
-      } catch (IncorrectObjectTypeException e) {
+      } catch (MissingObjectException | IncorrectObjectTypeException e) {
         res.setStatus(SC_NOT_FOUND);
         return;
       }
@@ -82,11 +84,15 @@ public class DiffServlet extends BaseServlet {
       Map<String, Object> data = getData(req);
       data.put("title", "Diff - " + view.getRevisionRange());
       if (showCommit) {
+        Set<Field> fs = CommitSoyData.DEFAULT_FIELDS;
+        if (isFile) {
+          fs = Field.setOf(fs, Field.PARENT_BLAME_URL);
+        }
         GitDateFormatter df = new GitDateFormatter(Format.DEFAULT);
         data.put("commit", new CommitSoyData()
             .setLinkifier(linkifier)
             .setArchiveFormat(getArchiveFormat(getAccess(req)))
-            .toSoyData(req, walk.parseCommit(view.getRevision().getId()), df));
+            .toSoyData(req, walk.parseCommit(view.getRevision().getId()), fs, df));
       }
       if (!data.containsKey("repositoryName") && (view.getRepositoryName() != null)) {
         data.put("repositoryName", view.getRepositoryName());
@@ -121,6 +127,21 @@ public class DiffServlet extends BaseServlet {
       return Arrays.asList(newCommit.getParents()).contains(oldRevision.getId());
     } else {
       return oldRevision == Revision.NULL;
+    }
+  }
+
+  private static boolean isFile(RevWalk walk, GitilesView view) throws IOException {
+    if (view.getPathPart().equals("")) {
+      return false;
+    }
+    TreeWalk tw = TreeWalk.forPath(
+        walk.getObjectReader(),
+        view.getPathPart(),
+        walk.parseTree(view.getRevision().getId()));
+    try {
+      return (tw.getRawMode(0) & FileMode.TYPE_FILE) > 0;
+    } finally {
+      tw.release();
     }
   }
 

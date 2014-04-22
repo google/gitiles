@@ -52,6 +52,9 @@ public class CommitSoyData {
       Field.COMMITTER, Field.SHA, Field.TREE, Field.TREE_URL, Field.PARENTS, Field.MESSAGE,
       Field.LOG_URL, Field.ARCHIVE_URL, Field.ARCHIVE_TYPE);
 
+  private static final ImmutableSet<Field> NESTED_FIELDS = Sets.immutableEnumSet(
+      Field.PARENT_BLAME_URL);
+
   private Linkifier linkifier;
   private RevWalk walk;
   private ArchiveFormat archiveFormat;
@@ -111,7 +114,7 @@ public class CommitSoyData {
       data.put("treeUrl", cd.treeUrl);
     }
     if (cd.parents != null) {
-      data.put("parents", toSoyData(view, cd.parents));
+      data.put("parents", toSoyData(view, fs, cd.parents));
     }
     if (cd.shortMessage != null) {
       data.put("shortMessage", cd.shortMessage);
@@ -132,7 +135,8 @@ public class CommitSoyData {
     if (cd.diffEntries != null) {
       data.put("diffTree", toSoyData(view, cd.diffEntries));
     }
-    checkState(fs.size() == data.size(), "bad commit data fields: %s != %s", fs, data.keySet());
+    checkState(Sets.difference(fs, NESTED_FIELDS).size() == data.size(),
+        "bad commit data fields: %s != %s", fs, data.keySet());
     return ImmutableMap.copyOf(data);
   }
 
@@ -151,7 +155,8 @@ public class CommitSoyData {
         "relativeTime", RelativeDateFormatter.format(ident.getWhen()));
   }
 
-  private List<Map<String, String>> toSoyData(GitilesView view, List<RevCommit> parents) {
+  private List<Map<String, String>> toSoyData(GitilesView view, Set<Field> fs,
+      List<RevCommit> parents) {
     List<Map<String, String>> result = Lists.newArrayListWithCapacity(parents.size());
     int i = 1;
     // TODO(dborowitz): Render something slightly different when we're actively
@@ -167,13 +172,21 @@ public class CommitSoyData {
       } else {
         parentName = view.getRevision().getName() + "^" + (i++);
       }
-      result.add(ImmutableMap.of(
-          "sha", name,
-          "url", GitilesView.revision()
-              .copyFrom(view)
-              .setRevision(parentName, parent)
-              .toUrl(),
-          "diffUrl", diff.setOldRevision(parentName, parent).toUrl()));
+      Map<String, String> e = Maps.newHashMapWithExpectedSize(4);
+      e.put("sha", name);
+      e.put("url", GitilesView.revision()
+          .copyFrom(view)
+          .setRevision(parentName, parent)
+          .toUrl());
+      e.put("diffUrl", diff.setOldRevision(parentName, parent).toUrl());
+      if (fs.contains(Field.PARENT_BLAME_URL)) {
+        // Assumes caller has ensured path is a file.
+        e.put("blameUrl", GitilesView.blame()
+            .copyFrom(view)
+            .setRevision(Revision.peeled(parentName, parent))
+            .toUrl());
+      }
+      result.add(e);
     }
     return result;
   }
