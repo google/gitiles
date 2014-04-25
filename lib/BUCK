@@ -49,6 +49,13 @@ maven_jar(
 )
 
 maven_jar(
+  name = 'prettify',
+  id = 'prettify:java-prettify:1.2.1',
+  sha1 = '29ad8d072f9d0b83d1a2e9aa6ccb0905e6d543c6',
+  repository = GERRIT,
+)
+
+maven_jar(
   name = 'junit',
   id = 'junit:junit:4.11',
   sha1 = '4e031bb61df09069aeb2bffb4019e7a5034a4ee0',

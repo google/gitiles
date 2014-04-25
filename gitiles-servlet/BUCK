@@ -10,6 +10,7 @@ DEPS = [
   '//lib:joda-time',
   '//lib:gson',
   '//lib:commons-lang',
+  '//lib:prettify',
   '//lib/jgit:jgit',
   '//lib/jgit:jgit-servlet',
   '//lib/slf4j:slf4j-api',

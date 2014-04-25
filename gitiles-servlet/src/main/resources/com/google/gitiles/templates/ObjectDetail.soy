@@ -214,8 +214,7 @@
  * @param sha SHA of this file's blob.
  * @param? logUrl optional URL to a log for this file.
  * @param? blameUrl optional URL to a blame for this file.
- * @param data file data (may be empty), or null for a binary file.
- * @param? lang prettyprint language extension for text file.
+ * @param lines lines in the file (may be empty), or null for a binary file.
  * @param? size for binary files only, size in bytes.
  */
 {template .blobDetail}
@@ -231,18 +230,23 @@
 /**
  * Preformatted box containing blob contents.
  *
- * @param data file data (may be empty), or null for a binary file.
- * @param? lang prettyprint language extension for text file.
+ * @param lines lines (may be empty), or null for a binary file. Each line
+ *     is a list of entries with "classes" and "text" fields for pretty-printed
+ *     spans.
  * @param? size for binary files only, size in bytes.
  */
 {template .blobBox}
-  {if $data != null}
-    {if $data}
-      {if $lang}
-        <pre class="git-blob prettyprint linenums lang-{$lang}">{$data}</pre>
-      {else}
-        <pre class="git-blob prettyprint linenums">{$data}</pre>
-      {/if}
+  {if $lines != null}
+    {if $lines}
+      <ol class="prettyprint">
+        {foreach $line in $lines}
+          <li>
+            {foreach $span in $line}
+              <span class="{$span.classes}">{$span.text}</span>
+            {/foreach}
+          </li>
+        {/foreach}
+      </ol>
     {else}
       <div class="file-empty">Empty file</div>
     {/if}

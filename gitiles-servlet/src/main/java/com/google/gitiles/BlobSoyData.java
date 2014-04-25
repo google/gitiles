@@ -14,9 +14,13 @@
 
 package com.google.gitiles;
 
+import static com.google.common.base.Preconditions.checkState;
 import static org.eclipse.jgit.lib.Constants.OBJ_COMMIT;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
+import com.google.template.soy.data.SoyListData;
+import com.google.template.soy.data.SoyMapData;
 
 import org.eclipse.jgit.diff.RawText;
 import org.eclipse.jgit.errors.LargeObjectException;
@@ -27,7 +31,12 @@ import org.eclipse.jgit.lib.ObjectLoader;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.util.RawParseUtils;
 
+import prettify.PrettifyParser;
+import prettify.parser.Prettify;
+import syntaxhighlight.ParseResult;
+
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 /** Soy data converter for git blobs. */
@@ -69,10 +78,10 @@ public class BlobSoyData {
       content = null;
     }
 
-    data.put("data", content);
     if (content != null) {
-      data.put("lang", guessPrettifyLang(path, content));
+      data.put("lines", prettify(path, content));
     } else if (content == null) {
+      data.put("lines", null);
       data.put("size", Long.toString(loader.getSize()));
     }
     if (path != null && view.getRevision().getPeeledType() == OBJ_COMMIT) {
@@ -82,11 +91,74 @@ public class BlobSoyData {
     return data;
   }
 
-  private static String guessPrettifyLang(String path, String content) {
+  private static SoyListData prettify(String path, String content) {
+    List<ParseResult> results = new PrettifyParser().parse(extension(path, content), content);
+    SoyListData lines = new SoyListData();
+    SoyListData line = new SoyListData();
+    lines.add(line);
+
+    int last = 0;
+    for (ParseResult r : results) {
+      checkState(r.getOffset() >= last,
+          "out-of-order ParseResult, expected %s >= %s", r.getOffset(), last);
+      line = writeResult(lines, null, content, last, r.getOffset());
+      last = r.getOffset() + r.getLength();
+      line = writeResult(lines, r.getStyleKeysString(), content, r.getOffset(), last);
+    }
+    if (last < content.length()) {
+      writeResult(lines, null, content, last, content.length());
+    }
+    return lines;
+  }
+
+  private static SoyListData writeResult(SoyListData lines, String classes,
+      String s, int start, int end) {
+    SoyListData line = lines.getListData(lines.length() - 1);
+    while (true) {
+      int nl = nextLineBreak(s, start, end);
+      if (nl < 0) {
+        break;
+      }
+      addSpan(line, classes, s, start, nl);
+
+      start = nl + (isCrNl(s, nl) ? 2 : 1);
+      if (start == s.length()) {
+        return null;
+      }
+      line = new SoyListData();
+      lines.add(line);
+    }
+    addSpan(line, classes, s, start, end);
+    return line;
+  }
+
+  private static void addSpan(SoyListData line, String classes, String s, int start, int end) {
+    if (end - start > 0) {
+      if (Strings.isNullOrEmpty(classes)) {
+        classes = Prettify.PR_PLAIN;
+      }
+      line.add(new SoyMapData("classes", classes, "text", s.substring(start, end)));
+    }
+  }
+
+  private static boolean isCrNl(String s, int n) {
+    return s.charAt(n) == '\r' && n != s.length() - 1 && s.charAt(n + 1) == '\n';
+  }
+
+  private static int nextLineBreak(String s, int start, int end) {
+    for (int i = start; i < end; i++) {
+      if (s.charAt(i) == '\n' || s.charAt(i) == '\r') {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  private static String extension(String path, String content) {
     if (content.startsWith("#!/bin/sh") || content.startsWith("#!/bin/bash")) {
       return "sh";
     } else if (content.startsWith("#!/usr/bin/perl")) {
-      return "perl";
+      return "pl";
     } else if (content.startsWith("#!/usr/bin/python")) {
       return "py";
     } else if (path == null) {
@@ -95,16 +167,16 @@ public class BlobSoyData {
 
     int slash = path.lastIndexOf('/');
     int dot = path.lastIndexOf('.');
-    String lang = ((0 < dot) && (slash < dot)) ? path.substring(dot + 1) : null;
-    if ("txt".equalsIgnoreCase(lang)) {
+    String ext = ((0 < dot) && (slash < dot)) ? path.substring(dot + 1) : null;
+    if ("txt".equalsIgnoreCase(ext)) {
       return null;
-    } else if ("mk".equalsIgnoreCase(lang)) {
+    } else if ("mk".equalsIgnoreCase(ext)) {
       return "sh";
     } else if ("Makefile".equalsIgnoreCase(path)
         || ((0 < slash) && "Makefile".equalsIgnoreCase(path.substring(slash + 1)))) {
       return "sh";
     } else {
-      return lang;
+      return ext;
     }
   }
 }

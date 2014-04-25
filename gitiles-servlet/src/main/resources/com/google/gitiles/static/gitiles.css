@@ -399,25 +399,16 @@ a.diff-git:hover {
 
 /* Override some styles from the default prettify.css. */
 
-/* Line numbers on all lines. */
-li.L0, li.L1, li.L2, li.L3, li.L4, li.L5, li.L6, li.L7, li.L8, li.L9 {
-  list-style-type: decimal;
-}
-
-/* Disable alternating line background color. */
-li.L0, li.L1, li.L2, li.L3, li.L4, li.L5, li.L6, li.L7, li.L8, li.L9 {
-  background: #fff;
-}
-
-pre.git-blob {
+ol.prettyprint {
   border-top: #ddd solid 1px; /* BORDER */
   border-bottom: #ddd solid 1px; /* BORDER */
   border-left: none;
   border-right: none;
-  padding-left: 1em;
+  padding-left: 5em;
   padding-bottom: 5px;
   font-family: monospace;
   font-size: 8pt;
+  white-space: pre;
 }
 pre.prettyprint ol {
   color: grey;
