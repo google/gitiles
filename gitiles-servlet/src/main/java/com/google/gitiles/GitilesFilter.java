@@ -21,6 +21,7 @@ import static com.google.gitiles.ViewFilter.getRegexGroup;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
+import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.LinkedListMultimap;
@@ -50,6 +51,7 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.regex.Pattern;
 
 import javax.servlet.Filter;
@@ -423,7 +425,14 @@ class GitilesFilter extends MetaFilter {
 
   private void setDefaultDateFormatterBuilder() {
     if (dateFormatterBuilder == null) {
-      dateFormatterBuilder = new DateFormatterBuilder();
+      String tzStr = config.getString("gitiles", null, "fixedTimeZone");
+      Optional<TimeZone> tz;
+      if (tzStr == null) {
+        tz = Optional.absent();
+      } else {
+        tz = Optional.of(TimeZone.getTimeZone(tzStr));
+      }
+      dateFormatterBuilder = new DateFormatterBuilder(tz);
     }
   }
 

@@ -14,6 +14,7 @@
 
 package com.google.gitiles;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 
 import org.eclipse.jgit.lib.PersonIdent;
@@ -48,18 +49,22 @@ public class DateFormatterBuilder {
 
     public String format(PersonIdent ident) {
       DateFormat df = getDateFormat(format);
-      TimeZone tz = ident.getTimeZone();
-      if (tz == null) {
-        tz = SystemReader.getInstance().getTimeZone();
+      if (!fixedTz.isPresent()) {
+        TimeZone tz = ident.getTimeZone();
+        if (tz == null) {
+          tz = SystemReader.getInstance().getTimeZone();
+        }
+        df.setTimeZone(tz);
       }
-      df.setTimeZone(tz);
       return df.format(ident.getWhen());
     }
   }
 
+  private final Optional<TimeZone> fixedTz;
   private final ThreadLocal<List<DateFormat>> dfs;
 
-  DateFormatterBuilder() {
+  DateFormatterBuilder(Optional<TimeZone> fixedTz) {
+    this.fixedTz = fixedTz;
     this.dfs = new ThreadLocal<List<DateFormat>>();
   }
 
@@ -79,7 +84,12 @@ public class DateFormatterBuilder {
     }
     DateFormat df = result.get(format.ordinal());
     if (df == null) {
-      df = new SimpleDateFormat(format.fmt + " Z");
+      if (fixedTz.isPresent()) {
+        df = new SimpleDateFormat(format.fmt);
+        df.setTimeZone(fixedTz.get());
+      } else {
+        df = new SimpleDateFormat(format.fmt + " Z");
+      }
       result.set(format.ordinal(), df);
     }
     return result.get(format.ordinal());

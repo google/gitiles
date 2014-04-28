@@ -16,6 +16,7 @@ package com.google.gitiles;
 
 import static org.junit.Assert.assertEquals;
 
+import com.google.common.base.Optional;
 import static com.google.gitiles.DateFormatterBuilder.Format.DEFAULT;
 import static com.google.gitiles.DateFormatterBuilder.Format.ISO;
 
@@ -30,16 +31,50 @@ import java.util.TimeZone;
 public class DateFormatterBuilderTest {
   @Test
   public void defaultIncludingTimeZone() throws Exception {
-    DateFormatterBuilder dfb = new DateFormatterBuilder();
+    DateFormatterBuilder dfb =
+        new DateFormatterBuilder(Optional.<TimeZone> absent());
     PersonIdent ident = newIdent("Mon Jan 2 15:04:05 2006", "-0700");
     assertEquals("Mon Jan 02 15:04:05 2006 -0700", dfb.create(DEFAULT).format(ident));
   }
 
   @Test
+  public void defaultWithUtc() throws Exception {
+    DateFormatterBuilder dfb =
+        new DateFormatterBuilder(Optional.of(TimeZone.getTimeZone("UTC")));
+    PersonIdent ident = newIdent("Mon Jan 2 15:04:05 2006", "-0700");
+    assertEquals("Mon Jan 02 22:04:05 2006", dfb.create(DEFAULT).format(ident));
+  }
+
+  @Test
+  public void defaultWithOtherTimeZone() throws Exception {
+    DateFormatterBuilder dfb =
+        new DateFormatterBuilder(Optional.of(TimeZone.getTimeZone("GMT-0400")));
+    PersonIdent ident = newIdent("Mon Jan 2 15:04:05 2006", "-0700");
+    assertEquals("Mon Jan 02 18:04:05 2006", dfb.create(DEFAULT).format(ident));
+  }
+
+  @Test
   public void isoIncludingTimeZone() throws Exception {
-    DateFormatterBuilder dfb = new DateFormatterBuilder();
+    DateFormatterBuilder dfb =
+        new DateFormatterBuilder(Optional.<TimeZone> absent());
     PersonIdent ident = newIdent("Mon Jan 2 15:04:05 2006", "-0700");
     assertEquals("2006-01-02 15:04:05 -0700", dfb.create(ISO).format(ident));
+  }
+
+  @Test
+  public void isoWithUtc() throws Exception {
+    DateFormatterBuilder dfb =
+        new DateFormatterBuilder(Optional.of(TimeZone.getTimeZone("UTC")));
+    PersonIdent ident = newIdent("Mon Jan 2 15:04:05 2006", "-0700");
+    assertEquals("2006-01-02 22:04:05", dfb.create(ISO).format(ident));
+  }
+
+  @Test
+  public void isoWithOtherTimeZone() throws Exception {
+    DateFormatterBuilder dfb =
+        new DateFormatterBuilder(Optional.of(TimeZone.getTimeZone("GMT-0400")));
+    PersonIdent ident = newIdent("Mon Jan 2 15:04:05 2006", "-0700");
+    assertEquals("2006-01-02 18:04:05", dfb.create(ISO).format(ident));
   }
 
   private PersonIdent newIdent(String whenStr, String tzStr) throws ParseException {
