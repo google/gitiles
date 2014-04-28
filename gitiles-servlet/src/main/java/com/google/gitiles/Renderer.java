@@ -50,8 +50,7 @@ public abstract class Renderer {
 
   public static final Map<String, String> STATIC_URL_GLOBALS = ImmutableMap.of(
       "gitiles.CSS_URL", "gitiles.css",
-      "gitiles.PRETTIFY_CSS_URL", "prettify/prettify.css",
-      "gitiles.PRETTIFY_JS_URL", "prettify/prettify.js");
+      "gitiles.PRETTIFY_CSS_URL", "prettify/prettify.css");
 
   protected static class FileUrlMapper implements Function<String, URL> {
     private final String prefix;

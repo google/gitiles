@@ -37,15 +37,8 @@
  */
 {template .blameDetail}
 {if $regions}
-  {call .header}
-    {param title: $title /}
-    {param repositoryName: $repositoryName /}
-    {param menuEntries: $menuEntries /}
-    {param headerVariant: $headerVariant /}
-    {param breadcrumbs: $breadcrumbs /}
+  {call .header data="all"}
     {param css: [gitiles.PRETTIFY_CSS_URL] /}
-    {param js: [gitiles.PRETTIFY_JS_URL] /}
-    {param onLoad: 'prettyPrint()' /}
   {/call}
 
   <table id="blame">
