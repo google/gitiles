@@ -43,6 +43,7 @@ public class RepositoryIndexServletTest extends TestCase {
     servlet = new RepositoryIndexServlet(
         new TestGitilesAccess(repo.getRepository()),
         new DefaultRenderer(),
+        new DateFormatterBuilder(),
         new TimeCache());
   }
 

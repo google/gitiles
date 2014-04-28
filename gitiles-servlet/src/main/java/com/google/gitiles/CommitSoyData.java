@@ -26,6 +26,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gitiles.CommitData.DiffList;
 import com.google.gitiles.CommitData.Field;
+import com.google.gitiles.DateFormatterBuilder.DateFormatter;
 import com.google.template.soy.data.restricted.NullData;
 
 import org.eclipse.jgit.diff.DiffEntry;
@@ -35,7 +36,6 @@ import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
-import org.eclipse.jgit.util.GitDateFormatter;
 import org.eclipse.jgit.util.RelativeDateFormatter;
 
 import java.io.IOException;
@@ -75,7 +75,7 @@ public class CommitSoyData {
   }
 
   Map<String, Object> toSoyData(HttpServletRequest req, RevCommit c, Set<Field> fs,
-      GitDateFormatter df) throws IOException {
+      DateFormatter df) throws IOException {
     GitilesView view = ViewFilter.getView(req);
     CommitData cd = new CommitData.Builder()
         .setRevWalk(walk)
@@ -141,16 +141,16 @@ public class CommitSoyData {
   }
 
   Map<String, Object> toSoyData(HttpServletRequest req, RevCommit commit,
-      GitDateFormatter df) throws IOException {
+      DateFormatter df) throws IOException {
     return toSoyData(req, commit, DEFAULT_FIELDS, df);
   }
 
   // TODO(dborowitz): Extract this.
-  public static Map<String, String> toSoyData(PersonIdent ident, GitDateFormatter df) {
+  public static Map<String, String> toSoyData(PersonIdent ident, DateFormatter df) {
     return ImmutableMap.of(
         "name", ident.getName(),
         "email", ident.getEmailAddress(),
-        "time", df.formatDate(ident),
+        "time", df.format(ident),
         // TODO(dborowitz): Switch from relative to absolute at some threshold.
         "relativeTime", RelativeDateFormatter.format(ident.getWhen()));
   }

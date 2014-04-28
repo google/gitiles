@@ -15,10 +15,10 @@
 package com.google.gitiles;
 
 import com.google.common.collect.Maps;
+import com.google.gitiles.DateFormatterBuilder.DateFormatter;
 
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevTag;
-import org.eclipse.jgit.util.GitDateFormatter;
 
 import java.util.Map;
 
@@ -34,7 +34,7 @@ public class TagSoyData {
     this.req = req;
   }
 
-  public Map<String, Object> toSoyData(RevTag tag, GitDateFormatter df) {
+  public Map<String, Object> toSoyData(RevTag tag, DateFormatter df) {
     Map<String, Object> data = Maps.newHashMapWithExpectedSize(4);
     data.put("sha", ObjectId.toString(tag));
     if (tag.getTaggerIdent() != null) {

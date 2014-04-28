@@ -25,6 +25,8 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Longs;
+import com.google.gitiles.DateFormatterBuilder.DateFormatter;
+import com.google.gitiles.DateFormatterBuilder.Format;
 import com.google.gson.reflect.TypeToken;
 
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
@@ -44,8 +46,6 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
-import org.eclipse.jgit.util.GitDateFormatter;
-import org.eclipse.jgit.util.GitDateFormatter.Format;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,10 +67,13 @@ public class LogServlet extends BaseServlet {
   private static final int DEFAULT_LIMIT = 100;
   private static final int MAX_LIMIT = 10000;
 
+  private final DateFormatterBuilder dfb;
   private final Linkifier linkifier;
 
-  public LogServlet(GitilesAccess.Factory accessFactory, Renderer renderer, Linkifier linkifier) {
+  public LogServlet(GitilesAccess.Factory accessFactory, Renderer renderer,
+      DateFormatterBuilder dfb, Linkifier linkifier) {
     super(renderer, accessFactory);
+    this.dfb = checkNotNull(dfb, "dfb");
     this.linkifier = checkNotNull(linkifier, "linkifier");
   }
 
@@ -85,7 +88,7 @@ public class LogServlet extends BaseServlet {
     }
 
     try {
-      GitDateFormatter df = new GitDateFormatter(Format.DEFAULT);
+      DateFormatter df = dfb.create(Format.DEFAULT);
       Map<String, Object> data = new LogSoyData(req, view).toSoyData(paginator, null, df);
 
       if (!view.getRevision().nameIsId()) {
@@ -131,7 +134,7 @@ public class LogServlet extends BaseServlet {
     }
 
     try {
-      GitDateFormatter df = new GitDateFormatter(Format.DEFAULT);
+      DateFormatter df = dfb.create(Format.DEFAULT);
       Map<String, Object> result = Maps.newLinkedHashMap();
       List<CommitJsonData.Commit> entries = Lists.newArrayListWithCapacity(paginator.getLimit());
       for (RevCommit c : paginator) {

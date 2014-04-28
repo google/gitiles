@@ -19,12 +19,12 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gitiles.CommitData.DiffList;
 import com.google.gitiles.CommitData.Field;
+import com.google.gitiles.DateFormatterBuilder.DateFormatter;
 
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
-import org.eclipse.jgit.util.GitDateFormatter;
 
 import java.io.IOException;
 import java.util.List;
@@ -72,11 +72,11 @@ class CommitJsonData {
     return this;
   }
 
-  Commit toJsonData(HttpServletRequest req, RevCommit c, GitDateFormatter df) throws IOException {
+  Commit toJsonData(HttpServletRequest req, RevCommit c, DateFormatter df) throws IOException {
     return toJsonData(req, c, DEFAULT_FIELDS, df);
   }
 
-  Commit toJsonData(HttpServletRequest req, RevCommit c, Set<Field> fs, GitDateFormatter df)
+  Commit toJsonData(HttpServletRequest req, RevCommit c, Set<Field> fs, DateFormatter df)
       throws IOException {
     CommitData cd = new CommitData.Builder()
         .setRevWalk(walk)
@@ -107,11 +107,11 @@ class CommitJsonData {
     return result;
   }
 
-  private static Ident toJsonData(PersonIdent ident, GitDateFormatter df) {
+  private static Ident toJsonData(PersonIdent ident, DateFormatter df) {
     Ident result = new Ident();
     result.name = ident.getName();
     result.email = ident.getEmailAddress();
-    result.time = df.formatDate(ident);
+    result.time = df.format(ident);
     return result;
   }
 

@@ -15,7 +15,6 @@
 package com.google.gitiles.blame;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
 import com.google.common.base.Strings;
@@ -25,6 +24,9 @@ import com.google.common.collect.Maps;
 import com.google.gitiles.BaseServlet;
 import com.google.gitiles.BlobSoyData;
 import com.google.gitiles.CommitSoyData;
+import com.google.gitiles.DateFormatterBuilder;
+import com.google.gitiles.DateFormatterBuilder.DateFormatter;
+import com.google.gitiles.DateFormatterBuilder.Format;
 import com.google.gitiles.GitilesAccess;
 import com.google.gitiles.GitilesView;
 import com.google.gitiles.Renderer;
@@ -41,8 +43,6 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
-import org.eclipse.jgit.util.GitDateFormatter;
-import org.eclipse.jgit.util.GitDateFormatter.Format;
 
 import java.io.IOException;
 import java.util.List;
@@ -55,10 +55,13 @@ import javax.servlet.http.HttpServletResponse;
 public class BlameServlet extends BaseServlet {
   private static final long serialVersionUID = 1L;
 
+  private final DateFormatterBuilder dfb;
   private final BlameCache cache;
 
-  public BlameServlet(GitilesAccess.Factory accessFactory, Renderer renderer, BlameCache cache) {
+  public BlameServlet(GitilesAccess.Factory accessFactory, Renderer renderer,
+      DateFormatterBuilder dfb, BlameCache cache) {
     super(renderer, accessFactory);
+    this.dfb = checkNotNull(dfb, "dfb");
     this.cache = checkNotNull(cache, "cache");
   }
 
@@ -85,7 +88,7 @@ public class BlameServlet extends BaseServlet {
           res.setStatus(SC_NOT_FOUND);
           return;
         }
-        GitDateFormatter df = new GitDateFormatter(Format.ISO);
+        DateFormatter df = dfb.create(Format.ISO);
         renderHtml(req, res, "gitiles.blameDetail", ImmutableMap.of(
             "title", title,
             "breadcrumbs", view.getBreadcrumbs(),
@@ -129,7 +132,7 @@ public class BlameServlet extends BaseServlet {
   }
 
   private static SoyListData toSoyData(GitilesView view, ObjectReader reader,
-      List<Region> regions, GitDateFormatter df) throws IOException {
+      List<Region> regions, DateFormatter df) throws IOException {
     Map<ObjectId, String> abbrevShas = Maps.newHashMap();
     SoyListData result = new SoyListData();
 
