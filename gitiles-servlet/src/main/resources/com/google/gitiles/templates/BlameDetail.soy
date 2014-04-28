@@ -22,17 +22,18 @@
  * @param? headerVariant variant name for custom header.
  * @param breadcrumbs breadcrumbs for this page.
  * @param data blob data, matching the params for .blobBox.
- * @param? regions for non-binary files, list of blame regions with the
+ * @param? regions for non-binary files, list of regions, one per line, with the
  *     following keys:
  *       abbrevSha: abbreviated SHA-1 of revision for this line; if missing,
  *           assume blame info is missing.
  *       author: author information with at least "name" and "relativeTime"
  *           keys.
- *       relativeTime: relative time of the revision
- *       count: line count
- *       blameUrl: URL for a blame of this file at this commit
- *       commitUrl: URL for detail about the commit
- *       diffUrl: URL for a diff of this file at this commit
+ *       time: time of the revision.
+ *       blameUrl: URL for a blame of this file at this commit.
+ *       commitUrl: URL for detail about the commit.
+ *       diffUrl: URL for a diff of this file at this commit.
+ *       class: class name for tr.
+ *     All keys but "class" are optional.
  */
 {template .blameDetail}
 {if $regions}
@@ -48,39 +49,37 @@
   {/call}
 
   <table id="blame">
-    <tr>
-      <td>
-        <ul id="regions">
-          {foreach $region in $regions}
-            <li class="line">
-              {if $region.abbrevSha}
-                <a href="{$region.commitUrl}">
-                  <span class="sha1">{$region.abbrevSha}</span>
-                  {sp}<span class="author">{$region.author.name}</span>
-                  {sp}<span class="time">- {$region.author.relativeTime}</span>
-                </a>
-                <div class="regionMenu">
-                  [<a href="{$region.commitUrl}">commit</a>]
-                  {sp}[<a href="{$region.diffUrl}">diff</a>]
-                  {sp}[<a href="{$region.blameUrl}">blame</a>]
-                </div>
-              {else}
-                &nbsp;
-              {/if}
-            </li>
-            {for $i in range($region.count - 1)}
-              <li>&nbsp;</li>
-            {/for}
+    {let $regionIdx: 0 /}
+    {foreach $line in $data.lines}
+      {let $i: index($line) /}
+      {let $region: $regions[index($line)] /}
+      <tr class="{$region.class}">
+        {if isNonnull($region.abbrevSha)}
+          <td class="region">
+            <a href="{$region.commitUrl}">
+              <span class="sha1">{$region.abbrevSha}</span>
+              <span class="author">{$region.author.name}</span>
+            </a>
+          </td>
+          <td class="region">
+            <span class="time">{$region.author.time}</span>
+          </td>
+          <td class="regionLink">
+            [<a href="{$region.diffUrl}">{msg desc="text for diff URL"}diff{/msg}</a>]
+            [<a href="{$region.blameUrl}">{msg desc="text for blame URL"}blame{/msg}</a>]
+          </td>
+        {else}
+          <td colspan="3"></td>
+        {/if}
+        <td class="linenum">{index($line) + 1}.</td>
+        <td class="prettyprint">
+          {foreach $span in $line}
+            <span class="{$span.classes}">{$span.text}</span>
           {/foreach}
-        </ul>
-      </td>
-      <td>
-        {call .blobBox data="$data" /}
-      </td>
-    </tr>
+        </td>
+      </tr>
+    {/foreach}
   </table>
-
-  </div>
 {else}
   {call .header data="all" /}
   {call .blobDetail data="$data" /}

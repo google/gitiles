@@ -340,64 +340,44 @@ a.diff-git:hover {
   padding: 0;
 }
 #blame td {
+  line-height: 1.4;
   padding: 0;
-}
-#regions {
-  padding-top: 2px;
-  padding-right: 2px;
-  padding-bottom: 5px;
-  padding-left: 2px;
+  font-size: 8pt;
   white-space: nowrap;
-  list-style-type: none;
-
-  /* Matching pre.git-blob below. */
+}
+#blame .sha1, #blame .author, #blame .time {
+   /* TODO(dborowitz): Make 9pt values above more specific. */
+  font-size: 8pt;
+}
+#blame .sha1 {
   font-family: monospace;
-  font-size: 8pt;
-  border-bottom: #ddd solid 1px; /* BORDER */
-}
-#regions ul {
-  list-style-type: none;
-  margin-top: 0;
-  margin-bottom: 0;
-  padding-left: 0;
-}
-#blame .time, #blame .sha1 {
-  /* Smaller than SHORTLOG_SMALL_FONT_SIZE to match pre. */
-  font-size: 8pt;
 }
 #blame .author {
-  padding-left: 0px;
+  padding-left: 3px;
+  padding-right: 3px;
 }
-#blame pre.git-blob {
-  border-top: 0;
+#blame .time {
+  padding-left: 5px;
+  padding-right: 3px;
 }
-
-#regions li {
-  position: relative;
+#blame .linenum {
+  text-align: right;
+  padding-left: 5px;
+  padding-right: 5px;
 }
-#regions li.line:hover {
-  background-color: #eee;
-}
-#regions li .regionMenu {
-  position: absolute;
-  top: 13px;
-  left: 0;
-  visibility: hidden;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  padding-left: 8px;
-  padding-right: 8px;
-
-  background-color: #eee;
-  font-size: 8pt;
-  font-family: arial,sans-serif;
-  z-index: 101;
-}
-#regions li:hover .regionMenu {
-  visibility: visible;
+#blame .regionLink {
+  padding-right: 3px;
 }
 
-/* Override some styles from the default prettify.css. */
+#blame tr.bg1 {
+  background: #fff;
+}
+#blame tr.bg2 {
+  background: #f7f7f7;
+}
+
+/* Styles for pretty-print regions, including overriding some defaults from
+ * prettify.css. */
 
 ol.prettyprint {
   border-top: #ddd solid 1px; /* BORDER */
@@ -406,10 +386,9 @@ ol.prettyprint {
   border-right: none;
   padding-left: 5em;
   padding-bottom: 5px;
+}
+.prettyprint, #blame .linenum {
   font-family: monospace;
   font-size: 8pt;
-  white-space: pre;
-}
-pre.prettyprint ol {
-  color: grey;
+  white-space: pre !important;
 }

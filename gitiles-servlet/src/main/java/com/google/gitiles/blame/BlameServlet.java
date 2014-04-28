@@ -15,11 +15,12 @@
 package com.google.gitiles.blame;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gitiles.BaseServlet;
 import com.google.gitiles.BlobSoyData;
@@ -28,6 +29,8 @@ import com.google.gitiles.GitilesAccess;
 import com.google.gitiles.GitilesView;
 import com.google.gitiles.Renderer;
 import com.google.gitiles.ViewFilter;
+import com.google.template.soy.data.SoyListData;
+import com.google.template.soy.data.SoyMapData;
 
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.http.server.ServletUtils;
@@ -76,13 +79,13 @@ public class BlameServlet extends BaseServlet {
 
       String title = "Blame - " + view.getPathPart();
       Map<String, ?> blobData = new BlobSoyData(rw, view).toSoyData(view.getPathPart(), blobId);
-      if (blobData.get("data") != null) {
+      if (blobData.get("lines") != null) {
         List<Region> regions = cache.get(repo, commit, view.getPathPart());
         if (regions.isEmpty()) {
           res.setStatus(SC_NOT_FOUND);
           return;
         }
-        GitDateFormatter df = new GitDateFormatter(Format.DEFAULT);
+        GitDateFormatter df = new GitDateFormatter(Format.ISO);
         renderHtml(req, res, "gitiles.blameDetail", ImmutableMap.of(
             "title", title,
             "breadcrumbs", view.getBreadcrumbs(),
@@ -115,15 +118,28 @@ public class BlameServlet extends BaseServlet {
     }
   }
 
-  private static List<Map<String, ?>> toSoyData(GitilesView view, ObjectReader reader,
+  private static final ImmutableList<String> CLASSES = ImmutableList.of("bg1", "bg2");
+  private static final ImmutableList<SoyMapData> NULLS;
+  static {
+    ImmutableList.Builder<SoyMapData> nulls = ImmutableList.builder();
+    for (String clazz : CLASSES) {
+      nulls.add(new SoyMapData("class", clazz));
+    }
+    NULLS = nulls.build();
+  }
+
+  private static SoyListData toSoyData(GitilesView view, ObjectReader reader,
       List<Region> regions, GitDateFormatter df) throws IOException {
     Map<ObjectId, String> abbrevShas = Maps.newHashMap();
-    List<Map<String, ?>> result = Lists.newArrayListWithCapacity(regions.size());
-    for (Region r : regions) {
+    SoyListData result = new SoyListData();
+
+    for (int i = 0; i < regions.size(); i++) {
+      Region r = regions.get(i);
+      int c = i % CLASSES.size();
       if (r.getSourceCommit() == null) {
         // JGit bug may fail to blame some regions. We should fix this
         // upstream, but handle it for now.
-        result.add(ImmutableMap.of("count", r.getCount()));
+        result.add(NULLS.get(c));
       } else {
         String abbrevSha = abbrevShas.get(r.getSourceCommit());
         if (abbrevSha == null) {
@@ -144,8 +160,15 @@ public class BlameServlet extends BaseServlet {
             .setPathPart(r.getSourcePath())
             .toUrl());
         e.put("author", CommitSoyData.toSoyData(r.getSourceAuthor(), df));
-        e.put("count", r.getCount());
+        e.put("class", CLASSES.get(c));
         result.add(e);
+      }
+      // Pad the list with null regions so we can iterate in parallel in the
+      // template. We can't do this by maintaining an index variable into the
+      // regions list because Soy {let} is an unmodifiable alias scoped to a
+      // single block.
+      for (int j = 0; j < r.getCount() - 1; j++) {
+        result.add(NULLS.get(c));
       }
     }
     return result;
