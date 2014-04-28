@@ -209,33 +209,36 @@
 {/template}
 
 /**
+ * Common header for a blob shared between detail, blame, etc. views.
+ *
+ * @param sha SHA of this file's blob.
+ * @param? fileUrl optional URL to a detail view of this file.
+ * @param? logUrl optional URL to a log for this file.
+ * @param? blameUrl optional URL to a blame for this file.
+ */
+{template .blobHeader}
+<div class="sha1">
+  {msg desc="SHA-1 for the file's blob"}blob: {$sha}{/msg}
+  {if $fileUrl}{sp}[<a href="{$fileUrl}">{msg desc="detail view of a file"}file{/msg}</a>]{/if}
+  {if $logUrl}{sp}[<a href="{$logUrl}">{msg desc="history for a file"}log{/msg}</a>]{/if}
+  {if $blameUrl}{sp}[<a href="{$blameUrl}">{msg desc="blame for a file"}blame{/msg}</a>]{/if}
+</div>
+{/template}
+
+/**
  * Detailed listing of a blob.
  *
  * @param sha SHA of this file's blob.
  * @param? logUrl optional URL to a log for this file.
  * @param? blameUrl optional URL to a blame for this file.
- * @param lines lines in the file (may be empty), or null for a binary file.
- * @param? size for binary files only, size in bytes.
- */
-{template .blobDetail}
-<div class="sha1">
-  {msg desc="SHA-1 for the file's blob"}blob: {$sha}{/msg}
-  {if $logUrl}{sp}[<a href="{$logUrl}">{msg desc="history for a file"}file history{/msg}</a>]{/if}
-  {if $blameUrl}{sp}[<a href="{$blameUrl}">{msg desc="blame for a file"}blame{/msg}</a>]{/if}
-</div>
-
-{call .blobBox data="all" /}
-{/template}
-
-/**
- * Preformatted box containing blob contents.
- *
  * @param lines lines (may be empty), or null for a binary file. Each line
  *     is a list of entries with "classes" and "text" fields for pretty-printed
  *     spans.
  * @param? size for binary files only, size in bytes.
  */
-{template .blobBox}
+{template .blobDetail}
+  {call .blobHeader data="all" /}
+
   {if $lines != null}
     {if $lines}
       <ol class="prettyprint">

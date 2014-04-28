@@ -41,6 +41,8 @@
     {param css: [gitiles.PRETTIFY_CSS_URL] /}
   {/call}
 
+  {call .blobHeader data="$data" /}
+
   <table id="blame">
     {let $regionIdx: 0 /}
     {foreach $line in $data.lines}

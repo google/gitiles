@@ -85,6 +85,7 @@ public class BlobSoyData {
       data.put("size", Long.toString(loader.getSize()));
     }
     if (path != null && view.getRevision().getPeeledType() == OBJ_COMMIT) {
+      data.put("fileUrl", GitilesView.path().copyFrom(view).toUrl());
       data.put("logUrl", GitilesView.log().copyFrom(view).toUrl());
       data.put("blameUrl", GitilesView.blame().copyFrom(view).toUrl());
     }

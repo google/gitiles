@@ -336,7 +336,10 @@ a.diff-git:hover {
 /* Styles for the blame detail template. */
 
 #blame {
-  margin: 0;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  margin-left: 0px;
+  margin-right: 0px;
   padding: 0;
 }
 #blame td {
@@ -379,7 +382,7 @@ a.diff-git:hover {
 /* Styles for pretty-print regions, including overriding some defaults from
  * prettify.css. */
 
-ol.prettyprint {
+ol.prettyprint, #blame {
   border-top: #ddd solid 1px; /* BORDER */
   border-bottom: #ddd solid 1px; /* BORDER */
   border-left: none;
