@@ -353,15 +353,16 @@ a.diff-git:hover {
   font-size: 8pt;
 }
 #blame .sha1 {
+  color: inherit;
   font-family: monospace;
 }
-#blame .author {
+#blame .author, #blame .sha1 {
   padding-left: 3px;
   padding-right: 3px;
 }
 #blame .time {
   padding-left: 5px;
-  padding-right: 3px;
+  padding-right: 5px;
 }
 #blame .linenum {
   text-align: right;

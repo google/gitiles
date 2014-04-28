@@ -50,16 +50,12 @@
       {let $region: $regions[index($line)] /}
       <tr class="{$region.class}">
         {if isNonnull($region.abbrevSha)}
-          <td class="region">
+          <td class="author">{$region.author.name}</td>
+          <td class="time">{$region.author.time}</td>
+          <td class="regionLink">
             <a href="{$region.commitUrl}">
               <span class="sha1">{$region.abbrevSha}</span>
-              <span class="author">{$region.author.name}</span>
             </a>
-          </td>
-          <td class="region">
-            <span class="time">{$region.author.time}</span>
-          </td>
-          <td class="regionLink">
             [<a href="{$region.diffUrl}">{msg desc="text for diff URL"}diff{/msg}</a>]
             [<a href="{$region.blameUrl}">{msg desc="text for blame URL"}blame{/msg}</a>]
           </td>
