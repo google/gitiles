@@ -15,7 +15,6 @@
 package com.google.gitiles;
 
 import com.google.common.collect.Maps;
-import com.google.gitiles.DateFormatterBuilder.DateFormatter;
 
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevTag;

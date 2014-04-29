@@ -16,7 +16,6 @@ package com.google.gitiles;
 
 import static com.google.gitiles.TestGitilesUrls.URLS;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
@@ -29,7 +28,6 @@ import org.eclipse.jgit.junit.TestRepository;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.TimeZone;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -45,7 +43,6 @@ public class RepositoryIndexServletTest extends TestCase {
     servlet = new RepositoryIndexServlet(
         new TestGitilesAccess(repo.getRepository()),
         new DefaultRenderer(),
-        new DateFormatterBuilder(Optional.<TimeZone> absent()),
         new TimeCache());
   }
 

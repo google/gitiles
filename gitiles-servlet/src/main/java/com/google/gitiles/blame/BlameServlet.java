@@ -24,9 +24,8 @@ import com.google.common.collect.Maps;
 import com.google.gitiles.BaseServlet;
 import com.google.gitiles.BlobSoyData;
 import com.google.gitiles.CommitSoyData;
-import com.google.gitiles.DateFormatterBuilder;
-import com.google.gitiles.DateFormatterBuilder.DateFormatter;
-import com.google.gitiles.DateFormatterBuilder.Format;
+import com.google.gitiles.DateFormatter;
+import com.google.gitiles.DateFormatter.Format;
 import com.google.gitiles.GitilesAccess;
 import com.google.gitiles.GitilesView;
 import com.google.gitiles.Renderer;
@@ -55,13 +54,10 @@ import javax.servlet.http.HttpServletResponse;
 public class BlameServlet extends BaseServlet {
   private static final long serialVersionUID = 1L;
 
-  private final DateFormatterBuilder dfb;
   private final BlameCache cache;
 
-  public BlameServlet(GitilesAccess.Factory accessFactory, Renderer renderer,
-      DateFormatterBuilder dfb, BlameCache cache) {
+  public BlameServlet(GitilesAccess.Factory accessFactory, Renderer renderer, BlameCache cache) {
     super(renderer, accessFactory);
-    this.dfb = checkNotNull(dfb, "dfb");
     this.cache = checkNotNull(cache, "cache");
   }
 
@@ -88,7 +84,7 @@ public class BlameServlet extends BaseServlet {
           res.setStatus(SC_NOT_FOUND);
           return;
         }
-        DateFormatter df = dfb.create(Format.ISO);
+        DateFormatter df = new DateFormatter(getAccess(req), Format.ISO);
         renderHtml(req, res, "gitiles.blameDetail", ImmutableMap.of(
             "title", title,
             "breadcrumbs", view.getBreadcrumbs(),

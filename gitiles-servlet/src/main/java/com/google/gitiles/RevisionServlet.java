@@ -26,8 +26,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.gitiles.CommitData.Field;
 import com.google.gitiles.CommitJsonData.Commit;
-import com.google.gitiles.DateFormatterBuilder.DateFormatter;
-import com.google.gitiles.DateFormatterBuilder.Format;
+import com.google.gitiles.DateFormatter.Format;
 
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
@@ -59,13 +58,11 @@ public class RevisionServlet extends BaseServlet {
   private static final long serialVersionUID = 1L;
   private static final Logger log = LoggerFactory.getLogger(RevisionServlet.class);
 
-  private final DateFormatterBuilder dfb;
   private final Linkifier linkifier;
 
   public RevisionServlet(GitilesAccess.Factory accessFactory, Renderer renderer,
-      DateFormatterBuilder dfb, Linkifier linkifier) {
+      Linkifier linkifier) {
     super(renderer, accessFactory);
-    this.dfb = checkNotNull(dfb, "dfb");
     this.linkifier = checkNotNull(linkifier, "linkifier");
   }
 
@@ -73,10 +70,11 @@ public class RevisionServlet extends BaseServlet {
   protected void doGetHtml(HttpServletRequest req, HttpServletResponse res) throws IOException {
     GitilesView view = ViewFilter.getView(req);
     Repository repo = ServletUtils.getRepository(req);
+    GitilesAccess access = getAccess(req);
 
     RevWalk walk = new RevWalk(repo);
     try {
-      DateFormatter df = dfb.create(Format.DEFAULT);
+      DateFormatter df = new DateFormatter(access, Format.DEFAULT);
       List<RevObject> objects = listObjects(walk, view.getRevision());
       List<Map<String, ?>> soyObjects = Lists.newArrayListWithCapacity(objects.size());
       boolean hasBlob = false;
@@ -91,7 +89,7 @@ public class RevisionServlet extends BaseServlet {
                   "data", new CommitSoyData()
                       .setLinkifier(linkifier)
                       .setRevWalk(walk)
-                      .setArchiveFormat(getArchiveFormat(getAccess(req)))
+                      .setArchiveFormat(getArchiveFormat(access))
                       .toSoyData(req, (RevCommit) obj, COMMIT_SOY_FIELDS, df)));
               break;
             case OBJ_TREE:
@@ -142,7 +140,7 @@ public class RevisionServlet extends BaseServlet {
 
     RevWalk walk = new RevWalk(repo);
     try {
-      DateFormatter df = dfb.create(Format.DEFAULT);
+      DateFormatter df = new DateFormatter(getAccess(req), Format.DEFAULT);
       RevObject obj = walk.parseAny(view.getRevision().getId());
       switch (obj.getType()) {
         case OBJ_COMMIT:

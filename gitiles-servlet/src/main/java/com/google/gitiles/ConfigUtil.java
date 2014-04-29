@@ -14,6 +14,7 @@
 
 package com.google.gitiles;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Predicates;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
@@ -22,6 +23,7 @@ import com.google.common.collect.Iterables;
 import org.eclipse.jgit.lib.Config;
 import org.joda.time.Duration;
 
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -125,6 +127,24 @@ public class ConfigUtil {
       throw new IllegalStateException("Error getting CacheBuilder for " + name, e);
     }
     return b;
+  }
+
+  /**
+   * Get a {@link TimeZone} from a config.
+   *
+   * @param config JGit config object.
+   * @param section section to read, e.g. "gitiles".
+   * @param subsection subsection to read, e.g. "subsection".
+   * @param name variable to read, e.g. "fixedTimeZone".
+   * @return a time zone read from parsing the specified config string value, or
+   *     {@link Optional#absent()} if not present. As in the behavior of
+   *     {@link TimeZone#getTimeZone(String)}, unknown time zones are treated as
+   *     GMT.
+   */
+  public static Optional<TimeZone> getTimeZone(Config config, String section, String subsection,
+      String name) {
+    String id = config.getString(section, subsection, name);
+    return id != null ? Optional.of(TimeZone.getTimeZone(id)) : Optional.<TimeZone> absent();
   }
 
   private static Matcher matcher(String pattern, String valStr) {

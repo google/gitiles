@@ -25,8 +25,7 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Longs;
-import com.google.gitiles.DateFormatterBuilder.DateFormatter;
-import com.google.gitiles.DateFormatterBuilder.Format;
+import com.google.gitiles.DateFormatter.Format;
 import com.google.gson.reflect.TypeToken;
 
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
@@ -67,13 +66,10 @@ public class LogServlet extends BaseServlet {
   private static final int DEFAULT_LIMIT = 100;
   private static final int MAX_LIMIT = 10000;
 
-  private final DateFormatterBuilder dfb;
   private final Linkifier linkifier;
 
-  public LogServlet(GitilesAccess.Factory accessFactory, Renderer renderer,
-      DateFormatterBuilder dfb, Linkifier linkifier) {
+  public LogServlet(GitilesAccess.Factory accessFactory, Renderer renderer, Linkifier linkifier) {
     super(renderer, accessFactory);
-    this.dfb = checkNotNull(dfb, "dfb");
     this.linkifier = checkNotNull(linkifier, "linkifier");
   }
 
@@ -88,7 +84,8 @@ public class LogServlet extends BaseServlet {
     }
 
     try {
-      DateFormatter df = dfb.create(Format.DEFAULT);
+      GitilesAccess access = getAccess(req);
+      DateFormatter df = new DateFormatter(access, Format.DEFAULT);
       Map<String, Object> data = new LogSoyData(req, view).toSoyData(paginator, null, df);
 
       if (!view.getRevision().nameIsId()) {
@@ -111,7 +108,7 @@ public class LogServlet extends BaseServlet {
       }
 
       data.put("title", title);
-      GitilesConfig.putVariant(getAccess(req).getConfig(), "logEntry", "logEntryVariant", data);
+      GitilesConfig.putVariant(access.getConfig(), "logEntry", "logEntryVariant", data);
 
       renderHtml(req, res, "gitiles.logDetail", data);
     } catch (RevWalkException e) {
@@ -134,7 +131,7 @@ public class LogServlet extends BaseServlet {
     }
 
     try {
-      DateFormatter df = dfb.create(Format.DEFAULT);
+      DateFormatter df = new DateFormatter(getAccess(req), Format.DEFAULT);
       Map<String, Object> result = Maps.newLinkedHashMap();
       List<CommitJsonData.Commit> entries = Lists.newArrayListWithCapacity(paginator.getLimit());
       for (RevCommit c : paginator) {

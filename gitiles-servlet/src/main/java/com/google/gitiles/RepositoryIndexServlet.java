@@ -20,8 +20,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
-import com.google.gitiles.DateFormatterBuilder.DateFormatter;
-import com.google.gitiles.DateFormatterBuilder.Format;
+import com.google.gitiles.DateFormatter.Format;
 
 import org.eclipse.jgit.http.server.ServletUtils;
 import org.eclipse.jgit.lib.Constants;
@@ -45,13 +44,11 @@ public class RepositoryIndexServlet extends BaseServlet {
   static final int REF_LIMIT = 10;
   private static final int LOG_LIMIT = 20;
 
-  private final DateFormatterBuilder dfb;
   private final TimeCache timeCache;
 
   public RepositoryIndexServlet(GitilesAccess.Factory accessFactory, Renderer renderer,
-      DateFormatterBuilder dfb, TimeCache timeCache) {
+      TimeCache timeCache) {
     super(renderer, accessFactory);
-    this.dfb = checkNotNull(dfb, "dfb");
     this.timeCache = checkNotNull(timeCache, "timeCache");
   }
 
@@ -64,7 +61,8 @@ public class RepositoryIndexServlet extends BaseServlet {
   Map<String, ?> buildData(HttpServletRequest req) throws IOException {
     GitilesView view = ViewFilter.getView(req);
     Repository repo = ServletUtils.getRepository(req);
-    RepositoryDescription desc = getAccess(req).getRepositoryDescription();
+    GitilesAccess access = getAccess(req);
+    RepositoryDescription desc = access.getRepositoryDescription();
     RevWalk walk = new RevWalk(repo);
     List<Map<String, Object>> tags;
     Map<String, Object> data;
@@ -76,7 +74,7 @@ public class RepositoryIndexServlet extends BaseServlet {
         if (head.getType() == Constants.OBJ_COMMIT) {
           walk.reset();
           walk.markStart((RevCommit) head);
-          DateFormatter df = dfb.create(Format.DEFAULT);
+          DateFormatter df = new DateFormatter(access, Format.DEFAULT);
           data = new LogSoyData(req, view).toSoyData(walk, LOG_LIMIT, "HEAD", null, df);
         } else {
           // TODO(dborowitz): Handle non-commit or missing HEAD?

@@ -14,11 +14,12 @@
 
 package com.google.gitiles;
 
+import static com.google.gitiles.DateFormatter.Format.DEFAULT;
+import static com.google.gitiles.DateFormatter.Format.ISO;
+import static java.util.TimeZone.getTimeZone;
 import static org.junit.Assert.assertEquals;
 
 import com.google.common.base.Optional;
-import static com.google.gitiles.DateFormatterBuilder.Format.DEFAULT;
-import static com.google.gitiles.DateFormatterBuilder.Format.ISO;
 
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.util.GitDateParser;
@@ -28,59 +29,53 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.TimeZone;
 
-public class DateFormatterBuilderTest {
+public class DateFormatterTest {
   @Test
   public void defaultIncludingTimeZone() throws Exception {
-    DateFormatterBuilder dfb =
-        new DateFormatterBuilder(Optional.<TimeZone> absent());
     PersonIdent ident = newIdent("Mon Jan 2 15:04:05 2006", "-0700");
-    assertEquals("Mon Jan 02 15:04:05 2006 -0700", dfb.create(DEFAULT).format(ident));
+    DateFormatter df = new DateFormatter(Optional.<TimeZone> absent(), DEFAULT);
+    assertEquals("Mon Jan 02 15:04:05 2006 -0700", df.format(ident));
   }
 
   @Test
   public void defaultWithUtc() throws Exception {
-    DateFormatterBuilder dfb =
-        new DateFormatterBuilder(Optional.of(TimeZone.getTimeZone("UTC")));
     PersonIdent ident = newIdent("Mon Jan 2 15:04:05 2006", "-0700");
-    assertEquals("Mon Jan 02 22:04:05 2006", dfb.create(DEFAULT).format(ident));
+    DateFormatter df = new DateFormatter(Optional.of(getTimeZone("UTC")), DEFAULT);
+    assertEquals("Mon Jan 02 22:04:05 2006", df.format(ident));
   }
 
   @Test
   public void defaultWithOtherTimeZone() throws Exception {
-    DateFormatterBuilder dfb =
-        new DateFormatterBuilder(Optional.of(TimeZone.getTimeZone("GMT-0400")));
     PersonIdent ident = newIdent("Mon Jan 2 15:04:05 2006", "-0700");
-    assertEquals("Mon Jan 02 18:04:05 2006", dfb.create(DEFAULT).format(ident));
+    DateFormatter df = new DateFormatter(Optional.of(getTimeZone("GMT-0400")), DEFAULT);
+    assertEquals("Mon Jan 02 18:04:05 2006", df.format(ident));
   }
 
   @Test
   public void isoIncludingTimeZone() throws Exception {
-    DateFormatterBuilder dfb =
-        new DateFormatterBuilder(Optional.<TimeZone> absent());
     PersonIdent ident = newIdent("Mon Jan 2 15:04:05 2006", "-0700");
-    assertEquals("2006-01-02 15:04:05 -0700", dfb.create(ISO).format(ident));
+    DateFormatter df = new DateFormatter(Optional.<TimeZone> absent(), ISO);
+    assertEquals("2006-01-02 15:04:05 -0700", df.format(ident));
   }
 
   @Test
   public void isoWithUtc() throws Exception {
-    DateFormatterBuilder dfb =
-        new DateFormatterBuilder(Optional.of(TimeZone.getTimeZone("UTC")));
     PersonIdent ident = newIdent("Mon Jan 2 15:04:05 2006", "-0700");
-    assertEquals("2006-01-02 22:04:05", dfb.create(ISO).format(ident));
+    DateFormatter df = new DateFormatter(Optional.of(getTimeZone("UTC")), ISO);
+    assertEquals("2006-01-02 22:04:05", df.format(ident));
   }
 
   @Test
   public void isoWithOtherTimeZone() throws Exception {
-    DateFormatterBuilder dfb =
-        new DateFormatterBuilder(Optional.of(TimeZone.getTimeZone("GMT-0400")));
     PersonIdent ident = newIdent("Mon Jan 2 15:04:05 2006", "-0700");
-    assertEquals("2006-01-02 18:04:05", dfb.create(ISO).format(ident));
+    DateFormatter df = new DateFormatter(Optional.of(getTimeZone("GMT-0400")), ISO);
+    assertEquals("2006-01-02 18:04:05", df.format(ident));
   }
 
   private PersonIdent newIdent(String whenStr, String tzStr) throws ParseException {
     whenStr += " " + tzStr;
     Date when = GitDateParser.parse(whenStr, null);
-    TimeZone tz = TimeZone.getTimeZone("GMT" + tzStr);
+    TimeZone tz = getTimeZone("GMT" + tzStr);
     PersonIdent ident = new PersonIdent("A User", "user@example.com", when, tz);
     // PersonIdent.toString() uses its own format with "d" instead of "dd",
     // hence the mismatches in 2 vs. 02 above. Nonetheless I think this sanity

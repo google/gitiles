@@ -26,7 +26,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gitiles.CommitData.DiffList;
 import com.google.gitiles.CommitData.Field;
-import com.google.gitiles.DateFormatterBuilder.DateFormatter;
 import com.google.template.soy.data.restricted.NullData;
 
 import org.eclipse.jgit.diff.DiffEntry;

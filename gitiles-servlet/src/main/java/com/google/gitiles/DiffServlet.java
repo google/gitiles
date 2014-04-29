@@ -19,8 +19,7 @@ import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
 import com.google.common.base.Charsets;
 import com.google.gitiles.CommitData.Field;
-import com.google.gitiles.DateFormatterBuilder.DateFormatter;
-import com.google.gitiles.DateFormatterBuilder.Format;
+import com.google.gitiles.DateFormatter.Format;
 
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
@@ -51,13 +50,10 @@ public class DiffServlet extends BaseServlet {
   private static final long serialVersionUID = 1L;
   private static final String PLACEHOLDER = "id=\"DIFF_OUTPUT_BLOCK\"";
 
-  private final DateFormatterBuilder dfb;
   private final Linkifier linkifier;
 
-  public DiffServlet(DateFormatterBuilder dfb, GitilesAccess.Factory accessFactory,
-      Renderer renderer, Linkifier linkifier) {
+  public DiffServlet(GitilesAccess.Factory accessFactory, Renderer renderer, Linkifier linkifier) {
     super(renderer, accessFactory);
-    this.dfb = checkNotNull(dfb, "dfb");
     this.linkifier = checkNotNull(linkifier, "linkifier");
   }
 
@@ -97,10 +93,11 @@ public class DiffServlet extends BaseServlet {
         if (isFile) {
           fs = Field.setOf(fs, Field.PARENT_BLAME_URL);
         }
-        DateFormatter df = dfb.create(Format.DEFAULT);
+        GitilesAccess access = getAccess(req);
+        DateFormatter df = new DateFormatter(access, Format.DEFAULT);
         data.put("commit", new CommitSoyData()
             .setLinkifier(linkifier)
-            .setArchiveFormat(getArchiveFormat(getAccess(req)))
+            .setArchiveFormat(getArchiveFormat(access))
             .toSoyData(req, walk.parseCommit(view.getRevision().getId()), fs, df));
       }
       if (!data.containsKey("repositoryName") && (view.getRepositoryName() != null)) {

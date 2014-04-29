@@ -21,7 +21,6 @@ import static com.google.gitiles.ViewFilter.getRegexGroup;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
-import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.LinkedListMultimap;
@@ -51,7 +50,6 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.TimeZone;
 import java.util.regex.Pattern;
 
 import javax.servlet.Filter;
@@ -172,7 +170,6 @@ class GitilesFilter extends MetaFilter {
   private TimeCache timeCache;
   private BlameCache blameCache;
   private GitwebRedirectFilter gitwebRedirect;
-  private DateFormatterBuilder dateFormatterBuilder;
   private boolean initialized;
 
   GitilesFilter() {
@@ -241,23 +238,23 @@ class GitilesFilter extends MetaFilter {
       case HOST_INDEX:
         return new HostIndexServlet(accessFactory, renderer, urls);
       case REPOSITORY_INDEX:
-        return new RepositoryIndexServlet(accessFactory, renderer, dateFormatterBuilder, timeCache);
+        return new RepositoryIndexServlet(accessFactory, renderer, timeCache);
       case REFS:
         return new RefServlet(accessFactory, renderer, timeCache);
       case REVISION:
-        return new RevisionServlet(accessFactory, renderer, dateFormatterBuilder, linkifier());
+        return new RevisionServlet(accessFactory, renderer, linkifier());
       case PATH:
         return new PathServlet(accessFactory, renderer, urls);
       case DIFF:
-        return new DiffServlet(dateFormatterBuilder, accessFactory, renderer, linkifier());
+        return new DiffServlet(accessFactory, renderer, linkifier());
       case LOG:
-        return new LogServlet(accessFactory, renderer, dateFormatterBuilder, linkifier());
+        return new LogServlet(accessFactory, renderer, linkifier());
       case DESCRIBE:
         return new DescribeServlet(accessFactory);
       case ARCHIVE:
         return new ArchiveServlet(accessFactory);
       case BLAME:
-        return new BlameServlet(accessFactory, renderer, dateFormatterBuilder, blameCache);
+        return new BlameServlet(accessFactory, renderer, blameCache);
       default:
         throw new IllegalArgumentException("Invalid view type: " + view);
     }
@@ -313,7 +310,6 @@ class GitilesFilter extends MetaFilter {
     setDefaultTimeCache();
     setDefaultBlameCache();
     setDefaultGitwebRedirect();
-    setDefaultDateFormatterBuilder();
   }
 
   private void setDefaultConfig(FilterConfig filterConfig) throws ServletException {
@@ -420,19 +416,6 @@ class GitilesFilter extends MetaFilter {
       if (config.getBoolean("gitiles", null, "redirectGitweb", true)) {
         gitwebRedirect = new GitwebRedirectFilter();
       }
-    }
-  }
-
-  private void setDefaultDateFormatterBuilder() {
-    if (dateFormatterBuilder == null) {
-      String tzStr = config.getString("gitiles", null, "fixedTimeZone");
-      Optional<TimeZone> tz;
-      if (tzStr == null) {
-        tz = Optional.absent();
-      } else {
-        tz = Optional.of(TimeZone.getTimeZone(tzStr));
-      }
-      dateFormatterBuilder = new DateFormatterBuilder(tz);
     }
   }
 
