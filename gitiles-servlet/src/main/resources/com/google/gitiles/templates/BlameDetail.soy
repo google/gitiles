@@ -51,15 +51,13 @@
         {if isNonnull($region.abbrevSha)}
           <td class="author">{$region.author.name}</td>
           <td class="time">{$region.author.time}</td>
+          <td class="sha1"><a href="{$region.commitUrl}">{$region.abbrevSha}</a></td>
           <td class="regionLink">
-            <a href="{$region.commitUrl}">
-              <span class="sha1">{$region.abbrevSha}</span>
-            </a>
             [<a href="{$region.diffUrl}">{msg desc="text for diff URL"}diff{/msg}</a>]
             [<a href="{$region.blameUrl}">{msg desc="text for blame URL"}blame{/msg}</a>]
           </td>
         {else}
-          <td colspan="3"></td>
+          <td colspan="4"></td>
         {/if}
         {let $n: $i + 1 /}
         <td class="linenum"><a name="{$n}"></a>{$n}.</td>

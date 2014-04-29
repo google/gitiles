@@ -355,8 +355,9 @@ a.diff-git:hover {
 #blame .sha1 {
   color: inherit;
   font-family: monospace;
+  padding-left: 3px;
 }
-#blame .author, #blame .sha1 {
+#blame .author {
   padding-left: 3px;
   padding-right: 3px;
 }
