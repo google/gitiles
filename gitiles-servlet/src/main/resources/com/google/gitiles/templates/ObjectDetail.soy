@@ -244,6 +244,7 @@
       <ol class="prettyprint">
         {foreach $line in $lines}
           <li>
+            <a name="{index($line) + 1}"></a>
             {foreach $span in $line}
               <span class="{$span.classes}">{$span.text}</span>
             {/foreach}

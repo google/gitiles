@@ -46,7 +46,7 @@
   <table id="blame">
     {foreach $line in $data.lines}
       {let $i: index($line) /}
-      {let $region: $regions[index($line)] /}
+      {let $region: $regions[$i] /}
       <tr class="{$region.class}">
         {if isNonnull($region.abbrevSha)}
           <td class="author">{$region.author.name}</td>
@@ -61,7 +61,8 @@
         {else}
           <td colspan="3"></td>
         {/if}
-        <td class="linenum">{index($line) + 1}.</td>
+        {let $n: $i + 1 /}
+        <td class="linenum"><a name="{$n}"></a>{$n}.</td>
         <td class="prettyprint">
           {foreach $span in $line}
             <span class="{$span.classes}">{$span.text}</span>
