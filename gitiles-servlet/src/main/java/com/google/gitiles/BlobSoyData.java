@@ -18,6 +18,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static org.eclipse.jgit.lib.Constants.OBJ_COMMIT;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.google.template.soy.data.SoyListData;
 import com.google.template.soy.data.SoyMapData;
@@ -30,6 +31,8 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectLoader;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.util.RawParseUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import prettify.PrettifyParser;
 import prettify.parser.Prettify;
@@ -41,6 +44,8 @@ import java.util.Map;
 
 /** Soy data converter for git blobs. */
 public class BlobSoyData {
+  private static final Logger log = LoggerFactory.getLogger(BlobSoyData.class);
+
   /**
    * Maximum number of bytes to load from a supposed text file for display.
    * Files larger than this will be displayed as binary files, even if the
@@ -92,8 +97,8 @@ public class BlobSoyData {
     return data;
   }
 
-  private static SoyListData prettify(String path, String content) {
-    List<ParseResult> results = new PrettifyParser().parse(extension(path, content), content);
+  private SoyListData prettify(String path, String content) {
+    List<ParseResult> results = parse(path, content);
     SoyListData lines = new SoyListData();
     SoyListData line = new SoyListData();
     lines.add(line);
@@ -110,6 +115,18 @@ public class BlobSoyData {
       writeResult(lines, null, content, last, content.length());
     }
     return lines;
+  }
+
+  private List<ParseResult> parse(String path, String content) {
+    try {
+      return new PrettifyParser().parse(extension(path, content), content);
+    } catch (StackOverflowError e) {
+      // TODO(dborowitz): Aaagh. Make prettify use RE2. Or replace it something
+      // else. Or something.
+      log.warn("StackOverflowError prettifying " + view.toUrl());
+      return ImmutableList.of(
+          new ParseResult(0, content.length(), ImmutableList.of(Prettify.PR_PLAIN)));
+    }
   }
 
   private static SoyListData writeResult(SoyListData lines, String classes,
