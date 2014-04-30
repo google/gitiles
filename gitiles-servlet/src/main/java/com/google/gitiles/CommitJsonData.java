@@ -14,6 +14,7 @@
 
 package com.google.gitiles;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -116,6 +117,9 @@ class CommitJsonData {
   }
 
   private static List<Diff> toJsonData(DiffList dl) {
+    if (dl.entries == null) {
+      return ImmutableList.of();
+    }
     List<Diff> result = Lists.newArrayListWithCapacity(dl.entries.size());
     for (DiffEntry de : dl.entries) {
       Diff d = new Diff();
