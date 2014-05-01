@@ -77,7 +77,8 @@ public class BlameServlet extends BaseServlet {
       }
 
       String title = "Blame - " + view.getPathPart();
-      Map<String, ?> blobData = new BlobSoyData(rw, view).toSoyData(view.getPathPart(), blobId);
+      Map<String, ?> blobData = new BlobSoyData(rw.getObjectReader(), view)
+          .toSoyData(view.getPathPart(), blobId);
       if (blobData.get("lines") != null) {
         List<Region> regions = cache.get(repo, commit, view.getPathPart());
         if (regions.isEmpty()) {

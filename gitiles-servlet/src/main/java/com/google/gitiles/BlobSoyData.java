@@ -30,7 +30,6 @@ import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectLoader;
 import org.eclipse.jgit.lib.ObjectReader;
-import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.util.RawParseUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,11 +56,6 @@ public class BlobSoyData {
 
   private final GitilesView view;
   private final ObjectReader reader;
-
-  // TODO(dborowitz): Remove this constructor.
-  public BlobSoyData(RevWalk walk, GitilesView view) {
-    this(walk.getObjectReader(), view);
-  }
 
   public BlobSoyData(ObjectReader reader, GitilesView view) {
     this.reader = reader;

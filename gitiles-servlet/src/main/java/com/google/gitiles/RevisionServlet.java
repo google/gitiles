@@ -95,12 +95,12 @@ public class RevisionServlet extends BaseServlet {
             case OBJ_TREE:
               soyObjects.add(ImmutableMap.of(
                   "type", Constants.TYPE_TREE,
-                  "data", new TreeSoyData(walk, view).toSoyData(obj)));
+                  "data", new TreeSoyData(walk.getObjectReader(), view).toSoyData(obj)));
               break;
             case OBJ_BLOB:
               soyObjects.add(ImmutableMap.of(
                   "type", Constants.TYPE_BLOB,
-                  "data", new BlobSoyData(walk, view).toSoyData(obj)));
+                  "data", new BlobSoyData(walk.getObjectReader(), view).toSoyData(obj)));
               hasBlob = true;
               break;
             case OBJ_TAG:

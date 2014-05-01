@@ -26,7 +26,6 @@ import com.google.gitiles.PathServlet.FileType;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
-import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
 
 import java.io.IOException;
@@ -73,11 +72,6 @@ public class TreeSoyData {
   private final ObjectReader reader;
   private final GitilesView view;
   private ArchiveFormat archiveFormat;
-
-  // TODO(dborowitz): Remove this constructor.
-  public TreeSoyData(RevWalk rw, GitilesView view) {
-    this(rw.getObjectReader(), view);
-  }
 
   public TreeSoyData(ObjectReader reader, GitilesView view) {
     this.reader = reader;
