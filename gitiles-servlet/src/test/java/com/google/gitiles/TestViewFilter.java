@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 
 import com.google.common.collect.ImmutableList;
 
+import org.eclipse.jgit.http.server.ServletUtils;
 import org.eclipse.jgit.http.server.glue.MetaFilter;
 import org.eclipse.jgit.http.server.glue.MetaServlet;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
@@ -39,15 +40,21 @@ import javax.servlet.http.HttpServletResponse;
 class TestViewFilter {
   static class Result {
     private final GitilesView view;
+    private final FakeHttpServletRequest req;
     private final FakeHttpServletResponse res;
 
-    private Result(GitilesView view, FakeHttpServletResponse res) {
+    private Result(GitilesView view, FakeHttpServletRequest req, FakeHttpServletResponse res) {
       this.view = view;
+      this.req = req;
       this.res = res;
     }
 
     GitilesView getView() {
       return view;
+    }
+
+    FakeHttpServletRequest getRequest() {
+      return req;
     }
 
     FakeHttpServletResponse getResponse() {
@@ -69,13 +76,19 @@ class TestViewFilter {
           .through(vf)
           .with(servlet);
     }
+
+    FakeHttpServletRequest req = newRequest(repo, pathAndQuery);
+    req.setAttribute(ServletUtils.ATTRIBUTE_REPOSITORY, repo.getRepository());
     FakeHttpServletResponse res = new FakeHttpServletResponse();
-    dummyServlet(mf).service(newRequest(repo, pathAndQuery), res);
-    if (servlet.view != null && servlet.view.getRepositoryName() != null) {
-      assertEquals(repo.getRepository().getDescription().getRepositoryName(),
-          servlet.view.getRepositoryName());
+    dummyServlet(mf).service(req, res);
+    if (servlet.view != null) {
+      ViewFilter.setView(req, servlet.view);
+      if (servlet.view.getRepositoryName() != null) {
+        assertEquals(repo.getRepository().getDescription().getRepositoryName(),
+            servlet.view.getRepositoryName());
+      }
     }
-    return new Result(servlet.view, res);
+    return new Result(servlet.view, req, res);
   }
 
   private static class TestServlet extends HttpServlet {

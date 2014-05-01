@@ -188,29 +188,25 @@ public abstract class BaseServlet extends HttpServlet {
    */
   protected void renderHtml(HttpServletRequest req, HttpServletResponse res, String templateName,
       Map<String, ?> soyData) throws IOException {
-    try {
-      res.setContentType(FormatType.HTML.getMimeType());
-      res.setCharacterEncoding(Charsets.UTF_8.name());
-      setCacheHeaders(res);
+    res.setContentType(FormatType.HTML.getMimeType());
+    res.setCharacterEncoding(Charsets.UTF_8.name());
+    setCacheHeaders(res);
 
-      Map<String, Object> allData = getData(req);
+    Map<String, Object> allData = getData(req);
 
-      GitilesConfig.putVariant(
-          getAccess(req).getConfig(), "customHeader", "headerVariant", allData);
-      allData.putAll(soyData);
-      GitilesView view = ViewFilter.getView(req);
-      if (!allData.containsKey("repositoryName") && view.getRepositoryName() != null) {
-        allData.put("repositoryName", view.getRepositoryName());
-      }
-      if (!allData.containsKey("breadcrumbs")) {
-        allData.put("breadcrumbs", view.getBreadcrumbs());
-      }
-
-      res.setStatus(HttpServletResponse.SC_OK);
-      renderer.render(res, templateName, allData);
-    } finally {
-      req.removeAttribute(DATA_ATTRIBUTE);
+    GitilesConfig.putVariant(
+        getAccess(req).getConfig(), "customHeader", "headerVariant", allData);
+    allData.putAll(soyData);
+    GitilesView view = ViewFilter.getView(req);
+    if (!allData.containsKey("repositoryName") && view.getRepositoryName() != null) {
+      allData.put("repositoryName", view.getRepositoryName());
     }
+    if (!allData.containsKey("breadcrumbs")) {
+      allData.put("breadcrumbs", view.getBreadcrumbs());
+    }
+
+    res.setStatus(HttpServletResponse.SC_OK);
+    renderer.render(res, templateName, allData);
   }
 
   /**
