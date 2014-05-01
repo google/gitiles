@@ -14,21 +14,13 @@
 
 package com.google.gitiles;
 
-import static com.google.gitiles.FakeHttpServletRequest.newRequest;
-import static com.google.gitiles.GitilesFilter.REPO_PATH_REGEX;
-import static com.google.gitiles.GitilesFilter.REPO_REGEX;
-import static com.google.gitiles.GitilesFilter.ROOT_REGEX;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.net.HttpHeaders;
-import com.google.common.util.concurrent.Atomics;
 import com.google.gitiles.GitilesView.Type;
 
-import org.eclipse.jgit.http.server.glue.MetaFilter;
-import org.eclipse.jgit.http.server.glue.MetaServlet;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
 import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
@@ -38,13 +30,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.regex.Pattern;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /** Tests for the view filter. */
 public class ViewFilterTest {
@@ -53,7 +40,7 @@ public class ViewFilterTest {
   @Before
   public void setUp() throws Exception {
     repo = new TestRepository<DfsRepository>(
-        new InMemoryRepository(new DfsRepositoryDescription("test")));
+        new InMemoryRepository(new DfsRepositoryDescription("repo")));
   }
 
   @Test
@@ -479,57 +466,16 @@ public class ViewFilterTest {
   }
 
   private String getRedirectUrl(String pathAndQuery) throws ServletException, IOException {
-    FakeHttpServletResponse res = new FakeHttpServletResponse();
-    service(pathAndQuery, Atomics.<GitilesView> newReference(), res);
-    assertEquals(302, res.getStatus());
-    return res.getHeader(HttpHeaders.LOCATION);
+    TestViewFilter.Result result = TestViewFilter.service(repo, pathAndQuery);
+    assertEquals(302, result.getResponse().getStatus());
+    return result.getResponse().getHeader(HttpHeaders.LOCATION);
   }
 
   private GitilesView getView(String pathAndQuery) throws ServletException, IOException {
-    AtomicReference<GitilesView> view = Atomics.newReference();
-    FakeHttpServletResponse res = new FakeHttpServletResponse();
-    service(pathAndQuery, view, res);
-    assertTrue("expected non-redirect status, got " + res.getStatus(),
-        res.getStatus() < 300 || res.getStatus() >= 400);
-    return view.get();
-  }
-
-  private void service(String pathAndQuery, final AtomicReference<GitilesView> view,
-      FakeHttpServletResponse res) throws ServletException, IOException {
-    HttpServlet testServlet = new HttpServlet() {
-      private static final long serialVersionUID = 1L;
-      @Override
-      protected void doGet(HttpServletRequest req, HttpServletResponse res) {
-        view.set(ViewFilter.getView(req));
-      }
-    };
-
-    ViewFilter vf = new ViewFilter(
-        new TestGitilesAccess(repo.getRepository()),
-        TestGitilesUrls.URLS,
-        new VisibilityCache(false));
-    MetaFilter mf = new MetaFilter();
-
-    for (Pattern p : ImmutableList.of(ROOT_REGEX, REPO_REGEX, REPO_PATH_REGEX)) {
-      mf.serveRegex(p)
-          .through(vf)
-          .with(testServlet);
-    }
-
-    FakeHttpServletRequest req = newRequest(repo.getRepository());
-    int q = pathAndQuery.indexOf('?');
-    if (q > 0) {
-      req.setPathInfo(pathAndQuery.substring(0, q));
-      req.setQueryString(pathAndQuery.substring(q + 1));
-    } else {
-      req.setPathInfo(pathAndQuery);
-    }
-    dummyServlet(mf).service(req, res);
-  }
-
-  private MetaServlet dummyServlet(MetaFilter mf) {
-    return new MetaServlet(mf) {
-      private static final long serialVersionUID = 1L;
-    };
+    TestViewFilter.Result result = TestViewFilter.service(repo, pathAndQuery);
+    FakeHttpServletResponse resp = result.getResponse();
+    assertTrue("expected non-redirect status, got " + resp.getStatus(),
+        resp.getStatus() < 300 || resp.getStatus() >= 400);
+    return result.getView();
   }
 }

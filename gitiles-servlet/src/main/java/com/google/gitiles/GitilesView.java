@@ -460,6 +460,14 @@ public class GitilesView {
     this.anchor = anchor;
   }
 
+  public Builder copyFrom(GitilesView other) {
+    return new Builder(other.type).copyFrom(this);
+  }
+
+  public Builder toBuilder() {
+    return copyFrom(this);
+  }
+
   public String getHostName() {
     return hostName;
   }
