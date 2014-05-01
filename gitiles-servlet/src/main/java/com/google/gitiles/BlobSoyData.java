@@ -29,6 +29,7 @@ import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectLoader;
+import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.util.RawParseUtils;
 import org.slf4j.Logger;
@@ -55,11 +56,16 @@ public class BlobSoyData {
   private static final int MAX_FILE_SIZE = 10 << 20;
 
   private final GitilesView view;
-  private final RevWalk walk;
+  private final ObjectReader reader;
 
+  // TODO(dborowitz): Remove this constructor.
   public BlobSoyData(RevWalk walk, GitilesView view) {
+    this(walk.getObjectReader(), view);
+  }
+
+  public BlobSoyData(ObjectReader reader, GitilesView view) {
+    this.reader = reader;
     this.view = view;
-    this.walk = walk;
   }
 
   public Map<String, Object> toSoyData(ObjectId blobId)
@@ -72,7 +78,7 @@ public class BlobSoyData {
     Map<String, Object> data = Maps.newHashMapWithExpectedSize(4);
     data.put("sha", ObjectId.toString(blobId));
 
-    ObjectLoader loader = walk.getObjectReader().open(blobId, Constants.OBJ_BLOB);
+    ObjectLoader loader = reader.open(blobId, Constants.OBJ_BLOB);
     String content;
     try {
       byte[] raw = loader.getCachedBytes(MAX_FILE_SIZE);

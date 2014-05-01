@@ -25,6 +25,7 @@ import com.google.gitiles.PathServlet.FileType;
 
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
 
@@ -69,12 +70,17 @@ public class TreeSoyData {
     }
   }
 
-  private final RevWalk rw;
+  private final ObjectReader reader;
   private final GitilesView view;
   private ArchiveFormat archiveFormat;
 
+  // TODO(dborowitz): Remove this constructor.
   public TreeSoyData(RevWalk rw, GitilesView view) {
-    this.rw = rw;
+    this(rw.getObjectReader(), view);
+  }
+
+  public TreeSoyData(ObjectReader reader, GitilesView view) {
+    this.reader = reader;
     this.view = view;
   }
 
@@ -115,7 +121,7 @@ public class TreeSoyData {
       entry.put("url", url);
       if (type == FileType.SYMLINK) {
         String target = new String(
-            rw.getObjectReader().open(tw.getObjectId(0)).getCachedBytes(),
+            reader.open(tw.getObjectId(0)).getCachedBytes(),
             Charsets.UTF_8);
         entry.put("targetName", getTargetDisplayName(target));
         String targetUrl = resolveTargetUrl(view, target);
@@ -145,7 +151,7 @@ public class TreeSoyData {
   }
 
   public Map<String, Object> toSoyData(ObjectId treeId) throws MissingObjectException, IOException {
-    TreeWalk tw = new TreeWalk(rw.getObjectReader());
+    TreeWalk tw = new TreeWalk(reader);
     tw.addTree(treeId);
     tw.setRecursive(false);
     return toSoyData(treeId, tw);

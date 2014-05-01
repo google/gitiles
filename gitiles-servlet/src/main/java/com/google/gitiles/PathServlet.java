@@ -40,6 +40,7 @@ import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectLoader;
+import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevObject;
@@ -122,57 +123,38 @@ public class PathServlet extends BaseServlet {
     Repository repo = ServletUtils.getRepository(req);
 
     RevWalk rw = new RevWalk(repo);
+    WalkResult wr = null;
     try {
-      RevTree root = getRoot(view, rw);
-      TreeWalk tw = new TreeWalk(rw.getObjectReader());
-      tw.addTree(root);
-      tw.setRecursive(false);
-      FileType type;
-      String path = view.getPathPart();
-      List<Boolean> hasSingleTree;
-
-      if (path.isEmpty()) {
-        type = FileType.TREE;
-        hasSingleTree = ImmutableList.<Boolean> of();
-      } else {
-        hasSingleTree = walkToPath(tw, path);
-        if (hasSingleTree == null) {
-          res.setStatus(SC_NOT_FOUND);
-          return;
-        }
-        type = FileType.forEntry(tw);
+      wr = WalkResult.forPath(rw, view);
+      if (wr == null) {
+        res.setStatus(SC_NOT_FOUND);
+        return;
       }
-
-      switch (type) {
+      switch (wr.type) {
         case TREE:
-          ObjectId treeId;
-          if (path.isEmpty()) {
-            treeId = root;
-          } else {
-            treeId = tw.getObjectId(0);
-            tw.enterSubtree();
-            tw.setRecursive(false);
-          }
-          showTree(req, res, rw, tw, treeId, hasSingleTree);
+          showTree(req, res, wr);
           break;
         case SYMLINK:
-          showSymlink(req, res, rw, tw, hasSingleTree);
+          showSymlink(req, res, wr);
           break;
         case REGULAR_FILE:
         case EXECUTABLE_FILE:
-          showFile(req, res, rw, tw, hasSingleTree);
+          showFile(req, res, wr);
           break;
         case GITLINK:
-          showGitlink(req, res, tw, root);
+          showGitlink(req, res, wr);
           break;
         default:
-          log.error("Bad file type: {}", type);
+          log.error("Bad file type: {}", wr.type);
           res.setStatus(SC_NOT_FOUND);
           break;
       }
     } catch (LargeObjectException e) {
       res.setStatus(SC_INTERNAL_SERVER_ERROR);
     } finally {
+      if (wr != null) {
+        wr.release();
+      }
       rw.release();
     }
   }
@@ -183,23 +165,15 @@ public class PathServlet extends BaseServlet {
     Repository repo = ServletUtils.getRepository(req);
 
     RevWalk rw = new RevWalk(repo);
+    WalkResult wr = null;
     try {
-      RevTree root = getRoot(view, rw);
-      TreeWalk tw = new TreeWalk(rw.getObjectReader());
-      tw.addTree(root);
-      tw.setRecursive(false);
-
-      String path = view.getPathPart();
-      if (path.isEmpty()) {
-        res.setStatus(SC_NOT_FOUND);
-        return;
-      }
-      if (walkToPath(tw, path) == null) {
+      wr = WalkResult.forPath(rw, view);
+      if (wr == null) {
         res.setStatus(SC_NOT_FOUND);
         return;
       }
 
-      switch (FileType.forEntry(tw)) {
+      switch (wr.type) {
         case SYMLINK:
         case REGULAR_FILE:
         case EXECUTABLE_FILE:
@@ -208,9 +182,9 @@ public class PathServlet extends BaseServlet {
           // this is base64 data might cause it to try to decode it and render
           // as HTML, which would be bad.
           PrintWriter writer = startRenderText(req, res, null);
-          res.setHeader(MODE_HEADER, String.format("%06o", tw.getRawMode(0)));
+          res.setHeader(MODE_HEADER, String.format("%06o", wr.type.mode.getBits()));
           try (OutputStream out = BaseEncoding.base64().encodingStream(writer)) {
-            rw.getObjectReader().open(tw.getObjectId(0)).copyTo(out);
+            rw.getObjectReader().open(wr.id).copyTo(out);
           }
           break;
         default:
@@ -220,6 +194,9 @@ public class PathServlet extends BaseServlet {
     } catch (LargeObjectException e) {
       res.setStatus(SC_INTERNAL_SERVER_ERROR);
     } finally {
+      if (wr != null) {
+        wr.release();
+      }
       rw.release();
     }
   }
@@ -300,31 +277,84 @@ public class PathServlet extends BaseServlet {
     }
   }
 
-  private List<Boolean> walkToPath(TreeWalk tw, String pathString) throws IOException {
-    AutoDiveFilter f = new AutoDiveFilter(pathString);
-    tw.setFilter(f);
-    while (tw.next()) {
-      if (f.isDone(tw)) {
-        return f.hasSingleTree;
-      } else if (tw.isSubtree()) {
-        tw.enterSubtree();
+  /**
+   * Encapsulate the result of walking to a single tree.
+   * <p>
+   * Unlike {@link TreeWalk} itself, supports positioning at the root tree.
+   * Includes information to help the auto-dive routine as well.
+   */
+  private static class WalkResult {
+    private static WalkResult forPath(RevWalk rw, GitilesView view) throws IOException {
+      RevTree root = getRoot(view, rw);
+      String path = view.getPathPart();
+      TreeWalk tw = new TreeWalk(rw.getObjectReader());
+      try {
+        tw.addTree(root);
+        tw.setRecursive(false);
+        if (path.isEmpty()) {
+          return new WalkResult(tw, path, root, root, FileType.TREE, ImmutableList.<Boolean> of());
+        }
+        AutoDiveFilter f = new AutoDiveFilter(path);
+        tw.setFilter(f);
+        while (tw.next()) {
+          if (f.isDone(tw)) {
+            FileType type = FileType.forEntry(tw);
+            ObjectId id = tw.getObjectId(0);
+            if (type == FileType.TREE) {
+              tw.enterSubtree();
+              tw.setRecursive(false);
+            }
+            return new WalkResult(tw, path, root, id, type, f.hasSingleTree);
+          } else if (tw.isSubtree()) {
+            tw.enterSubtree();
+          }
+        }
+      } catch (IOException | RuntimeException e) {
+        // Fallthrough.
       }
+      tw.release();
+      return null;
     }
-    return null;
+
+    private final TreeWalk tw;
+    private final String path;
+    private final RevTree root;
+    private final ObjectId id;
+    private final FileType type;
+    private final List<Boolean> hasSingleTree;
+
+    private WalkResult(TreeWalk tw, String path, RevTree root, ObjectId objectId, FileType type,
+        List<Boolean> hasSingleTree) {
+      this.tw = tw;
+      this.path = path;
+      this.root = root;
+      this.id = objectId;
+      this.type = type;
+      this.hasSingleTree = hasSingleTree;
+    }
+
+    private ObjectReader getObjectReader() {
+      return tw.getObjectReader();
+    }
+
+    private void release() {
+      tw.release();
+    }
   }
 
-  private void showTree(HttpServletRequest req, HttpServletResponse res, RevWalk rw, TreeWalk tw,
-      ObjectId id, List<Boolean> hasSingleTree) throws IOException {
+  private void showTree(HttpServletRequest req, HttpServletResponse res, WalkResult wr)
+      throws IOException {
     GitilesView view = ViewFilter.getView(req);
     List<String> autodive = view.getParameters().get(AUTODIVE_PARAM);
     if (autodive.size() != 1 || !NO_AUTODIVE_VALUE.equals(autodive.get(0))) {
       byte[] path = Constants.encode(view.getPathPart());
-      CanonicalTreeParser child = getOnlyChildSubtree(rw, id, path);
+      ObjectReader reader = wr.getObjectReader();
+      CanonicalTreeParser child = getOnlyChildSubtree(reader, wr.id, path);
       if (child != null) {
         while (true) {
           path = new byte[child.getEntryPathLength()];
           System.arraycopy(child.getEntryPathBuffer(), 0, path, 0, child.getEntryPathLength());
-          CanonicalTreeParser next = getOnlyChildSubtree(rw, child.getEntryObjectId(), path);
+          CanonicalTreeParser next = getOnlyChildSubtree(reader, child.getEntryObjectId(), path);
           if (next == null) {
             break;
           }
@@ -340,16 +370,16 @@ public class PathServlet extends BaseServlet {
     // TODO(sop): Allow caching trees by SHA-1 when no S cookie is sent.
     renderHtml(req, res, "gitiles.pathDetail", ImmutableMap.of(
         "title", !view.getPathPart().isEmpty() ? view.getPathPart() : "/",
-        "breadcrumbs", view.getBreadcrumbs(hasSingleTree),
+        "breadcrumbs", view.getBreadcrumbs(wr.hasSingleTree),
         "type", FileType.TREE.toString(),
-        "data", new TreeSoyData(rw, view)
+        "data", new TreeSoyData(wr.getObjectReader(), view)
             .setArchiveFormat(getArchiveFormat(getAccess(req)))
-            .toSoyData(id, tw)));
+            .toSoyData(wr.id, wr.tw)));
   }
 
-  private CanonicalTreeParser getOnlyChildSubtree(RevWalk rw, ObjectId id, byte[] prefix)
+  private CanonicalTreeParser getOnlyChildSubtree(ObjectReader reader, ObjectId id, byte[] prefix)
       throws IOException {
-    CanonicalTreeParser p = new CanonicalTreeParser(prefix, rw.getObjectReader(), id);
+    CanonicalTreeParser p = new CanonicalTreeParser(prefix, reader, id);
     if (p.eof() || p.getEntryFileMode() != FileMode.TREE) {
       return null;
     }
@@ -357,36 +387,37 @@ public class PathServlet extends BaseServlet {
     return p.eof() ? p : null;
   }
 
-  private void showFile(HttpServletRequest req, HttpServletResponse res, RevWalk rw, TreeWalk tw,
-      List<Boolean> hasSingleTree) throws IOException {
+  private void showFile(HttpServletRequest req, HttpServletResponse res, WalkResult wr)
+      throws IOException {
     GitilesView view = ViewFilter.getView(req);
+    Map<String, ?> data = new BlobSoyData(wr.getObjectReader(), view)
+        .toSoyData(wr.path, wr.id);
     // TODO(sop): Allow caching files by SHA-1 when no S cookie is sent.
     renderHtml(req, res, "gitiles.pathDetail", ImmutableMap.of(
         "title", ViewFilter.getView(req).getPathPart(),
-        "breadcrumbs", view.getBreadcrumbs(hasSingleTree),
-        "type", FileType.forEntry(tw).toString(),
-        "data", new BlobSoyData(rw, view).toSoyData(tw.getPathString(), tw.getObjectId(0))));
+        "breadcrumbs", view.getBreadcrumbs(wr.hasSingleTree),
+        "type", wr.type.toString(),
+        "data", data));
   }
 
-  private void showSymlink(HttpServletRequest req, HttpServletResponse res, RevWalk rw,
-      TreeWalk tw, List<Boolean> hasSingleTree) throws IOException {
+  private void showSymlink(HttpServletRequest req, HttpServletResponse res, WalkResult wr)
+      throws IOException {
     GitilesView view = ViewFilter.getView(req);
-    ObjectId id = tw.getObjectId(0);
     Map<String, Object> data = Maps.newHashMap();
 
-    ObjectLoader loader = rw.getObjectReader().open(id, OBJ_BLOB);
+    ObjectLoader loader = wr.getObjectReader().open(wr.id, OBJ_BLOB);
     String target;
     try {
       target = RawParseUtils.decode(loader.getCachedBytes(TreeSoyData.MAX_SYMLINK_SIZE));
     } catch (LargeObjectException.OutOfMemory e) {
       throw e;
     } catch (LargeObjectException e) {
-      data.put("sha", ObjectId.toString(id));
+      data.put("sha", ObjectId.toString(wr.id));
       data.put("data", null);
       data.put("size", Long.toString(loader.getSize()));
       renderHtml(req, res, "gitiles.pathDetail", ImmutableMap.of(
           "title", ViewFilter.getView(req).getPathPart(),
-          "breadcrumbs", view.getBreadcrumbs(hasSingleTree),
+          "breadcrumbs", view.getBreadcrumbs(wr.hasSingleTree),
           "type", FileType.REGULAR_FILE.toString(),
           "data", data));
       return;
@@ -407,7 +438,7 @@ public class PathServlet extends BaseServlet {
     // TODO(sop): Allow caching files by SHA-1 when no S cookie is sent.
     renderHtml(req, res, "gitiles.pathDetail", ImmutableMap.of(
         "title", ViewFilter.getView(req).getPathPart(),
-        "breadcrumbs", view.getBreadcrumbs(hasSingleTree),
+        "breadcrumbs", view.getBreadcrumbs(wr.hasSingleTree),
         "type", FileType.SYMLINK.toString(),
         "data", data));
   }
@@ -426,10 +457,10 @@ public class PathServlet extends BaseServlet {
     }
   }
 
-  private void showGitlink(HttpServletRequest req, HttpServletResponse res, TreeWalk tw,
-      RevTree root) throws IOException {
+  private void showGitlink(HttpServletRequest req, HttpServletResponse res, WalkResult wr)
+      throws IOException {
     GitilesView view = ViewFilter.getView(req);
-    SubmoduleWalk sw = SubmoduleWalk.forPath(ServletUtils.getRepository(req), root,
+    SubmoduleWalk sw = SubmoduleWalk.forPath(ServletUtils.getRepository(req), wr.root,
         view.getPathPart());
 
     String modulesUrl;
@@ -451,7 +482,7 @@ public class PathServlet extends BaseServlet {
     }
 
     Map<String, Object> data = Maps.newHashMap();
-    data.put("sha", ObjectId.toString(tw.getObjectId(0)));
+    data.put("sha", ObjectId.toString(wr.id));
     data.put("remoteUrl", remoteUrl != null ? remoteUrl : modulesUrl);
 
     // TODO(dborowitz): Guess when we can put commit SHAs in the URL.
