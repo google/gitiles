@@ -32,7 +32,7 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.List;
 import java.util.Map;
 
@@ -64,7 +64,7 @@ public class DescribeServlet extends BaseServlet {
     if (name == null) {
       return;
     }
-    PrintWriter out = startRenderText(req, res);
+    Writer out = startRenderText(req, res);
     out.write(RefServlet.sanitizeRefForText(name));
     out.close();
   }

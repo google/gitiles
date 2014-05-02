@@ -35,7 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
@@ -123,7 +123,7 @@ public class HostIndexServlet extends BaseServlet {
       return;
     }
 
-    PrintWriter writer = startRenderText(req, res);
+    Writer writer = startRenderText(req, res);
     for (RepositoryDescription repo : descs.values()) {
       for (String name : branches) {
         String ref = repo.branches.get(name);
@@ -131,11 +131,11 @@ public class HostIndexServlet extends BaseServlet {
           // Print stub (forty '-' symbols)
           ref = "----------------------------------------";
         }
-        writer.print(ref);
-        writer.print(' ');
+        writer.write(ref);
+        writer.write(' ');
       }
-      writer.print(GitilesUrls.NAME_ESCAPER.apply(repo.name));
-      writer.print('\n');
+      writer.write(GitilesUrls.NAME_ESCAPER.apply(repo.name));
+      writer.write('\n');
     }
     writer.flush();
     writer.close();

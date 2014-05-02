@@ -33,7 +33,8 @@ import com.google.gson.GsonBuilder;
 import org.joda.time.Instant;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.lang.reflect.Type;
 import java.util.Map;
 
@@ -223,14 +224,14 @@ public abstract class BaseServlet extends HttpServlet {
     setApiHeaders(res, JSON);
     res.setStatus(SC_OK);
 
-    PrintWriter writer = res.getWriter();
+    Writer writer = getWriter(res);
     new GsonBuilder()
       .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
       .setPrettyPrinting()
       .generateNonExecutableJson()
       .create()
       .toJson(src, typeOfSrc, writer);
-    writer.print('\n');
+    writer.write('\n');
     writer.close();
   }
 
@@ -241,10 +242,10 @@ public abstract class BaseServlet extends HttpServlet {
    * @param contentType contentType to set.
    * @return the response's writer.
    */
-  protected PrintWriter startRenderText(HttpServletRequest req, HttpServletResponse res,
+  protected Writer startRenderText(HttpServletRequest req, HttpServletResponse res,
       String contentType) throws IOException {
     setApiHeaders(res, contentType);
-    return res.getWriter();
+    return getWriter(res);
   }
 
   /**
@@ -262,10 +263,9 @@ public abstract class BaseServlet extends HttpServlet {
    * @param res in-progress response.
    * @return the response's writer.
    */
-  protected PrintWriter startRenderText(HttpServletRequest req, HttpServletResponse res)
+  protected Writer startRenderText(HttpServletRequest req, HttpServletResponse res)
       throws IOException {
-    setApiHeaders(res, TEXT);
-    return res.getWriter();
+    return startRenderText(req, res, TEXT.getMimeType());
   }
 
   /**
@@ -283,7 +283,7 @@ public abstract class BaseServlet extends HttpServlet {
     res.setStatus(statusCode);
     setApiHeaders(res, TEXT);
     setCacheHeaders(res);
-    PrintWriter out = res.getWriter();
+    Writer out = getWriter(res);
     out.write(message);
     out.close();
   }
@@ -319,5 +319,9 @@ public abstract class BaseServlet extends HttpServlet {
     res.setContentType(contentType);
     res.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename);
     setCacheHeaders(res);
+  }
+
+  private Writer getWriter(HttpServletResponse res) throws IOException {
+    return new OutputStreamWriter(res.getOutputStream(), res.getCharacterEncoding());
   }
 }

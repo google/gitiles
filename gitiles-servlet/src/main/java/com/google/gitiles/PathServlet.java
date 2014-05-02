@@ -56,7 +56,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -181,7 +181,7 @@ public class PathServlet extends BaseServlet {
           // under the assumption that any hint we can give to a browser that
           // this is base64 data might cause it to try to decode it and render
           // as HTML, which would be bad.
-          PrintWriter writer = startRenderText(req, res, null);
+          Writer writer = startRenderText(req, res, null);
           res.setHeader(MODE_HEADER, String.format("%06o", wr.type.mode.getBits()));
           try (OutputStream out = BaseEncoding.base64().encodingStream(writer)) {
             rw.getObjectReader().open(wr.id).copyTo(out);

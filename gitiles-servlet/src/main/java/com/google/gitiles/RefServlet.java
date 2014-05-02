@@ -34,7 +34,7 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.RefAdvertiser;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -188,9 +188,9 @@ public class RefServlet extends BaseServlet {
   }
 
   private static class TextRefAdvertiser extends RefAdvertiser {
-    private final PrintWriter writer;
+    private final Writer writer;
 
-    private TextRefAdvertiser(PrintWriter writer) {
+    private TextRefAdvertiser(Writer writer) {
       this.writer = writer;
     }
 
@@ -201,7 +201,7 @@ public class RefServlet extends BaseServlet {
 
     @Override
     protected void writeOne(CharSequence line) throws IOException {
-      writer.print(line);
+      writer.append(line);
     }
 
     @Override
