@@ -20,7 +20,9 @@ import static org.junit.Assert.assertNull;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.BaseEncoding;
+import com.google.gitiles.TreeJsonData.Tree;
 import com.google.common.net.HttpHeaders;
+import com.google.gson.Gson;
 import com.google.template.soy.data.SoyListData;
 import com.google.template.soy.data.restricted.StringData;
 
@@ -33,6 +35,7 @@ import org.eclipse.jgit.junit.TestRepository;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevBlob;
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.junit.Before;
 import org.junit.Test;
@@ -224,6 +227,39 @@ public class PathServletTest {
     assertNotFound("/repo/+/master/gitiles?format=TEXT");
   }
 
+  @Test
+  public void treeJson() throws Exception {
+    RevCommit c = repo.parseBody(repo.branch("master").commit()
+        .add("foo/bar", "bar contents")
+        .add("baz", "baz contents")
+        .create());
+
+    Tree tree = buildJson("/repo/+/master/?format=JSON", Tree.class);
+    assertEquals(2, tree.entries.size());
+    assertEquals(0100644, tree.entries.get(0).mode);
+    assertEquals("blob", tree.entries.get(0).type);
+    assertEquals(repo.get(c.getTree(), "baz").name(), tree.entries.get(0).id);
+    assertEquals("baz", tree.entries.get(0).name);
+    assertEquals(040000, tree.entries.get(1).mode);
+    assertEquals("tree", tree.entries.get(1).type);
+    assertEquals(repo.get(c.getTree(), "foo").name(), tree.entries.get(1).id);
+    assertEquals("foo", tree.entries.get(1).name);
+
+    tree = buildJson("/repo/+/master/foo?format=JSON", Tree.class);
+    assertEquals(1, tree.entries.size());
+    assertEquals(0100644, tree.entries.get(0).mode);
+    assertEquals("blob", tree.entries.get(0).type);
+    assertEquals(repo.get(c.getTree(), "foo/bar").name(), tree.entries.get(0).id);
+    assertEquals("bar", tree.entries.get(0).name);
+
+    tree = buildJson("/repo/+/master/foo/?format=JSON", Tree.class);
+    assertEquals(1, tree.entries.size());
+    assertEquals(0100644, tree.entries.get(0).mode);
+    assertEquals("blob", tree.entries.get(0).type);
+    assertEquals(repo.get(c.getTree(), "foo/bar").name(), tree.entries.get(0).id);
+    assertEquals("bar", tree.entries.get(0).name);
+  }
+
   private Map<String, ?> getBlobData(Map<String, ?> data) {
     return ((Map<String, Map<String, ?>>) data).get("data");
   }
@@ -249,6 +285,15 @@ public class PathServletTest {
     assertNull(res.getResponse().getHeader(HttpHeaders.CONTENT_TYPE));
     assertEquals(expectedMode, res.getResponse().getHeader(PathServlet.MODE_HEADER));
     return res.getResponse().getActualBodyString();
+  }
+
+  private <T> T buildJson(String pathAndQuery, Class<T> clazz) throws Exception {
+    TestViewFilter.Result res = service(pathAndQuery);
+    assertEquals("application/json", res.getResponse().getHeader(HttpHeaders.CONTENT_TYPE));
+    String body = res.getResponse().getActualBodyString();
+    String magic = ")]}'\n";
+    assertEquals(magic, body.substring(0, magic.length()));
+    return new Gson().fromJson(body.substring(magic.length()), clazz);
   }
 
   private Map<String, ?> buildData(String pathAndQuery) throws Exception {

@@ -235,6 +235,37 @@ public class PathServlet extends BaseServlet {
     }
   }
 
+  @Override
+  protected void doGetJson(HttpServletRequest req, HttpServletResponse res) throws IOException {
+    GitilesView view = ViewFilter.getView(req);
+    Repository repo = ServletUtils.getRepository(req);
+
+    RevWalk rw = new RevWalk(repo);
+    WalkResult wr = null;
+    try {
+      wr = WalkResult.forPath(rw, view);
+      if (wr == null) {
+        res.setStatus(SC_NOT_FOUND);
+        return;
+      }
+      switch (wr.type) {
+        case TREE:
+          renderJson(req, res, TreeJsonData.toJsonData(wr.tw), TreeJsonData.Tree.class);
+          break;
+        default:
+          res.setStatus(SC_NOT_FOUND);
+          break;
+      }
+    } catch (LargeObjectException e) {
+      res.setStatus(SC_INTERNAL_SERVER_ERROR);
+    } finally {
+      if (wr != null) {
+        wr.release();
+      }
+      rw.release();
+    }
+  }
+
   private static RevTree getRoot(GitilesView view, RevWalk rw) throws IOException {
     RevObject obj = rw.peel(rw.parseAny(view.getRevision().getId()));
     switch (obj.getType()) {
