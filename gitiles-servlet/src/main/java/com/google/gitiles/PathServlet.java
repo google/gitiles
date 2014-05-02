@@ -55,6 +55,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -67,6 +68,8 @@ import javax.servlet.http.HttpServletResponse;
 public class PathServlet extends BaseServlet {
   private static final long serialVersionUID = 1L;
   private static final Logger log = LoggerFactory.getLogger(PathServlet.class);
+
+  static final String MODE_HEADER = "X-Gitiles-Path-Mode";
 
   /**
    * Submodule URLs where we know there is a web page if the user visits the
@@ -204,8 +207,9 @@ public class PathServlet extends BaseServlet {
           // under the assumption that any hint we can give to a browser that
           // this is base64 data might cause it to try to decode it and render
           // as HTML, which would be bad.
-          res.setHeader("X-Gitiles-Path-Mode", String.format("%06o", tw.getRawMode(0)));
-          try (OutputStream out = BaseEncoding.base64().encodingStream(startRenderText(req, res))) {
+          PrintWriter writer = startRenderText(req, res, null);
+          res.setHeader(MODE_HEADER, String.format("%06o", tw.getRawMode(0)));
+          try (OutputStream out = BaseEncoding.base64().encodingStream(writer)) {
             rw.getObjectReader().open(tw.getObjectId(0)).copyTo(out);
           }
           break;

@@ -14,9 +14,13 @@
 
 package com.google.gitiles;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.io.BaseEncoding;
+import com.google.common.net.HttpHeaders;
 import com.google.template.soy.data.SoyListData;
 import com.google.template.soy.data.restricted.StringData;
 
@@ -153,6 +157,52 @@ public class PathServletTest {
     assertEquals("https://gerrit.googlesource.com/gitiles", linkData.get("httpUrl"));
   }
 
+  @Test
+  public void blobText() throws Exception {
+    repo.branch("master").commit().add("foo", "contents").create();
+    String text = buildText("/repo/+/master/foo?format=TEXT", "100644");
+    assertEquals("contents", new String(BaseEncoding.base64().decode(text), UTF_8));
+  }
+
+  @Test
+  public void symlinkText() throws Exception {
+    final RevBlob link = repo.blob("foo");
+    repo.branch("master").commit()
+        .edit(new PathEdit("baz") {
+          @Override
+          public void apply(DirCacheEntry ent) {
+            ent.setFileMode(FileMode.SYMLINK);
+            ent.setObjectId(link);
+          }
+        }).create();
+    String text = buildText("/repo/+/master/baz?format=TEXT", "120000");
+    assertEquals("foo", new String(BaseEncoding.base64().decode(text), UTF_8));
+  }
+
+  @Test
+  public void nonBlobText() throws Exception {
+    String gitmodules = "[submodule \"gitiles\"]\n"
+      + "  path = gitiles\n"
+      + "  url = https://gerrit.googlesource.com/gitiles\n";
+    final String gitilesSha = "2b2f34bba3c2be7e2506ce6b1f040949da350cf9";
+    repo.branch("master").commit()
+        .add("foo/bar", "contents")
+        .add(".gitmodules", gitmodules)
+        .edit(new PathEdit("gitiles") {
+          @Override
+          public void apply(DirCacheEntry ent) {
+            ent.setFileMode(FileMode.GITLINK);
+            ent.setObjectId(ObjectId.fromString(gitilesSha));
+          }
+        }).create();
+
+    assertNotFound("/repo/+/master/nonexistent?format=TEXT");
+    assertNotFound("/repo/+/master/?format=TEXT");
+    assertNotFound("/repo/+/master/foo?format=TEXT");
+    assertNotFound("/repo/+/master/foo/?format=TEXT");
+    assertNotFound("/repo/+/master/gitiles?format=TEXT");
+  }
+
   private Map<String, ?> getBlobData(Map<String, ?> data) {
     return ((Map<String, Map<String, ?>>) data).get("data");
   }
@@ -167,6 +217,17 @@ public class PathServletTest {
     assertEquals(GitilesView.Type.PATH, res.getView().getType());
     servlet.service(res.getRequest(), res.getResponse());
     return res;
+  }
+
+  private void assertNotFound(String pathAndQuery) throws Exception {
+    assertEquals(404, service(pathAndQuery).getResponse().getStatus());
+  }
+
+  private String buildText(String pathAndQuery, String expectedMode) throws Exception {
+    TestViewFilter.Result res = service(pathAndQuery);
+    assertNull(res.getResponse().getHeader(HttpHeaders.CONTENT_TYPE));
+    assertEquals(expectedMode, res.getResponse().getHeader(PathServlet.MODE_HEADER));
+    return res.getResponse().getActualBodyString();
   }
 
   private Map<String, ?> buildData(String pathAndQuery) throws Exception {

@@ -23,6 +23,7 @@ import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.net.HttpHeaders;
@@ -234,6 +235,19 @@ public abstract class BaseServlet extends HttpServlet {
   }
 
   /**
+   * @see #startRenderText(HttpServletRequest, HttpServletResponse)
+   * @param req in-progress request.
+   * @param res in-progress response.
+   * @param contentType contentType to set.
+   * @return the response's writer.
+   */
+  protected PrintWriter startRenderText(HttpServletRequest req, HttpServletResponse res,
+      String contentType) throws IOException {
+    setApiHeaders(res, contentType);
+    return res.getWriter();
+  }
+
+  /**
    * Prepare the response to render plain text.
    * <p>
    * Unlike
@@ -287,12 +301,18 @@ public abstract class BaseServlet extends HttpServlet {
     setNotCacheable(res);
   }
 
-  protected void setApiHeaders(HttpServletResponse res, FormatType type) {
-    res.setContentType(type.getMimeType());
+  protected void setApiHeaders(HttpServletResponse res, String contentType) {
+    if (!Strings.isNullOrEmpty(contentType)) {
+      res.setContentType(contentType);
+    }
     res.setCharacterEncoding(Charsets.UTF_8.name());
     res.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment");
     res.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
     setCacheHeaders(res);
+  }
+
+  protected void setApiHeaders(HttpServletResponse res, FormatType type) {
+    setApiHeaders(res, type.getMimeType());
   }
 
   protected void setDownloadHeaders(HttpServletResponse res, String filename, String contentType) {
