@@ -33,6 +33,7 @@ import org.eclipse.jgit.junit.TestRepository;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevBlob;
+import org.eclipse.jgit.revwalk.RevTree;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -161,7 +162,7 @@ public class PathServletTest {
   public void blobText() throws Exception {
     repo.branch("master").commit().add("foo", "contents").create();
     String text = buildText("/repo/+/master/foo?format=TEXT", "100644");
-    assertEquals("contents", new String(BaseEncoding.base64().decode(text), UTF_8));
+    assertEquals("contents", decodeBase64(text));
   }
 
   @Test
@@ -176,7 +177,30 @@ public class PathServletTest {
           }
         }).create();
     String text = buildText("/repo/+/master/baz?format=TEXT", "120000");
-    assertEquals("foo", new String(BaseEncoding.base64().decode(text), UTF_8));
+    assertEquals("foo", decodeBase64(text));
+  }
+
+  @Test
+  public void treeText() throws Exception {
+    RevBlob blob = repo.blob("contents");
+    RevTree tree = repo.tree(repo.file("foo/bar", blob));
+    repo.branch("master").commit().setTopLevelTree(tree).create();
+
+    String expected = "040000 tree " + repo.get(tree, "foo").name() + "\tfoo\n";
+    assertEquals(expected, decodeBase64(buildText("/repo/+/master/?format=TEXT", "040000")));
+
+    expected = "100644 blob " + blob.name() + "\tbar\n";
+    assertEquals(expected, decodeBase64(buildText("/repo/+/master/foo?format=TEXT", "040000")));
+    assertEquals(expected, decodeBase64(buildText("/repo/+/master/foo/?format=TEXT", "040000")));
+  }
+
+  @Test
+  public void treeTextEscaped() throws Exception {
+    RevBlob blob = repo.blob("contents");
+    repo.branch("master").commit().add("foo\nbar\rbaz", blob).create();
+
+    assertEquals("100644 blob " + blob.name() + "\t\"foo\\nbar\\rbaz\"\n",
+        decodeBase64(buildText("/repo/+/master/?format=TEXT", "040000")));
   }
 
   @Test
@@ -197,9 +221,6 @@ public class PathServletTest {
         }).create();
 
     assertNotFound("/repo/+/master/nonexistent?format=TEXT");
-    assertNotFound("/repo/+/master/?format=TEXT");
-    assertNotFound("/repo/+/master/foo?format=TEXT");
-    assertNotFound("/repo/+/master/foo/?format=TEXT");
     assertNotFound("/repo/+/master/gitiles?format=TEXT");
   }
 
@@ -234,5 +255,9 @@ public class PathServletTest {
     // Render the page through Soy to ensure templates are valid, then return
     // the Soy data for introspection.
     return BaseServlet.getData(service(pathAndQuery).getRequest());
+  }
+
+  private static String decodeBase64(String in) {
+    return new String(BaseEncoding.base64().decode(in), UTF_8);
   }
 }

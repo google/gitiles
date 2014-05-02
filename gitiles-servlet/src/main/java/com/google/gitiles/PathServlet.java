@@ -50,6 +50,7 @@ import org.eclipse.jgit.submodule.SubmoduleWalk;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
+import org.eclipse.jgit.util.QuotedString;
 import org.eclipse.jgit.util.RawParseUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -173,19 +174,18 @@ public class PathServlet extends BaseServlet {
         return;
       }
 
+      // Write base64 as plain text without modifying any other headers, under
+      // the assumption that any hint we can give to a browser that this is
+      // base64 data might cause it to try to decode it and render as HTML,
+      // which would be bad.
       switch (wr.type) {
         case SYMLINK:
         case REGULAR_FILE:
         case EXECUTABLE_FILE:
-          // Write base64 as plain text without modifying any other headers,
-          // under the assumption that any hint we can give to a browser that
-          // this is base64 data might cause it to try to decode it and render
-          // as HTML, which would be bad.
-          res.setHeader(MODE_HEADER, String.format("%06o", wr.type.mode.getBits()));
-          try (Writer writer = startRenderText(req, res, null);
-              OutputStream out = BaseEncoding.base64().encodingStream(writer)) {
-            rw.getObjectReader().open(wr.id).copyTo(out);
-          }
+          writeBlobText(req, res, wr);
+          break;
+        case TREE:
+          writeTreeText(req, res, wr);
           break;
         default:
           renderTextError(req, res, SC_NOT_FOUND, "Not a file");
@@ -198,6 +198,40 @@ public class PathServlet extends BaseServlet {
         wr.release();
       }
       rw.release();
+    }
+  }
+
+  private void setModeHeader(HttpServletResponse res, FileType type) {
+    res.setHeader(MODE_HEADER, String.format("%06o", type.mode.getBits()));
+  }
+
+  private void writeBlobText(HttpServletRequest req, HttpServletResponse res, WalkResult wr)
+      throws IOException {
+    setModeHeader(res, wr.type);
+    try (Writer writer = startRenderText(req, res, null);
+        OutputStream out = BaseEncoding.base64().encodingStream(writer)) {
+      wr.getObjectReader().open(wr.id).copyTo(out);
+    }
+  }
+
+  private void writeTreeText(HttpServletRequest req, HttpServletResponse res, WalkResult wr)
+      throws IOException {
+    setModeHeader(res, wr.type);
+
+    try (Writer writer = startRenderText(req, res, null);
+        OutputStream out = BaseEncoding.base64().encodingStream(writer)) {
+      // Match git ls-tree format.
+      while (wr.tw.next()) {
+        FileMode mode = wr.tw.getFileMode(0);
+        out.write(Constants.encode(String.format("%06o", mode.getBits())));
+        out.write(' ');
+        out.write(Constants.encode(Constants.typeString(mode.getObjectType())));
+        out.write(' ');
+        wr.tw.getObjectId(0).copyTo(out);
+        out.write('\t');
+        out.write(Constants.encode(QuotedString.GIT_PATH.quote(wr.tw.getNameString())));
+        out.write('\n');
+      }
     }
   }
 
