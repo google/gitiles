@@ -181,9 +181,9 @@ public class PathServlet extends BaseServlet {
           // under the assumption that any hint we can give to a browser that
           // this is base64 data might cause it to try to decode it and render
           // as HTML, which would be bad.
-          Writer writer = startRenderText(req, res, null);
           res.setHeader(MODE_HEADER, String.format("%06o", wr.type.mode.getBits()));
-          try (OutputStream out = BaseEncoding.base64().encodingStream(writer)) {
+          try (Writer writer = startRenderText(req, res, null);
+              OutputStream out = BaseEncoding.base64().encodingStream(writer)) {
             rw.getObjectReader().open(wr.id).copyTo(out);
           }
           break;
