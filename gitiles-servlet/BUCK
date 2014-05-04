@@ -1,4 +1,3 @@
-include_defs('//bucklets/java_library2.bucklet')
 include_defs('//bucklets/java_sources.bucklet')
 include_defs('//bucklets/java_doc.bucklet')
 
@@ -21,12 +20,12 @@ DEPS_ALL = DEPS + [
   '//lib/guice:guice',
 ]
 
-java_library2(
+java_library(
   name = 'servlet',
   srcs = SRCS,
   resources = RSRC,
   deps = DEPS_ALL,
-  compile_deps = ['//lib:servlet-api_2_5'],
+  provided_deps = ['//lib:servlet-api_2_5'],
   visibility = ['PUBLIC'],
 )
 
