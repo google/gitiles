@@ -117,10 +117,13 @@ public class GitilesView {
         default:
           break;
       }
-      if (type == Type.ARCHIVE && other.type == Type.ARCHIVE) {
-        extension = other.extension;
+      if (other.type == type) {
+        // Only copy params for matching type.
+        params.putAll(other.params);
+        if (type == Type.ARCHIVE) {
+          extension = other.extension;
+        }
       }
-      // Don't copy params.
       return this;
     }
 

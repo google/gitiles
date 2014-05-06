@@ -70,16 +70,18 @@ public class GitilesViewTest {
 
   @Test
   public void queryParams() throws Exception {
-    GitilesView view = GitilesView.hostIndex().copyFrom(HOST)
+    GitilesView view = GitilesView.log().copyFrom(HOST)
+        .setRepositoryName("repo")
+        .setRevision(Revision.named("master"))
         .putParam("foo", "foovalue")
         .putParam("bar", "barvalue")
         .build();
 
     assertEquals("/b", view.getServletPath());
-    assertEquals(Type.HOST_INDEX, view.getType());
+    assertEquals(Type.LOG, view.getType());
     assertEquals("host", view.getHostName());
-    assertNull(view.getRepositoryName());
-    assertEquals(Revision.NULL, view.getRevision());
+    assertEquals("repo", view.getRepositoryName());
+    assertEquals(Revision.named("master"), view.getRevision());
     assertNull(view.getPathPart());
     assertEquals(
         ImmutableListMultimap.of(
@@ -87,20 +89,26 @@ public class GitilesViewTest {
             "bar", "barvalue"),
         view.getParameters());
 
-    assertEquals("/b/?format=HTML&foo=foovalue&bar=barvalue", view.toUrl());
-    assertEquals(ImmutableList.of(ImmutableMap.of("text", "host", "url", "/b/?format=HTML")),
+    assertEquals("/b/repo/+log/master?foo=foovalue&bar=barvalue", view.toUrl());
+    assertEquals(
+        ImmutableList.of(
+            breadcrumb("host", "/b/?format=HTML"),
+            breadcrumb("repo", "/b/repo/"),
+            breadcrumb("master", "/b/repo/+log/master?foo=foovalue&bar=barvalue")),
         view.getBreadcrumbs());
   }
 
   @Test
-  public void queryParamsNotCopied() throws Exception {
-    GitilesView view = GitilesView.hostIndex().copyFrom(HOST)
+  public void queryParamsCopiedOnlyOnSameType() throws Exception {
+    GitilesView view = GitilesView.repositoryIndex().copyFrom(HOST)
+        .setRepositoryName("repo")
         .putParam("foo", "foovalue")
         .putParam("bar", "barvalue")
         .build();
-    GitilesView copy = GitilesView.hostIndex().copyFrom(view).build();
     assertFalse(view.getParameters().isEmpty());
-    assertTrue(copy.getParameters().isEmpty());
+    assertEquals(view.getParameters(),
+        GitilesView.repositoryIndex().copyFrom(view).build().getParameters());
+    assertTrue(GitilesView.hostIndex().copyFrom(view).build().getParameters().isEmpty());
   }
 
   @Test
@@ -643,19 +651,23 @@ public class GitilesViewTest {
     assertEquals(ImmutableListMultimap.<String, String> of("k e y", "val/ue"),
         view.getParameters());
 
+    String qs = "?k+e+y=val%2Fue";
     assertEquals(
-        "/b/foo%3Fbar/+log/other%22na/me..ba/d%23name/we%20ird/pa%27th/name"
-        + "?k+e+y=val%2Fue#anc%23hor", view.toUrl());
+        "/b/foo%3Fbar/+log/other%22na/me..ba/d%23name/we%20ird/pa%27th/name" + qs + "#anc%23hor",
+        view.toUrl());
     assertEquals(
         ImmutableList.of(
             // Names are not escaped (auto-escaped by Soy) but values are.
             breadcrumb("host", "/b/?format=HTML"),
             breadcrumb("foo?bar", "/b/foo%3Fbar/"),
-            breadcrumb("other\"na/me..ba/d#name", "/b/foo%3Fbar/+log/other%22na/me..ba/d%23name"),
-            breadcrumb("we ird", "/b/foo%3Fbar/+log/other%22na/me..ba/d%23name/we%20ird"),
-            breadcrumb("pa'th", "/b/foo%3Fbar/+log/other%22na/me..ba/d%23name/we%20ird/pa%27th"),
+            breadcrumb("other\"na/me..ba/d#name",
+              "/b/foo%3Fbar/+log/other%22na/me..ba/d%23name" + qs),
+            breadcrumb("we ird",
+              "/b/foo%3Fbar/+log/other%22na/me..ba/d%23name/we%20ird" + qs),
+            breadcrumb("pa'th",
+              "/b/foo%3Fbar/+log/other%22na/me..ba/d%23name/we%20ird/pa%27th" + qs),
             breadcrumb("name",
-              "/b/foo%3Fbar/+log/other%22na/me..ba/d%23name/we%20ird/pa%27th/name")),
+              "/b/foo%3Fbar/+log/other%22na/me..ba/d%23name/we%20ird/pa%27th/name" + qs)),
         view.getBreadcrumbs());
   }
 
