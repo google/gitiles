@@ -196,6 +196,7 @@ public class LogServlet extends BaseServlet {
       walk.markUninteresting(walk.parseCommit(view.getOldRevision().getId()));
     }
     if (!Strings.isNullOrEmpty(view.getPathPart())) {
+      walk.setRewriteParents(false);
       walk.setTreeFilter(AndTreeFilter.create(
           PathFilterGroup.createFromStrings(view.getPathPart()),
           TreeFilter.ANY_DIFF));
