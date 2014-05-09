@@ -64,7 +64,12 @@ public class LogSoyData {
     List<Map<String, Object>> entries = Lists.newArrayListWithCapacity(paginator.getLimit());
     for (RevCommit c : paginator) {
       Set<Field> fs = verbose ? VERBOSE_FIELDS : FIELDS;
-      entries.add(new CommitSoyData().setRevWalk(paginator.getWalk()).toSoyData(req, c, fs, df));
+      Map<String, Object> entry = new CommitSoyData().setRevWalk(paginator.getWalk())
+          .toSoyData(req, c, fs, df);
+      if (!entry.containsKey("diffTree")) {
+        entry.put("diffTree", null);
+      }
+      entries.add(entry);
     }
 
     data.put("entries", entries);

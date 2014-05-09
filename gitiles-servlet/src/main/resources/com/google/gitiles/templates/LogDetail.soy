@@ -93,6 +93,7 @@
  * @param committer committer information with at least "time" and "relativeTime" keys.
  * @param branches list of branches for this entry, with "name" and "url" keys.
  * @param tags list of tags for this entry, with "name" and "url" keys.
+ * @param diffTree unused in this variant.
  */
 {deltemplate gitiles.logEntry variant="'oneline'"}
 <a href="{$url}">
@@ -131,6 +132,7 @@
  * @param committer committer information with at least "time" and "relativeTime" keys.
  * @param branches list of branches for this entry, with "name" and "url" keys.
  * @param tags list of tags for this entry, with "name" and "url" keys.
+ * @param diffTree unused in this variant.
  */
 {deltemplate gitiles.logEntry variant="'default'"}
 {delcall gitiles.logEntry variant="'oneline'" data="all" /}
@@ -151,6 +153,7 @@
  * @param committer committer information with at least "time" and "relativeTime" keys.
  * @param branches list of branches for this entry, with "name" and "url" keys.
  * @param tags list of tags for this entry, with "name" and "url" keys.
+ * @param diffTree unused in this variant.
  */
 {deltemplate gitiles.logEntry variant="'full'"}
 <div class="git-commit">

@@ -136,7 +136,7 @@ public class CommitSoyData {
     }
     checkState(Sets.difference(fs, NESTED_FIELDS).size() == data.size(),
         "bad commit data fields: %s != %s", fs, data.keySet());
-    return ImmutableMap.copyOf(data);
+    return data;
   }
 
   Map<String, Object> toSoyData(HttpServletRequest req, RevCommit commit,
