@@ -250,7 +250,7 @@ public class PathServlet extends BaseServlet {
       }
       switch (wr.type) {
         case TREE:
-          renderJson(req, res, TreeJsonData.toJsonData(wr.tw), TreeJsonData.Tree.class);
+          renderJson(req, res, TreeJsonData.toJsonData(wr.id, wr.tw), TreeJsonData.Tree.class);
           break;
         default:
           res.setStatus(SC_NOT_FOUND);

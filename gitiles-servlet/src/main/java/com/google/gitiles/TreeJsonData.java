@@ -18,6 +18,7 @@ import com.google.common.collect.Lists;
 
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.FileMode;
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.treewalk.TreeWalk;
 
 import java.io.IOException;
@@ -25,6 +26,7 @@ import java.util.List;
 
 class TreeJsonData {
   static class Tree {
+    String id;
     List<Entry> entries;
   }
 
@@ -35,8 +37,9 @@ class TreeJsonData {
     String name;
   }
 
-  static Tree toJsonData(TreeWalk tw) throws IOException {
+  static Tree toJsonData(ObjectId id, TreeWalk tw) throws IOException {
     Tree tree = new Tree();
+    tree.id = id.name();
     tree.entries = Lists.newArrayList();
     while (tw.next()) {
       Entry e = new Entry();

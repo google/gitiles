@@ -35,10 +35,11 @@ import javax.servlet.http.HttpServletRequest;
 
 class CommitJsonData {
   static final ImmutableSet<Field> DEFAULT_FIELDS = Sets.immutableEnumSet(
-      Field.SHA, Field.PARENTS, Field.AUTHOR, Field.COMMITTER, Field.MESSAGE);
+      Field.SHA, Field.TREE, Field.PARENTS, Field.AUTHOR, Field.COMMITTER, Field.MESSAGE);
 
   static class Commit {
     String commit;
+    String tree;
     List<String> parents;
     Ident author;
     Ident committer;
@@ -85,6 +86,9 @@ class CommitJsonData {
     Commit result = new Commit();
     if (cd.sha != null) {
       result.commit = cd.sha.name();
+    }
+    if (cd.tree != null) {
+      result.tree = cd.tree.name();
     }
     if (cd.parents != null) {
       result.parents = Lists.newArrayListWithCapacity(cd.parents.size());

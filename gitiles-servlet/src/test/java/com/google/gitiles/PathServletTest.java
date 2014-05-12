@@ -235,6 +235,7 @@ public class PathServletTest {
         .create());
 
     Tree tree = buildJson("/repo/+/master/?format=JSON", Tree.class);
+    assertEquals(c.getTree().name(), tree.id);
     assertEquals(2, tree.entries.size());
     assertEquals(0100644, tree.entries.get(0).mode);
     assertEquals("blob", tree.entries.get(0).type);
@@ -246,6 +247,7 @@ public class PathServletTest {
     assertEquals("foo", tree.entries.get(1).name);
 
     tree = buildJson("/repo/+/master/foo?format=JSON", Tree.class);
+    assertEquals(repo.get(c.getTree(), "foo").name(), tree.id);
     assertEquals(1, tree.entries.size());
     assertEquals(0100644, tree.entries.get(0).mode);
     assertEquals("blob", tree.entries.get(0).type);
@@ -253,6 +255,7 @@ public class PathServletTest {
     assertEquals("bar", tree.entries.get(0).name);
 
     tree = buildJson("/repo/+/master/foo/?format=JSON", Tree.class);
+    assertEquals(repo.get(c.getTree(), "foo").name(), tree.id);
     assertEquals(1, tree.entries.size());
     assertEquals(0100644, tree.entries.get(0).mode);
     assertEquals("blob", tree.entries.get(0).type);
