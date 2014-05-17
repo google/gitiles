@@ -4,8 +4,8 @@ war(
   name = 'gitiles',
   libs = ['//gitiles-servlet:servlet'],
   context = [
-    '//gitiles-servlet:static-resources.zip',
-    ':web_xml.zip',
+    '//gitiles-servlet:static-resources',
+    ':web_xml',
   ],
   visibility = ['PUBLIC'],
 )
