@@ -17,6 +17,7 @@ package com.google.gitiles.blame;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -42,6 +43,11 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
+import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
+import org.eclipse.jgit.treewalk.filter.TreeFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
@@ -53,6 +59,7 @@ import javax.servlet.http.HttpServletResponse;
 /** Serves an HTML page with blame data for a commit. */
 public class BlameServlet extends BaseServlet {
   private static final long serialVersionUID = 1L;
+  private static final Logger log = LoggerFactory.getLogger(BlameServlet.class);
 
   private final BlameCache cache;
 
@@ -69,23 +76,39 @@ public class BlameServlet extends BaseServlet {
 
     RevWalk rw = new RevWalk(repo);
     try {
-      RevCommit commit = rw.parseCommit(view.getRevision().getId());
-      ObjectId blobId = resolveBlob(view, rw, commit);
-      if (blobId == null) {
+      GitilesAccess access = getAccess(req);
+      RevCommit currCommit = rw.parseCommit(view.getRevision().getId());
+      ObjectId currCommitBlobId = resolveBlob(view, rw, currCommit);
+      if (currCommitBlobId == null) {
         res.setStatus(SC_NOT_FOUND);
         return;
       }
 
+      RevCommit lastCommit = findLastCommit(rw, currCommit, view.getPathPart());
+      ObjectId lastCommitBlobId = resolveBlob(view, rw, lastCommit);
+
+      if (!Objects.equal(currCommitBlobId, lastCommitBlobId)) {
+        log.warn(String.format("Blob %s in last modified commit %s for repo %s starting from %s"
+            + " does not match original blob %s",
+            ObjectId.toString(lastCommitBlobId),
+            ObjectId.toString(lastCommit),
+            access.getRepositoryName(),
+            ObjectId.toString(currCommit),
+            ObjectId.toString(currCommitBlobId)));
+        lastCommitBlobId = currCommitBlobId;
+        lastCommit = currCommit;
+      }
+
       String title = "Blame - " + view.getPathPart();
       Map<String, ?> blobData = new BlobSoyData(rw.getObjectReader(), view)
-          .toSoyData(view.getPathPart(), blobId);
+          .toSoyData(view.getPathPart(), lastCommitBlobId);
       if (blobData.get("lines") != null) {
-        List<Region> regions = cache.get(repo, commit, view.getPathPart());
+        List<Region> regions = cache.get(repo, lastCommit, view.getPathPart());
         if (regions.isEmpty()) {
           res.setStatus(SC_NOT_FOUND);
           return;
         }
-        DateFormatter df = new DateFormatter(getAccess(req), Format.ISO);
+        DateFormatter df = new DateFormatter(access, Format.ISO);
         renderHtml(req, res, "gitiles.blameDetail", ImmutableMap.of(
             "title", title,
             "breadcrumbs", view.getBreadcrumbs(),
@@ -102,10 +125,27 @@ public class BlameServlet extends BaseServlet {
     }
   }
 
+  private static RevCommit findLastCommit(RevWalk rw, RevCommit curr, String path)
+      throws IOException {
+    rw.markStart(curr);
+    rw.setRewriteParents(false);
+    // Don't use rename detection, even though BlameGenerator does. It is not
+    // possible for a commit to modify a path when not doing rename detection
+    // but to not modify the same path when taking renames into account.
+    rw.setTreeFilter(AndTreeFilter.create(
+        PathFilterGroup.createFromStrings(path),
+        TreeFilter.ANY_DIFF));
+    try {
+      return rw.next();
+    } finally {
+      rw.reset();
+    }
+  }
+
   private static ObjectId resolveBlob(GitilesView view, RevWalk rw, RevCommit commit)
       throws IOException {
     try {
-      if (Strings.isNullOrEmpty(view.getPathPart())) {
+      if (commit == null || Strings.isNullOrEmpty(view.getPathPart())) {
         return null;
       }
       TreeWalk tw = TreeWalk.forPath(rw.getObjectReader(), view.getPathPart(), commit.getTree());
