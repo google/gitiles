@@ -31,6 +31,7 @@ import org.eclipse.jgit.blame.BlameGenerator;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.util.QuotedString;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -86,6 +87,11 @@ public class BlameCacheImpl implements BlameCache {
     @Override
     public int hashCode() {
       return Objects.hashCode(commitId, path);
+    }
+
+    @Override
+    public String toString() {
+      return commitId.name() + ":" + QuotedString.GIT_PATH.quote(path);
     }
   }
 
