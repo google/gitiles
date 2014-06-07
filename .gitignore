@@ -3,3 +3,4 @@
 /.settings
 /buck-out
 /gitiles.config
+/.buckd
