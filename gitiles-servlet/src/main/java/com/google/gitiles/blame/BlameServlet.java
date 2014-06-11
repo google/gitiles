@@ -41,11 +41,9 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
-import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
-import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
-import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,7 +82,7 @@ public class BlameServlet extends BaseServlet {
         return;
       }
 
-      RevCommit lastCommit = findLastCommit(rw, currCommit, view.getPathPart());
+      ObjectId lastCommit = cache.findLastCommit(repo, currCommit, view.getPathPart());
       ObjectId lastCommitBlobId = resolveBlob(view, rw, lastCommit);
 
       if (!Objects.equal(currCommitBlobId, lastCommitBlobId)) {
@@ -125,30 +123,14 @@ public class BlameServlet extends BaseServlet {
     }
   }
 
-  private static RevCommit findLastCommit(RevWalk rw, RevCommit curr, String path)
-      throws IOException {
-    rw.markStart(curr);
-    rw.setRewriteParents(false);
-    // Don't use rename detection, even though BlameGenerator does. It is not
-    // possible for a commit to modify a path when not doing rename detection
-    // but to not modify the same path when taking renames into account.
-    rw.setTreeFilter(AndTreeFilter.create(
-        PathFilterGroup.createFromStrings(path),
-        TreeFilter.ANY_DIFF));
-    try {
-      return rw.next();
-    } finally {
-      rw.reset();
-    }
-  }
-
-  private static ObjectId resolveBlob(GitilesView view, RevWalk rw, RevCommit commit)
+  private static ObjectId resolveBlob(GitilesView view, RevWalk rw, ObjectId commitId)
       throws IOException {
     try {
-      if (commit == null || Strings.isNullOrEmpty(view.getPathPart())) {
+      if (commitId == null || Strings.isNullOrEmpty(view.getPathPart())) {
         return null;
       }
-      TreeWalk tw = TreeWalk.forPath(rw.getObjectReader(), view.getPathPart(), commit.getTree());
+      RevTree tree = rw.parseTree(commitId);
+      TreeWalk tw = TreeWalk.forPath(rw.getObjectReader(), view.getPathPart(), tree);
       if (tw == null || (tw.getRawMode(0) & FileMode.TYPE_FILE) == 0) {
         return null;
       }

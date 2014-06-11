@@ -31,6 +31,10 @@ import org.eclipse.jgit.blame.BlameGenerator;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
+import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
+import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.eclipse.jgit.util.QuotedString;
 
 import java.io.IOException;
@@ -121,6 +125,26 @@ public class BlameCacheImpl implements BlameCache {
       return cache.get(new Key(repo, commitId, path));
     } catch (ExecutionException e) {
       throw new IOException(e);
+    }
+  }
+
+  @Override
+  public ObjectId findLastCommit(Repository repo, ObjectId commitId, String path)
+      throws IOException {
+    // Default implementation does no caching.
+    RevWalk rw = new RevWalk(repo);
+    try {
+      rw.markStart(rw.parseCommit(commitId));
+      rw.setRewriteParents(false);
+      // Don't use rename detection, even though BlameGenerator does. It is not
+      // possible for a commit to modify a path when not doing rename detection
+      // but to not modify the same path when taking renames into account.
+      rw.setTreeFilter(AndTreeFilter.create(
+          PathFilterGroup.createFromStrings(path),
+          TreeFilter.ANY_DIFF));
+      return rw.next();
+    } finally {
+      rw.release();
     }
   }
 
