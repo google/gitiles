@@ -37,7 +37,6 @@ def b():
     genrule(
       name = t,
       cmd = 'ln -s $(location %s) $OUT' % d,
-      deps = [d],
       out = out,
     )
 
