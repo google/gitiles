@@ -11,7 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-{namespace gitiles autoescape="contextual"}
+{namespace gitiles autoescape="strict"}
 
 /**
  * Detailed listing of a commit.
@@ -319,7 +319,7 @@
  *     url: optional URL that should be linked to from the part.
  */
 {template .message_ private="true"}
-<pre class="{$className|id}">
+<pre class="{$className}">
   {foreach $part in $message}
     {if $part.url}<a href="{$part.url}">{$part.text}</a>{else}{$part.text}{/if}
   {/foreach}
