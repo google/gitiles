@@ -38,7 +38,7 @@ public class DebugRenderer extends Renderer {
 
   @Override
   protected SoyTofu getTofu() {
-    SoyFileSet.Builder builder = new SoyFileSet.Builder()
+    SoyFileSet.Builder builder = SoyFileSet.builder()
         .setCompileTimeGlobals(globals);
     for (URL template : templates) {
       try {
