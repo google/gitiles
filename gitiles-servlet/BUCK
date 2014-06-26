@@ -5,7 +5,6 @@ SRCS = glob(['src/main/java/**/*.java'])
 RSRC = glob(['src/main/resources/**/*'])
 DEPS = [
   '//lib:guava',
-  '//lib:soy',
   '//lib:joda-time',
   '//lib:gson',
   '//lib:commons-lang',
@@ -13,6 +12,7 @@ DEPS = [
   '//lib/jgit:jgit',
   '//lib/jgit:jgit-servlet',
   '//lib/slf4j:slf4j-api',
+  '//lib/soy:soy',
 ]
 
 DEPS_ALL = DEPS + [

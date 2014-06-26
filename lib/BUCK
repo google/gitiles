@@ -7,12 +7,6 @@ maven_jar(
 )
 
 maven_jar(
-  name = 'soy',
-  id = 'com.google.template:soy:2012-12-21',
-  sha1 = 'cc28da103845a0f08cfd3fa5abdd45899b0adae1',
-)
-
-maven_jar(
   name = 'servlet-api_2_5',
   id = 'org.eclipse.jetty.orbit:javax.servlet:2.5.0.v201103041518',
   sha1 = '9c16011c06bc6fe5e9dba080fcb40ddb4b75dc85',

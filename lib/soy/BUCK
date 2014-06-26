@@ -1,0 +1,17 @@
+include_defs('//bucklets/maven_jar.bucklet')
+
+maven_jar(
+  name = 'soy',
+  id = 'com.google.template:soy:2014-04-22',
+  sha1 = 'd0b78ae3ab2283cdeae1a3b2f1fc5b7155a7305d',
+  deps = [
+    ':icu4j',
+  ],
+  repository = GERRIT,
+)
+
+maven_jar(
+  name = 'icu4j',
+  id = 'com.ibm.icu:icu4j:51.1',
+  sha1 = '8ce396c4aed83c0c3de9158dc72c834fd283d5a4',
+)
