@@ -21,6 +21,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.google.gitiles.DateFormatter.Format;
+import com.google.gson.reflect.TypeToken;
 
 import org.eclipse.jgit.http.server.ServletUtils;
 import org.eclipse.jgit.lib.Constants;
@@ -53,8 +54,15 @@ public class RepositoryIndexServlet extends BaseServlet {
   }
 
   @Override
-  protected void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException {
+  protected void doGetHtml(HttpServletRequest req, HttpServletResponse res) throws IOException {
     renderHtml(req, res, "gitiles.repositoryIndex", buildData(req));
+  }
+
+  @Override
+  protected void doGetJson(HttpServletRequest req, HttpServletResponse res) throws IOException {
+    GitilesAccess access = getAccess(req);
+    RepositoryDescription desc = access.getRepositoryDescription();
+    renderJson(req, res, desc, new TypeToken<RepositoryDescription>() {}.getType());
   }
 
   @VisibleForTesting
