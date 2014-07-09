@@ -18,6 +18,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
 import com.google.common.base.Charsets;
+import com.google.common.io.BaseEncoding;
 import com.google.gitiles.CommitData.Field;
 import com.google.gitiles.DateFormatter.Format;
 
@@ -38,6 +39,7 @@ import org.eclipse.jgit.treewalk.filter.PathFilter;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
@@ -58,7 +60,7 @@ public class DiffServlet extends BaseServlet {
   }
 
   @Override
-  protected void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException {
+  protected void doGetHtml(HttpServletRequest req, HttpServletResponse res) throws IOException {
     GitilesView view = ViewFilter.getView(req);
     Repository repo = ServletUtils.getRepository(req);
 
@@ -115,13 +117,41 @@ public class DiffServlet extends BaseServlet {
 
       try (OutputStream out = res.getOutputStream()) {
         out.write(html[0].getBytes(Charsets.UTF_8));
-        formatHtmlDiff(out, view, repo, oldTree, newTree, view.getPathPart());
+        DiffFormatter diff = new HtmlDiffFormatter(renderer, view, out);
+        formatDiff(repo, oldTree, newTree, view.getPathPart(), diff);
         out.write(html[1].getBytes(Charsets.UTF_8));
       }
     } finally {
       if (tw != null) {
         tw.release();
       }
+      walk.release();
+    }
+  }
+
+  @Override
+  protected void doGetText(HttpServletRequest req, HttpServletResponse res)
+      throws IOException {
+    GitilesView view = ViewFilter.getView(req);
+    Repository repo = ServletUtils.getRepository(req);
+
+    RevWalk walk = new RevWalk(repo);
+    try {
+      AbstractTreeIterator oldTree;
+      AbstractTreeIterator newTree;
+      try {
+        oldTree = getTreeIterator(walk, view.getOldRevision().getId());
+        newTree = getTreeIterator(walk, view.getRevision().getId());
+      } catch (MissingObjectException | IncorrectObjectTypeException e) {
+        res.setStatus(SC_NOT_FOUND);
+        return;
+      }
+
+      try (OutputStream out = BaseEncoding.base64()
+          .encodingStream(new OutputStreamWriter(res.getOutputStream()))) {
+        formatDiff(repo, oldTree, newTree, view.getPathPart(), new DiffFormatter(out));
+      }
+    } finally {
       walk.release();
     }
   }
@@ -164,11 +194,8 @@ public class DiffServlet extends BaseServlet {
     return new String[] {html.substring(0, lt), html.substring(gt + 1)};
   }
 
-  private void formatHtmlDiff(OutputStream out, GitilesView view,
-      Repository repo, AbstractTreeIterator oldTree,
-      AbstractTreeIterator newTree, String path)
-      throws IOException {
-    DiffFormatter diff = new HtmlDiffFormatter(renderer, view, out);
+  private static void formatDiff(Repository repo, AbstractTreeIterator oldTree,
+      AbstractTreeIterator newTree, String path, DiffFormatter diff) throws IOException {
     try {
       if (!path.equals("")) {
         diff.setPathFilter(PathFilter.create(path));
