@@ -113,13 +113,10 @@ public class DiffServlet extends BaseServlet {
       res.setCharacterEncoding(Charsets.UTF_8.name());
       setCacheHeaders(res);
 
-      OutputStream out = res.getOutputStream();
-      try {
+      try (OutputStream out = res.getOutputStream()) {
         out.write(html[0].getBytes(Charsets.UTF_8));
         formatHtmlDiff(out, view, repo, oldTree, newTree, view.getPathPart());
         out.write(html[1].getBytes(Charsets.UTF_8));
-      } finally {
-        out.close();
       }
     } finally {
       if (tw != null) {
