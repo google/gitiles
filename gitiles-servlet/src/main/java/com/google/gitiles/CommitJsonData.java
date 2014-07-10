@@ -33,9 +33,15 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 
-class CommitJsonData {
+public class CommitJsonData {
   static final ImmutableSet<Field> DEFAULT_FIELDS = Sets.immutableEnumSet(
       Field.SHA, Field.TREE, Field.PARENTS, Field.AUTHOR, Field.COMMITTER, Field.MESSAGE);
+
+  public static class Ident {
+    public String name;
+    public String email;
+    public String time;
+  }
 
   static class Commit {
     String commit;
@@ -46,12 +52,6 @@ class CommitJsonData {
     String message;
 
     List<Diff> treeDiff;
-  }
-
-  static class Ident {
-    String name;
-    String email;
-    String time;
   }
 
   /** @see DiffEntry */

@@ -31,6 +31,8 @@ import com.google.gitiles.GitilesAccess;
 import com.google.gitiles.GitilesView;
 import com.google.gitiles.Renderer;
 import com.google.gitiles.ViewFilter;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.google.template.soy.data.SoyListData;
 import com.google.template.soy.data.SoyMapData;
 
@@ -75,43 +77,21 @@ public class BlameServlet extends BaseServlet {
     RevWalk rw = new RevWalk(repo);
     try {
       GitilesAccess access = getAccess(req);
-      RevCommit currCommit = rw.parseCommit(view.getRevision().getId());
-      ObjectId currCommitBlobId = resolveBlob(view, rw, currCommit);
-      if (currCommitBlobId == null) {
-        res.setStatus(SC_NOT_FOUND);
+      RegionResult result = getRegions(view, access, repo, rw, res);
+      if (result == null) {
         return;
-      }
-
-      ObjectId lastCommit = cache.findLastCommit(repo, currCommit, view.getPathPart());
-      ObjectId lastCommitBlobId = resolveBlob(view, rw, lastCommit);
-
-      if (!Objects.equal(currCommitBlobId, lastCommitBlobId)) {
-        log.warn(String.format("Blob %s in last modified commit %s for repo %s starting from %s"
-            + " does not match original blob %s",
-            ObjectId.toString(lastCommitBlobId),
-            ObjectId.toString(lastCommit),
-            access.getRepositoryName(),
-            ObjectId.toString(currCommit),
-            ObjectId.toString(currCommitBlobId)));
-        lastCommitBlobId = currCommitBlobId;
-        lastCommit = currCommit;
       }
 
       String title = "Blame - " + view.getPathPart();
       Map<String, ?> blobData = new BlobSoyData(rw.getObjectReader(), view)
-          .toSoyData(view.getPathPart(), lastCommitBlobId);
+          .toSoyData(view.getPathPart(), result.blobId);
       if (blobData.get("lines") != null) {
-        List<Region> regions = cache.get(repo, lastCommit, view.getPathPart());
-        if (regions.isEmpty()) {
-          res.setStatus(SC_NOT_FOUND);
-          return;
-        }
         DateFormatter df = new DateFormatter(access, Format.ISO);
         renderHtml(req, res, "gitiles.blameDetail", ImmutableMap.of(
             "title", title,
             "breadcrumbs", view.getBreadcrumbs(),
             "data", blobData,
-            "regions", toSoyData(view, rw.getObjectReader(), regions, df)));
+            "regions", toSoyData(view, rw.getObjectReader(), result.regions, df)));
       } else {
         renderHtml(req, res, "gitiles.blameDetail", ImmutableMap.of(
             "title", title,
@@ -121,6 +101,80 @@ public class BlameServlet extends BaseServlet {
     } finally {
       rw.release();
     }
+  }
+
+  @Override
+  protected void doGetJson(HttpServletRequest req, HttpServletResponse res) throws IOException {
+    GitilesView view = ViewFilter.getView(req);
+    Repository repo = ServletUtils.getRepository(req);
+
+    RevWalk rw = new RevWalk(repo);
+    try {
+      RegionResult result = getRegions(view, getAccess(req), repo, rw, res);
+      if (result == null) {
+        return;
+      }
+      // Output from BlameCache is 0-based for lines. We convert to 1-based for
+      // JSON output later (in RegionAdapter); here we're just filling in the
+      // transient fields.
+      int start = 0;
+      for (Region r : result.regions) {
+        r.setStart(start);
+        start += r.getCount();
+      }
+      renderJson(req, res, ImmutableMap.of("regions", result.regions),
+          new TypeToken<Map<String, List<Region>>>() {}.getType());
+    } finally {
+      rw.release();
+    }
+  }
+
+  @Override
+  protected GsonBuilder newGsonBuilder(HttpServletRequest req) throws IOException {
+    return super.newGsonBuilder(req).registerTypeAdapter(Region.class,
+        new RegionAdapter(new DateFormatter(getAccess(req), Format.ISO)));
+  }
+
+  private static class RegionResult {
+    private final List<Region> regions;
+    private final ObjectId blobId;
+
+    private RegionResult(List<Region> regions, ObjectId blobId) {
+      this.regions = regions;
+      this.blobId = blobId;
+    }
+  }
+
+  private RegionResult getRegions(GitilesView view, GitilesAccess access, Repository repo,
+      RevWalk rw, HttpServletResponse res) throws IOException {
+    RevCommit currCommit = rw.parseCommit(view.getRevision().getId());
+    ObjectId currCommitBlobId = resolveBlob(view, rw, currCommit);
+    if (currCommitBlobId == null) {
+      res.setStatus(SC_NOT_FOUND);
+      return null;
+    }
+
+    ObjectId lastCommit = cache.findLastCommit(repo, currCommit, view.getPathPart());
+    ObjectId lastCommitBlobId = resolveBlob(view, rw, lastCommit);
+
+    if (!Objects.equal(currCommitBlobId, lastCommitBlobId)) {
+      log.warn(String.format("Blob %s in last modified commit %s for repo %s starting from %s"
+          + " does not match original blob %s",
+          ObjectId.toString(lastCommitBlobId),
+          ObjectId.toString(lastCommit),
+          access.getRepositoryName(),
+          ObjectId.toString(currCommit),
+          ObjectId.toString(currCommitBlobId)));
+      lastCommitBlobId = currCommitBlobId;
+      lastCommit = currCommit;
+    }
+
+    List<Region> regions = cache.get(repo, lastCommit, view.getPathPart());
+    if (regions.isEmpty()) {
+      res.setStatus(SC_NOT_FOUND);
+      return null;
+    }
+    return new RegionResult(regions, lastCommitBlobId);
   }
 
   private static ObjectId resolveBlob(GitilesView view, RevWalk rw, ObjectId commitId)

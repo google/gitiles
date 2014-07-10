@@ -42,6 +42,10 @@ public class Region implements Serializable, Comparable<Region> {
     this.count = end - start;
   }
 
+  void setStart(int start) {
+    this.start = start;
+  }
+
   int getStart() {
     return start;
   }
