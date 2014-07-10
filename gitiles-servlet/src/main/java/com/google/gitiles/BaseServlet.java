@@ -225,14 +225,17 @@ public abstract class BaseServlet extends HttpServlet {
     res.setStatus(SC_OK);
 
     Writer writer = getWriter(res);
-    new GsonBuilder()
-      .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
-      .setPrettyPrinting()
-      .generateNonExecutableJson()
-      .create()
-      .toJson(src, typeOfSrc, writer);
+    newGsonBuilder(req).create().toJson(src, typeOfSrc, writer);
     writer.write('\n');
     writer.close();
+  }
+
+  @SuppressWarnings("unused") // Used in subclasses.
+  protected GsonBuilder newGsonBuilder(HttpServletRequest req) throws IOException {
+    return new GsonBuilder()
+      .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+      .setPrettyPrinting()
+      .generateNonExecutableJson();
   }
 
   /**
