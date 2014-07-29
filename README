@@ -17,6 +17,7 @@ Gitiles requires Buck (http://facebook.github.io/buck/) to build.
   ant
   sudo ln -s ${PWD}/bin/buck /usr/bin/buck
   cd /path/to/gitiles
+  git submodule update --init
   buck build all
 
 
