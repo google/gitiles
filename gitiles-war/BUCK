@@ -1,4 +1,5 @@
-include_defs('//bucklets/war.bucklet')
+include_defs('//bucklets.defs')
+include_bucklets(['war.bucklet'])
 
 war(
   name = 'gitiles',

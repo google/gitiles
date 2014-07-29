@@ -1,0 +1,20 @@
+import os
+import sys
+
+def include_bucklets(names):
+  d = os.getcwd()
+  while not os.path.lexists(os.path.join(d, '.buckversion')):
+    d = os.path.dirname(d)
+
+  bd = os.path.join(d, 'bucklets')
+  if not os.path.isdir(bd) or not os.listdir(bd):
+    sys.stderr.write(('Bucklets directory is missing or empty: %s\n'
+                      'Run `git submodule update --init`') % bd)
+    sys.exit(1)
+
+  for name in names:
+    path = os.path.join(bd, name)
+    if not os.path.isfile(path):
+      sys.stderr.write('Missing bucklet: %s\n' % path)
+      sys.exit(1)
+    include_defs('//bucklets/%s' % name)
