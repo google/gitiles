@@ -22,11 +22,12 @@ Gitiles requires Buck (http://facebook.github.io/buck/) to build.
 
 TESTING
 
-  cd /path/to/repositories
+  cd /path/to/repositories  # Don't run from the gitiles repo.
   /path/to/gitiles/tools/run_dev.sh
 
 This will recompile and start a development server.
-Open http://localhost:8080/ to view your local copy of gitiles.
+Open http://localhost:8080/ to view your local copy of gitiles, which will serve
+any repositories under /path/to/repositories.
 
 
 ECLIPSE
