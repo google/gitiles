@@ -14,12 +14,16 @@
 
 package com.google.gitiles;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gitiles.CommitData.Field;
 
+import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
@@ -39,17 +43,17 @@ public class LogSoyData {
   private static final ImmutableSet<Field> VERBOSE_FIELDS = Field.setOf(FIELDS, Field.DIFF_TREE);
 
   private final HttpServletRequest req;
-  private final GitilesView view;
-  private final boolean verbose;
+  private final Set<Field> fields;
+  private final String pretty;
+  private final String variant;
 
-  public LogSoyData(HttpServletRequest req, GitilesView view) {
-    this(req, view, false);
-  }
-
-  public LogSoyData(HttpServletRequest req, GitilesView view, boolean verbose) {
-    this.req = req;
-    this.view = view;
-    this.verbose = verbose;
+  public LogSoyData(HttpServletRequest req, GitilesAccess access, String pretty)
+      throws IOException {
+    this.req = checkNotNull(req);
+    this.pretty = checkNotNull(pretty);
+    Config config = access.getConfig();
+    fields = config.getBoolean("logFormat", pretty, "verbose", false) ? VERBOSE_FIELDS : FIELDS;
+    variant = Objects.firstNonNull(config.getString("logFormat", pretty, "variant"), pretty);
   }
 
   public Map<String, Object> toSoyData(RevWalk walk, int limit, @Nullable String revision,
@@ -60,19 +64,21 @@ public class LogSoyData {
   public Map<String, Object> toSoyData(Paginator paginator, @Nullable String revision,
       DateFormatter df) throws IOException {
     Map<String, Object> data = Maps.newHashMapWithExpectedSize(3);
+    data.put("logEntryPretty", pretty);
+    data.put("logEntryVariant", variant);
 
     List<Map<String, Object>> entries = Lists.newArrayListWithCapacity(paginator.getLimit());
     for (RevCommit c : paginator) {
-      Set<Field> fs = verbose ? VERBOSE_FIELDS : FIELDS;
       Map<String, Object> entry = new CommitSoyData().setRevWalk(paginator.getWalk())
-          .toSoyData(req, c, fs, df);
+          .toSoyData(req, c, fields, df);
       if (!entry.containsKey("diffTree")) {
         entry.put("diffTree", null);
       }
       entries.add(entry);
     }
-
     data.put("entries", entries);
+
+    GitilesView view = ViewFilter.getView(req);
     ObjectId next = paginator.getNextStart();
     if (next != null) {
       data.put("nextUrl", copyAndCanonicalize(view, revision)
