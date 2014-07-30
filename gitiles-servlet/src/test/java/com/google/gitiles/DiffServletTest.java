@@ -17,6 +17,7 @@ package com.google.gitiles;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.BaseEncoding;
@@ -49,7 +50,27 @@ public class DiffServletTest {
   }
 
   @Test
-  public void diffFileNoParents() throws Exception {
+  public void diffFileOneParentHtml() throws Exception {
+    String contents1 = "foo\n";
+    String contents2 = "foo\ncontents\n";
+    RevCommit c1 = repo.update("master", repo.commit().add("foo", contents1));
+    RevCommit c2 = repo.update("master", repo.commit().parent(c1).add("foo", contents2));
+
+    FakeHttpServletRequest req = FakeHttpServletRequest.newRequest();
+    req.setPathInfo("/test/+diff/" + c2.name() + "^!/foo");
+    FakeHttpServletResponse res = new FakeHttpServletResponse();
+    servlet.service(req, res);
+
+    String diffHeader = String.format(
+        "diff --git <a href=\"/b/test/+/%s/foo\">a/foo</a> <a href=\"/b/test/+/%s/foo\">b/foo</a>",
+        c1.name(), c2.name());
+    String actual = res.getActualBodyString();
+    assertTrue(String.format("Expected diff body to contain [%s]:\n%s", diffHeader, actual),
+        actual.indexOf(diffHeader) >= 0);
+  }
+
+  @Test
+  public void diffFileNoParentsText() throws Exception {
     String contents = "foo\ncontents\n";
     RevCommit c = repo.update("master", repo.commit().add("foo", contents));
 
@@ -72,7 +93,7 @@ public class DiffServletTest {
   }
 
   @Test
-  public void diffFileOneParent() throws Exception {
+  public void diffFileOneParentText() throws Exception {
     String contents1 = "foo\n";
     String contents2 = "foo\ncontents\n";
     RevCommit c1 = repo.update("master", repo.commit().add("foo", contents1));
@@ -97,7 +118,7 @@ public class DiffServletTest {
   }
 
   @Test
-  public void diffDirectory() throws Exception {
+  public void diffDirectoryText() throws Exception {
     String contents = "contents\n";
     RevCommit c = repo.update("master", repo.commit()
         .add("dir/foo", contents)
