@@ -51,6 +51,63 @@ public class PaginatorTest {
   }
 
   @Test
+  public void oneResult() throws Exception {
+    List<RevCommit> commits = linearCommits(1);
+    walk.markStart(commits.get(0));
+    Paginator p = new Paginator(walk, 10, null);
+    assertEquals(
+        ImmutableList.of(commits.get(0)),
+        ImmutableList.copyOf(p));
+    assertNull(p.getPreviousStart());
+    assertNull(p.getNextStart());
+  }
+
+  @Test
+  public void lessThanOnePage() throws Exception {
+    List<RevCommit> commits = linearCommits(3);
+    walk.markStart(commits.get(2));
+    Paginator p = new Paginator(walk, 10, null);
+    assertEquals(
+        ImmutableList.of(
+          commits.get(2),
+          commits.get(1),
+          commits.get(0)),
+        ImmutableList.copyOf(p));
+    assertNull(p.getPreviousStart());
+    assertNull(p.getNextStart());
+  }
+
+  @Test
+  public void exactlyOnePage() throws Exception {
+    List<RevCommit> commits = linearCommits(3);
+    walk.markStart(commits.get(2));
+    Paginator p = new Paginator(walk, 3, null);
+    assertEquals(
+        ImmutableList.of(
+          commits.get(2),
+          commits.get(1),
+          commits.get(0)),
+        ImmutableList.copyOf(p));
+    assertNull(p.getPreviousStart());
+    assertNull(p.getNextStart());
+  }
+
+  @Test
+  public void moreThanOnePage() throws Exception {
+    List<RevCommit> commits = linearCommits(5);
+    walk.markStart(commits.get(4));
+    Paginator p = new Paginator(walk, 3, null);
+    assertEquals(
+        ImmutableList.of(
+          commits.get(4),
+          commits.get(3),
+          commits.get(2)),
+        ImmutableList.copyOf(p));
+    assertNull(p.getPreviousStart());
+    assertEquals(commits.get(1), p.getNextStart());
+  }
+
+  @Test
   public void start() throws Exception {
     List<RevCommit> commits = linearCommits(10);
     walk.markStart(commits.get(9));
@@ -157,7 +214,7 @@ public class PaginatorTest {
     checkArgument(n > 0);
     List<RevCommit> commits = Lists.newArrayList();
     commits.add(repo.commit().create());
-    for (int i = 1; i < 10; i++) {
+    for (int i = 1; i < n; i++) {
       commits.add(repo.commit().parent(commits.get(commits.size() - 1)).create());
     }
     return commits;
