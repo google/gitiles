@@ -36,7 +36,12 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
-/** Renderer for Soy templates used by Gitiles. */
+/**
+ * Renderer for Soy templates used by Gitiles.
+ * <p>
+ * Most callers should not use the methods in this class directly, and instead
+ * use one of the HTML methods in {@link BaseServlet}.
+ */
 public abstract class Renderer {
   // Must match .streamingPlaceholder.
   private static final String PLACEHOLDER = "id=\"STREAMED_OUTPUT_BLOCK\"";
@@ -99,11 +104,7 @@ public abstract class Renderer {
     this.globals = ImmutableMap.copyOf(allGlobals);
   }
 
-  public void render(HttpServletResponse res, String templateName) throws IOException {
-    render(res, templateName, ImmutableMap.<String, Object> of());
-  }
-
-  public void render(HttpServletResponse res, String templateName, Map<String, ?> soyData)
+  void render(HttpServletResponse res, String templateName, Map<String, ?> soyData)
       throws IOException {
     res.setContentType("text/html");
     res.setCharacterEncoding("UTF-8");
@@ -112,8 +113,8 @@ public abstract class Renderer {
     res.getOutputStream().write(data);
   }
 
-  public OutputStream renderStreaming(HttpServletResponse res, String templateName,
-      Map<String, ?> soyData) throws IOException {
+  OutputStream renderStreaming(HttpServletResponse res, String templateName, Map<String, ?> soyData)
+      throws IOException {
     final String html = newRenderer(templateName)
         .setData(soyData)
         .render();
