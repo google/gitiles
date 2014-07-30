@@ -23,10 +23,6 @@
  * @param breadcrumbs breadcrumbs for this page.
  * @param? tags optional list of tags encountered when peeling this object, with
  *     keys corresponding to gitiles.tagDetail.
- * @param? logEntryVariant variant name for log entry template.
- * @param entries list of log entries; see .logEntry.
- * @param? nextUrl URL for the next page of results.
- * @param? previousUrl URL for the previous page of results.
  */
 {template .logDetail}
 {call .header data="all" /}
@@ -37,45 +33,65 @@
   {/foreach}
 {/if}
 
-{call .logEntries data="all" /}
+{call .streamingPlaceholder /}
 
 {call .footer /}
 {/template}
 
+
 /**
- * List of log entries.
+ * Header for list of log entries.
  *
- * @param? logEntryVariant variant name for log entry template.
- * @param? logEntryPretty base "pretty" format for the log entry template.
- * @param entries list of log entries; see .logEntry.
- * @param? nextUrl URL for the next page of results.
+ * @param? pretty base "pretty" format for the log entry template.
  * @param? previousUrl URL for the previous page of results.
  */
-{template .logEntries}
+{template .logEntriesHeader}
 {if $previousUrl}
   <div class="log-nav">
     <a href="{$previousUrl}">{msg desc="text for previous URL"}&laquo; Previous{/msg}</a>
   </div>
 {/if}
 
-{if length($entries)}
-  <ol class="{$logEntryPretty ?: 'default'} log">
-    {foreach $entry in $entries}
-      <li{if $previousUrl and isFirst($entry)} class="first"{/if}>
-        {delcall gitiles.logEntry variant="$logEntryVariant ?: 'default'"
-            data="$entry" /}
-      </li>
-    {/foreach}
-  </ol>
-{else}
-  <p>{msg desc="informational text for when the log is empty"}No commits.{/msg}</p>
-{/if}
+<ol class="{$pretty ?: 'default'} log">
+{/template}
 
+
+/**
+ * Wrapper for a single log entry with pretty format and variant.
+ *
+ * @param firstWithPrevious whether this entry is the first in the current list,
+ *     but also comes below a "Previous" link.
+ * @param variant variant name for log entry template.
+ * @param entry log entry; see .logEntry.
+ */
+{template .logEntryWrapper}
+// TODO(dborowitz): Better CSS instead of this firstWithPrevious hack.
+<li{if $firstWithPrevious} class="first"{/if}>
+  {delcall gitiles.logEntry variant="$variant ?: 'default'" data="$entry" /}
+</li>
+{/template}
+
+
+/**
+ * Footer for the list of log entries.
+ *
+ * @param? nextUrl URL for the next page of results.
+ */
+{template .logEntriesFooter}
+</ol>
 {if $nextUrl}
   <div class="log-nav">
     <a href="{$nextUrl}">{msg desc="text for next URL"}Next &raquo;{/msg}</a>
   </div>
 {/if}
+{/template}
+
+
+/**
+ * Single log entry indicating the full log is empty.
+ */
+{template .emptyLog}
+<li class="empty">{msg desc="informational text for when the log is empty"}No commits.{/msg}</p>
 {/template}
 
 

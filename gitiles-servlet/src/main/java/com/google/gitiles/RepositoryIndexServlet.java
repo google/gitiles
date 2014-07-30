@@ -16,7 +16,6 @@ package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
@@ -32,6 +31,9 @@ import org.eclipse.jgit.revwalk.RevObject;
 import org.eclipse.jgit.revwalk.RevWalk;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.List;
 import java.util.Map;
 
@@ -55,7 +57,58 @@ public class RepositoryIndexServlet extends BaseServlet {
 
   @Override
   protected void doGetHtml(HttpServletRequest req, HttpServletResponse res) throws IOException {
-    renderHtml(req, res, "gitiles.repositoryIndex", buildData(req));
+    GitilesView view = ViewFilter.getView(req);
+    Repository repo = ServletUtils.getRepository(req);
+    GitilesAccess access = getAccess(req);
+    RepositoryDescription desc = access.getRepositoryDescription();
+
+    RevWalk walk = new RevWalk(repo);
+    Paginator paginator = null;
+    try {
+      Map<String, Object> data = Maps.newHashMapWithExpectedSize(7);
+      List<Map<String, Object>> tags = RefServlet.getTagsSoyData(req, timeCache, walk, REF_LIMIT);
+      ObjectId headId = repo.resolve(Constants.HEAD);
+      if (headId != null) {
+        RevObject head = walk.parseAny(headId);
+        // TODO(dborowitz): Handle non-commit or missing HEAD?
+        if (head.getType() == Constants.OBJ_COMMIT) {
+          walk.reset();
+          walk.markStart((RevCommit) head);
+          paginator = new Paginator(walk, LOG_LIMIT, null);
+        }
+      }
+      if (!data.containsKey("entries")) {
+        data.put("entries", ImmutableList.of());
+      }
+      List<Map<String, Object>> branches = RefServlet.getBranchesSoyData(req, REF_LIMIT);
+
+      data.put("cloneUrl", desc.cloneUrl);
+      data.put("mirroredFromUrl", Strings.nullToEmpty(desc.mirroredFromUrl));
+      data.put("description", Strings.nullToEmpty(desc.description));
+      data.put("branches", trim(branches));
+      if (branches.size() > REF_LIMIT) {
+        data.put("moreBranchesUrl", GitilesView.refs().copyFrom(view).toUrl());
+      }
+      data.put("tags", trim(tags));
+      data.put("hasLog", paginator != null);
+      if (tags.size() > REF_LIMIT) {
+        data.put("moreTagsUrl", GitilesView.refs().copyFrom(view).toUrl());
+      }
+      GitilesConfig.putVariant(getAccess(req).getConfig(), "logEntry", "logEntryVariant", data);
+
+      if (paginator != null) {
+        DateFormatter df = new DateFormatter(access, Format.DEFAULT);
+        try (OutputStream out = startRenderStreamingHtml(req, res, "gitiles.repositoryIndex", data);
+            Writer w = new OutputStreamWriter(out)) {
+          new LogSoyData(req, access, "oneline")
+              .renderStreaming(paginator, "HEAD", renderer, w, df);
+        }
+      } else {
+        renderHtml(req, res, "gitiles.repositoryIndex", data);
+      }
+    } finally {
+      walk.release();
+    }
   }
 
   @Override
@@ -63,56 +116,6 @@ public class RepositoryIndexServlet extends BaseServlet {
     GitilesAccess access = getAccess(req);
     RepositoryDescription desc = access.getRepositoryDescription();
     renderJson(req, res, desc, new TypeToken<RepositoryDescription>() {}.getType());
-  }
-
-  @VisibleForTesting
-  Map<String, ?> buildData(HttpServletRequest req) throws IOException {
-    GitilesView view = ViewFilter.getView(req);
-    Repository repo = ServletUtils.getRepository(req);
-    GitilesAccess access = getAccess(req);
-    RepositoryDescription desc = access.getRepositoryDescription();
-    RevWalk walk = new RevWalk(repo);
-    List<Map<String, Object>> tags;
-    Map<String, Object> data;
-    try {
-      tags = RefServlet.getTagsSoyData(req, timeCache, walk, REF_LIMIT);
-      ObjectId headId = repo.resolve(Constants.HEAD);
-      if (headId != null) {
-        RevObject head = walk.parseAny(headId);
-        if (head.getType() == Constants.OBJ_COMMIT) {
-          walk.reset();
-          walk.markStart((RevCommit) head);
-          DateFormatter df = new DateFormatter(access, Format.DEFAULT);
-          data = new LogSoyData(req, access, "oneline")
-              .toSoyData(walk, LOG_LIMIT, "HEAD", null, df);
-        } else {
-          // TODO(dborowitz): Handle non-commit or missing HEAD?
-          data = Maps.newHashMapWithExpectedSize(7);
-        }
-      } else {
-        data = Maps.newHashMapWithExpectedSize(7);
-      }
-    } finally {
-      walk.release();
-    }
-    if (!data.containsKey("entries")) {
-      data.put("entries", ImmutableList.of());
-    }
-    List<Map<String, Object>> branches = RefServlet.getBranchesSoyData(req, REF_LIMIT);
-
-    data.put("cloneUrl", desc.cloneUrl);
-    data.put("mirroredFromUrl", Strings.nullToEmpty(desc.mirroredFromUrl));
-    data.put("description", Strings.nullToEmpty(desc.description));
-    data.put("branches", trim(branches));
-    if (branches.size() > REF_LIMIT) {
-      data.put("moreBranchesUrl", GitilesView.refs().copyFrom(view).toUrl());
-    }
-    data.put("tags", trim(tags));
-    if (tags.size() > REF_LIMIT) {
-      data.put("moreTagsUrl", GitilesView.refs().copyFrom(view).toUrl());
-    }
-    GitilesConfig.putVariant(getAccess(req).getConfig(), "logEntry", "logEntryVariant", data);
-    return data;
   }
 
   private static <T> List<T> trim(List<T> list) {

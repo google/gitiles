@@ -49,6 +49,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -90,8 +93,7 @@ public class LogServlet extends BaseServlet {
 
       // Allow the user to select a logView variant with the "pretty" param.
       String pretty = Iterables.getFirst(view.getParameters().get(PRETTY_PARAM), "default");
-      Map<String, Object> data = new LogSoyData(req, access, pretty)
-          .toSoyData(paginator, null, df);
+      Map<String, Object> data = Maps.newHashMapWithExpectedSize(2);
 
       if (!view.getRevision().nameIsId()) {
         List<Map<String, Object>> tags = Lists.newArrayListWithExpectedSize(1);
@@ -113,6 +115,12 @@ public class LogServlet extends BaseServlet {
       }
 
       data.put("title", title);
+
+      try (OutputStream out = startRenderStreamingHtml(req, res, "gitiles.logDetail", data);
+          Writer w = new OutputStreamWriter(out)) {
+        new LogSoyData(req, access, pretty)
+            .renderStreaming(paginator, null, renderer, w, df);
+      }
 
       renderHtml(req, res, "gitiles.logDetail", data);
     } catch (RevWalkException e) {

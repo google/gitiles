@@ -17,19 +17,19 @@ package com.google.gitiles;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gitiles.CommitData.Field;
+import com.google.template.soy.tofu.SoyTofu;
 
 import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevWalk;
 
 import java.io.IOException;
-import java.util.List;
+import java.io.Writer;
 import java.util.Map;
 import java.util.Set;
 
@@ -43,6 +43,7 @@ public class LogSoyData {
   private static final ImmutableSet<Field> VERBOSE_FIELDS = Field.setOf(FIELDS, Field.DIFF_TREE);
 
   private final HttpServletRequest req;
+  private final GitilesView view;
   private final Set<Field> fields;
   private final String pretty;
   private final String variant;
@@ -50,44 +51,42 @@ public class LogSoyData {
   public LogSoyData(HttpServletRequest req, GitilesAccess access, String pretty)
       throws IOException {
     this.req = checkNotNull(req);
+    this.view = checkNotNull(ViewFilter.getView(req));
     this.pretty = checkNotNull(pretty);
     Config config = access.getConfig();
     fields = config.getBoolean("logFormat", pretty, "verbose", false) ? VERBOSE_FIELDS : FIELDS;
     variant = Objects.firstNonNull(config.getString("logFormat", pretty, "variant"), pretty);
   }
 
-  public Map<String, Object> toSoyData(RevWalk walk, int limit, @Nullable String revision,
-      @Nullable ObjectId start, DateFormatter df) throws IOException {
-    return toSoyData(new Paginator(walk, limit, start), revision, df);
+  public void renderStreaming(Paginator paginator, @Nullable String revision, Renderer renderer,
+      Writer out, DateFormatter df) throws IOException {
+    renderer.newRenderer("gitiles.logEntriesHeader")
+        .setData(toHeaderSoyData(paginator, revision))
+        .render(out);
+    out.flush();
+
+    SoyTofu.Renderer entryRenderer = renderer.newRenderer("gitiles.logEntryWrapper");
+    boolean first = true;
+    for (RevCommit c : paginator) {
+      entryRenderer.setData(toEntrySoyData(paginator, c, df, first)).render(out);
+      out.flush();
+      first = false;
+    }
+    if (first) {
+      renderer.newRenderer("gitiles.emptyLog").render(out);
+    }
+
+    renderer.newRenderer("gitiles.logEntriesFooter")
+        .setData(toFooterSoyData(paginator, revision))
+        .render(out);
   }
 
-  public Map<String, Object> toSoyData(Paginator paginator, @Nullable String revision,
-      DateFormatter df) throws IOException {
-    Map<String, Object> data = Maps.newHashMapWithExpectedSize(3);
+  private Map<String, Object> toHeaderSoyData(Paginator paginator, @Nullable String revision) {
+    Map<String, Object> data = Maps.newHashMapWithExpectedSize(5);
     data.put("logEntryPretty", pretty);
-    data.put("logEntryVariant", variant);
-
-    List<Map<String, Object>> entries = Lists.newArrayListWithCapacity(paginator.getLimit());
-    for (RevCommit c : paginator) {
-      Map<String, Object> entry = new CommitSoyData().setRevWalk(paginator.getWalk())
-          .toSoyData(req, c, fields, df);
-      if (!entry.containsKey("diffTree")) {
-        entry.put("diffTree", null);
-      }
-      entries.add(entry);
-    }
-    data.put("entries", entries);
-
-    GitilesView view = ViewFilter.getView(req);
-    ObjectId next = paginator.getNextStart();
-    if (next != null) {
-      data.put("nextUrl", copyAndCanonicalize(view, revision)
-          .replaceParam(LogServlet.START_PARAM, next.name())
-          .toUrl());
-    }
     ObjectId prev = paginator.getPreviousStart();
     if (prev != null) {
-      GitilesView.Builder prevView = copyAndCanonicalize(view, revision);
+      GitilesView.Builder prevView = copyAndCanonicalizeView(revision);
       if (!prevView.getRevision().getId().equals(prev)) {
         prevView.replaceParam(LogServlet.START_PARAM, prev.name());
       }
@@ -96,7 +95,28 @@ public class LogSoyData {
     return data;
   }
 
-  private static GitilesView.Builder copyAndCanonicalize(GitilesView view, String revision) {
+  private Map<String, Object> toEntrySoyData(Paginator paginator, RevCommit c, DateFormatter df,
+      boolean first) throws IOException {
+    Map<String, Object> entry = new CommitSoyData().setRevWalk(paginator.getWalk())
+        .toSoyData(req, c, fields, df);
+    return ImmutableMap.of(
+        "firstWithPrevious", first && paginator.getPreviousStart() != null,
+        "variant", variant,
+        "entry", entry);
+  }
+
+  private Map<String, Object> toFooterSoyData(Paginator paginator, @Nullable String revision) {
+    Map<String, Object> data = Maps.newHashMapWithExpectedSize(1);
+    ObjectId next = paginator.getNextStart();
+    if (next != null) {
+      data.put("nextUrl", copyAndCanonicalizeView(revision)
+          .replaceParam(LogServlet.START_PARAM, next.name())
+          .toUrl());
+    }
+    return data;
+  }
+
+  private GitilesView.Builder copyAndCanonicalizeView(String revision) {
     // Canonicalize the view by using full SHAs.
     GitilesView.Builder copy = GitilesView.log().copyFrom(view);
     if (view.getRevision() != Revision.NULL) {

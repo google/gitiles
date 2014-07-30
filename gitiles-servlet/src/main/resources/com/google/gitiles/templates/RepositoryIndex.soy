@@ -27,10 +27,7 @@
  * @param? moreBranchesUrl URL to show more branches, if necessary.
  * @param tags list of tag objects with url and name keys.
  * @param? moreTagsUrl URL to show more branches, if necessary.
- * @param? nextUrl URL for the next page of log results.
- * @param? previousUrl URL for the previous page of log results.
- * @param? logEntryVariant variant name for log entry template.
- * @param entries list of log entries; see .logEntry.
+ * @param hasLog whether a log should be shown for HEAD.
  */
 {template .repositoryIndex}
 {call .header}
@@ -60,10 +57,10 @@
     git clone {$cloneUrl}
 </textarea>
 
-{if length($entries) and (length($branches) or length($tags))}
+{if $hasLog and (length($branches) or length($tags))}
   <div class="repository-shortlog-wrapper">
     <div class="repository-shortlog">
-      {call .logEntries data="all" /}
+      {call .streamingPlaceholder /}
     </div>
   </div>
 
@@ -71,8 +68,8 @@
     {call .branches_ data="all" /}
     {call .tags_ data="all" /}
   </div>
-{elseif length($entries)}
-  {call .logEntries data="all" /}
+{elseif $hasLog}
+  {call .streamingPlaceholder /}
 {elseif length($branches) or length($tags)}
   {call .branches_ data="all" /}
   {call .tags_ data="all" /}
