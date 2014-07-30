@@ -5,6 +5,9 @@
   mvn_install = //:install
   mvn_deploy = //:deploy
 
+[buildfile]
+  includes = //bucklets.defs
+
 [java]
   src_roots = java, resources
 

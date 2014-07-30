@@ -1,5 +1,4 @@
 include_defs('//VERSION')
-include_defs('//bucklets.defs')
 include_bucklets(['maven_package.bucklet'])
 
 DEPS = [
