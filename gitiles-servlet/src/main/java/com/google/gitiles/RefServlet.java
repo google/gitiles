@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
+import com.google.common.primitives.Ints;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.google.gson.reflect.TypeToken;
 
@@ -37,9 +38,9 @@ import org.eclipse.jgit.transport.RefAdvertiser;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.LinkedHashMap;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
@@ -165,7 +166,7 @@ public class RefServlet extends BaseServlet {
       @Nullable Ref headLeaf,
       int limit) throws IOException {
     Collection<Ref> refs = refdb.getRefs(prefix).values();
-    refs = ordering.leastOf(refs, limit > 0 ? limit + 1 : refs.size());
+    refs = ordering.leastOf(refs, limit > 0 ? Ints.saturatedCast(limit + 1L) : refs.size());
     List<Map<String, Object>> result = Lists.newArrayListWithCapacity(refs.size());
 
     for (Ref ref : refs) {
