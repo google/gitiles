@@ -14,6 +14,7 @@
 
 package com.google.gitiles;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Charsets;
@@ -27,6 +28,7 @@ import com.google.template.soy.tofu.SoyTofu;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
@@ -36,6 +38,9 @@ import javax.servlet.http.HttpServletResponse;
 
 /** Renderer for Soy templates used by Gitiles. */
 public abstract class Renderer {
+  // Must match .streamingPlaceholder.
+  private static final String PLACEHOLDER = "id=\"STREAMED_OUTPUT_BLOCK\"";
+
   private static final List<String> SOY_FILENAMES = ImmutableList.of(
       "BlameDetail.soy",
       "Common.soy",
@@ -105,6 +110,49 @@ public abstract class Renderer {
     byte[] data = newRenderer(templateName).setData(soyData).render().getBytes(Charsets.UTF_8);
     res.setContentLength(data.length);
     res.getOutputStream().write(data);
+  }
+
+  public OutputStream renderStreaming(HttpServletResponse res, String templateName,
+      Map<String, ?> soyData) throws IOException {
+    final String html = newRenderer(templateName)
+        .setData(soyData)
+        .render();
+    int id = html.indexOf(PLACEHOLDER);
+    checkArgument(id >= 0, "Template must contain %s", PLACEHOLDER);
+
+    int lt = html.lastIndexOf('<', id);
+    final int gt = html.indexOf('>', id + PLACEHOLDER.length());
+    final OutputStream out = res.getOutputStream();
+    out.write(html.substring(0, lt).getBytes(Charsets.UTF_8));
+    out.flush();
+
+    return new OutputStream() {
+      @Override
+      public void write(byte[] b) throws IOException {
+        out.write(b);
+      }
+
+      @Override
+      public void write(byte[] b, int off, int len) throws IOException {
+        out.write(b, off, len);
+      }
+
+      @Override
+      public void write(int b) throws IOException {
+        out.write(b);
+      }
+
+      @Override
+      public void flush() throws IOException {
+        out.flush();
+      }
+
+      @Override
+      public void close() throws IOException {
+        out.write(html.substring(gt + 1).getBytes(Charsets.UTF_8));
+        out.close();
+      }
+    };
   }
 
   SoyTofu.Renderer newRenderer(String templateName) {

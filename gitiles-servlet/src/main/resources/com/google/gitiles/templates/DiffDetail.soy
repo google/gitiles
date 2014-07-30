@@ -30,7 +30,7 @@
 {if $commit}
   {call .commitDetail data="$commit" /}
 {/if}
-<div id="DIFF_OUTPUT_BLOCK" />
+{call .streamingPlaceholder /}
 
 {call .footer /}
 {/template}

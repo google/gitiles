@@ -17,7 +17,6 @@ package com.google.gitiles;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
-import com.google.common.base.Charsets;
 import com.google.common.io.BaseEncoding;
 import com.google.gitiles.CommitData.Field;
 import com.google.gitiles.DateFormatter.Format;
@@ -50,7 +49,6 @@ import javax.servlet.http.HttpServletResponse;
 /** Serves an HTML page with all the diffs for a commit. */
 public class DiffServlet extends BaseServlet {
   private static final long serialVersionUID = 1L;
-  private static final String PLACEHOLDER = "id=\"DIFF_OUTPUT_BLOCK\"";
 
   private final Linkifier linkifier;
 
@@ -109,17 +107,10 @@ public class DiffServlet extends BaseServlet {
         data.put("breadcrumbs", view.getBreadcrumbs());
       }
 
-      String[] html = renderAndSplit(data);
-      res.setStatus(HttpServletResponse.SC_OK);
-      res.setContentType(FormatType.HTML.getMimeType());
-      res.setCharacterEncoding(Charsets.UTF_8.name());
       setCacheHeaders(res);
-
-      try (OutputStream out = res.getOutputStream()) {
-        out.write(html[0].getBytes(Charsets.UTF_8));
+      try (OutputStream out = startRenderStreamingHtml(req, res, "gitiles.diffDetail", data)) {
         DiffFormatter diff = new HtmlDiffFormatter(renderer, view, out);
         formatDiff(repo, oldTree, newTree, view.getPathPart(), diff);
-        out.write(html[1].getBytes(Charsets.UTF_8));
       }
     } finally {
       if (tw != null) {
@@ -178,20 +169,6 @@ public class DiffServlet extends BaseServlet {
 
   private static boolean isFile(TreeWalk tw) {
     return (tw.getRawMode(0) & FileMode.TYPE_FILE) > 0;
-  }
-
-  private String[] renderAndSplit(Map<String, Object> data) {
-    String html = renderer.newRenderer("gitiles.diffDetail")
-        .setData(data)
-        .render();
-    int id = html.indexOf(PLACEHOLDER);
-    if (id < 0) {
-      throw new IllegalStateException("Template must contain " + PLACEHOLDER);
-    }
-
-    int lt = html.lastIndexOf('<', id);
-    int gt = html.indexOf('>', id + PLACEHOLDER.length());
-    return new String[] {html.substring(0, lt), html.substring(gt + 1)};
   }
 
   private static void formatDiff(Repository repo, AbstractTreeIterator oldTree,

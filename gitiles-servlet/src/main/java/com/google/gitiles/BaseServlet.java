@@ -33,6 +33,7 @@ import com.google.gson.GsonBuilder;
 import org.joda.time.Instant;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.reflect.Type;
@@ -190,6 +191,34 @@ public abstract class BaseServlet extends HttpServlet {
    */
   protected void renderHtml(HttpServletRequest req, HttpServletResponse res, String templateName,
       Map<String, ?> soyData) throws IOException {
+    renderer.render(res, templateName, startHtmlResponse(req, res, soyData));
+  }
+
+  /**
+   * Start a streaming HTML response with header and footer rendered by Soy.
+   * <p>
+   * A streaming template includes the special template
+   * {@code gitiles.streamingPlaceholder} at the point where data is to be
+   * streamed. The template before and after this placeholder is rendered using
+   * the provided data map.
+   *
+   * @param req in-progress request.
+   * @param res in-progress response.
+   * @param templateName Soy template name; must be in one of the template files
+   *     defined in {@link Renderer}.
+   * @param soyData data for Soy.
+   * @return output stream to render to. The portion of the template before the
+   *     placeholder is already written and flushed; the portion after is
+   *     written only on calling {@code close()}.
+   * @throws IOException an error occurred during rendering the header.
+   */
+  protected OutputStream startRenderStreamingHtml(HttpServletRequest req,
+      HttpServletResponse res, String templateName, Map<String, ?> soyData) throws IOException {
+    return renderer.renderStreaming(res, templateName, startHtmlResponse(req, res, soyData));
+  }
+
+  private Map<String, ?> startHtmlResponse(HttpServletRequest req, HttpServletResponse res,
+      Map<String, ?> soyData) throws IOException {
     res.setContentType(FormatType.HTML.getMimeType());
     res.setCharacterEncoding(Charsets.UTF_8.name());
     setCacheHeaders(res);
@@ -208,7 +237,7 @@ public abstract class BaseServlet extends HttpServlet {
     }
 
     res.setStatus(HttpServletResponse.SC_OK);
-    renderer.render(res, templateName, allData);
+    return allData;
   }
 
   /**
