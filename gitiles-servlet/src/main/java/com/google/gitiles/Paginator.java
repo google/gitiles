@@ -46,30 +46,46 @@ import javax.annotation.Nullable;
  */
 class Paginator implements Iterable<RevCommit> {
   private final RevWalk walk;
-  private final ObjectId start;
   private final int limit;
-  private final Deque<ObjectId> prevBuffer;
+  private final ObjectId prevStart;
 
+  private RevCommit first;
   private boolean done;
-  private int i;
   private int n;
-  private int foundIndex;
   private ObjectId nextStart;
 
   /**
+   * Construct a paginator and walk eagerly to the first returned commit.
+   *
    * @param walk revision walk.
    * @param limit page size.
    * @param start commit at which to start the walk, or null to start at the
    *     beginning.
    */
-  Paginator(RevWalk walk, int limit, @Nullable ObjectId start) {
+  Paginator(RevWalk walk, int limit, @Nullable ObjectId start) throws MissingObjectException,
+      IncorrectObjectTypeException, IOException {
     this.walk = checkNotNull(walk, "walk");
-    this.start = start;
     checkArgument(limit > 0, "limit must be positive: %s", limit);
     this.limit = limit;
-    prevBuffer = new ArrayDeque<ObjectId>(start != null ? limit : 0);
-    i = -1;
-    foundIndex = -1;
+
+
+    Deque<ObjectId> prevBuffer = new ArrayDeque<ObjectId>(start != null ? limit : 0);
+    while (true) {
+      RevCommit commit = walk.next();
+      if (commit == null) {
+        done = true;
+        break;
+      }
+      if (start == null || start.equals(commit)) {
+        first = commit;
+        break;
+      }
+      if (prevBuffer.size() == limit) {
+        prevBuffer.remove();
+      }
+      prevBuffer.add(commit);
+    }
+    prevStart = prevBuffer.pollFirst();
   }
 
   /**
@@ -83,34 +99,21 @@ class Paginator implements Iterable<RevCommit> {
    */
   public RevCommit next() throws MissingObjectException, IncorrectObjectTypeException,
       IOException {
+    if (done) {
+      return null;
+    }
     RevCommit commit;
-    if (foundIndex < 0) {
-      while (true) {
-        commit = walk.next();
-        if (commit == null) {
-          done = true;
-          return null;
-        }
-        i++;
-        if (start == null || start.equals(commit)) {
-          foundIndex = i;
-          break;
-        }
-        if (prevBuffer.size() == limit) {
-          prevBuffer.remove();
-        }
-        prevBuffer.add(commit);
-      }
+    if (first != null) {
+      commit = first;
+      first = null;
     } else {
       commit = walk.next();
     }
-
     if (++n == limit) {
+      nextStart = walk.next();
       done = true;
-    } else if (n == limit + 1 || commit == null) {
-      nextStart = commit;
+    } else if (commit == null) {
       done = true;
-      return null;
     }
     return commit;
   }
@@ -120,8 +123,7 @@ class Paginator implements Iterable<RevCommit> {
    *     null if this is the first page.
    */
   public ObjectId getPreviousStart() {
-    checkState(done, "getPreviousStart() invalid before walk done");
-    return prevBuffer.pollFirst();
+    return prevStart;
   }
 
   /**
