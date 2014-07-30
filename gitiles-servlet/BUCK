@@ -1,8 +1,3 @@
-include_bucklets([
-  'java_sources.bucklet',
-  'java_doc.bucklet',
-])
-
 SRCS = glob(['src/main/java/**/*.java'])
 RSRC = glob(['src/main/resources/**/*'])
 DEPS = [

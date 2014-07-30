@@ -1,5 +1,3 @@
-include_bucklets(['maven_jar.bucklet'])
-
 maven_jar(
   name = 'soy',
   id = 'com.google.template:soy:2014-04-22',

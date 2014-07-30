@@ -1,5 +1,4 @@
 include_defs('//VERSION')
-include_bucklets(['maven_package.bucklet'])
 
 DEPS = [
   '//gitiles-dev:dev',
