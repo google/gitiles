@@ -23,6 +23,7 @@ import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -47,8 +48,9 @@ import javax.servlet.http.HttpServletResponse;
 /** Base servlet class for Gitiles servlets that serve Soy templates. */
 public abstract class BaseServlet extends HttpServlet {
   private static final long serialVersionUID = 1L;
-  private static final String DATA_ATTRIBUTE = BaseServlet.class.getName() + "/Data";
   private static final String ACCESS_ATTRIBUTE = BaseServlet.class.getName() + "/GitilesAccess";
+  private static final String DATA_ATTRIBUTE = BaseServlet.class.getName() + "/Data";
+  private static final String STREAMING_ATTRIBUTE = BaseServlet.class.getName() + "/Streaming";
 
   static void setNotCacheable(HttpServletResponse res) {
     res.setHeader(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, max-age=0, must-revalidate");
@@ -73,6 +75,10 @@ public abstract class BaseServlet extends HttpServlet {
     } else {
       return ImmutableMap.of("text", text);
     }
+  }
+
+  public static boolean isStreamingResponse(HttpServletRequest req) {
+    return Objects.firstNonNull((Boolean) req.getAttribute(STREAMING_ATTRIBUTE), false);
   }
 
   protected static ArchiveFormat getArchiveFormat(GitilesAccess access) throws IOException {
@@ -214,6 +220,7 @@ public abstract class BaseServlet extends HttpServlet {
    */
   protected OutputStream startRenderStreamingHtml(HttpServletRequest req,
       HttpServletResponse res, String templateName, Map<String, ?> soyData) throws IOException {
+    req.setAttribute(STREAMING_ATTRIBUTE, true);
     return renderer.renderStreaming(res, templateName, startHtmlResponse(req, res, soyData));
   }
 
