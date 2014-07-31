@@ -14,13 +14,7 @@
 
 package com.google.gitiles;
 
-import java.util.Collections;
-import java.util.Enumeration;
-
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
+import com.google.common.collect.ImmutableList;
 
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
@@ -29,7 +23,14 @@ import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.transport.resolver.RepositoryResolver;
 
-import com.google.common.collect.ImmutableList;
+import java.net.URL;
+import java.util.Collections;
+import java.util.Enumeration;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 
 /** Static utility methods for creating {@link GitilesServlet}s for testing. */
 public class TestGitilesServlet {
@@ -57,8 +58,8 @@ public class TestGitilesServlet {
     final String repoName =
         repo.getRepository().getDescription().getRepositoryName();
     GitilesServlet servlet =
-        new GitilesServlet(new Config(), new DebugRenderer(GitilesServlet.STATIC_PREFIX,
-              ImmutableList.<String> of(), null, repoName + " test site"),
+        new GitilesServlet(new Config(), new DefaultRenderer(GitilesServlet.STATIC_PREFIX,
+              ImmutableList.<URL> of(), repoName + " test site"),
             TestGitilesUrls.URLS, new TestGitilesAccess(repo.getRepository()),
             new RepositoryResolver<HttpServletRequest>() {
               @Override
