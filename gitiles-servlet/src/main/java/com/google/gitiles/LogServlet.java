@@ -50,7 +50,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Collection;
 import java.util.List;
@@ -117,7 +116,7 @@ public class LogServlet extends BaseServlet {
       data.put("title", title);
 
       try (OutputStream out = startRenderStreamingHtml(req, res, "gitiles.logDetail", data);
-          Writer w = new OutputStreamWriter(out)) {
+          Writer w = newWriter(out, res)) {
         new LogSoyData(req, access, pretty)
             .renderStreaming(paginator, null, renderer, w, df);
       }

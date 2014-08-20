@@ -38,7 +38,6 @@ import org.eclipse.jgit.treewalk.filter.PathFilter;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
@@ -138,8 +137,7 @@ public class DiffServlet extends BaseServlet {
         return;
       }
 
-      try (OutputStream out = BaseEncoding.base64()
-          .encodingStream(new OutputStreamWriter(res.getOutputStream()))) {
+      try (OutputStream out = BaseEncoding.base64().encodingStream(newWriter(res))) {
         formatDiff(repo, oldTree, newTree, view.getPathPart(), new DiffFormatter(out));
       }
     } finally {

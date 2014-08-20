@@ -260,7 +260,7 @@ public abstract class BaseServlet extends HttpServlet {
     setApiHeaders(res, JSON);
     res.setStatus(SC_OK);
 
-    Writer writer = getWriter(res);
+    Writer writer = newWriter(res);
     newGsonBuilder(req).create().toJson(src, typeOfSrc, writer);
     writer.write('\n');
     writer.close();
@@ -284,7 +284,7 @@ public abstract class BaseServlet extends HttpServlet {
   protected Writer startRenderText(HttpServletRequest req, HttpServletResponse res,
       String contentType) throws IOException {
     setApiHeaders(res, contentType);
-    return getWriter(res);
+    return newWriter(res);
   }
 
   /**
@@ -322,7 +322,7 @@ public abstract class BaseServlet extends HttpServlet {
     res.setStatus(statusCode);
     setApiHeaders(res, TEXT);
     setCacheHeaders(res);
-    Writer out = getWriter(res);
+    Writer out = newWriter(res);
     out.write(message);
     out.close();
   }
@@ -360,7 +360,11 @@ public abstract class BaseServlet extends HttpServlet {
     setCacheHeaders(res);
   }
 
-  private Writer getWriter(HttpServletResponse res) throws IOException {
-    return new OutputStreamWriter(res.getOutputStream(), res.getCharacterEncoding());
+  protected Writer newWriter(HttpServletResponse res) throws IOException {
+    return newWriter(res.getOutputStream(), res);
+  }
+
+  protected static Writer newWriter(OutputStream os, HttpServletResponse res) throws IOException {
+    return new OutputStreamWriter(os, res.getCharacterEncoding());
   }
 }

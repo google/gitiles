@@ -32,7 +32,6 @@ import org.eclipse.jgit.revwalk.RevWalk;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.List;
 import java.util.Map;
@@ -99,7 +98,7 @@ public class RepositoryIndexServlet extends BaseServlet {
       if (paginator != null) {
         DateFormatter df = new DateFormatter(access, Format.DEFAULT);
         try (OutputStream out = startRenderStreamingHtml(req, res, "gitiles.repositoryIndex", data);
-            Writer w = new OutputStreamWriter(out)) {
+            Writer w = newWriter(out, res)) {
           new LogSoyData(req, access, "oneline")
               .renderStreaming(paginator, "HEAD", renderer, w, df);
         }
