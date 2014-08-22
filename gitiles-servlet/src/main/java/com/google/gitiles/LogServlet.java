@@ -211,6 +211,10 @@ public class LogServlet extends BaseServlet {
           PathFilterGroup.createFromStrings(view.getPathPart()),
           TreeFilter.ANY_DIFF));
     }
+    String author = Iterables.getFirst(view.getParameters().get("author"), null);
+    if (author != null) {
+      walk.setRevFilter(new AuthorRevFilter(author));
+    }
     return walk;
   }
 
