@@ -97,10 +97,11 @@ public class RepositoryIndexServlet extends BaseServlet {
 
       if (paginator != null) {
         DateFormatter df = new DateFormatter(access, Format.DEFAULT);
-        try (OutputStream out = startRenderStreamingHtml(req, res, "gitiles.repositoryIndex", data);
-            Writer w = newWriter(out, res)) {
+        try (OutputStream out = startRenderStreamingHtml(req, res, "gitiles.repositoryIndex", data)) {
+          Writer w = newWriter(out, res);
           new LogSoyData(req, access, "oneline")
               .renderStreaming(paginator, "HEAD", renderer, w, df);
+          w.flush();
         }
       } else {
         renderHtml(req, res, "gitiles.repositoryIndex", data);
