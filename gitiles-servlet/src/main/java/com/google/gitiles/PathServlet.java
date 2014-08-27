@@ -208,7 +208,7 @@ public class PathServlet extends BaseServlet {
   private void writeBlobText(HttpServletRequest req, HttpServletResponse res, WalkResult wr)
       throws IOException {
     setModeHeader(res, wr.type);
-    try (Writer writer = startRenderText(req, res, null);
+    try (Writer writer = startRenderText(req, res);
         OutputStream out = BaseEncoding.base64().encodingStream(writer)) {
       wr.getObjectReader().open(wr.id).copyTo(out);
     }
@@ -218,7 +218,7 @@ public class PathServlet extends BaseServlet {
       throws IOException {
     setModeHeader(res, wr.type);
 
-    try (Writer writer = startRenderText(req, res, null);
+    try (Writer writer = startRenderText(req, res);
         OutputStream out = BaseEncoding.base64().encodingStream(writer)) {
       // Match git ls-tree format.
       while (wr.tw.next()) {
