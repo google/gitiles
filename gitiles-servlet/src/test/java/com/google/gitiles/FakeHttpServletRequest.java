@@ -14,10 +14,10 @@
 
 package com.google.gitiles;
 
-import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.gitiles.TestGitilesUrls.URLS;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.io.BufferedReader;
 import java.io.UnsupportedEncodingException;

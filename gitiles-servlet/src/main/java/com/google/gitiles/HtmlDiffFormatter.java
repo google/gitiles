@@ -15,9 +15,9 @@
 package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.eclipse.jgit.util.QuotedString.GIT_PATH;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
@@ -37,16 +37,16 @@ import java.util.Map;
 
 /** Formats a unified format patch as UTF-8 encoded HTML. */
 final class HtmlDiffFormatter extends DiffFormatter {
-  private static final byte[] DIFF_BEGIN = "<pre class=\"diff-unified\">".getBytes(Charsets.UTF_8);
-  private static final byte[] DIFF_END = "</pre>".getBytes(Charsets.UTF_8);
+  private static final byte[] DIFF_BEGIN = "<pre class=\"diff-unified\">".getBytes(UTF_8);
+  private static final byte[] DIFF_END = "</pre>".getBytes(UTF_8);
 
-  private static final byte[] HUNK_BEGIN = "<span class=\"h\">".getBytes(Charsets.UTF_8);
-  private static final byte[] HUNK_END = "</span>".getBytes(Charsets.UTF_8);
+  private static final byte[] HUNK_BEGIN = "<span class=\"h\">".getBytes(UTF_8);
+  private static final byte[] HUNK_END = "</span>".getBytes(UTF_8);
 
-  private static final byte[] LINE_INSERT_BEGIN = "<span class=\"i\">".getBytes(Charsets.UTF_8);
-  private static final byte[] LINE_DELETE_BEGIN = "<span class=\"d\">".getBytes(Charsets.UTF_8);
-  private static final byte[] LINE_CHANGE_BEGIN = "<span class=\"c\">".getBytes(Charsets.UTF_8);
-  private static final byte[] LINE_END = "</span>\n".getBytes(Charsets.UTF_8);
+  private static final byte[] LINE_INSERT_BEGIN = "<span class=\"i\">".getBytes(UTF_8);
+  private static final byte[] LINE_DELETE_BEGIN = "<span class=\"d\">".getBytes(UTF_8);
+  private static final byte[] LINE_CHANGE_BEGIN = "<span class=\"c\">".getBytes(UTF_8);
+  private static final byte[] LINE_END = "</span>\n".getBytes(UTF_8);
 
   private final Renderer renderer;
   private final GitilesView view;
@@ -112,7 +112,7 @@ final class HtmlDiffFormatter extends DiffFormatter {
     getOutputStream().write(renderer.newRenderer("gitiles.diffHeader")
         .setData(ImmutableMap.of("firstParts", parts, "rest", rest, "fileIndex", fileIndex))
         .render()
-        .getBytes(Charsets.UTF_8));
+        .getBytes(UTF_8));
   }
 
   private String revisionUrl(Revision rev, String path) {
@@ -153,7 +153,7 @@ final class HtmlDiffFormatter extends DiffFormatter {
         break;
     }
     out.write(prefix);
-    out.write(StringEscapeUtils.escapeHtml4(text.getString(cur)).getBytes(Charsets.UTF_8));
+    out.write(StringEscapeUtils.escapeHtml4(text.getString(cur)).getBytes(UTF_8));
     out.write(LINE_END);
   }
 }

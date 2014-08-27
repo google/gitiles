@@ -16,11 +16,10 @@ package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.net.HttpHeaders.LOCATION;
-
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static javax.servlet.http.HttpServletResponse.SC_GONE;
 import static javax.servlet.http.HttpServletResponse.SC_MOVED_PERMANENTLY;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Objects;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
@@ -209,7 +208,7 @@ public class GitwebRedirectFilter extends AbstractHttpFilter {
 
   private static String decode(String str) {
     try {
-      return URLDecoder.decode(str, Charsets.UTF_8.name());
+      return URLDecoder.decode(str, UTF_8.name());
     } catch (UnsupportedEncodingException e) {
       return str;
     }

@@ -18,11 +18,11 @@ import static com.google.gitiles.FormatType.DEFAULT;
 import static com.google.gitiles.FormatType.HTML;
 import static com.google.gitiles.FormatType.JSON;
 import static com.google.gitiles.FormatType.TEXT;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
@@ -227,7 +227,7 @@ public abstract class BaseServlet extends HttpServlet {
   private Map<String, ?> startHtmlResponse(HttpServletRequest req, HttpServletResponse res,
       Map<String, ?> soyData) throws IOException {
     res.setContentType(FormatType.HTML.getMimeType());
-    res.setCharacterEncoding(Charsets.UTF_8.name());
+    res.setCharacterEncoding(UTF_8.name());
     setCacheHeaders(res);
 
     Map<String, Object> allData = getData(req);
@@ -344,7 +344,7 @@ public abstract class BaseServlet extends HttpServlet {
     if (!Strings.isNullOrEmpty(contentType)) {
       res.setContentType(contentType);
     }
-    res.setCharacterEncoding(Charsets.UTF_8.name());
+    res.setCharacterEncoding(UTF_8.name());
     res.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment");
     res.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
     setCacheHeaders(res);

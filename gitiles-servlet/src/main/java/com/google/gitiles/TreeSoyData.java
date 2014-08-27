@@ -14,10 +14,10 @@
 
 package com.google.gitiles;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.eclipse.jgit.lib.Constants.OBJ_COMMIT;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -116,7 +116,7 @@ public class TreeSoyData {
       if (type == FileType.SYMLINK) {
         String target = new String(
             reader.open(tw.getObjectId(0)).getCachedBytes(),
-            Charsets.UTF_8);
+            UTF_8);
         entry.put("targetName", getTargetDisplayName(target));
         String targetUrl = resolveTargetUrl(view, target);
         if (targetUrl != null) {

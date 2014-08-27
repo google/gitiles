@@ -14,7 +14,8 @@
 
 package com.google.gitiles;
 
-import com.google.common.base.Charsets;
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import com.google.common.base.Function;
 
 import java.io.UnsupportedEncodingException;
@@ -38,7 +39,7 @@ public interface GitilesUrls {
     @Override
     public String apply(String s) {
       try {
-        return URLEncoder.encode(s, Charsets.UTF_8.name())
+        return URLEncoder.encode(s, UTF_8.name())
             .replace("%2F", "/")
             .replace("%2f", "/")
             .replace("+", "%20")

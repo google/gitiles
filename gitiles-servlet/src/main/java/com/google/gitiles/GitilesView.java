@@ -18,9 +18,9 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.gitiles.GitilesUrls.NAME_ESCAPER;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Charsets;
 import com.google.common.base.Objects;
 import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Strings;
@@ -744,10 +744,10 @@ public class GitilesView {
       } else {
         first = false;
       }
-      sb.append(URLEncoder.encode(e.getKey(), Charsets.UTF_8.name()));
+      sb.append(URLEncoder.encode(e.getKey(), UTF_8.name()));
       if (!"".equals(e.getValue())) {
         sb.append('=')
-            .append(URLEncoder.encode(e.getValue(), Charsets.UTF_8.name()));
+            .append(URLEncoder.encode(e.getValue(), UTF_8.name()));
       }
     }
     return sb.toString();

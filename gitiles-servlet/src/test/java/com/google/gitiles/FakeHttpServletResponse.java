@@ -14,10 +14,10 @@
 
 package com.google.gitiles;
 
-import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -31,7 +31,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jgit.util.RawParseUtils;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
@@ -127,7 +126,7 @@ public class FakeHttpServletResponse implements HttpServletResponse {
 
   @Override
   public void setCharacterEncoding(String name) {
-    checkArgument(Charsets.UTF_8.equals(Charset.forName(name)),
+    checkArgument(UTF_8.equals(Charset.forName(name)),
         "unsupported charset: %s", name);
   }
 

@@ -16,8 +16,8 @@ package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
@@ -108,7 +108,7 @@ public abstract class Renderer {
       throws IOException {
     res.setContentType("text/html");
     res.setCharacterEncoding("UTF-8");
-    byte[] data = newRenderer(templateName).setData(soyData).render().getBytes(Charsets.UTF_8);
+    byte[] data = newRenderer(templateName).setData(soyData).render().getBytes(UTF_8);
     res.setContentLength(data.length);
     res.getOutputStream().write(data);
   }
@@ -124,7 +124,7 @@ public abstract class Renderer {
     int lt = html.lastIndexOf('<', id);
     final int gt = html.indexOf('>', id + PLACEHOLDER.length());
     final OutputStream out = res.getOutputStream();
-    out.write(html.substring(0, lt).getBytes(Charsets.UTF_8));
+    out.write(html.substring(0, lt).getBytes(UTF_8));
     out.flush();
 
     return new OutputStream() {
@@ -150,7 +150,7 @@ public abstract class Renderer {
 
       @Override
       public void close() throws IOException {
-        out.write(html.substring(gt + 1).getBytes(Charsets.UTF_8));
+        out.write(html.substring(gt + 1).getBytes(UTF_8));
         out.close();
       }
     };
