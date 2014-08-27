@@ -121,8 +121,6 @@ public class LogServlet extends BaseServlet {
             .renderStreaming(paginator, null, renderer, w, df);
         w.flush();
       }
-
-      renderHtml(req, res, "gitiles.logDetail", data);
     } catch (RevWalkException e) {
       log.warn("Error in rev walk", e);
       res.setStatus(SC_INTERNAL_SERVER_ERROR);
