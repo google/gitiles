@@ -16,12 +16,11 @@ package com.google.gitiles;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.BaseEncoding;
-import com.google.gitiles.TreeJsonData.Tree;
 import com.google.common.net.HttpHeaders;
+import com.google.gitiles.TreeJsonData.Tree;
 import com.google.gson.Gson;
 import com.google.template.soy.data.SoyListData;
 import com.google.template.soy.data.restricted.StringData;
@@ -285,7 +284,7 @@ public class PathServletTest {
 
   private String buildText(String pathAndQuery, String expectedMode) throws Exception {
     TestViewFilter.Result res = service(pathAndQuery);
-    assertNull(res.getResponse().getHeader(HttpHeaders.CONTENT_TYPE));
+    assertEquals("text/plain", res.getResponse().getHeader(HttpHeaders.CONTENT_TYPE));
     assertEquals(expectedMode, res.getResponse().getHeader(PathServlet.MODE_HEADER));
     return res.getResponse().getActualBodyString();
   }
