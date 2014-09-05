@@ -1,4 +1,4 @@
-// Copyright 2014 Google Inc. All Rights Reserved.
+// Copyright (C) 2014 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,22 +26,31 @@ import org.eclipse.jgit.revwalk.filter.RevFilter;
 
 import java.io.IOException;
 
-/**
- * A {@link RevFilter} which only includes {@link RevCommit}s by an author pattern.
- *
- * Mostly equivalent to {@code git log --author}.
- */
-public class AuthorRevFilter extends RevFilter {
-  private final String authorPattern;
+/** Filter which only includes commits matching a person identity. */
+public abstract class IdentRevFilter extends RevFilter {
+  public static IdentRevFilter author(String author) {
+    return new Author(author);
+  }
 
-  public AuthorRevFilter(String authorPattern) {
-    this.authorPattern = authorPattern;
+  public static IdentRevFilter committer(String committer) {
+    return new Committer(committer);
+  }
+
+  private final String pattern;
+
+  protected IdentRevFilter(String pattern) {
+    this.pattern = pattern;
   }
 
   @Override
   public boolean include(RevWalk walker, RevCommit commit) throws StopWalkException,
       MissingObjectException, IncorrectObjectTypeException, IOException {
-    return matchesPerson(commit.getAuthorIdent());
+    return matchesPerson(getIdent(commit));
+  }
+
+  @Override
+  public RevFilter clone() {
+    return this;
   }
 
   /** @return whether the given person matches the author filter. */
@@ -50,12 +59,31 @@ public class AuthorRevFilter extends RevFilter {
     // Equivalent to --fixed-strings, to avoid pathological performance of Java
     // regex matching.
     // TODO(kalman): Find/use a port of re2.
-    return person.getName().contains(authorPattern)
-        || person.getEmailAddress().contains(authorPattern);
+    return person.getName().contains(pattern)
+        || person.getEmailAddress().contains(pattern);
   }
 
-  @Override
-  public RevFilter clone() {
-    return this;
+  protected abstract PersonIdent getIdent(RevCommit commit);
+
+  private static class Author extends IdentRevFilter {
+    private Author(String author) {
+      super(author);
+    }
+
+    @Override
+    protected PersonIdent getIdent(RevCommit commit) {
+      return commit.getAuthorIdent();
+    }
+  }
+
+  private static class Committer extends IdentRevFilter {
+    private Committer(String committer) {
+      super(committer);
+    }
+
+    @Override
+    protected PersonIdent getIdent(RevCommit commit) {
+      return commit.getCommitterIdent();
+    }
   }
 }

@@ -213,7 +213,11 @@ public class LogServlet extends BaseServlet {
     }
     String author = Iterables.getFirst(view.getParameters().get("author"), null);
     if (author != null) {
-      walk.setRevFilter(new AuthorRevFilter(author));
+      walk.setRevFilter(IdentRevFilter.author(author));
+    }
+    String committer = Iterables.getFirst(view.getParameters().get("committer"), null);
+    if (committer != null) {
+      walk.setRevFilter(IdentRevFilter.committer(committer));
     }
     return walk;
   }

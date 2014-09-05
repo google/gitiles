@@ -23,17 +23,17 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Test;
 
 /**
- * Tests for {@link AuthorRevFilter}.
+ * Tests for {@link IdentRevFilter}.
  *
  * Unfortunately it's not easy to test the Filter using real {@link RevCommit}s
  * because {@link TestRepository} hard-codes its author as "J. Author". The next
  * best thing is to test a {@link PersonIdent}, those are easy to construct.
  * TODO(dborowitz): Fix TestRepository to allow this.
  */
-public class AuthorRevFilterTest {
+public class IdentRevFilterTest {
   @Test
   public void matchesName() throws Exception {
-    AuthorRevFilter filter = new AuthorRevFilter("eSt");
+    IdentRevFilter filter = IdentRevFilter.author("eSt");
     assertTrue(filter.matchesPerson(new PersonIdent("eSt", "null@google.com")));
     assertTrue(filter.matchesPerson(new PersonIdent("eStablish", "null@google.com")));
     assertTrue(filter.matchesPerson(new PersonIdent("teSt", "null@google.com")));
@@ -42,7 +42,7 @@ public class AuthorRevFilterTest {
 
   @Test
   public void caseSensitiveName() throws Exception {
-    AuthorRevFilter filter = new AuthorRevFilter("eSt");
+    IdentRevFilter filter = IdentRevFilter.author("eSt");
     assertFalse(filter.matchesPerson(new PersonIdent("est", "null@google.com")));
     assertFalse(filter.matchesPerson(new PersonIdent("Establish", "null@google.com")));
     assertFalse(filter.matchesPerson(new PersonIdent("tESt", "null@google.com")));
@@ -51,7 +51,7 @@ public class AuthorRevFilterTest {
 
   @Test
   public void matchesEmailLocalPart() throws Exception {
-    AuthorRevFilter filter = new AuthorRevFilter("eSt");
+    IdentRevFilter filter = IdentRevFilter.author("eSt");
     assertTrue(filter.matchesPerson(new PersonIdent("null", "eSt@google.com")));
     assertTrue(filter.matchesPerson(new PersonIdent("null", "eStablish@google.com")));
     assertTrue(filter.matchesPerson(new PersonIdent("null", "teSt@google.com")));
@@ -60,7 +60,7 @@ public class AuthorRevFilterTest {
 
   @Test
   public void caseSensitiveEmailLocalPart() throws Exception {
-    AuthorRevFilter filter = new AuthorRevFilter("eSt");
+    IdentRevFilter filter = IdentRevFilter.author("eSt");
     assertFalse(filter.matchesPerson(new PersonIdent("null", "est@google.com")));
     assertFalse(filter.matchesPerson(new PersonIdent("null", "Establish@google.com")));
     assertFalse(filter.matchesPerson(new PersonIdent("null", "tESt@google.com")));
@@ -70,7 +70,7 @@ public class AuthorRevFilterTest {
   @Test
   public void matchesEmailDomain() throws Exception {
     // git log --author matches the email domain as well as the enail name.
-    AuthorRevFilter filter = new AuthorRevFilter("eSt");
+    IdentRevFilter filter = IdentRevFilter.author("eSt");
     assertTrue(filter.matchesPerson(new PersonIdent("null", "null@eSt.com")));
     assertTrue(filter.matchesPerson(new PersonIdent("null", "null@eStablish.com")));
     assertTrue(filter.matchesPerson(new PersonIdent("null", "null@teSt.com")));
@@ -79,7 +79,7 @@ public class AuthorRevFilterTest {
 
   @Test
   public void caseSensitiveEmailDomain() throws Exception {
-    AuthorRevFilter filter = new AuthorRevFilter("eSt");
+    IdentRevFilter filter = IdentRevFilter.author("eSt");
     assertFalse(filter.matchesPerson(new PersonIdent("null", "null@est.com")));
     assertFalse(filter.matchesPerson(new PersonIdent("null", "null@Establish.com")));
     assertFalse(filter.matchesPerson(new PersonIdent("null", "null@tESt.com")));
