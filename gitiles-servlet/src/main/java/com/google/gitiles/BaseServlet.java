@@ -360,11 +360,11 @@ public abstract class BaseServlet extends HttpServlet {
     setCacheHeaders(res);
   }
 
-  protected Writer newWriter(HttpServletResponse res) throws IOException {
-    return newWriter(res.getOutputStream(), res);
-  }
-
   protected static Writer newWriter(OutputStream os, HttpServletResponse res) throws IOException {
     return new OutputStreamWriter(os, res.getCharacterEncoding());
+  }
+
+  private Writer newWriter(HttpServletResponse res) throws IOException {
+    return newWriter(res.getOutputStream(), res);
   }
 }
