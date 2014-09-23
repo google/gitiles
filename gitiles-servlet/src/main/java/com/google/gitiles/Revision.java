@@ -109,9 +109,12 @@ public class Revision {
     return peeledType;
   }
 
+  public boolean matches(ObjectId other) {
+    return id.equals(other) || nameEqualsAbbreviated(other);
+  }
+
   public boolean nameIsId() {
-    return AbbreviatedObjectId.isId(name)
-        && (AbbreviatedObjectId.fromString(name).prefixCompare(id) == 0);
+    return nameEqualsAbbreviated(id);
   }
 
   @Override
@@ -142,5 +145,11 @@ public class Revision {
         .add("peeledId", peeledId != null ? peeledId.getName() : null)
         .add("peeledType", type > 0 ? Constants.typeString(peeledType) : null)
         .toString();
+  }
+
+  private boolean nameEqualsAbbreviated(ObjectId other) {
+    return AbbreviatedObjectId.isId(name)
+        ? AbbreviatedObjectId.fromString(name).prefixCompare(other) == 0
+        : false;
   }
 }

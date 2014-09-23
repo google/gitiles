@@ -80,6 +80,7 @@ class CommitData {
   }
 
   static class DiffList {
+    Revision revision;
     Revision oldRevision;
     List<DiffEntry> entries;
   }
@@ -213,6 +214,10 @@ class CommitData {
     private DiffList computeDiffEntries(Repository repo, GitilesView view, RevCommit commit)
         throws IOException {
       DiffList result = new DiffList();
+      result.revision = view.getRevision().matches(commit)
+          ? view.getRevision()
+          : Revision.peeled(commit.name(), commit);
+
       AbstractTreeIterator oldTree;
       switch (commit.getParentCount()) {
         case 0:
@@ -220,8 +225,7 @@ class CommitData {
           oldTree = new EmptyTreeIterator();
           break;
         case 1:
-          result.oldRevision =
-              Revision.peeled(view.getRevision().getName() + "^", commit.getParent(0));
+          result.oldRevision = Revision.peeled(result.revision.getName() + "^", commit.getParent(0));
           oldTree = getTreeIterator(commit.getParent(0));
           break;
         default:

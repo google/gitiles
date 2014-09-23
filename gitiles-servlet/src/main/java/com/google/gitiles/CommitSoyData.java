@@ -196,7 +196,10 @@ public class CommitSoyData {
     if (dl.oldRevision == null) {
       return NullData.INSTANCE;
     }
-    GitilesView.Builder diffUrl = GitilesView.diff().copyFrom(view)
+    GitilesView.Builder diffUrl = GitilesView.diff()
+        .copyFrom(view)
+        .setOldRevision(dl.oldRevision)
+        .setRevision(dl.revision)
         .setPathPart("");
 
     List<Object> result = Lists.newArrayListWithCapacity(dl.entries.size());
@@ -207,6 +210,7 @@ public class CommitSoyData {
         entry.put("path", e.getNewPath());
         entry.put("url", GitilesView.path()
             .copyFrom(view)
+            .setRevision(dl.revision)
             .setPathPart(e.getNewPath())
             .toUrl());
       } else {
