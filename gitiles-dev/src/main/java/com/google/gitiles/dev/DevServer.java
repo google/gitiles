@@ -14,9 +14,9 @@
 
 package com.google.gitiles.dev;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.gitiles.GitilesServlet.STATIC_PREFIX;
 
-import com.google.common.base.Objects;
 import com.google.gitiles.DebugRenderer;
 import com.google.gitiles.GitilesServlet;
 import com.google.gitiles.PathServlet;
@@ -191,7 +191,7 @@ class DevServer {
             Arrays.asList(cfg.getStringList("gitiles", null, "customTemplates")),
             new File(sourceRoot, "gitiles-servlet/src/main/resources/com/google/gitiles/templates")
                 .getPath(),
-            Objects.firstNonNull(cfg.getString("gitiles", null, "siteTitle"), "Gitiles")),
+            firstNonNull(cfg.getString("gitiles", null, "siteTitle"), "Gitiles")),
         null, null, null, null, null, null, null);
 
     ServletContextHandler handler = new ServletContextHandler();

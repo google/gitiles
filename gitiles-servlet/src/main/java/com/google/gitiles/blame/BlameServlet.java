@@ -17,7 +17,6 @@ package com.google.gitiles.blame;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -52,6 +51,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -157,7 +157,7 @@ public class BlameServlet extends BaseServlet {
     ObjectId lastCommit = cache.findLastCommit(repo, currCommit, view.getPathPart());
     ObjectId lastCommitBlobId = resolveBlob(view, rw, lastCommit);
 
-    if (!Objects.equal(currCommitBlobId, lastCommitBlobId)) {
+    if (!Objects.equals(currCommitBlobId, lastCommitBlobId)) {
       log.warn(String.format("Blob %s in last modified commit %s for repo %s starting from %s"
           + " does not match original blob %s",
           ObjectId.toString(lastCommitBlobId),

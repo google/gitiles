@@ -14,6 +14,7 @@
 
 package com.google.gitiles;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.gitiles.FormatType.DEFAULT;
 import static com.google.gitiles.FormatType.HTML;
 import static com.google.gitiles.FormatType.JSON;
@@ -23,7 +24,6 @@ import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -78,7 +78,7 @@ public abstract class BaseServlet extends HttpServlet {
   }
 
   public static boolean isStreamingResponse(HttpServletRequest req) {
-    return Objects.firstNonNull((Boolean) req.getAttribute(STREAMING_ATTRIBUTE), false);
+    return firstNonNull((Boolean) req.getAttribute(STREAMING_ATTRIBUTE), false);
   }
 
   protected static ArchiveFormat getArchiveFormat(GitilesAccess access) throws IOException {

@@ -14,14 +14,15 @@
 
 package com.google.gitiles;
 
+import static com.google.common.base.MoreObjects.toStringHelper;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Predicates.not;
 import static com.google.common.collect.Collections2.filter;
+import static java.util.Objects.hash;
 import static org.eclipse.jgit.lib.Constants.R_HEADS;
 import static org.eclipse.jgit.lib.Constants.R_TAGS;
 
 import com.google.common.base.Function;
-import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.base.Throwables;
@@ -43,6 +44,7 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -64,21 +66,21 @@ public class VisibilityCache {
     public boolean equals(Object o) {
       if (o instanceof Key) {
         Key k = (Key) o;
-        return Objects.equal(user, k.user)
-            && Objects.equal(repositoryName, k.repositoryName)
-            && Objects.equal(objectId, k.objectId);
+        return Objects.equals(user, k.user)
+            && Objects.equals(repositoryName, k.repositoryName)
+            && Objects.equals(objectId, k.objectId);
       }
       return false;
     }
 
     @Override
     public int hashCode() {
-      return Objects.hashCode(user, repositoryName, objectId);
+      return hash(user, repositoryName, objectId);
     }
 
     @Override
     public String toString() {
-      return Objects.toStringHelper(this)
+      return toStringHelper(this)
         .add("user", user)
         .add("repositoryName", repositoryName)
         .add("objectId", objectId)

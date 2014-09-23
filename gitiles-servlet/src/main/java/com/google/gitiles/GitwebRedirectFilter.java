@@ -14,13 +14,13 @@
 
 package com.google.gitiles;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.net.HttpHeaders.LOCATION;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static javax.servlet.http.HttpServletResponse.SC_GONE;
 import static javax.servlet.http.HttpServletResponse.SC_MOVED_PERMANENTLY;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -96,11 +96,10 @@ public class GitwebRedirectFilter extends AbstractHttpFilter {
     } else if (("commit".equals(action) || "tag".equals(action)) && hash != null) {
       view = GitilesView.revision().setRevision(hash);
     } else if ("log".equals(action) || "shortlog".equals(action)) {
-      view = GitilesView.log()
-          .setRevision(Objects.firstNonNull(hash, Revision.HEAD));
+      view = GitilesView.log().setRevision(firstNonNull(hash, Revision.HEAD));
     } else if ("tree".equals(action)) {
       view = GitilesView.path()
-          .setRevision(Objects.firstNonNull(hashBase, Revision.HEAD))
+          .setRevision(firstNonNull(hashBase, Revision.HEAD))
           .setPathPart(path);
     } else if (("blob".equals(action) || "blob_plain".equals(action))
         && hashBase != null && !path.isEmpty()) {
@@ -109,7 +108,7 @@ public class GitwebRedirectFilter extends AbstractHttpFilter {
           .setPathPart(path);
     } else if ("commitdiff".equals(action) && hash != null) {
       view = GitilesView.diff()
-          .setOldRevision(Objects.firstNonNull(hashParent, Revision.NULL))
+          .setOldRevision(firstNonNull(hashParent, Revision.NULL))
           .setRevision(hash)
           .setPathPart("");
     } else if ("blobdiff".equals(action) && !path.isEmpty()
@@ -120,7 +119,7 @@ public class GitwebRedirectFilter extends AbstractHttpFilter {
           .setPathPart(path);
     } else if ("history".equals(action) && !path.isEmpty()) {
       view = GitilesView.log()
-          .setRevision(Objects.firstNonNull(hashBase, Revision.HEAD))
+          .setRevision(firstNonNull(hashBase, Revision.HEAD))
           .setPathPart(path);
     } else {
       // Gitiles does not provide an RSS feed (a=rss,atom,opml)

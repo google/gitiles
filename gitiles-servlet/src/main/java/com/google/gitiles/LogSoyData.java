@@ -14,9 +14,9 @@
 
 package com.google.gitiles;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
@@ -55,7 +55,7 @@ public class LogSoyData {
     this.pretty = checkNotNull(pretty);
     Config config = access.getConfig();
     fields = config.getBoolean("logFormat", pretty, "verbose", false) ? VERBOSE_FIELDS : FIELDS;
-    variant = Objects.firstNonNull(config.getString("logFormat", pretty, "variant"), pretty);
+    variant = firstNonNull(config.getString("logFormat", pretty, "variant"), pretty);
   }
 
   public void renderStreaming(Paginator paginator, @Nullable String revision, Renderer renderer,

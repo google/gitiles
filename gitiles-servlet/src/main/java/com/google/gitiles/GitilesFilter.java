@@ -14,13 +14,13 @@
 
 package com.google.gitiles;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.gitiles.GitilesServlet.STATIC_PREFIX;
 import static com.google.gitiles.ViewFilter.getRegexGroup;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Objects;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.LinkedListMultimap;
@@ -331,7 +331,7 @@ class GitilesFilter extends MetaFilter {
           FluentIterable.from(Arrays.asList(
                 config.getStringList("gitiles", null, "customTemplates")))
               .transform(new FileUrlMapper()),
-          Objects.firstNonNull(config.getString("gitiles", null, "siteTitle"), "Gitiles"));
+          firstNonNull(config.getString("gitiles", null, "siteTitle"), "Gitiles"));
     }
   }
 

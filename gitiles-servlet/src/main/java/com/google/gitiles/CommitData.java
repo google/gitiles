@@ -14,11 +14,11 @@
 
 package com.google.gitiles;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.base.Function;
-import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
@@ -191,7 +191,7 @@ class CommitData {
       if (refsById == null) {
         refsById = repo.getAllRefsByPeeledObjectId();
       }
-      return FluentIterable.from(Objects.firstNonNull(refsById.get(id), ImmutableSet.<Ref> of()))
+      return FluentIterable.from(firstNonNull(refsById.get(id), ImmutableSet.<Ref> of()))
         .filter(new Predicate<Ref>() {
           @Override
           public boolean apply(Ref ref) {

@@ -14,6 +14,8 @@
 
 package com.google.gitiles;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.google.common.base.MoreObjects.toStringHelper;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -21,8 +23,7 @@ import static com.google.gitiles.GitilesUrls.NAME_ESCAPER;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Objects;
-import com.google.common.base.Objects.ToStringHelper;
+import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -199,7 +200,7 @@ public class GitilesView {
         case LOG:
           break;
         default:
-          revision = Objects.firstNonNull(revision, Revision.NULL);
+          revision = firstNonNull(revision, Revision.NULL);
           checkState(revision == Revision.NULL, "cannot set old revision on %s view", type);
           break;
       }
@@ -455,8 +456,8 @@ public class GitilesView {
     this.hostName = hostName;
     this.servletPath = servletPath;
     this.repositoryName = repositoryName;
-    this.revision = Objects.firstNonNull(revision, Revision.NULL);
-    this.oldRevision = Objects.firstNonNull(oldRevision, Revision.NULL);
+    this.revision = firstNonNull(revision, Revision.NULL);
+    this.oldRevision = firstNonNull(oldRevision, Revision.NULL);
     this.path = path;
     this.extension = extension;
     this.params = Multimaps.unmodifiableListMultimap(params);
@@ -533,7 +534,7 @@ public class GitilesView {
 
   @Override
   public String toString() {
-    ToStringHelper b = Objects.toStringHelper(type.toString())
+    ToStringHelper b = toStringHelper(type.toString())
         .omitNullValues()
         .add("host", hostName)
         .add("servlet", servletPath)
@@ -578,7 +579,7 @@ public class GitilesView {
         if (path != null) {
           url.append('/').append(path);
         }
-        url.append(Objects.firstNonNull(extension, DEFAULT_ARCHIVE_EXTENSION));
+        url.append(firstNonNull(extension, DEFAULT_ARCHIVE_EXTENSION));
         break;
       case PATH:
         url.append(repositoryName).append("/+/").append(revision.getName()).append('/')

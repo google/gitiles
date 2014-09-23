@@ -15,8 +15,8 @@
 package com.google.gitiles.blame;
 
 import static com.google.common.base.Preconditions.checkState;
+import static java.util.Objects.hash;
 
-import com.google.common.base.Objects;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 /** Guava implementation of BlameCache, weighted by number of blame regions. */
@@ -82,15 +83,15 @@ public class BlameCacheImpl implements BlameCache {
     public boolean equals(Object o) {
       if (o instanceof Key) {
         Key k = (Key) o;
-        return Objects.equal(commitId, k.commitId)
-            && Objects.equal(path, k.path);
+        return Objects.equals(commitId, k.commitId)
+            && Objects.equals(path, k.path);
       }
       return false;
     }
 
     @Override
     public int hashCode() {
-      return Objects.hashCode(commitId, path);
+      return hash(commitId, path);
     }
 
     @Override

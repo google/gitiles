@@ -14,11 +14,12 @@
 
 package com.google.gitiles;
 
+import static com.google.common.base.MoreObjects.toStringHelper;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.hash;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.CharMatcher;
-import com.google.common.base.Objects;
 import com.google.common.base.Splitter;
 
 import org.eclipse.jgit.errors.AmbiguousObjectException;
@@ -32,6 +33,7 @@ import org.eclipse.jgit.revwalk.RevTag;
 import org.eclipse.jgit.revwalk.RevWalk;
 
 import java.io.IOException;
+import java.util.Objects;
 
 /** Object to parse revisions out of Gitiles paths. */
 class RevisionParser {
@@ -70,21 +72,21 @@ class RevisionParser {
     public boolean equals(Object o) {
       if (o instanceof Result) {
         Result r = (Result) o;
-        return Objects.equal(revision, r.revision)
-            && Objects.equal(oldRevision, r.oldRevision)
-            && Objects.equal(path, r.path);
+        return Objects.equals(revision, r.revision)
+            && Objects.equals(oldRevision, r.oldRevision)
+            && Objects.equals(path, r.path);
       }
       return false;
     }
 
     @Override
     public int hashCode() {
-      return Objects.hashCode(revision, oldRevision, path);
+      return hash(revision, oldRevision, path);
     }
 
     @Override
     public String toString() {
-      return Objects.toStringHelper(this)
+      return toStringHelper(this)
           .omitNullValues()
           .add("revision", revision.getName())
           .add("oldRevision", oldRevision != null ? oldRevision.getName() : null)

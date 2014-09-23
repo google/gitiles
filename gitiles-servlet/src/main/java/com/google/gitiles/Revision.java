@@ -14,12 +14,13 @@
 
 package com.google.gitiles;
 
+import static com.google.common.base.MoreObjects.toStringHelper;
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.hash;
 import static org.eclipse.jgit.lib.Constants.OBJ_BAD;
 import static org.eclipse.jgit.lib.Constants.OBJ_TAG;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Objects;
 
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.AbbreviatedObjectId;
@@ -29,6 +30,7 @@ import org.eclipse.jgit.revwalk.RevObject;
 import org.eclipse.jgit.revwalk.RevWalk;
 
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * Object encapsulating a single revision as seen by Gitiles.
@@ -121,23 +123,23 @@ public class Revision {
   public boolean equals(Object o) {
     if (o instanceof Revision) {
       Revision r = (Revision) o;
-      return Objects.equal(name, r.name)
-          && Objects.equal(id, r.id)
-          && Objects.equal(type, r.type)
-          && Objects.equal(peeledId, r.peeledId)
-          && Objects.equal(peeledType, r.peeledType);
+      return Objects.equals(name, r.name)
+          && Objects.equals(id, r.id)
+          && Objects.equals(type, r.type)
+          && Objects.equals(peeledId, r.peeledId)
+          && Objects.equals(peeledType, r.peeledType);
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(name, id, type, peeledId, peeledType);
+    return hash(name, id, type, peeledId, peeledType);
   }
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this)
+    return toStringHelper(this)
         .omitNullValues()
         .add("name", name)
         .add("id", id != null ? id.getName() : null)
