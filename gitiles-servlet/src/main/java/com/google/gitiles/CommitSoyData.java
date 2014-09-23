@@ -171,13 +171,15 @@ public class CommitSoyData {
       } else {
         parentName = view.getRevision().getName() + "^" + (i++);
       }
+      diff.setOldRevision(parentName, parent);
+
       Map<String, String> e = Maps.newHashMapWithExpectedSize(4);
       e.put("sha", name);
       e.put("url", GitilesView.revision()
           .copyFrom(view)
           .setRevision(parentName, parent)
           .toUrl());
-      e.put("diffUrl", diff.setOldRevision(parentName, parent).toUrl());
+      e.put("diffUrl", diff.toUrl());
       if (fs.contains(Field.PARENT_BLAME_URL)) {
         // Assumes caller has ensured path is a file.
         e.put("blameUrl", GitilesView.blame()
