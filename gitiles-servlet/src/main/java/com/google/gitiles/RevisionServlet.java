@@ -148,6 +148,7 @@ public class RevisionServlet extends BaseServlet {
         if (loader.getType() != OBJ_COMMIT) {
           res.setStatus(SC_NOT_FOUND);
         } else {
+          PathServlet.setTypeHeader(res, loader.getType());
           try (Writer writer = startRenderText(req, res);
               OutputStream out = BaseEncoding.base64().encodingStream(writer)) {
             loader.copyTo(out);

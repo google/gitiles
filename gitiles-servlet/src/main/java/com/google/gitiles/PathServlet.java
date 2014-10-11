@@ -72,6 +72,7 @@ public class PathServlet extends BaseServlet {
   private static final Logger log = LoggerFactory.getLogger(PathServlet.class);
 
   static final String MODE_HEADER = "X-Gitiles-Path-Mode";
+  static final String TYPE_HEADER = "X-Gitiles-Object-Type";
 
   /**
    * Submodule URLs where we know there is a web page if the user visits the
@@ -201,12 +202,17 @@ public class PathServlet extends BaseServlet {
     }
   }
 
-  private void setModeHeader(HttpServletResponse res, FileType type) {
+  public static void setModeHeader(HttpServletResponse res, FileType type) {
     res.setHeader(MODE_HEADER, String.format("%06o", type.mode.getBits()));
+  }
+
+  public static void setTypeHeader(HttpServletResponse res, int type) {
+    res.setHeader(TYPE_HEADER, Constants.typeString(type));
   }
 
   private void writeBlobText(HttpServletRequest req, HttpServletResponse res, WalkResult wr)
       throws IOException {
+    setTypeHeader(res, wr.type.mode.getObjectType());
     setModeHeader(res, wr.type);
     try (Writer writer = startRenderText(req, res);
         OutputStream out = BaseEncoding.base64().encodingStream(writer)) {
@@ -216,6 +222,7 @@ public class PathServlet extends BaseServlet {
 
   private void writeTreeText(HttpServletRequest req, HttpServletResponse res, WalkResult wr)
       throws IOException {
+    setTypeHeader(res, wr.type.mode.getObjectType());
     setModeHeader(res, wr.type);
 
     try (Writer writer = startRenderText(req, res);
