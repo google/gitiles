@@ -449,6 +449,7 @@ public class ViewFilterTest {
     assertEquals("foo/bar", view.getPathPart());
   }
 
+  @Test
   public void testNormalizeParents() throws Exception {
     RevCommit parent = repo.commit().create();
     RevCommit master = repo.branch("refs/heads/master").commit().parent(parent).create();
