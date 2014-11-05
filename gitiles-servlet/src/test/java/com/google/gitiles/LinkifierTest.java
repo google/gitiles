@@ -20,10 +20,13 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 import javax.servlet.http.HttpServletRequest;
 
 /** Tests for {@link Linkifier}. */
+@RunWith(JUnit4.class)
 public class LinkifierTest {
   private static final HttpServletRequest REQ = FakeHttpServletRequest.newRequest();
 

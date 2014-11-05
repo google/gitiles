@@ -32,8 +32,11 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTag;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 /** Tests for the revision parser. */
+@RunWith(JUnit4.class)
 public class RevisionParserTest {
   private TestRepository<DfsRepository> repo;
   private RevisionParser parser;

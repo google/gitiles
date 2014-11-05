@@ -19,8 +19,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 /** Tests for {@link Paths}. */
+@RunWith(JUnit4.class)
 public class PathsTest {
   @Test
   public void simplifyPathUpToRootSimplifiesPath() throws Exception {

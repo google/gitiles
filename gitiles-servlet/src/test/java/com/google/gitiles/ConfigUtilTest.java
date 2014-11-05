@@ -20,8 +20,11 @@ import static org.junit.Assert.assertEquals;
 import org.eclipse.jgit.lib.Config;
 import org.joda.time.Duration;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 /** Tests for configuration utilities. */
+@RunWith(JUnit4.class)
 public class ConfigUtilTest {
   @Test
   public void getDurationReturnsDuration() throws Exception {

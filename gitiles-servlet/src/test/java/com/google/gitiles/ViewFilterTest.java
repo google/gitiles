@@ -28,12 +28,15 @@ import org.eclipse.jgit.junit.TestRepository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 import java.io.IOException;
 
 import javax.servlet.ServletException;
 
 /** Tests for the view filter. */
+@RunWith(JUnit4.class)
 public class ViewFilterTest {
   private TestRepository<DfsRepository> repo;
 

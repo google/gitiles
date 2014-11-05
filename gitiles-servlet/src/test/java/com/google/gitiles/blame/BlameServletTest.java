@@ -32,10 +32,13 @@ import org.eclipse.jgit.junit.TestRepository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 import java.util.List;
 import java.util.Map;
 
+@RunWith(JUnit4.class)
 public class BlameServletTest {
   private static class RegionJsonData {
     int start;

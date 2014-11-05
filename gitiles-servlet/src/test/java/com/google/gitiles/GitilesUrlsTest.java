@@ -17,8 +17,11 @@ import static com.google.gitiles.GitilesUrls.NAME_ESCAPER;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 /** Unit tests for {@link GitilesUrls}. */
+@RunWith(JUnit4.class)
 public class GitilesUrlsTest {
   @Test
   public void nameEscaperEscapesAppropriateSpecialCharacters() throws Exception {

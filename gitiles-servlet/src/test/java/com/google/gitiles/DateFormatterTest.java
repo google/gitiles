@@ -24,11 +24,14 @@ import com.google.common.base.Optional;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.util.GitDateParser;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 import java.text.ParseException;
 import java.util.Date;
 import java.util.TimeZone;
 
+@RunWith(JUnit4.class)
 public class DateFormatterTest {
   @Test
   public void defaultIncludingTimeZone() throws Exception {

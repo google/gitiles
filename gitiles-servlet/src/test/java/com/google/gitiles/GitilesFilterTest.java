@@ -22,10 +22,13 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 import java.util.regex.Matcher;
 
 /** Tests for the Gitiles filter. */
+@RunWith(JUnit4.class)
 public class GitilesFilterTest {
   @Test
   public void rootUrls() throws Exception {

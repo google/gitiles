@@ -21,6 +21,8 @@ import org.eclipse.jgit.junit.TestRepository;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 /**
  * Tests for {@link IdentRevFilter}.
@@ -30,6 +32,7 @@ import org.junit.Test;
  * best thing is to test a {@link PersonIdent}, those are easy to construct.
  * TODO(dborowitz): Fix TestRepository to allow this.
  */
+@RunWith(JUnit4.class)
 public class IdentRevFilterTest {
   @Test
   public void matchesName() throws Exception {

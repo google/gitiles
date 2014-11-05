@@ -30,10 +30,13 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 import java.util.List;
 
 /** Unit tests for {@link LogServlet}. */
+@RunWith(JUnit4.class)
 public class PaginatorTest {
   private TestRepository<DfsRepository> repo;
   private RevWalk walk;

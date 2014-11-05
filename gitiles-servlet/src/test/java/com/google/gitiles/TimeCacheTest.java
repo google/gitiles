@@ -30,10 +30,13 @@ import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 import java.io.IOException;
 
 /** Unit tests for {@link TimeCache}. */
+@RunWith(JUnit4.class)
 public class TimeCacheTest {
   private TestRepository<DfsRepository> repo;
   private RevWalk walk;

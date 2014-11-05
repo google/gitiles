@@ -26,8 +26,11 @@ import com.google.gitiles.GitilesView.Type;
 
 import org.eclipse.jgit.lib.ObjectId;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 /** Tests for Gitiles views. */
+@RunWith(JUnit4.class)
 public class GitilesViewTest {
   private static final GitilesView HOST = GitilesView.hostIndex()
       .setServletPath("/b")

@@ -23,8 +23,11 @@ import com.google.common.base.Strings;
 
 import org.eclipse.jgit.lib.ObjectId;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 /** Tests for {@link TreeSoyData}. */
+@RunWith(JUnit4.class)
 public class TreeSoyDataTest {
   @Test
   public void getTargetDisplayNameReturnsDisplayName() throws Exception {
