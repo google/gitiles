@@ -358,7 +358,7 @@ class GitilesFilter extends MetaFilter {
 
       FileResolver<HttpServletRequest> fileResolver;
       if (resolver == null) {
-        fileResolver = new FileResolver<HttpServletRequest>(new File(basePath), exportAll);
+        fileResolver = new FileResolver<>(new File(basePath), exportAll);
         resolver = wrapResolver(fileResolver);
       } else if (resolver instanceof FileResolver) {
         fileResolver = (FileResolver<HttpServletRequest>) resolver;

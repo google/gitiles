@@ -94,7 +94,7 @@ public class RefServlet extends BaseServlet {
     GitilesView view = ViewFilter.getView(req);
     Map<String, Ref> refs = getRefs(ServletUtils.getRepository(req).getRefDatabase(),
         view.getPathPart());
-    Map<String, RefJsonData> jsonRefs = new LinkedHashMap<String, RefJsonData>();
+    Map<String, RefJsonData> jsonRefs = new LinkedHashMap<>();
     for (Map.Entry<String, Ref> ref : refs.entrySet()) {
       jsonRefs.put(ref.getKey(), new RefJsonData(ref.getValue()));
     }

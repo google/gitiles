@@ -58,7 +58,7 @@ public class PathServletTest {
   @Before
   public void setUp() throws Exception {
     DfsRepository r = new InMemoryRepository(new DfsRepositoryDescription("repo"));
-    repo = new TestRepository<DfsRepository>(r);
+    repo = new TestRepository<>(r);
     servlet = new PathServlet(
         new TestGitilesAccess(repo.getRepository()), RENDERER, TestGitilesUrls.URLS);
   }

@@ -85,7 +85,7 @@ public class BlobSoyData {
 
     if (content != null) {
       data.put("lines", prettify(path, content));
-    } else if (content == null) {
+    } else {
       data.put("lines", null);
       data.put("size", Long.toString(loader.getSize()));
     }

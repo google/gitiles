@@ -69,7 +69,7 @@ class Paginator implements Iterable<RevCommit> {
     this.limit = limit;
 
 
-    Deque<ObjectId> prevBuffer = new ArrayDeque<ObjectId>(start != null ? limit : 0);
+    Deque<ObjectId> prevBuffer = new ArrayDeque<>(start != null ? limit : 0);
     while (true) {
       RevCommit commit = walk.next();
       if (commit == null) {

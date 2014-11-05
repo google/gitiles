@@ -48,7 +48,7 @@ public class DiffServletTest {
   @Before
   public void setUp() throws Exception {
     DfsRepository r = new InMemoryRepository(new DfsRepositoryDescription("test"));
-    repo = new TestRepository<DfsRepository>(r);
+    repo = new TestRepository<>(r);
     servlet = TestGitilesServlet.create(repo);
   }
 
