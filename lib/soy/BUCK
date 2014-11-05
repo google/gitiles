@@ -1,10 +1,8 @@
 maven_jar(
   name = 'soy',
-  id = 'com.google.template:soy:2014-04-22',
-  sha1 = 'd0b78ae3ab2283cdeae1a3b2f1fc5b7155a7305d',
-  deps = [
-    ':icu4j',
-  ],
+  id = 'com.google.template:soy:e74fcfa284a1e31d42ac93e53cb84a71f638c70b',
+  sha1 = '1c75a007218f29d6124c46c8b18f4158cba4839c',
+  deps = [ ':icu4j' ],
   repository = GERRIT,
 )
 
