@@ -19,6 +19,17 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.gitiles.TestGitilesUrls.URLS;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+import com.google.common.base.Function;
+import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Maps;
+
+import org.eclipse.jgit.http.server.ServletUtils;
+import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
+
 import java.io.BufferedReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -35,17 +46,6 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-
-import org.eclipse.jgit.http.server.ServletUtils;
-import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
-
-import com.google.common.base.Function;
-import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.LinkedListMultimap;
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Maps;
 
 /** Simple fake implementation of {@link HttpServletRequest}. */
 public class FakeHttpServletRequest implements HttpServletRequest {
