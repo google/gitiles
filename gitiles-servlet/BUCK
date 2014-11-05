@@ -62,7 +62,7 @@ java_doc(
   title = 'Gitiles API Documentation',
   pkg = 'com.google.gitiles',
   paths = ['gitiles-servlet/src/main/java'],
-  srcs = glob([n + '**/*.java' for n in SRCS]),
+  srcs = SRCS,
   deps = DEPS + [
     '//lib/guice:guice_library',
     '//lib/guice:guice-assistedinject',
