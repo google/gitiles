@@ -29,6 +29,13 @@ maven_jar(
 )
 
 maven_jar(
+  name = 'jsr305',
+  id = 'com.google.code.findbugs:jsr305:3.0.0',
+  sha1 = '5871fb60dc68d67da54a663c3fd636a10a532948',
+  attach_source = False,
+)
+
+maven_jar(
   name = 'gson',
   id = 'com.google.code.gson:gson:2.1',
   sha1 = '2e66da15851f9f5b5079228f856c2f090ba98c38',

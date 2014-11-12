@@ -1,10 +1,11 @@
 SRCS = glob(['src/main/java/**/*.java'])
 RSRC = glob(['src/main/resources/**/*'])
 DEPS = [
+  '//lib:commons-lang',
+  '//lib:gson',
   '//lib:guava',
   '//lib:joda-time',
-  '//lib:gson',
-  '//lib:commons-lang',
+  '//lib:jsr305',
   '//lib:prettify',
   '//lib/jgit:jgit',
   '//lib/jgit:jgit-servlet',
@@ -67,7 +68,6 @@ java_doc(
     '//lib/guice:guice_library',
     '//lib/guice:guice-assistedinject',
     '//lib/guice:javax-inject',
-    '//lib/guice:jsr305',
     '//lib/jgit:jgit-archive_library',
     '//lib:servlet-api_2_5',
   ],
