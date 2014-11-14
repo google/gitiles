@@ -296,7 +296,7 @@ class GitilesFilter extends MetaFilter {
   private synchronized Linkifier linkifier() {
     if (linkifier == null) {
       checkState(urls != null, "GitilesUrls not yet set");
-      linkifier = new Linkifier(urls);
+      linkifier = new Linkifier(urls, config);
     }
     return linkifier;
   }
