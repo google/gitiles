@@ -31,11 +31,11 @@ java_test(
   name = 'servlet_tests',
   srcs = glob(['src/test/java/**/*.java']),
   deps = DEPS_ALL + [
-    '//lib/jgit:junit',
-    '//lib:junit',
+    ':servlet',
     # Gitiles is designed to compile against the Servlet API v2.5.
     '//lib:servlet-api_2_5',
-    ':servlet',
+    '//lib/jgit:junit',
+    '//lib/junit:junit',
   ],
   visibility = ['//:classpath'],
 )

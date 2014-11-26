@@ -1,21 +1,19 @@
 maven_jar(
+  name = 'commons-lang',
+  id = 'org.apache.commons:commons-lang3:3.1',
+  sha1 = '905075e6c80f206bbe6cf1e809d2caa69f420c76',
+)
+
+maven_jar(
+  name = 'gson',
+  id = 'com.google.code.gson:gson:2.1',
+  sha1 = '2e66da15851f9f5b5079228f856c2f090ba98c38',
+)
+
+maven_jar(
   name = 'guava',
   id = 'com.google.guava:guava:18.0',
   sha1 = 'cce0823396aa693798f8882e64213b1772032b09',
-)
-
-maven_jar(
-  name = 'servlet-api_2_5',
-  id = 'org.eclipse.jetty.orbit:javax.servlet:2.5.0.v201103041518',
-  sha1 = '9c16011c06bc6fe5e9dba080fcb40ddb4b75dc85',
-  unsign = True,
-)
-
-maven_jar(
-  name = 'servlet-api_3_0',
-  id = 'org.eclipse.jetty.orbit:javax.servlet:3.0.0.v201112011016',
-  sha1 = '0aaaa85845fb5c59da00193f06b8e5278d8bf3f8',
-  unsign = True,
 )
 
 maven_jar(
@@ -36,18 +34,6 @@ maven_jar(
 )
 
 maven_jar(
-  name = 'gson',
-  id = 'com.google.code.gson:gson:2.1',
-  sha1 = '2e66da15851f9f5b5079228f856c2f090ba98c38',
-)
-
-maven_jar(
-  name = 'commons-lang',
-  id = 'org.apache.commons:commons-lang3:3.1',
-  sha1 = '905075e6c80f206bbe6cf1e809d2caa69f420c76',
-)
-
-maven_jar(
   name = 'prettify',
   id = 'prettify:java-prettify:1.2.1',
   sha1 = '29ad8d072f9d0b83d1a2e9aa6ccb0905e6d543c6',
@@ -55,15 +41,15 @@ maven_jar(
 )
 
 maven_jar(
-  name = 'junit',
-  id = 'junit:junit:4.11',
-  sha1 = '4e031bb61df09069aeb2bffb4019e7a5034a4ee0',
-  deps = [':hamcrest-core'],
+  name = 'servlet-api_2_5',
+  id = 'org.eclipse.jetty.orbit:javax.servlet:2.5.0.v201103041518',
+  sha1 = '9c16011c06bc6fe5e9dba080fcb40ddb4b75dc85',
+  unsign = True,
 )
 
 maven_jar(
-  name = 'hamcrest-core',
-  id = 'org.hamcrest:hamcrest-core:1.3',
-  sha1 = '42a25dc3219429f0e5d060061f71acb49bf010a0',
-  visibility = ['//lib:junit'],
+  name = 'servlet-api_3_0',
+  id = 'org.eclipse.jetty.orbit:javax.servlet:3.0.0.v201112011016',
+  sha1 = '0aaaa85845fb5c59da00193f06b8e5278d8bf3f8',
+  unsign = True,
 )
