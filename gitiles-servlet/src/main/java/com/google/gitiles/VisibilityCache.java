@@ -218,9 +218,7 @@ public class VisibilityCache {
     }
     try {
       walk.markUninteresting(walk.parseCommit(id));
-    } catch (IncorrectObjectTypeException e) {
-      // Do nothing, doesn't affect reachability.
-    } catch (MissingObjectException e) {
+    } catch (IncorrectObjectTypeException | MissingObjectException e) {
       // Do nothing, doesn't affect reachability.
     }
   }

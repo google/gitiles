@@ -175,10 +175,6 @@ class Paginator implements Iterable<RevCommit> {
   private RevCommit nextUnchecked() {
     try {
       return next();
-    } catch (MissingObjectException e) {
-      throw new RevWalkException(e);
-    } catch (IncorrectObjectTypeException e) {
-      throw new RevWalkException(e);
     } catch (IOException e) {
       throw new RevWalkException(e);
     }

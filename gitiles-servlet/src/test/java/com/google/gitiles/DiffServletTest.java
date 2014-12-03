@@ -69,7 +69,7 @@ public class DiffServletTest {
         c1.name(), c2.name());
     String actual = res.getActualBodyString();
     assertTrue(String.format("Expected diff body to contain [%s]:\n%s", diffHeader, actual),
-        actual.indexOf(diffHeader) >= 0);
+        actual.contains(diffHeader));
   }
 
   @Test

@@ -35,7 +35,6 @@ import org.eclipse.jgit.util.IO;
 import java.io.File;
 import java.io.IOException;
 import java.text.Collator;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -228,7 +227,7 @@ public class DefaultAccess implements GitilesAccess {
     if (baseFiles == null) {
       throw new IOException("base path is not a directory: " + basePath.getPath());
     }
-    todo.addAll(Arrays.asList(baseFiles));
+    Collections.addAll(todo, baseFiles);
     while (!todo.isEmpty()) {
       File file = todo.remove();
       try {
@@ -236,7 +235,7 @@ public class DefaultAccess implements GitilesAccess {
       } catch (RepositoryNotFoundException e) {
         File[] children = file.listFiles();
         if (children != null) {
-          todo.addAll(Arrays.asList(children));
+          Collections.addAll(todo, children);
         }
       } catch (ServiceNotEnabledException e) {
         throw new IOException(e);

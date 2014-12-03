@@ -36,6 +36,7 @@ import org.eclipse.jgit.revwalk.RevObject;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -272,9 +273,7 @@ public class GitilesView {
 
     public Builder putAllParams(Map<String, String[]> params) {
       for (Map.Entry<String, String[]> e : params.entrySet()) {
-        for (String v : e.getValue()) {
-          this.params.put(e.getKey(), v);
-        }
+        this.params.putAll(e.getKey(), Arrays.asList(e.getValue()));
       }
       return this;
     }
@@ -622,7 +621,7 @@ public class GitilesView {
     if (!Strings.isNullOrEmpty(anchor)) {
       url.append('#').append(NAME_ESCAPER.apply(anchor));
     }
-    return baseUrl + url.toString();
+    return baseUrl + url;
   }
 
   /**
@@ -685,7 +684,7 @@ public class GitilesView {
         breadcrumbs.add(breadcrumb(".", copyWithPath(false).setPathPart("")));
       }
       StringBuilder cur = new StringBuilder();
-      List<String> parts = ImmutableList.copyOf(Paths.SPLITTER.omitEmptyStrings().split(path));
+      List<String> parts = Paths.SPLITTER.omitEmptyStrings().splitToList(path);
       checkArgument(hasSingleTree == null
           || (parts.isEmpty() && hasSingleTree.isEmpty())
           || hasSingleTree.size() == parts.size() - 1,

@@ -23,7 +23,6 @@ import static javax.servlet.http.HttpServletResponse.SC_MOVED_PERMANENTLY;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
@@ -195,7 +194,7 @@ public class GitwebRedirectFilter extends AbstractHttpFilter {
         throw new TooManyUriParametersException();
       }
 
-      List<String> pair = ImmutableList.copyOf(VAR_SPLIT.split(piece));
+      List<String> pair = VAR_SPLIT.splitToList(piece);
       if (pair.size() == 2) {
         map.put(decode(pair.get(0)), decode(pair.get(1)));
       } else { // no equals sign

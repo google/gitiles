@@ -47,7 +47,7 @@ public class Revision {
 
   public static Revision normalizeParentExpressions(Revision rev) {
     if (rev == null
-        || (rev.name.indexOf("~") < 0 && rev.name.indexOf("^") < 0)) {
+        || (rev.name.indexOf('~') < 0 && rev.name.indexOf('^') < 0)) {
       return rev;
     }
     return new Revision(rev.id.name(), rev.id, rev.type, rev.peeledId, rev.peeledType);
@@ -125,9 +125,9 @@ public class Revision {
       Revision r = (Revision) o;
       return Objects.equals(name, r.name)
           && Objects.equals(id, r.id)
-          && Objects.equals(type, r.type)
+          && type == r.type
           && Objects.equals(peeledId, r.peeledId)
-          && Objects.equals(peeledType, r.peeledType);
+          && peeledType == r.peeledType;
     }
     return false;
   }
@@ -151,7 +151,6 @@ public class Revision {
 
   private boolean nameEqualsAbbreviated(ObjectId other) {
     return AbbreviatedObjectId.isId(name)
-        ? AbbreviatedObjectId.fromString(name).prefixCompare(other) == 0
-        : false;
+        && AbbreviatedObjectId.fromString(name).prefixCompare(other) == 0;
   }
 }

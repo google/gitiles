@@ -174,7 +174,7 @@ public class DiffServlet extends BaseServlet {
   private static void formatDiff(Repository repo, AbstractTreeIterator oldTree,
       AbstractTreeIterator newTree, String path, DiffFormatter diff) throws IOException {
     try {
-      if (!path.equals("")) {
+      if (!path.isEmpty()) {
         diff.setPathFilter(PathFilter.create(path));
       }
       diff.setRepository(repo);

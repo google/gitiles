@@ -50,7 +50,7 @@ public class DescribeServlet extends BaseServlet {
   private static boolean getBooleanParam(GitilesView view, String name) {
     List<String> values = view.getParameters().get(name);
     return !values.isEmpty()
-        && (values.get(0).equals("") || values.get(0).equals("1"));
+        && (values.get(0).isEmpty() || values.get(0).equals("1"));
   }
 
   protected DescribeServlet(GitilesAccess.Factory accessFactory) {

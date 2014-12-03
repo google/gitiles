@@ -169,7 +169,7 @@ public class FakeHttpServletResponse implements HttpServletResponse {
 
   @Override
   public boolean containsHeader(String name) {
-    return !headers.get(name).isEmpty();
+    return headers.containsKey(name);
   }
 
   @Override

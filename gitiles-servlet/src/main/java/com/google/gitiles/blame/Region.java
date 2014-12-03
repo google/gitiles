@@ -79,7 +79,7 @@ public class Region implements Serializable, Comparable<Region> {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     if (sourceCommit != null) {
-      sb.append(sourceCommit.name().substring(0, 7))
+      sb.append(sourceCommit.name(), 0, 7)
           .append(' ')
           .append(sourceAuthor.toExternalString())
           .append(" (").append(sourcePath).append(')');

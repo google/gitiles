@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -156,11 +156,11 @@ public class HostIndexServlet extends BaseServlet {
     Set<String> branches = Sets.newLinkedHashSet();
     String[] values = req.getParameterValues("show-branch");
     if (values != null) {
-      branches.addAll(Arrays.asList(values));
+      Collections.addAll(branches, values);
     }
     values = req.getParameterValues("b");
     if (values != null) {
-      branches.addAll(Arrays.asList(values));
+      Collections.addAll(branches, values);
     }
     return branches;
   }

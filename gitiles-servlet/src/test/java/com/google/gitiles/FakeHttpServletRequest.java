@@ -21,7 +21,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.base.Function;
 import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
@@ -174,7 +173,7 @@ public class FakeHttpServletRequest implements HttpServletRequest {
   public void setQueryString(String qs) {
     ListMultimap<String, String> params = LinkedListMultimap.create();
     for (String entry : Splitter.on('&').split(qs)) {
-      List<String> kv = ImmutableList.copyOf(Splitter.on('=').limit(2).split(entry));
+      List<String> kv = Splitter.on('=').limit(2).splitToList(entry);
       try {
         params.put(URLDecoder.decode(kv.get(0), UTF_8.name()),
             kv.size() == 2 ? URLDecoder.decode(kv.get(1), UTF_8.name()) : "");

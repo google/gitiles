@@ -123,14 +123,14 @@ public class RevisionParserTest {
     // Matches exactly.
     assertEquals(new Result(Revision.peeled(commit.name(), commit)), parser.parse(commit.name()));
     // refs/changes/* is excluded from ancestry search.
-    assertEquals(null, parser.parse(parent.name()));
+    assertNull(parser.parse(parent.name()));
   }
 
   @Test
   public void parseNonVisibleCommitSha() throws Exception {
     RevCommit other = repo.commit().create();
     repo.branch("master").commit().create();
-    assertEquals(null, parser.parse(other.name()));
+    assertNull(parser.parse(other.name()));
 
     repo.branch("other").update(other);
     assertEquals(new Result(Revision.peeled(other.name(), other)), parser.parse(other.name()));
@@ -232,8 +232,8 @@ public class RevisionParserTest {
   public void nonVisibleDiffShas() throws Exception {
     RevCommit other = repo.commit().create();
     RevCommit master = repo.branch("master").commit().create();
-    assertEquals(null, parser.parse("other..master"));
-    assertEquals(null, parser.parse("master..other"));
+    assertNull(parser.parse("other..master"));
+    assertNull(parser.parse("master..other"));
 
     repo.branch("other").update(other);
     assertEquals(
@@ -277,17 +277,17 @@ public class RevisionParserTest {
     RevCommit master = repo.branch("master").commit().add("blob", blob).create();
 
     assertEquals(master, repo.getRepository().resolve("master^{}"));
-    assertEquals(null, parser.parse("master^{}"));
+    assertNull(parser.parse("master^{}"));
 
     assertEquals(master, repo.getRepository().resolve("master^{commit}"));
-    assertEquals(null, parser.parse("master^{commit}"));
+    assertNull(parser.parse("master^{commit}"));
 
     assertEquals(blob, repo.getRepository().resolve("master:blob"));
-    assertEquals(null, parser.parse("master:blob"));
+    assertNull(parser.parse("master:blob"));
 
     // TestRepository has no simple way of setting the reflog.
     //assertEquals(null, repo.getRepository().resolve("master@{0}"));
-    assertEquals(null, parser.parse("master@{0}"));
+    assertNull(parser.parse("master@{0}"));
   }
 
   @Test
