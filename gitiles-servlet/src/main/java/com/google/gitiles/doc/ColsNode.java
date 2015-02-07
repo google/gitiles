@@ -14,8 +14,23 @@
 
 package com.google.gitiles.doc;
 
-public interface Visitor extends org.pegdown.ast.Visitor {
-  void visit(ColsNode node);
-  void visit(DivNode node);
-  void visit(TocNode node);
+import org.pegdown.ast.Node;
+import org.pegdown.ast.SuperNode;
+
+import java.util.List;
+
+/**
+ * Multi-column layout delineated by {@code |||---|||}.
+ * <p>
+ * Each header within the layout creates a new column in the HTML.
+ */
+public class ColsNode extends SuperNode {
+  ColsNode(List<Node> children) {
+    super(children);
+  }
+
+  @Override
+  public void accept(org.pegdown.ast.Visitor visitor) {
+    ((Visitor) visitor).visit(this);
+  }
 }

@@ -45,7 +45,7 @@ body {
 .nav li a:hover {
   color: #0000f9;
 }
-.nav ul:after {
+.nav ul:after, .cols:after {
   clear: both;
   content: "";
   display: block;
@@ -184,13 +184,26 @@ th {
   background: #f9f9f9;
   border-color: #f2f2f2;
 }
-.note p:first-child,
-.promo p:first-child,
-.aside p:first-child {
+.note :first-child,
+.promo :first-child,
+.aside :first-child {
   margin-top: 0;
 }
 .note p:last-child,
 .promo p:last-child,
 .aside p:last-child {
   margin-bottom: 0;
+}
+
+.cols {
+  margin: 0 -1.533%;
+  width: 103.067%;
+}
+.col-3 {
+  float: left;
+  margin: 0 1.488% 20px;
+}
+.col-3 { width: 22.023%; }
+.cols hr {
+  width: 80%;
 }

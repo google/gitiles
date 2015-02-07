@@ -30,12 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-/**
- * Additional markdown extensions known to Gitiles.
- * <p>
- * {@code [TOC]} as a stand-alone block will insert a table of contents
- * for the current document.
- */
+/** Parses Gitiles extensions to markdown. */
 class GitilesMarkdown extends Parser implements BlockPluginParser {
   private static final Logger log = LoggerFactory.getLogger(MarkdownHelper.class);
 
@@ -78,7 +73,8 @@ class GitilesMarkdown extends Parser implements BlockPluginParser {
 
   @Override
   public Rule[] blockPluginRules() {
-    return new Rule[]{
+    return new Rule[] {
+        cols(),
         note(),
         toc(),
     };
@@ -106,6 +102,21 @@ class GitilesMarkdown extends Parser implements BlockPluginParser {
         sequence(string("note"), push(match())),
         sequence(string("promo"), push(match())),
         sequence(string("aside"), push(match())));
+  }
+
+  public Rule cols() {
+    StringBuilderVar body = new StringBuilderVar();
+    return NodeSequence(
+        colsTag(), Newline(),
+        oneOrMore(
+            testNot(colsTag(), Newline()),
+            Line(body)),
+        colsTag(), Newline(),
+        push(new ColsNode(parse(body))));
+  }
+
+  public Rule colsTag() {
+    return string("|||---|||");
   }
 
   public List<Node> parse(StringBuilderVar body) {
