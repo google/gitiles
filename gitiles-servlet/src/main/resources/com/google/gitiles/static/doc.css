@@ -165,3 +165,32 @@ th, td {
 th {
   background-color: #f5f5f5;
 }
+
+.note, .promo, .aside {
+  border: 1px solid;
+  border-radius: 4px;
+  margin: 10px 0;
+  padding: 10px;
+}
+.note {
+  background: #fffbe4;
+  border-color: #f8f6e6;
+}
+.promo {
+  background: #f6f9ff;
+  border-color: #eff2f9;
+}
+.aside {
+  background: #f9f9f9;
+  border-color: #f2f2f2;
+}
+.note p:first-child,
+.promo p:first-child,
+.aside p:first-child {
+  margin-top: 0;
+}
+.note p:last-child,
+.promo p:last-child,
+.aside p:last-child {
+  margin-bottom: 0;
+}

@@ -100,6 +100,13 @@ public class MarkdownToHtml implements Visitor {
   }
 
   @Override
+  public void visit(DivNode node) {
+    html.open("div").attribute("class", node.getStyleName());
+    visitChildren(node);
+    html.close("div");
+  }
+
+  @Override
   public void visit(HeaderNode node) {
     String tag = "h" + node.getLevel();
     html.open(tag);
