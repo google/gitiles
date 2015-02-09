@@ -17,7 +17,9 @@ package com.google.gitiles.doc;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.gitiles.doc.MarkdownUtil.getInnerText;
 
+import com.google.common.base.Strings;
 import com.google.gitiles.GitilesView;
+import com.google.gitiles.ThreadSafePrettifyParser;
 import com.google.gitiles.doc.html.HtmlBuilder;
 import com.google.template.soy.data.SanitizedContent;
 import com.google.template.soy.shared.restricted.EscapingConventions.FilterImageDataUri;
@@ -62,6 +64,11 @@ import org.pegdown.ast.TableRowNode;
 import org.pegdown.ast.TextNode;
 import org.pegdown.ast.VerbatimNode;
 import org.pegdown.ast.WikiLinkNode;
+
+import java.util.List;
+
+import prettify.parser.Prettify;
+import syntaxhighlight.ParseResult;
 
 /**
  * Formats parsed markdown AST into HTML.
@@ -235,14 +242,57 @@ public class MarkdownToHtml implements Visitor {
 
   @Override
   public void visit(VerbatimNode node) {
-    html.open("pre").attribute("class", "code");
+    String lang = node.getType();
     String text = node.getText();
-    while (text.startsWith("\n")) {
-      html.open("br");
-      text = text.substring(1);
+
+    html.open("pre").attribute("class", "code");
+    text = printLeadingBlankLines(text);
+    List<ParseResult> parsed = parse(lang, text);
+    if (parsed != null) {
+      int last = 0;
+      for (ParseResult r : parsed) {
+        span(null, text, last, r.getOffset());
+        last = r.getOffset() + r.getLength();
+        span(r.getStyleKeysString(), text, r.getOffset(), last);
+      }
+      if (last < text.length()) {
+        span(null, text, last, text.length());
+      }
+    } else {
+      html.appendAndEscape(text);
     }
-    html.appendAndEscape(text);
     html.close("pre");
+  }
+
+  private String printLeadingBlankLines(String text) {
+    int i = 0;
+    while (i < text.length() && text.charAt(i) == '\n') {
+      html.open("br");
+      i++;
+    }
+    return text.substring(i);
+  }
+
+  private void span(String classes, String s, int start, int end) {
+    if (end - start > 0) {
+      if (Strings.isNullOrEmpty(classes)) {
+        classes = Prettify.PR_PLAIN;
+      }
+      html.open("span").attribute("class", classes);
+      html.appendAndEscape(s.substring(start, end));
+      html.close("span");
+    }
+  }
+
+  private List<ParseResult> parse(String lang, String text) {
+    if (Strings.isNullOrEmpty(lang)) {
+      return null;
+    }
+    try {
+      return ThreadSafePrettifyParser.INSTANCE.parse(lang, text);
+    } catch (StackOverflowError e) {
+      return null;
+    }
   }
 
   @Override
