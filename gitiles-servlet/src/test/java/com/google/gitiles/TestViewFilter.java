@@ -37,8 +37,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /** Run {@link ViewFilter} in a test environment. */
-class TestViewFilter {
-  static class Result {
+public class TestViewFilter {
+  public static class Result {
     private final GitilesView view;
     private final FakeHttpServletRequest req;
     private final FakeHttpServletResponse res;
@@ -49,20 +49,20 @@ class TestViewFilter {
       this.res = res;
     }
 
-    GitilesView getView() {
+    public GitilesView getView() {
       return view;
     }
 
-    FakeHttpServletRequest getRequest() {
+    public FakeHttpServletRequest getRequest() {
       return req;
     }
 
-    FakeHttpServletResponse getResponse() {
+    public FakeHttpServletResponse getResponse() {
       return res;
     }
   }
 
-  static Result service(TestRepository<? extends DfsRepository> repo, String pathAndQuery)
+  public static Result service(TestRepository<? extends DfsRepository> repo, String pathAndQuery)
       throws IOException, ServletException {
     TestServlet servlet = new TestServlet();
     ViewFilter vf = new ViewFilter(
