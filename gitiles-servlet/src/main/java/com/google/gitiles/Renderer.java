@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
+import com.google.common.net.HttpHeaders;
 import com.google.template.soy.tofu.SoyTofu;
 
 import java.io.File;
@@ -34,6 +35,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
@@ -104,11 +106,15 @@ public abstract class Renderer {
     this.globals = ImmutableMap.copyOf(allGlobals);
   }
 
-  void render(HttpServletResponse res, String templateName, Map<String, ?> soyData)
-      throws IOException {
+  void render(HttpServletRequest req, HttpServletResponse res,
+      String templateName, Map<String, ?> soyData) throws IOException {
     res.setContentType("text/html");
     res.setCharacterEncoding("UTF-8");
     byte[] data = newRenderer(templateName).setData(soyData).render().getBytes(UTF_8);
+    if (BaseServlet.acceptsGzipEncoding(req)) {
+      res.setHeader(HttpHeaders.CONTENT_ENCODING, "gzip");
+      data = BaseServlet.gzip(data);
+    }
     res.setContentLength(data.length);
     res.getOutputStream().write(data);
   }

@@ -23,6 +23,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
+import static org.eclipse.jgit.util.HttpSupport.ENCODING_GZIP;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
@@ -33,12 +34,14 @@ import com.google.gson.GsonBuilder;
 
 import org.joda.time.Instant;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.reflect.Type;
 import java.util.Map;
+import java.util.zip.GZIPOutputStream;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -197,7 +200,8 @@ public abstract class BaseServlet extends HttpServlet {
    */
   protected void renderHtml(HttpServletRequest req, HttpServletResponse res, String templateName,
       Map<String, ?> soyData) throws IOException {
-    renderer.render(res, templateName, startHtmlResponse(req, res, soyData));
+    renderer.render(req, res, templateName,
+        startHtmlResponse(req, res, soyData));
   }
 
   /**
@@ -259,11 +263,10 @@ public abstract class BaseServlet extends HttpServlet {
       Type typeOfSrc) throws IOException {
     setApiHeaders(res, JSON);
     res.setStatus(SC_OK);
-
-    Writer writer = newWriter(res);
-    newGsonBuilder(req).create().toJson(src, typeOfSrc, writer);
-    writer.write('\n');
-    writer.close();
+    try (Writer writer = newWriter(req, res)) {
+      newGsonBuilder(req).create().toJson(src, typeOfSrc, writer);
+      writer.write('\n');
+    }
   }
 
   @SuppressWarnings("unused") // Used in subclasses.
@@ -284,7 +287,7 @@ public abstract class BaseServlet extends HttpServlet {
   protected Writer startRenderText(HttpServletRequest req, HttpServletResponse res,
       String contentType) throws IOException {
     setApiHeaders(res, contentType);
-    return newWriter(res);
+    return newWriter(req, res);
   }
 
   /**
@@ -322,9 +325,9 @@ public abstract class BaseServlet extends HttpServlet {
     res.setStatus(statusCode);
     setApiHeaders(res, TEXT);
     setCacheHeaders(res);
-    Writer out = newWriter(res);
-    out.write(message);
-    out.close();
+    try (Writer out = newWriter(req, res)) {
+      out.write(message);
+    }
   }
 
   protected GitilesAccess getAccess(HttpServletRequest req) {
@@ -364,7 +367,40 @@ public abstract class BaseServlet extends HttpServlet {
     return new OutputStreamWriter(os, res.getCharacterEncoding());
   }
 
-  private Writer newWriter(HttpServletResponse res) throws IOException {
-    return newWriter(res.getOutputStream(), res);
+  private Writer newWriter(HttpServletRequest req, HttpServletResponse res)
+      throws IOException {
+    OutputStream out;
+    if (acceptsGzipEncoding(req)) {
+      res.setHeader(HttpHeaders.CONTENT_ENCODING, "gzip");
+      out = new GZIPOutputStream(res.getOutputStream());
+    } else {
+      out = res.getOutputStream();
+    }
+    return newWriter(out, res);
+  }
+
+  protected static boolean acceptsGzipEncoding(HttpServletRequest req) {
+    String accepts = req.getHeader(HttpHeaders.ACCEPT_ENCODING);
+    if (accepts == null) {
+      return false;
+    }
+    for (int b = 0; b < accepts.length();) {
+      int comma = accepts.indexOf(',', b);
+      int e = 0 <= comma ? comma : accepts.length();
+      String term = accepts.substring(b, e).trim();
+      if (term.equals(ENCODING_GZIP)) {
+        return true;
+      }
+      b = e + 1;
+    }
+    return false;
+  }
+
+  protected static byte[] gzip(byte[] raw) throws IOException {
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    try (GZIPOutputStream gz = new GZIPOutputStream(out)) {
+      gz.write(raw);
+    }
+    return out.toByteArray();
   }
 }
