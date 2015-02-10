@@ -18,6 +18,7 @@ import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.hash.HashCode;
 import com.google.template.soy.SoyFileSet;
 import com.google.template.soy.tofu.SoyTofu;
 
@@ -37,10 +38,15 @@ public class DebugRenderer extends Renderer {
   }
 
   @Override
+  public HashCode getTemplateHash(String soyFile) {
+    return computeTemplateHash(soyFile);
+  }
+
+  @Override
   protected SoyTofu getTofu() {
     SoyFileSet.Builder builder = SoyFileSet.builder()
         .setCompileTimeGlobals(globals);
-    for (URL template : templates) {
+    for (URL template : templates.values()) {
       try {
         checkState(new File(template.toURI()).exists(), "Missing Soy template %s", template);
       } catch (URISyntaxException e) {

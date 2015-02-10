@@ -48,7 +48,7 @@ public class DefaultRenderer extends Renderer {
         globals, staticPrefix, customTemplates, siteTitle);
     SoyFileSet.Builder builder = SoyFileSet.builder()
         .setCompileTimeGlobals(this.globals);
-    for (URL template : templates) {
+    for (URL template : templates.values()) {
       builder.add(template);
     }
     tofu = builder.build().compileToTofu();

@@ -16,24 +16,31 @@ package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.base.Function;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
+import com.google.common.collect.MapMaker;
 import com.google.common.collect.Maps;
+import com.google.common.hash.Funnels;
+import com.google.common.hash.HashCode;
+import com.google.common.hash.Hasher;
+import com.google.common.hash.Hashing;
+import com.google.common.io.ByteStreams;
 import com.google.common.net.HttpHeaders;
 import com.google.template.soy.tofu.SoyTofu;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -88,14 +95,25 @@ public abstract class Renderer {
     }
   }
 
-  protected ImmutableList<URL> templates;
+  protected ImmutableMap<String, URL> templates;
   protected ImmutableMap<String, String> globals;
+  private final ConcurrentMap<String, HashCode> hashes = new MapMaker()
+      .initialCapacity(SOY_FILENAMES.size())
+      .concurrencyLevel(1)
+      .makeMap();
 
   protected Renderer(Function<String, URL> resourceMapper, Map<String, String> globals,
       String staticPrefix, Iterable<URL> customTemplates, String siteTitle) {
     checkNotNull(staticPrefix, "staticPrefix");
-    Iterable<URL> allTemplates = FluentIterable.from(SOY_FILENAMES).transform(resourceMapper);
-    templates = ImmutableList.copyOf(Iterables.concat(allTemplates, customTemplates));
+
+    ImmutableMap.Builder<String, URL> b = ImmutableMap.builder();
+    for (String name : SOY_FILENAMES) {
+      b.put(name, resourceMapper.apply(name));
+    }
+    for (URL u : customTemplates) {
+      b.put(u.toString(), u);
+    }
+    templates = b.build();
 
     Map<String, String> allGlobals = Maps.newHashMap();
     for (Map.Entry<String, String> e : STATIC_URL_GLOBALS.entrySet()) {
@@ -104,6 +122,29 @@ public abstract class Renderer {
     allGlobals.put("gitiles.SITE_TITLE", siteTitle);
     allGlobals.putAll(globals);
     this.globals = ImmutableMap.copyOf(allGlobals);
+  }
+
+  public HashCode getTemplateHash(String soyFile) {
+    HashCode h = hashes.get(soyFile);
+    if (h == null) {
+      h = computeTemplateHash(soyFile);
+      hashes.put(soyFile, h);
+    }
+    return h;
+  }
+
+  HashCode computeTemplateHash(String soyFile) {
+    URL u = templates.get(soyFile);
+    checkState(u != null, "Missing Soy template %s", soyFile);
+
+    Hasher h = Hashing.sha1().newHasher();
+    try (InputStream is = u.openStream();
+        OutputStream os = Funnels.asOutputStream(h)) {
+      ByteStreams.copy(is, os);
+    } catch (IOException e) {
+      throw new IllegalStateException("Missing Soy template " + soyFile, e);
+    }
+    return h.hash();
   }
 
   void render(HttpServletRequest req, HttpServletResponse res,
