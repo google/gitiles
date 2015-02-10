@@ -65,7 +65,8 @@ public class GitilesView {
     LOG,
     DESCRIBE,
     ARCHIVE,
-    BLAME;
+    BLAME,
+    DOC;
   }
 
   /** Exception thrown when building a view that is invalid. */
@@ -104,6 +105,7 @@ public class GitilesView {
           oldRevision = other.oldRevision;
           // Fallthrough.
         case PATH:
+        case DOC:
         case ARCHIVE:
         case BLAME:
           path = other.path;
@@ -232,6 +234,7 @@ public class GitilesView {
         case DESCRIBE:
         case REFS:
         case LOG:
+        case DOC:
           break;
         default:
           checkState(path == null, "cannot set path on %s view", type);
@@ -323,6 +326,9 @@ public class GitilesView {
         case BLAME:
           checkBlame();
           break;
+        case DOC:
+          checkDoc();
+          break;
       }
       return new GitilesView(type, hostName, servletPath, repositoryName, revision,
           oldRevision, path, extension, params, anchor);
@@ -381,6 +387,10 @@ public class GitilesView {
     private void checkBlame() {
       checkPath();
     }
+
+    private void checkDoc() {
+      checkRevision();
+    }
   }
 
   public static Builder hostIndex() {
@@ -421,6 +431,10 @@ public class GitilesView {
 
   public static Builder blame() {
     return new Builder(Type.BLAME);
+  }
+
+  public static Builder doc() {
+    return new Builder(Type.DOC);
   }
 
   static String maybeTrimLeadingAndTrailingSlash(String str) {
@@ -609,6 +623,12 @@ public class GitilesView {
       case BLAME:
         url.append(repositoryName).append("/+blame/").append(revision.getName()).append('/')
             .append(path);
+        break;
+      case DOC:
+        url.append(repositoryName).append("/+doc/").append(revision.getName());
+        if (path != null) {
+          url.append('/').append(path);
+        }
         break;
       default:
         throw new IllegalStateException("Unknown view type: " + type);

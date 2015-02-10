@@ -256,6 +256,35 @@ public class ViewFilterTest {
   }
 
   @Test
+  public void doc() throws Exception {
+    RevCommit master = repo.branch("refs/heads/master").commit().create();
+    repo.branch("refs/heads/stable").commit().create();
+    GitilesView view;
+
+    view = getView("/repo/+doc/master/");
+    assertEquals(Type.DOC, view.getType());
+    assertEquals(master, view.getRevision().getId());
+    assertEquals("", view.getPathPart());
+
+    view = getView("/repo/+doc/master/index.md");
+    assertEquals(Type.DOC, view.getType());
+    assertEquals(master, view.getRevision().getId());
+    assertEquals("index.md", view.getPathPart());
+
+    view = getView("/repo/+doc/master/foo/");
+    assertEquals(Type.DOC, view.getType());
+    assertEquals(master, view.getRevision().getId());
+    assertEquals("foo", view.getPathPart());
+
+    view = getView("/repo/+doc/master/foo/bar.md");
+    assertEquals(Type.DOC, view.getType());
+    assertEquals(master, view.getRevision().getId());
+    assertEquals("foo/bar.md", view.getPathPart());
+
+    assertNull(getView("/repo/+doc/stable..master/foo"));
+  }
+
+  @Test
   public void multipleSlashes() throws Exception {
     repo.branch("refs/heads/master").commit().create();
     assertEquals(Type.HOST_INDEX, getView("//").getType());

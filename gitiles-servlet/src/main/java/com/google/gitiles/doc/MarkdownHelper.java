@@ -16,6 +16,7 @@ package com.google.gitiles.doc;
 
 import com.google.common.base.Strings;
 
+import org.pegdown.ast.HeaderNode;
 import org.pegdown.ast.Node;
 import org.pegdown.ast.TextNode;
 
@@ -46,6 +47,23 @@ public class MarkdownHelper {
         appendTextFromChildren(b, child);
       }
     }
+  }
+
+  static String getTitle(Node node) {
+    if (node instanceof HeaderNode) {
+      if (((HeaderNode) node).getLevel() == 1) {
+        return getInnerText(node);
+      }
+      return null;
+    }
+
+    for (Node child : node.getChildren()) {
+      String title = getTitle(child);
+      if (title != null) {
+        return title;
+      }
+    }
+    return null;
   }
 
   private MarkdownHelper() {

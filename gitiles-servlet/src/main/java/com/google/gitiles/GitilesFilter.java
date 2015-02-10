@@ -30,6 +30,7 @@ import com.google.gitiles.Renderer.FileUrlMapper;
 import com.google.gitiles.blame.BlameCache;
 import com.google.gitiles.blame.BlameCacheImpl;
 import com.google.gitiles.blame.BlameServlet;
+import com.google.gitiles.doc.DocServlet;
 
 import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
@@ -255,6 +256,8 @@ class GitilesFilter extends MetaFilter {
         return new ArchiveServlet(accessFactory);
       case BLAME:
         return new BlameServlet(accessFactory, renderer, blameCache);
+      case DOC:
+        return new DocServlet(accessFactory, renderer);
       default:
         throw new IllegalArgumentException("Invalid view type: " + view);
     }

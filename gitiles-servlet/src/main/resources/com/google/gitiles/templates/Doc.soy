@@ -1,0 +1,59 @@
+// Copyright 2015 Google Inc. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+{namespace gitiles autoescape="strict"}
+
+/**
+ * Documentation page rendered from markdown.
+ *
+ * @param pageTitle h1 title from the documentation.
+ * @param sourceUrl url for source view of the page.
+ * @param logUrl url for log history of page.
+ * @param blameUrl url for blame of page source.
+ * @param? navbarHtml markdown ast node to convert.
+ * @param bodyHtml safe html to embed into the body of the page.
+ */
+{template .markdownDoc}
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <title>{$pageTitle}</title>
+  <link rel="stylesheet" type="text/css" href="{gitiles.DOC_CSS_URL}" />
+</head>
+<body>
+  {if $navbarHtml}
+    <div class="nav" role="navigation">
+    <div class="nav-aux">
+      {$navbarHtml}
+    </div>
+    </div>
+  {/if}
+  <div class="content">
+    {$bodyHtml}
+  </div>
+  <div class="footer-break"></div>
+  <div class="footer-line">
+    <div class="nav-aux">
+      <ul>
+      <li><a href="{$sourceUrl}">{msg desc="text for the source link"}source{/msg}</a></li>
+      <li><a href="{$logUrl}">{msg desc="text for the log link"}log{/msg}</a></li>
+      <li><a href="{$blameUrl}">{msg desc="text for the blame link"}blame{/msg}</a></li>
+      </ul>
+      <div class="gitiles-att">
+      Powered by <a href="https://code.google.com/p/gitiles/">Gitiles</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+{/template}

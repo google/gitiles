@@ -1,0 +1,167 @@
+/**
+ * Copyright 2015 Google Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+html {
+  font-family: arial,sans-serif;
+}
+body {
+  margin: 0;
+}
+
+
+.nav, .footer-line {
+  color: #333;
+  padding: 0 15px;
+  background: #eee;
+}
+.nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 6px 0;
+}
+.nav li {
+  float: left;
+  font-size: 14px;
+  line-height: 1.43;
+  margin: 0 20px 0 0;
+  padding: 6px 0;
+}
+.nav li a, .footer-line a {
+  color: #7a7af9;
+}
+.nav li a:hover {
+  color: #0000f9;
+}
+.nav ul:after {
+  clear: both;
+  content: "";
+  display: block;
+}
+
+.nav-aux, .content {
+  margin: auto;
+  max-width: 978px;
+}
+
+.footer-break {
+  clear: both;
+  margin: 120px 0 0 0;
+}
+.footer-line {
+  font-size: 13px;
+  line-height: 30px;
+  height: 30px;
+}
+.footer-line ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.footer-line li {
+  display: inline;
+}
+.footer-line li+li:before {
+  content: "·";
+  padding: 0 5px;
+}
+.footer-line .nav-aux {
+  position: relative;
+}
+.gitiles-att {
+  color: #A0ADCC;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+.gitiles-att a {
+  font-style: italic;
+}
+
+.toc {
+  margin-top: 30px;
+}
+.toc-aux {
+  padding: 2px;
+  background: #f9f9f9;
+  border: 1px solid #f2f2f2;
+  border-radius: 4px;
+}
+.toc h2 {
+  margin: 0 0 5px 0;
+}
+.toc ul {
+  margin: 0 0 0 30px;
+}
+.toc ul li {
+  margin-left: 0px;
+  list-style: disc;
+}
+.toc ul ul li {
+  list-style: circle;
+}
+
+.content {
+  color: #444;
+  font-size: 13px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: "open sans",arial,sans-serif;
+}
+h1, h2, h3, h4 { font-weight: bold; }
+h5, h6 { font-weight: normal; }
+h1 { font-size: 20px; }
+h2 { font-size: 16px; }
+h3 { font-size: 14px; }
+h4, h5, h6 { font-size: 13px; }
+
+a { text-decoration: none; }
+a:link { color: #245dc1; }
+a:visited { color: #7759ae; }
+a:hover { text-decoration: underline; }
+
+ul, ol {
+  margin: 10px 10px 10px 30px;
+  padding: 0;
+}
+
+pre {
+  border: 1px solid silver;
+  background: #fafafa;
+  margin: 0 2em 0 2em;
+  padding: 2px;
+}
+code, .code {
+  color: #060;
+  font: 13px/1.54 "courier new",courier,monospace;
+}
+
+dl dt {
+  margin-top: 1em;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+th, td {
+  border: 1px solid #eee;
+  padding: 4px 12px;
+  vertical-align: top;
+}
+th {
+  background-color: #f5f5f5;
+}

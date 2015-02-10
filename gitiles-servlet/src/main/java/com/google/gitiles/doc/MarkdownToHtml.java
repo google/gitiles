@@ -17,6 +17,7 @@ package com.google.gitiles.doc;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.gitiles.doc.MarkdownHelper.getInnerText;
 
+import com.google.gitiles.GitilesView;
 import com.google.gitiles.doc.html.HtmlBuilder;
 import com.google.template.soy.data.SanitizedContent;
 import com.google.template.soy.shared.restricted.EscapingConventions;
@@ -69,7 +70,12 @@ public class MarkdownToHtml implements Visitor {
   private final ReferenceMap references = new ReferenceMap();
   private final HtmlBuilder html = new HtmlBuilder();
   private final TocFormatter toc = new TocFormatter(html, 3);
+  private final GitilesView view;
   private TableState table;
+
+  public MarkdownToHtml(GitilesView view) {
+    this.view = view;
+  }
 
   /** Render the document AST to sanitized HTML. */
   public SanitizedContent toSoyHtml(RootNode node) {
@@ -180,7 +186,7 @@ public class MarkdownToHtml implements Visitor {
   @Override
   public void visit(AutoLinkNode node) {
     String url = node.getText();
-    html.open("a").attribute("href", url)
+    html.open("a").attribute("href", href(url))
         .appendAndEscape(url)
         .close("a");
   }
@@ -197,7 +203,7 @@ public class MarkdownToHtml implements Visitor {
   public void visit(WikiLinkNode node) {
     String text = node.getText();
     String path = text.replace(' ', '-') + ".md";
-    html.open("a").attribute("href", path)
+    html.open("a").attribute("href", href(path))
         .appendAndEscape(text)
         .close("a");
   }
@@ -205,7 +211,7 @@ public class MarkdownToHtml implements Visitor {
   @Override
   public void visit(ExpLinkNode node) {
     html.open("a")
-        .attribute("href", node.url)
+        .attribute("href", href(node.url))
         .attribute("title", node.title);
     visitChildren(node);
     html.close("a");
@@ -216,7 +222,7 @@ public class MarkdownToHtml implements Visitor {
     ReferenceNode ref = references.get(node.referenceKey, getInnerText(node));
     if (ref != null) {
       html.open("a")
-          .attribute("href", ref.getUrl())
+          .attribute("href", href(ref.getUrl()))
           .attribute("title", ref.getTitle());
       visitChildren(node);
       html.close("a");
@@ -224,6 +230,13 @@ public class MarkdownToHtml implements Visitor {
       // Treat a broken RefLink as plain text.
       visitChildren(node);
     }
+  }
+
+  private String href(String url) {
+    if (MarkdownHelper.isAbsolutePathToMarkdown(url)) {
+      return GitilesView.doc().copyFrom(view).setPathPart(url).build().toUrl();
+    }
+    return url;
   }
 
   @Override
