@@ -21,6 +21,36 @@ body {
   margin: 0;
 }
 
+.banner {
+  min-height: 44px;
+  margin: 0;
+  padding: 14px 15px 13px;
+  border-bottom: 1px solid #eee;
+}
+.banner h1, .banner h2 {
+  float: left;
+  font-size: 32px;
+  font-weight: 300;
+  line-height: 1.375;
+  margin: 0;
+}
+.banner img {
+  margin: -1px 10px -4px 0px;
+  vertical-align: middle;
+}
+.banner a, .banner a:hover {
+  text-decoration: none;
+}
+.banner, .banner a:link, .banner a:visited {
+  color: #777;
+}
+.banner h2:before {
+  border-right: 1px solid #eee;
+  content: "";
+  float: left;
+  height: 44px;
+  margin: 0 12px 0 14px;
+}
 
 .nav, .footer-line {
   color: #333;
@@ -45,7 +75,7 @@ body {
 .nav li a:hover {
   color: #0000f9;
 }
-.nav ul:after, .cols:after {
+.banner:after, .nav ul:after, .cols:after {
   clear: both;
   content: "";
   display: block;
@@ -136,6 +166,10 @@ a:hover { text-decoration: underline; }
 ul, ol {
   margin: 10px 10px 10px 30px;
   padding: 0;
+}
+
+img {
+  border: 0;
 }
 
 pre {

@@ -58,6 +58,11 @@ public final class HtmlBuilder {
   private static final FilterNormalizeUri URI = FilterNormalizeUri.INSTANCE;
   private static final FilterImageDataUri IMAGE_DATA = FilterImageDataUri.INSTANCE;
 
+  /** Check if URL is valid for {@code <img src="data:image/*;base64,...">}. */
+  public static boolean isImageDataUri(String url) {
+    return IMAGE_DATA.getValueFilter().matcher(url).find();
+  }
+
   private final StringBuilder htmlBuf;
   private final Appendable textBuf;
   private String tag;
@@ -118,7 +123,7 @@ public final class HtmlBuilder {
         && URI.getValueFilter().matcher(val).find()) {
       return URI.escape(val);
     }
-    if (IMAGE_DATA.getValueFilter().matcher(val).find()) {
+    if (isImageDataUri(val)) {
       return val; // pass through data:image/*;base64,...
     }
     return IMAGE_DATA.getInnocuousOutput();
