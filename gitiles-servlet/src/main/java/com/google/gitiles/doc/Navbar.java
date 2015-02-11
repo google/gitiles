@@ -43,7 +43,7 @@ class Navbar {
       if (n instanceof HeaderNode) {
         HeaderNode h = (HeaderNode) n;
         if (h.getLevel() == 1) {
-          data.put("siteTitle", MarkdownHelper.getInnerText(h));
+          data.put("siteTitle", MarkdownUtil.getInnerText(h));
           i.remove();
           break;
         }
@@ -51,7 +51,7 @@ class Navbar {
     }
 
     for (ReferenceNode r : nav.getReferences()) {
-      String key = MarkdownHelper.getInnerText(r);
+      String key = MarkdownUtil.getInnerText(r);
       String url = r.getUrl();
       if ("logo".equalsIgnoreCase(key)) {
         Object src;
@@ -62,7 +62,7 @@ class Navbar {
         }
         data.put("logoUrl", src);
       } else if ("home".equalsIgnoreCase(key)) {
-        if (MarkdownHelper.isAbsolutePathToMarkdown(url)) {
+        if (MarkdownUtil.isAbsolutePathToMarkdown(url)) {
           url = GitilesView.doc().copyFrom(view).setPathPart(url).toUrl();
         }
         data.put("homeUrl", url);

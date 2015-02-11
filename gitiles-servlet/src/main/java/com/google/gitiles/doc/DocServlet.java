@@ -168,7 +168,7 @@ public class DocServlet extends BaseServlet {
     Map<String, Object> data = new HashMap<>();
     data.putAll(Navbar.bannerSoyData(view, nav));
     data.put("pageTitle", MoreObjects.firstNonNull(
-        MarkdownHelper.getTitle(doc),
+        MarkdownUtil.getTitle(doc),
         view.getPathPart()));
     data.put("sourceUrl", GitilesView.path().copyFrom(view).toUrl());
     data.put("logUrl", GitilesView.log().copyFrom(view).toUrl());

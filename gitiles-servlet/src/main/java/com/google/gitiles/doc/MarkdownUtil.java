@@ -20,16 +20,16 @@ import org.pegdown.ast.HeaderNode;
 import org.pegdown.ast.Node;
 import org.pegdown.ast.TextNode;
 
-public class MarkdownHelper {
+class MarkdownUtil {
   /** Check if anchor URL is like {@code /top.md}. */
-  public static boolean isAbsolutePathToMarkdown(String url) {
+  static boolean isAbsolutePathToMarkdown(String url) {
     return url.length() >= 5
         && url.charAt(0) == '/' && url.charAt(1) != '/'
         && url.endsWith(".md");
   }
 
   /** Combine child nodes as string; this must be escaped for HTML. */
-  public static String getInnerText(Node node) {
+  static String getInnerText(Node node) {
     if (node == null || node.getChildren().isEmpty()) {
       return null;
     }
@@ -66,6 +66,6 @@ public class MarkdownHelper {
     return null;
   }
 
-  private MarkdownHelper() {
+  private MarkdownUtil() {
   }
 }

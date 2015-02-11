@@ -53,7 +53,7 @@ class TocFormatter {
   }
 
   String idFromHeader(HeaderNode header) {
-    String t = MarkdownHelper.getInnerText(header);
+    String t = MarkdownUtil.getInnerText(header);
     return t != null ? idFromTitle(t) : null;
   }
 
@@ -93,7 +93,7 @@ class TocFormatter {
       return;
     }
 
-    String title = MarkdownHelper.getInnerText(h);
+    String title = MarkdownUtil.getInnerText(h);
     if (title == null) {
       return;
     }

@@ -14,7 +14,7 @@
 
 package com.google.gitiles.doc;
 
-import static com.google.gitiles.doc.MarkdownHelper.getInnerText;
+import static com.google.gitiles.doc.MarkdownUtil.getInnerText;
 
 import org.pegdown.ast.ReferenceNode;
 import org.pegdown.ast.RootNode;

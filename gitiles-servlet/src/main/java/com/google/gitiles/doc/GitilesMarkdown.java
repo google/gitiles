@@ -32,7 +32,7 @@ import java.util.List;
 
 /** Parses Gitiles extensions to markdown. */
 class GitilesMarkdown extends Parser implements BlockPluginParser {
-  private static final Logger log = LoggerFactory.getLogger(MarkdownHelper.class);
+  private static final Logger log = LoggerFactory.getLogger(MarkdownUtil.class);
 
   // SUPPRESS_ALL_HTML is enabled to permit hosting arbitrary user content
   // while avoiding XSS style HTML, CSS and JavaScript injection attacks.

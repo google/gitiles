@@ -15,7 +15,7 @@
 package com.google.gitiles.doc;
 
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.gitiles.doc.MarkdownHelper.getInnerText;
+import static com.google.gitiles.doc.MarkdownUtil.getInnerText;
 
 import com.google.gitiles.GitilesView;
 import com.google.gitiles.doc.html.HtmlBuilder;
@@ -260,7 +260,7 @@ public class MarkdownToHtml implements Visitor {
   }
 
   private String href(String url) {
-    if (MarkdownHelper.isAbsolutePathToMarkdown(url)) {
+    if (MarkdownUtil.isAbsolutePathToMarkdown(url)) {
       return GitilesView.doc().copyFrom(view).setPathPart(url).build().toUrl();
     }
     return url;
