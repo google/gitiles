@@ -41,6 +41,37 @@ maven_jar(
 )
 
 maven_jar(
+  name = 'pegdown',
+  id = 'org.pegdown:pegdown:1.4.2',
+  sha1 = 'd96db502ed832df867ff5d918f05b51ba3879ea7',
+  license = 'Apache2.0',
+  deps = [':grappa'],
+)
+
+maven_jar(
+  name = 'grappa',
+  id = 'com.github.parboiled1:grappa:1.0.4',
+  sha1 = 'ad4b44b9c305dad7aa1e680d4b5c8eec9c4fd6f5',
+  license = 'Apache2.0',
+  deps = [
+    ':guava',
+    ':jitescript',
+    '//lib/ow2:ow2-asm',
+    '//lib/ow2:ow2-asm-analysis',
+    '//lib/ow2:ow2-asm-tree',
+    '//lib/ow2:ow2-asm-util',
+  ],
+)
+
+maven_jar(
+  name = 'jitescript',
+  id = 'me.qmx.jitescript:jitescript:0.4.0',
+  sha1 = '2e35862b0435c1b027a21f3d6eecbe50e6e08d54',
+  license = 'Apache2.0',
+  visibility = ['//lib:grappa'],
+)
+
+maven_jar(
   name = 'servlet-api_2_5',
   id = 'org.eclipse.jetty.orbit:javax.servlet:2.5.0.v201103041518',
   sha1 = '9c16011c06bc6fe5e9dba080fcb40ddb4b75dc85',

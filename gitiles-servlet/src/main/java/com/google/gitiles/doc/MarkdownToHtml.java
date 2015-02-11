@@ -1,0 +1,418 @@
+// Copyright 2015 Google Inc. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package com.google.gitiles.doc;
+
+import static com.google.common.base.Preconditions.checkState;
+import static com.google.gitiles.doc.MarkdownHelper.getInnerText;
+
+import com.google.gitiles.doc.html.HtmlBuilder;
+import com.google.template.soy.data.SanitizedContent;
+import com.google.template.soy.shared.restricted.EscapingConventions;
+
+import org.pegdown.ast.AbbreviationNode;
+import org.pegdown.ast.AutoLinkNode;
+import org.pegdown.ast.BlockQuoteNode;
+import org.pegdown.ast.BulletListNode;
+import org.pegdown.ast.CodeNode;
+import org.pegdown.ast.DefinitionListNode;
+import org.pegdown.ast.DefinitionNode;
+import org.pegdown.ast.DefinitionTermNode;
+import org.pegdown.ast.ExpImageNode;
+import org.pegdown.ast.ExpLinkNode;
+import org.pegdown.ast.HeaderNode;
+import org.pegdown.ast.HtmlBlockNode;
+import org.pegdown.ast.InlineHtmlNode;
+import org.pegdown.ast.ListItemNode;
+import org.pegdown.ast.MailLinkNode;
+import org.pegdown.ast.Node;
+import org.pegdown.ast.OrderedListNode;
+import org.pegdown.ast.ParaNode;
+import org.pegdown.ast.QuotedNode;
+import org.pegdown.ast.RefImageNode;
+import org.pegdown.ast.RefLinkNode;
+import org.pegdown.ast.ReferenceNode;
+import org.pegdown.ast.RootNode;
+import org.pegdown.ast.SimpleNode;
+import org.pegdown.ast.SpecialTextNode;
+import org.pegdown.ast.StrikeNode;
+import org.pegdown.ast.StrongEmphSuperNode;
+import org.pegdown.ast.SuperNode;
+import org.pegdown.ast.TableBodyNode;
+import org.pegdown.ast.TableCaptionNode;
+import org.pegdown.ast.TableCellNode;
+import org.pegdown.ast.TableColumnNode;
+import org.pegdown.ast.TableHeaderNode;
+import org.pegdown.ast.TableNode;
+import org.pegdown.ast.TableRowNode;
+import org.pegdown.ast.TextNode;
+import org.pegdown.ast.VerbatimNode;
+import org.pegdown.ast.WikiLinkNode;
+
+/**
+ * Formats parsed markdown AST into HTML.
+ * <p>
+ * Callers must create a new instance for each RootNode.
+ */
+public class MarkdownToHtml implements Visitor {
+  private final ReferenceMap references = new ReferenceMap();
+  private final HtmlBuilder html = new HtmlBuilder();
+  private final TocFormatter toc = new TocFormatter(html, 3);
+  private TableState table;
+
+  /** Render the document AST to sanitized HTML. */
+  public SanitizedContent toSoyHtml(RootNode node) {
+    if (node == null) {
+      return null;
+    }
+
+    toc.setRoot(node);
+    node.accept(this);
+    return html.toSoy();
+  }
+
+  @Override
+  public void visit(RootNode node) {
+    references.add(node);
+    visitChildren(node);
+  }
+
+  @Override
+  public void visit(TocNode node) {
+    toc.format();
+  }
+
+  @Override
+  public void visit(HeaderNode node) {
+    String tag = "h" + node.getLevel();
+    html.open(tag);
+    if (toc.include(node)) {
+      html.attribute("id", toc.idFromHeader(node));
+    }
+    visitChildren(node);
+    html.close(tag);
+  }
+
+  @Override
+  public void visit(ParaNode node) {
+    wrapChildren("p", node);
+  }
+
+  @Override
+  public void visit(BlockQuoteNode node) {
+    wrapChildren("blockquote", node);
+  }
+
+  @Override
+  public void visit(OrderedListNode node) {
+    wrapChildren("ol", node);
+  }
+
+  @Override
+  public void visit(BulletListNode node) {
+    wrapChildren("ul", node);
+  }
+
+  @Override
+  public void visit(ListItemNode node) {
+    wrapChildren("li", node);
+  }
+
+  @Override
+  public void visit(DefinitionListNode node) {
+    wrapChildren("dl", node);
+  }
+
+  @Override
+  public void visit(DefinitionNode node) {
+    wrapChildren("dd", node);
+  }
+
+  @Override
+  public void visit(DefinitionTermNode node) {
+    wrapChildren("dt", node);
+  }
+
+  @Override
+  public void visit(VerbatimNode node) {
+    html.open("pre").attribute("class", "code");
+    String text = node.getText();
+    while (text.startsWith("\n")) {
+      html.open("br");
+      text = text.substring(1);
+    }
+    html.appendAndEscape(text);
+    html.close("pre");
+  }
+
+  @Override
+  public void visit(CodeNode node) {
+    wrapText("code", node);
+  }
+
+  @Override
+  public void visit(StrikeNode node) {
+    wrapChildren("del", node);
+  }
+
+  @Override
+  public void visit(StrongEmphSuperNode node) {
+    if (node.isClosed()) {
+      wrapChildren(node.isStrong() ? "strong" : "em", node);
+    } else {
+      // Unclosed (or unmatched) sequence is plain text.
+      html.appendAndEscape(node.getChars());
+      visitChildren(node);
+    }
+  }
+
+  @Override
+  public void visit(AutoLinkNode node) {
+    String url = node.getText();
+    html.open("a").attribute("href", url)
+        .appendAndEscape(url)
+        .close("a");
+  }
+
+  @Override
+  public void visit(MailLinkNode node) {
+    String addr = node.getText();
+    html.open("a").attribute("href", "mailto:" + addr)
+        .appendAndEscape(addr)
+        .close("a");
+  }
+
+  @Override
+  public void visit(WikiLinkNode node) {
+    String text = node.getText();
+    String path = text.replace(' ', '-') + ".md";
+    html.open("a").attribute("href", path)
+        .appendAndEscape(text)
+        .close("a");
+  }
+
+  @Override
+  public void visit(ExpLinkNode node) {
+    html.open("a")
+        .attribute("href", node.url)
+        .attribute("title", node.title);
+    visitChildren(node);
+    html.close("a");
+  }
+
+  @Override
+  public void visit(RefLinkNode node) {
+    ReferenceNode ref = references.get(node.referenceKey, getInnerText(node));
+    if (ref != null) {
+      html.open("a")
+          .attribute("href", ref.getUrl())
+          .attribute("title", ref.getTitle());
+      visitChildren(node);
+      html.close("a");
+    } else {
+      // Treat a broken RefLink as plain text.
+      visitChildren(node);
+    }
+  }
+
+  @Override
+  public void visit(ExpImageNode node) {
+    html.open("img")
+        .attribute("src", node.url)
+        .attribute("title", node.title)
+        .attribute("alt", getInnerText(node));
+  }
+
+  @Override
+  public void visit(RefImageNode node) {
+    String alt = getInnerText(node);
+    String url, title = alt;
+    ReferenceNode ref = references.get(node.referenceKey, alt);
+    if (ref != null) {
+      url = ref.getUrl();
+      title = ref.getTitle();
+    } else {
+      // If reference is missing, insert a broken image.
+      url = EscapingConventions.FilterImageDataUri.INSTANCE.getInnocuousOutput();
+    }
+    html.open("img")
+        .attribute("src", url)
+        .attribute("title", title)
+        .attribute("alt", alt);
+  }
+
+  @Override
+  public void visit(TableNode node) {
+    table = new TableState(node);
+    wrapChildren("table", node);
+    table = null;
+  }
+
+  private void mustBeInsideTable(Node node) {
+    checkState(table != null, "%s must be in table", node);
+  }
+
+  @Override
+  public void visit(TableHeaderNode node) {
+    mustBeInsideTable(node);
+    table.inHeader = true;
+    wrapChildren("thead", node);
+    table.inHeader = false;
+  }
+
+  @Override
+  public void visit(TableBodyNode node) {
+    wrapChildren("tbody", node);
+  }
+
+  @Override
+  public void visit(TableCaptionNode node) {
+    wrapChildren("caption", node);
+  }
+
+  @Override
+  public void visit(TableRowNode node) {
+    mustBeInsideTable(node);
+    table.startRow();
+    wrapChildren("tr", node);
+  }
+
+  @Override
+  public void visit(TableCellNode node) {
+    mustBeInsideTable(node);
+    String tag = table.inHeader ? "th" : "td";
+    html.open(tag)
+        .attribute("align", table.getAlign());
+    if (node.getColSpan() > 1) {
+      html.attribute("colspan", Integer.toString(node.getColSpan()));
+    }
+    visitChildren(node);
+    html.close(tag);
+    table.done(node);
+  }
+
+  @Override
+  public void visit(TableColumnNode node) {
+    // Not for output; should not be in the Visitor API.
+  }
+
+  @Override
+  public void visit(TextNode node) {
+    html.appendAndEscape(node.getText());
+    // TODO(sop) printWithAbbreviations
+  }
+
+  @Override
+  public void visit(SpecialTextNode node) {
+    html.appendAndEscape(node.getText());
+  }
+
+  @Override
+  public void visit(QuotedNode node) {
+    switch (node.getType()) {
+      case DoubleAngle:
+        html.entity("&laquo;");
+        visitChildren(node);
+        html.entity("&raquo;");
+        break;
+      case Double:
+        html.entity("&ldquo;");
+        visitChildren(node);
+        html.entity("&rdquo;");
+        break;
+      case Single:
+        html.entity("&lsquo;");
+        visitChildren(node);
+        html.entity("&rsquo;");
+        break;
+      default:
+        checkState(false, "unsupported quote %s", node.getType());
+    }
+  }
+
+  @Override
+  public void visit(SimpleNode node) {
+    switch (node.getType()) {
+      case Apostrophe:
+        html.entity("&rsquo;");
+        break;
+      case Ellipsis:
+        html.entity("&hellip;");
+        break;
+      case Emdash:
+        html.entity("&mdash;");
+        break;
+      case Endash:
+        html.entity("&ndash;");
+        break;
+      case HRule:
+        html.open("hr");
+        break;
+      case Linebreak:
+        html.open("br");
+        break;
+      case Nbsp:
+        html.entity("&nbsp;");
+        break;
+      default:
+        checkState(false, "unsupported node %s", node.getType());
+    }
+  }
+
+  @Override
+  public void visit(SuperNode node) {
+    visitChildren(node);
+  }
+
+  @Override
+  public void visit(Node node) {
+    checkState(false, "node %s unsupported", node.getClass());
+  }
+
+  @Override
+  public void visit(HtmlBlockNode node) {
+    // Drop all HTML nodes.
+  }
+
+  @Override
+  public void visit(InlineHtmlNode node) {
+    // Drop all HTML nodes.
+  }
+
+  @Override
+  public void visit(ReferenceNode node) {
+    // Reference nodes are not printed; they only declare an item.
+  }
+
+  @Override
+  public void visit(AbbreviationNode node) {
+    // Abbreviation nodes are not printed; they only declare an item.
+  }
+
+  private void wrapText(String tag, TextNode node) {
+    html.open(tag).appendAndEscape(node.getText()).close(tag);
+  }
+
+  private void wrapChildren(String tag, SuperNode node) {
+    html.open(tag);
+    visitChildren(node);
+    html.close(tag);
+  }
+
+  private void visitChildren(Node node) {
+    for (Node child : node.getChildren()) {
+      child.accept(this);
+    }
+  }
+}
