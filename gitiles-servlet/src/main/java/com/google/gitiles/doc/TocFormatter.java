@@ -14,12 +14,17 @@
 
 package com.google.gitiles.doc;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import com.google.common.hash.Hashing;
 import com.google.gitiles.doc.html.HtmlBuilder;
 
 import org.apache.commons.lang3.StringUtils;
 import org.pegdown.ast.HeaderNode;
 import org.pegdown.ast.Node;
 import org.pegdown.ast.RootNode;
+
+import java.nio.charset.StandardCharsets;
 
 /** Outputs outline from HeaderNodes in the AST. */
 class TocFormatter {
@@ -29,6 +34,7 @@ class TocFormatter {
   private RootNode root;
   private Boolean hasToc;
   private int countH1;
+  private BiMap<HeaderNode, String> ids;
 
   private int level;
 
@@ -40,6 +46,7 @@ class TocFormatter {
   void setRoot(RootNode doc) {
     root = doc;
     hasToc = null;
+    ids = HashBiMap.create();
   }
 
   boolean include(HeaderNode h) {
@@ -53,8 +60,22 @@ class TocFormatter {
   }
 
   String idFromHeader(HeaderNode header) {
-    String t = MarkdownUtil.getInnerText(header);
-    return t != null ? idFromTitle(t) : null;
+    String id = ids.get(header);
+    if (id == null) {
+      String title = MarkdownUtil.getInnerText(header);
+      if (title == null) {
+        return null;
+      }
+
+      id = idFromTitle(title);
+      if (ids.values().contains(id)) {
+        id = String.format("%s-%x",
+            id,
+            Hashing.md5().hashString(id, StandardCharsets.UTF_8).asInt());
+      }
+      ids.put(header, id);
+    }
+    return id;
   }
 
   void format() {
@@ -93,8 +114,8 @@ class TocFormatter {
       return;
     }
 
-    String title = MarkdownUtil.getInnerText(h);
-    if (title == null) {
+    String id = idFromHeader(h);
+    if (id == null) {
       return;
     }
 
@@ -108,8 +129,8 @@ class TocFormatter {
     }
 
     html.open("li")
-      .open("a").attribute("href", "#" + idFromTitle(title))
-      .appendAndEscape(title)
+      .open("a").attribute("href", "#" + id)
+      .appendAndEscape(MarkdownUtil.getInnerText(h))
       .close("a")
       .close("li");
   }
