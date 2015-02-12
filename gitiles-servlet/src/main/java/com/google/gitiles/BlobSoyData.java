@@ -85,6 +85,9 @@ public class BlobSoyData {
 
     if (content != null) {
       data.put("lines", prettify(path, content));
+      if (path != null && path.endsWith(".md")) {
+        data.put("docUrl", GitilesView.doc().copyFrom(view).toUrl());
+      }
     } else {
       data.put("lines", null);
       data.put("size", Long.toString(loader.getSize()));

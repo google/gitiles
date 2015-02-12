@@ -215,6 +215,7 @@
  * @param? fileUrl optional URL to a detail view of this file.
  * @param? logUrl optional URL to a log for this file.
  * @param? blameUrl optional URL to a blame for this file.
+ * @param? docUrl optional URL to view rendered file.
  */
 {template .blobHeader}
 <div class="sha1">
@@ -222,6 +223,7 @@
   {if $fileUrl}{sp}[<a href="{$fileUrl}">{msg desc="detail view of a file"}file{/msg}</a>]{/if}
   {if $logUrl}{sp}[<a href="{$logUrl}">{msg desc="history for a file"}log{/msg}</a>]{/if}
   {if $blameUrl}{sp}[<a href="{$blameUrl}">{msg desc="blame for a file"}blame{/msg}</a>]{/if}
+  {if $docUrl}{sp}[<a href="{$docUrl}">{msg desc="view rendered file"}view{/msg}</a>]{/if}
 </div>
 {/template}
 
