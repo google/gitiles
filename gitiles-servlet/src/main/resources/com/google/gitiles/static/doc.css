@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-html {
+html.doc-page, .doc {
   font-family: arial,sans-serif;
 }
-body {
+.doc-page body {
   margin: 0;
 }
 
@@ -81,9 +81,11 @@ body {
   display: block;
 }
 
-.nav-aux, .content {
-  margin: auto;
+.nav-aux, .doc {
   max-width: 978px;
+}
+.nav-aux, .doc-page .doc {
+  margin: auto;
 }
 
 .footer-break {
@@ -120,6 +122,65 @@ body {
   font-style: italic;
 }
 
+/* Markdown rendered in /+doc/ or tree view page . */
+
+.doc {
+  color: #444;
+  font-size: 13px;
+}
+
+.doc h1, .doc h2, .doc h3, .doc h4, .doc h5, .doc h6 {
+  font-family: "open sans",arial,sans-serif;
+}
+.doc h1, .doc h2, .doc h3, .doc h4 { font-weight: bold; }
+.doc h5, .doc h6 { font-weight: normal; }
+.doc h1 { font-size: 20px; }
+.doc h2 { font-size: 16px; }
+.doc h3 { font-size: 14px; }
+.doc h4, .doc h5, .doc h6 { font-size: 13px; }
+
+.doc a { text-decoration: none; }
+.doc a:link { color: #245dc1; }
+.doc a:visited { color: #7759ae; }
+.doc a:hover { text-decoration: underline; }
+
+.doc ul, .doc ol {
+  margin: 10px 10px 10px 30px;
+  padding: 0;
+}
+
+.doc img {
+  border: 0;
+}
+
+.doc pre {
+  border: 1px solid silver;
+  background: #fafafa;
+  margin: 0 2em 0 2em;
+  padding: 2px;
+}
+.doc code, .doc .code {
+  color: #060;
+  font: 13px/1.54 "courier new",courier,monospace;
+}
+
+.doc dl dt {
+  margin-top: 1em;
+}
+
+.doc table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+.doc th, .doc td {
+  border: 1px solid #eee;
+  padding: 4px 12px;
+  vertical-align: top;
+}
+.doc th {
+  background-color: #f5f5f5;
+}
+
 .toc {
   margin-top: 30px;
 }
@@ -141,63 +202,6 @@ body {
 }
 .toc ul ul li {
   list-style: circle;
-}
-
-.content {
-  color: #444;
-  font-size: 13px;
-}
-
-h1, h2, h3, h4, h5, h6 {
-  font-family: "open sans",arial,sans-serif;
-}
-h1, h2, h3, h4 { font-weight: bold; }
-h5, h6 { font-weight: normal; }
-h1 { font-size: 20px; }
-h2 { font-size: 16px; }
-h3 { font-size: 14px; }
-h4, h5, h6 { font-size: 13px; }
-
-a { text-decoration: none; }
-a:link { color: #245dc1; }
-a:visited { color: #7759ae; }
-a:hover { text-decoration: underline; }
-
-ul, ol {
-  margin: 10px 10px 10px 30px;
-  padding: 0;
-}
-
-img {
-  border: 0;
-}
-
-pre {
-  border: 1px solid silver;
-  background: #fafafa;
-  margin: 0 2em 0 2em;
-  padding: 2px;
-}
-code, .code {
-  color: #060;
-  font: 13px/1.54 "courier new",courier,monospace;
-}
-
-dl dt {
-  margin-top: 1em;
-}
-
-table {
-  border-collapse: collapse;
-  border-spacing: 0;
-}
-th, td {
-  border: 1px solid #eee;
-  padding: 4px 12px;
-  vertical-align: top;
-}
-th {
-  background-color: #f5f5f5;
 }
 
 .note, .promo, .aside {
