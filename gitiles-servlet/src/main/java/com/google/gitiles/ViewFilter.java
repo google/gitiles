@@ -213,9 +213,15 @@ public class ViewFilter extends AbstractHttpFilter {
     }
     if (result.getOldRevision() != null) {
       return parseDiffCommand(repoName, result);
-    } else {
-      return parseShowCommand(repoName, result);
     }
+    GitilesView.Builder b = parseShowCommand(repoName, result);
+    if (b != null && b.getPathPart() != null && b.getPathPart().endsWith(".md")) {
+      return GitilesView.doc()
+        .setRepositoryName(repoName)
+        .setRevision(result.getRevision())
+        .setPathPart(result.getPath());
+    }
+    return b;
   }
 
   private GitilesView.Builder parseBlameCommand(

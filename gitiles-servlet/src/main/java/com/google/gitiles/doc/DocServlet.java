@@ -170,7 +170,7 @@ public class DocServlet extends BaseServlet {
     data.put("pageTitle", MoreObjects.firstNonNull(
         MarkdownUtil.getTitle(doc),
         view.getPathPart()));
-    data.put("sourceUrl", GitilesView.path().copyFrom(view).toUrl());
+    data.put("sourceUrl", GitilesView.show().copyFrom(view).toUrl());
     data.put("logUrl", GitilesView.log().copyFrom(view).toUrl());
     data.put("blameUrl", GitilesView.blame().copyFrom(view).toUrl());
     data.put("navbarHtml", new MarkdownToHtml(view).toSoyHtml(nav));

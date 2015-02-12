@@ -68,6 +68,8 @@ public class ViewFilterTest {
     assertEquals(Type.REVISION, getView("/repo/+/" + hex.substring(0, 7)).getType());
     assertEquals(Type.PATH, getView("/repo/+/master/").getType());
     assertEquals(Type.PATH, getView("/repo/+/" + hex + "/").getType());
+    assertEquals(Type.PATH, getView("/repo/+/" + hex + "/index.c").getType());
+    assertEquals(Type.DOC, getView("/repo/+/" + hex + "/index.md").getType());
     assertEquals(Type.DIFF, getView("/repo/+/master^..master").getType());
     assertEquals(Type.DIFF, getView("/repo/+/master^..master/").getType());
     assertEquals(Type.DIFF, getView("/repo/+/" + parent.name() + ".." + hex + "/").getType());

@@ -264,6 +264,69 @@ public class GitilesViewTest {
   }
 
   @Test
+  public void oneDocFileAuto() throws Exception {
+    ObjectId id = ObjectId.fromString("abcd1234abcd1234abcd1234abcd1234abcd1234");
+    GitilesView view = GitilesView.doc()
+        .copyFrom(HOST)
+        .setRepositoryName("foo/bar")
+        .setRevision(Revision.unpeeled("master", id))
+        .setPathPart("/README.md")
+        .build();
+
+    assertEquals("/b", view.getServletPath());
+    assertEquals(Type.DOC, view.getType());
+    assertEquals("host", view.getHostName());
+    assertEquals("foo/bar", view.getRepositoryName());
+    assertEquals(id, view.getRevision().getId());
+    assertEquals("master", view.getRevision().getName());
+    assertEquals("README.md", view.getPathPart());
+    assertTrue(HOST.getParameters().isEmpty());
+    assertEquals("/b/foo/bar/+/master/README.md", view.toUrl());
+  }
+
+  @Test
+  public void oneDocTree() throws Exception {
+    ObjectId id = ObjectId.fromString("abcd1234abcd1234abcd1234abcd1234abcd1234");
+    GitilesView view = GitilesView.doc()
+        .copyFrom(HOST)
+        .setRepositoryName("foo/bar")
+        .setRevision(Revision.unpeeled("master", id))
+        .setPathPart("/docs/")
+        .build();
+
+    assertEquals("/b", view.getServletPath());
+    assertEquals(Type.DOC, view.getType());
+    assertEquals("host", view.getHostName());
+    assertEquals("foo/bar", view.getRepositoryName());
+    assertEquals(id, view.getRevision().getId());
+    assertEquals("master", view.getRevision().getName());
+    assertEquals("docs", view.getPathPart());
+    assertTrue(HOST.getParameters().isEmpty());
+    assertEquals("/b/foo/bar/+doc/master/docs", view.toUrl());
+  }
+
+  @Test
+  public void showMarkdown() throws Exception {
+    ObjectId id = ObjectId.fromString("abcd1234abcd1234abcd1234abcd1234abcd1234");
+    GitilesView view = GitilesView.show()
+        .copyFrom(HOST)
+        .setRepositoryName("foo/bar")
+        .setRevision(Revision.unpeeled("master", id))
+        .setPathPart("/README.md")
+        .build();
+
+    assertEquals("/b", view.getServletPath());
+    assertEquals(Type.SHOW, view.getType());
+    assertEquals("host", view.getHostName());
+    assertEquals("foo/bar", view.getRepositoryName());
+    assertEquals(id, view.getRevision().getId());
+    assertEquals("master", view.getRevision().getName());
+    assertEquals("README.md", view.getPathPart());
+    assertTrue(HOST.getParameters().isEmpty());
+    assertEquals("/b/foo/bar/+show/master/README.md", view.toUrl());
+  }
+
+  @Test
   public void multiplePathComponents() throws Exception {
     ObjectId id = ObjectId.fromString("abcd1234abcd1234abcd1234abcd1234abcd1234");
     GitilesView view = GitilesView.path()

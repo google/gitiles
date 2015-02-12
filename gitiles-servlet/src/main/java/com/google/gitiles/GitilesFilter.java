@@ -244,6 +244,7 @@ class GitilesFilter extends MetaFilter {
         return new RefServlet(accessFactory, renderer, timeCache);
       case REVISION:
         return new RevisionServlet(accessFactory, renderer, linkifier());
+      case SHOW:
       case PATH:
         return new PathServlet(accessFactory, renderer, urls);
       case DIFF:
