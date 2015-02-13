@@ -22,6 +22,8 @@ import com.google.gitiles.doc.html.HtmlBuilder;
 import com.google.template.soy.data.SanitizedContent;
 import com.google.template.soy.shared.restricted.EscapingConventions;
 
+import org.eclipse.jgit.lib.Config;
+import org.eclipse.jgit.util.StringUtils;
 import org.pegdown.ast.AbbreviationNode;
 import org.pegdown.ast.AutoLinkNode;
 import org.pegdown.ast.BlockQuoteNode;
@@ -71,10 +73,12 @@ public class MarkdownToHtml implements Visitor {
   private final HtmlBuilder html = new HtmlBuilder();
   private final TocFormatter toc = new TocFormatter(html, 3);
   private final GitilesView view;
+  private final Config cfg;
   private TableState table;
 
-  public MarkdownToHtml(GitilesView view) {
+  public MarkdownToHtml(GitilesView view, Config cfg) {
     this.view = view;
+    this.cfg = cfg;
   }
 
   /** Render the document AST to sanitized HTML. */
@@ -124,6 +128,36 @@ public class MarkdownToHtml implements Visitor {
       html.close("div");
     }
     html.close("div");
+  }
+
+  @Override
+  public void visit(IframeNode node) {
+    if (HtmlBuilder.isValidHttpUri(node.src)
+        && HtmlBuilder.isValidCssDimension(node.height)
+        && HtmlBuilder.isValidCssDimension(node.width)
+        && canRender(node)) {
+      html.open("iframe")
+          .attribute("src", node.src)
+          .attribute("height", node.height)
+          .attribute("width", node.width);
+      if (!node.border) {
+        html.attribute("class", "noborder");
+      }
+      html.close("iframe");
+    }
+  }
+
+  private boolean canRender(IframeNode node) {
+    String[] ok = cfg.getStringList("markdown", null, "allowiframe");
+    if (ok.length == 1 && StringUtils.toBooleanOrNull(ok[0]) == Boolean.TRUE) {
+      return true;
+    }
+    for (String m : ok) {
+      if (m.equals(node.src) || (m.endsWith("/") && node.src.startsWith(m))) {
+        return true;
+      }
+    }
+    return false; // By default do not render iframe.
   }
 
   @Override

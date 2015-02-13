@@ -131,7 +131,7 @@ public class DocServlet extends BaseServlet {
       }
 
       res.setHeader(HttpHeaders.ETAG, curEtag);
-      showDoc(req, res, view, nav, doc);
+      showDoc(req, res, view, cfg, nav, doc);
     } finally {
       rw.release();
     }
@@ -164,7 +164,8 @@ public class DocServlet extends BaseServlet {
   }
 
   private void showDoc(HttpServletRequest req, HttpServletResponse res,
-      GitilesView view, RootNode nav, RootNode doc) throws IOException {
+      GitilesView view, Config cfg,
+      RootNode nav, RootNode doc) throws IOException {
     Map<String, Object> data = new HashMap<>();
     data.putAll(Navbar.bannerSoyData(view, nav));
     data.put("pageTitle", MoreObjects.firstNonNull(
@@ -173,8 +174,8 @@ public class DocServlet extends BaseServlet {
     data.put("sourceUrl", GitilesView.show().copyFrom(view).toUrl());
     data.put("logUrl", GitilesView.log().copyFrom(view).toUrl());
     data.put("blameUrl", GitilesView.blame().copyFrom(view).toUrl());
-    data.put("navbarHtml", new MarkdownToHtml(view).toSoyHtml(nav));
-    data.put("bodyHtml", new MarkdownToHtml(view).toSoyHtml(doc));
+    data.put("navbarHtml", new MarkdownToHtml(view, cfg).toSoyHtml(nav));
+    data.put("bodyHtml", new MarkdownToHtml(view, cfg).toSoyHtml(doc));
 
     String page = renderer.render(SOY_TEMPLATE, data);
     byte[] raw = page.getBytes(UTF_8);

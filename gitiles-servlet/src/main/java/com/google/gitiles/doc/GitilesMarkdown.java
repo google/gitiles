@@ -77,6 +77,7 @@ class GitilesMarkdown extends Parser implements BlockPluginParser {
     return new Rule[] {
         cols(),
         hr(),
+        iframe(),
         note(),
         toc(),
     };
@@ -94,6 +95,35 @@ class GitilesMarkdown extends Parser implements BlockPluginParser {
         NonindentSpace(), string("--"), zeroOrMore('-'), Newline(),
         oneOrMore(BlankLine()),
         push(new SimpleNode(SimpleNode.Type.HRule)));
+  }
+
+  public Rule iframe() {
+    StringBuilderVar src = new StringBuilderVar();
+    StringBuilderVar h = new StringBuilderVar();
+    StringBuilderVar w = new StringBuilderVar();
+    StringBuilderVar b = new StringBuilderVar();
+    return NodeSequence(
+        string("<iframe"),
+        oneOrMore(
+          sequence(
+            Spn1(),
+            firstOf(
+              sequence(string("src="), attribute(src)),
+              sequence(string("height="), attribute(h)),
+              sequence(string("width="), attribute(w)),
+              sequence(string("frameborder="), attribute(w))
+            ))),
+        Spn1(), '>',
+        Spn1(), string("</iframe>"),
+        push(new IframeNode(src.getString(),
+            h.getString(), w.getString(),
+            b.getString())));
+  }
+
+  public Rule attribute(StringBuilderVar var) {
+    return firstOf(
+      sequence('"', zeroOrMore(testNot('"'), ANY), var.append(match()), '"'),
+      sequence('\'', zeroOrMore(testNot('\''), ANY), var.append(match()), '\''));
   }
 
   public Rule note() {

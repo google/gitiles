@@ -46,7 +46,8 @@ public final class HtmlBuilder {
       "a", "div", "img", "p", "blockquote", "pre",
       "ol", "ul", "li", "dl", "dd", "dt",
       "del", "em", "strong", "code", "br", "hr",
-      "table", "thead", "tbody", "caption", "tr", "th", "td"
+      "table", "thead", "tbody", "caption", "tr", "th", "td",
+      "iframe"
   );
 
   private static final ImmutableSet<String> ALLOWED_ATTRIBUTES = ImmutableSet.of(
@@ -57,6 +58,17 @@ public final class HtmlBuilder {
 
   private static final FilterNormalizeUri URI = FilterNormalizeUri.INSTANCE;
   private static final FilterImageDataUri IMAGE_DATA = FilterImageDataUri.INSTANCE;
+
+  public static boolean isValidCssDimension(String val) {
+    return val != null && val.matches("(?:[1-9][0-9]*px|100%|[1-9][0-9]?%)");
+  }
+
+  public static boolean isValidHttpUri(String val) {
+    return (val.startsWith("https://")
+        || val.startsWith("http://")
+        || val.startsWith("//"))
+        && URI.getValueFilter().matcher(val).find();
+  }
 
   /** Check if URL is valid for {@code <img src="data:image/*;base64,...">}. */
   public static boolean isImageDataUri(String url) {
@@ -89,6 +101,13 @@ public final class HtmlBuilder {
       val = anchorHref(val);
     } else if ("src".equals(att) && "img".equals(tag)) {
       val = imgSrc(val);
+    } else if ("src".equals(att) && "iframe".equals(tag)) {
+      if (!isValidHttpUri(val)) {
+        return this;
+      }
+      val = URI.escape(val);
+    } else if (("height".equals(att) || "width".equals(att)) && "iframe".equals(tag)) {
+      val = isValidCssDimension(val) ? val : "250px";
     } else if ("alt".equals(att) && "img".equals(tag)) {
       // allow
     } else if ("title".equals(att) && ("img".equals(tag) || "a".equals(tag))) {
@@ -119,8 +138,7 @@ public final class HtmlBuilder {
   }
 
   private static String imgSrc(String val) {
-    if ((val.startsWith("http:") || val.startsWith("https:"))
-        && URI.getValueFilter().matcher(val).find()) {
+    if (isValidHttpUri(val)) {
       return URI.escape(val);
     }
     if (isImageDataUri(val)) {
