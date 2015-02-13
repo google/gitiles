@@ -151,6 +151,7 @@ html.doc-page, .doc {
 
 .doc img {
   border: 0;
+  max-width: 100%;
 }
 .doc iframe {
   min-width: 100px;

@@ -17,6 +17,7 @@ package com.google.gitiles.doc;
 import com.google.gitiles.GitilesView;
 import com.google.gitiles.doc.html.HtmlBuilder;
 import com.google.template.soy.shared.restricted.Sanitizers;
+import com.google.template.soy.shared.restricted.EscapingConventions.FilterImageDataUri;
 
 import org.pegdown.ast.HeaderNode;
 import org.pegdown.ast.Node;
@@ -28,7 +29,9 @@ import java.util.Iterator;
 import java.util.Map;
 
 class Navbar {
-  static Map<String, Object> bannerSoyData(GitilesView view, RootNode nav) {
+  static Map<String, Object> bannerSoyData(
+      GitilesView view, ImageLoader img,
+      RootNode nav) {
     Map<String, Object> data = new HashMap<>();
     data.put("siteTitle", null);
     data.put("logoUrl", null);
@@ -55,10 +58,14 @@ class Navbar {
       String url = r.getUrl();
       if ("logo".equalsIgnoreCase(key)) {
         Object src;
-        if (HtmlBuilder.isImageDataUri(url)) {
-          src = Sanitizers.filterImageDataUri(url);
-        } else {
+        if (HtmlBuilder.isValidHttpUri(url)) {
           src = url;
+        } else if (HtmlBuilder.isImageDataUri(url)) {
+          src = Sanitizers.filterImageDataUri(url);
+        } else if (img != null) {
+          src = img.loadImage(url);
+        } else {
+          src = FilterImageDataUri.INSTANCE.getInnocuousOutput();
         }
         data.put("logoUrl", src);
       } else if ("home".equalsIgnoreCase(key)) {

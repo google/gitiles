@@ -20,7 +20,7 @@ import static com.google.gitiles.doc.MarkdownUtil.getInnerText;
 import com.google.gitiles.GitilesView;
 import com.google.gitiles.doc.html.HtmlBuilder;
 import com.google.template.soy.data.SanitizedContent;
-import com.google.template.soy.shared.restricted.EscapingConventions;
+import com.google.template.soy.shared.restricted.EscapingConventions.FilterImageDataUri;
 
 import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.util.StringUtils;
@@ -74,11 +74,17 @@ public class MarkdownToHtml implements Visitor {
   private final TocFormatter toc = new TocFormatter(html, 3);
   private final GitilesView view;
   private final Config cfg;
+  private ImageLoader imageLoader;
   private TableState table;
 
   public MarkdownToHtml(GitilesView view, Config cfg) {
     this.view = view;
     this.cfg = cfg;
+  }
+
+  public MarkdownToHtml setImageLoader(ImageLoader img) {
+    imageLoader = img;
+    return this;
   }
 
   /** Render the document AST to sanitized HTML. */
@@ -303,7 +309,7 @@ public class MarkdownToHtml implements Visitor {
   @Override
   public void visit(ExpImageNode node) {
     html.open("img")
-        .attribute("src", node.url)
+        .attribute("src", resolveImageUrl(node.url))
         .attribute("title", node.title)
         .attribute("alt", getInnerText(node));
   }
@@ -314,16 +320,25 @@ public class MarkdownToHtml implements Visitor {
     String url, title = alt;
     ReferenceNode ref = references.get(node.referenceKey, alt);
     if (ref != null) {
-      url = ref.getUrl();
+      url = resolveImageUrl(ref.getUrl());
       title = ref.getTitle();
     } else {
       // If reference is missing, insert a broken image.
-      url = EscapingConventions.FilterImageDataUri.INSTANCE.getInnocuousOutput();
+      url = FilterImageDataUri.INSTANCE.getInnocuousOutput();
     }
     html.open("img")
         .attribute("src", url)
         .attribute("title", title)
         .attribute("alt", alt);
+  }
+
+  private String resolveImageUrl(String url) {
+    if (imageLoader == null
+        || url.startsWith("https://") || url.startsWith("http://")
+        || url.startsWith("data:")) {
+      return url;
+    }
+    return imageLoader.loadImage(url);
   }
 
   @Override
