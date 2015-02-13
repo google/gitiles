@@ -23,6 +23,7 @@ import org.pegdown.ParsingTimeoutException;
 import org.pegdown.PegDownProcessor;
 import org.pegdown.ast.Node;
 import org.pegdown.ast.RootNode;
+import org.pegdown.ast.SimpleNode;
 import org.pegdown.plugins.BlockPluginParser;
 import org.pegdown.plugins.PegDownPlugins;
 import org.slf4j.Logger;
@@ -75,6 +76,7 @@ class GitilesMarkdown extends Parser implements BlockPluginParser {
   public Rule[] blockPluginRules() {
     return new Rule[] {
         cols(),
+        hr(),
         note(),
         toc(),
     };
@@ -84,6 +86,14 @@ class GitilesMarkdown extends Parser implements BlockPluginParser {
     return NodeSequence(
         string("[TOC]"),
         push(new TocNode()));
+  }
+
+  public Rule hr() {
+    // GitHub flavor markdown recognizes "--" as a rule.
+    return NodeSequence(
+        NonindentSpace(), string("--"), zeroOrMore('-'), Newline(),
+        oneOrMore(BlankLine()),
+        push(new SimpleNode(SimpleNode.Type.HRule)));
   }
 
   public Rule note() {
