@@ -142,7 +142,8 @@ public final class HtmlBuilder {
 
   /** Close an open tag with {@code </tag>} */
   public HtmlBuilder close(String tag) {
-    checkArgument(ALLOWED_TAGS.contains(tag) && !SELF_CLOSING_TAGS.equals(tag),
+    checkArgument(
+        ALLOWED_TAGS.contains(tag) && !SELF_CLOSING_TAGS.contains(tag),
         "invalid HTML tag %s", tag);
 
     finishActiveTag();
