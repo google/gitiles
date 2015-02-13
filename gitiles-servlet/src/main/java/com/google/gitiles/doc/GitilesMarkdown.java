@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 /** Parses Gitiles extensions to markdown. */
-class GitilesMarkdown extends Parser implements BlockPluginParser {
+public class GitilesMarkdown extends Parser implements BlockPluginParser {
   private static final Logger log = LoggerFactory.getLogger(MarkdownUtil.class);
 
   // SUPPRESS_ALL_HTML is enabled to permit hosting arbitrary user content
@@ -43,7 +43,7 @@ class GitilesMarkdown extends Parser implements BlockPluginParser {
   // this impacting the rendered formatting.
   private static final int MD_OPTIONS = (ALL | SUPPRESS_ALL_HTML) & ~(HARDWRAPS);
 
-  static RootNode parseFile(GitilesView view, String path, String md) {
+  public static RootNode parseFile(GitilesView view, String path, String md) {
     if (md == null) {
       return null;
     }

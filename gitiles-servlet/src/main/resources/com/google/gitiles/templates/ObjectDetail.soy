@@ -156,6 +156,8 @@
  *     targetName: name of a symlink target, required only if type == 'SYMLINK'.
  *     targetUrl: optional url of a symlink target, required only if
  *         type == 'SYMLINK'.
+ * @param? readmePath optional path of the selected README.md file.
+ * @param? readmeHtml optional rendered README.md contents.
  */
 {template .treeDetail}
 <div class="sha1">
@@ -205,6 +207,11 @@
   </ol>
 {else}
   <p>{msg desc="Informational text for when a tree is empty"}This tree is empty.{/msg}</p>
+{/if}
+
+{if $readmeHtml}
+  <div class="readme-path">{$readmePath}</div>
+  <div class="doc">{$readmeHtml}</div>
 {/if}
 {/template}
 

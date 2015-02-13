@@ -22,11 +22,23 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gitiles.PathServlet.FileType;
+import com.google.gitiles.doc.GitilesMarkdown;
+import com.google.gitiles.doc.ImageLoader;
+import com.google.gitiles.doc.MarkdownToHtml;
+import com.google.template.soy.data.SanitizedContent;
 
+import org.eclipse.jgit.errors.LargeObjectException;
 import org.eclipse.jgit.errors.MissingObjectException;
+import org.eclipse.jgit.lib.Config;
+import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
+import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import org.eclipse.jgit.util.RawParseUtils;
+import org.pegdown.ast.RootNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
@@ -34,6 +46,8 @@ import java.util.Map;
 
 /** Soy data converter for git trees. */
 public class TreeSoyData {
+  private static final Logger log = LoggerFactory.getLogger(TreeSoyData.class);
+
   /**
    * Number of characters to display for a symlink target. Targets longer than
    * this are abbreviated for display in a tree listing.
@@ -71,11 +85,16 @@ public class TreeSoyData {
 
   private final ObjectReader reader;
   private final GitilesView view;
+  private final Config cfg;
+  private final RevTree rootTree;
   private ArchiveFormat archiveFormat;
 
-  public TreeSoyData(ObjectReader reader, GitilesView view) {
+  public TreeSoyData(ObjectReader reader, GitilesView view, Config cfg,
+      RevTree rootTree) {
     this.reader = reader;
     this.view = view;
+    this.cfg = cfg;
+    this.rootTree = rootTree;
   }
 
   public TreeSoyData setArchiveFormat(ArchiveFormat archiveFormat) {
@@ -85,6 +104,9 @@ public class TreeSoyData {
 
   public Map<String, Object> toSoyData(ObjectId treeId, TreeWalk tw) throws MissingObjectException,
          IOException {
+    String readmePath = null;
+    ObjectId readmeId = null;
+
     List<Object> entries = Lists.newArrayList();
     GitilesView.Builder urlBuilder = GitilesView.path().copyFrom(view);
     while (tw.next()) {
@@ -122,6 +144,9 @@ public class TreeSoyData {
         if (targetUrl != null) {
           entry.put("targetUrl", targetUrl);
         }
+      } else if (isReadmeFile(name) && type == FileType.REGULAR_FILE) {
+        readmePath = tw.getPathString();
+        readmeId = tw.getObjectId(0);
       }
       entries.add(entry);
     }
@@ -141,7 +166,17 @@ public class TreeSoyData {
       data.put("archiveType", archiveFormat.getShortName());
     }
 
+    if (readmeId != null && cfg.getBoolean("markdown", "render", true)) {
+      data.put("readmePath", readmePath);
+      data.put("readmeHtml", render(readmePath, readmeId));
+    }
+
     return data;
+  }
+
+  /** True if the file is the default markdown file to render in tree view. */
+  private static boolean isReadmeFile(String name) {
+    return name.equalsIgnoreCase("README.md");
   }
 
   public Map<String, Object> toSoyData(ObjectId treeId) throws MissingObjectException, IOException {
@@ -149,5 +184,31 @@ public class TreeSoyData {
     tw.addTree(treeId);
     tw.setRecursive(false);
     return toSoyData(treeId, tw);
+  }
+
+  private SanitizedContent render(String path, ObjectId id) {
+    try {
+      int inputLimit = cfg.getInt("markdown", "inputLimit", 5 << 20);
+      byte[] raw = reader.open(id, Constants.OBJ_BLOB).getCachedBytes(inputLimit);
+      String md = RawParseUtils.decode(raw);
+      RootNode root = GitilesMarkdown.parseFile(view, path, md);
+      if (root == null) {
+        return null;
+      }
+
+      int imageLimit = cfg.getInt("markdown", "imageLimit", 256 << 10);
+      ImageLoader img = null;
+      if (imageLimit > 0) {
+        img = new ImageLoader(reader, view, rootTree, path, imageLimit);
+      }
+
+      return new MarkdownToHtml(view, cfg)
+        .setImageLoader(img)
+        .toSoyHtml(root);
+    } catch (LargeObjectException | IOException e) {
+      log.error(String.format("error rendering %s/%s/%s",
+          view.getRepositoryName(), view.getPathPart(), path), e);
+      return null;
+    }
   }
 }

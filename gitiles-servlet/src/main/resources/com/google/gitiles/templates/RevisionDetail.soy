@@ -22,6 +22,7 @@
  * @param? headerVariant variant name for custom header.
  * @param breadcrumbs breadcrumbs for this page.
  * @param? hasBlob set to true if the revision or its peeled value is a blob.
+ * @param? hasReadme set to true if the treeDetail has readmeHtml.
  * @param objects list of objects encountered when peeling this object. Each
  *     object has a "type" key with one of the
  *     org.eclipse.jgit.lib.Contants.TYPE_* constant strings, and a "data" key
@@ -32,6 +33,10 @@
 {if $hasBlob}
   {call .header data="all"}
     {param css: [gitiles.PRETTIFY_CSS_URL] /}
+  {/call}
+{elseif $hasReadme}
+  {call .header data="all"}
+    {param css: [gitiles.DOC_CSS_URL] /}
   {/call}
 {else}
   {call .header data="all" /}
