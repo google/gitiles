@@ -22,7 +22,7 @@ import com.google.common.io.Files;
 import java.util.StringTokenizer;
 
 /** Static utilities for dealing with pathnames. */
-class Paths {
+class PathUtil {
   private static final CharMatcher MATCHER = CharMatcher.is('/');
   static final Splitter SPLITTER = Splitter.on(MATCHER);
 
@@ -59,6 +59,6 @@ class Paths {
     return path.substring(slash + 1);
   }
 
-  private Paths() {
+  private PathUtil() {
   }
 }

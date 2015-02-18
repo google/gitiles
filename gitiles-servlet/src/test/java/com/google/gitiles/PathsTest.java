@@ -14,7 +14,7 @@
 
 package com.google.gitiles;
 
-import static com.google.gitiles.Paths.simplifyPathUpToRoot;
+import static com.google.gitiles.PathUtil.simplifyPathUpToRoot;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
@@ -22,7 +22,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Tests for {@link Paths}. */
+/** Tests for {@link PathUtil}. */
 @RunWith(JUnit4.class)
 public class PathsTest {
   @Test

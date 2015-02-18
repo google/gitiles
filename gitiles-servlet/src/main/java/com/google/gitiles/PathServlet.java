@@ -542,7 +542,7 @@ public class PathServlet extends BaseServlet {
     try {
       modulesUrl = sw.getModulesUrl();
       if (modulesUrl != null && (modulesUrl.startsWith("./") || modulesUrl.startsWith("../"))) {
-        String moduleRepo = Paths.simplifyPathUpToRoot(modulesUrl, view.getRepositoryName());
+        String moduleRepo = PathUtil.simplifyPathUpToRoot(modulesUrl, view.getRepositoryName());
         if (moduleRepo != null) {
           modulesUrl = urls.getBaseGitUrl(req) + moduleRepo;
         }

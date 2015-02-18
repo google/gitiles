@@ -62,7 +62,7 @@ public class TreeSoyData {
   static final int MAX_SYMLINK_SIZE = 16 << 10;
 
   static String resolveTargetUrl(GitilesView view, String target) {
-    String resolved = Paths.simplifyPathUpToRoot(target, view.getPathPart());
+    String resolved = PathUtil.simplifyPathUpToRoot(target, view.getPathPart());
     if (resolved == null) {
       return null;
     }

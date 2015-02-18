@@ -99,7 +99,7 @@ public class ArchiveServlet extends BaseServlet {
 
   private String getFilename(GitilesView view, Revision rev, String ext) {
     StringBuilder sb = new StringBuilder()
-        .append(Paths.basename(view.getRepositoryName()))
+        .append(PathUtil.basename(view.getRepositoryName()))
         .append('-')
         .append(rev.getName());
     if (view.getPathPart() != null) {

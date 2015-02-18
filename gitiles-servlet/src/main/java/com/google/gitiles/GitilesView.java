@@ -722,7 +722,7 @@ public class GitilesView {
         breadcrumbs.add(breadcrumb(".", copyWithPath(false).setPathPart("")));
       }
       StringBuilder cur = new StringBuilder();
-      List<String> parts = Paths.SPLITTER.omitEmptyStrings().splitToList(path);
+      List<String> parts = PathUtil.SPLITTER.omitEmptyStrings().splitToList(path);
       checkArgument(hasSingleTree == null
           || (parts.isEmpty() && hasSingleTree.isEmpty())
           || hasSingleTree.size() == parts.size() - 1,

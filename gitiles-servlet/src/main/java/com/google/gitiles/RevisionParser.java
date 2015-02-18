@@ -115,7 +115,7 @@ class RevisionParser {
 
       StringBuilder b = new StringBuilder();
       boolean first = true;
-      for (String part : Paths.SPLITTER.split(path)) {
+      for (String part : PathUtil.SPLITTER.split(path)) {
         if (part.isEmpty()) {
           return null; // No valid revision contains empty segments.
         }
