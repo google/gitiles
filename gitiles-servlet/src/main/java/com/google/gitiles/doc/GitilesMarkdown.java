@@ -111,7 +111,7 @@ public class GitilesMarkdown extends Parser implements BlockPluginParser {
               sequence(string("src="), attribute(src)),
               sequence(string("height="), attribute(h)),
               sequence(string("width="), attribute(w)),
-              sequence(string("frameborder="), attribute(w))
+              sequence(string("frameborder="), attribute(b))
             ))),
         Spn1(), '>',
         Spn1(), string("</iframe>"),
