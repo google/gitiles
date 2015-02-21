@@ -16,6 +16,7 @@ package com.google.gitiles.doc;
 
 public interface Visitor extends org.pegdown.ast.Visitor {
   void visit(ColsNode node);
+  void visit(ColsNode.Column node);
   void visit(DivNode node);
   void visit(IframeNode node);
   void visit(TocNode node);

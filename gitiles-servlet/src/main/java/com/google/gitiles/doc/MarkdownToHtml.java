@@ -119,21 +119,17 @@ public class MarkdownToHtml implements Visitor {
   @Override
   public void visit(ColsNode node) {
     html.open("div").attribute("class", "cols");
-    boolean open = false;
-    for (Node n : node.getChildren()) {
-      if (n instanceof HeaderNode || n instanceof DivNode) {
-        if (open) {
-          html.close("div");
-        }
-        html.open("div").attribute("class", "col-3");
-        open = true;
-      }
-      n.accept(this);
-    }
-    if (open) {
+    visitChildren(node);
+    html.close("div");
+  }
+
+  @Override
+  public void visit(ColsNode.Column node) {
+    if (1 <= node.span && node.span <= ColsNode.GRID_WIDTH) {
+      html.open("div").attribute("class", "col-" + node.span);
+      visitChildren(node);
       html.close("div");
     }
-    html.close("div");
   }
 
   @Override

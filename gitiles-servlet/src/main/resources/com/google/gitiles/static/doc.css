@@ -282,11 +282,23 @@ iframe.noborder {
   margin: 0 -1.533%;
   width: 103.067%;
 }
-.col-3 {
+.col-1, .col-2, .col-3, .col-4, .col-5, .col-6,
+.col-7, .col-8, .col-9, .col-10, .col-11, .col-12 {
   float: left;
   margin: 0 1.488% 20px;
 }
-.col-3 { width: 22.023%; }
+.col-1 { width: 5.357%; }
+.col-2 { width: 13.690%; }
+.col-3 { width: 22.024%; }
+.col-4 { width: 30.357%; }
+.col-5 { width: 38.690%; }
+.col-6 { width: 47.024%; }
+.col-7 { width: 55.357%; }
+.col-8 { width: 63.690%; }
+.col-9 { width: 72.024%; }
+.col-10 { width: 80.357%; }
+.col-11 { width: 88.690%; }
+.col-12 { width: 97.024%; }
 .cols hr {
   width: 80%;
 }

@@ -458,8 +458,9 @@ Promotions can raise awareness of an important concept.
 
 ### Column layout
 
-Gitiles markdown includes support for up to 4 columns of text within
-the width of the page.
+Gitiles markdown includes support for up to 12 columns of text across
+the width of the page.  By default space is divided equally between
+the columns.
 
 |||---|||
 #### Columns
@@ -499,6 +500,31 @@ trendy.
 ***
 |||---|||
 ```
+
+Column spans can be specified on the first line as a comma separated
+list.  In the example below the first column is 4 wide or 4/12ths of
+the page width, the second is 2 wide (or 2/12ths) and the final column
+is 6 wide (6/12ths or 50%) of the page.
+
+```
+|||---||| 4,2,6
+```
+
+An empty column can be inserted by prefixing its width with `:`,
+for example shifting content onto the right by padding 6 columns
+on the left:
+
+```
+|||---||| :6,3
+# Right
+|||---|||
+```
+
+renders as:
+
+|||---||| :6,3
+# Right
+|||---|||
 
 ### HTML IFrame
 
