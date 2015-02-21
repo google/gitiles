@@ -63,7 +63,7 @@ class Navbar {
         } else if (HtmlBuilder.isImageDataUri(url)) {
           src = Sanitizers.filterImageDataUri(url);
         } else if (img != null) {
-          src = img.loadImage(url);
+          src = Sanitizers.filterImageDataUri(img.loadImage(url));
         } else {
           src = FilterImageDataUri.INSTANCE.getInnocuousOutput();
         }
