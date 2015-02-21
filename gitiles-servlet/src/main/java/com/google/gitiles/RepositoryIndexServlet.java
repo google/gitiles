@@ -18,16 +18,20 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.gitiles.DateFormatter.Format;
 import com.google.gson.reflect.TypeToken;
 
+import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.http.server.ServletUtils;
+import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevObject;
+import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 
 import java.io.IOException;
@@ -45,6 +49,7 @@ public class RepositoryIndexServlet extends BaseServlet {
 
   static final int REF_LIMIT = 10;
   private static final int LOG_LIMIT = 20;
+  private static final int LOG_WITH_README_LIMIT = 5;
 
   private final TimeCache timeCache;
 
@@ -69,11 +74,17 @@ public class RepositoryIndexServlet extends BaseServlet {
       ObjectId headId = repo.resolve(Constants.HEAD);
       if (headId != null) {
         RevObject head = walk.parseAny(headId);
+        int limit = LOG_LIMIT;
+        Map<String, Object> readme = renderReadme(walk, view, access.getConfig(), head);
+        if (readme != null) {
+          data.putAll(readme);
+          limit = LOG_WITH_README_LIMIT;
+        }
         // TODO(dborowitz): Handle non-commit or missing HEAD?
         if (head.getType() == Constants.OBJ_COMMIT) {
           walk.reset();
           walk.markStart((RevCommit) head);
-          paginator = new Paginator(walk, LOG_LIMIT, null);
+          paginator = new Paginator(walk, limit, null);
         }
       }
       if (!data.containsKey("entries")) {
@@ -120,5 +131,22 @@ public class RepositoryIndexServlet extends BaseServlet {
 
   private static <T> List<T> trim(List<T> list) {
     return list.size() > REF_LIMIT ? list.subList(0, REF_LIMIT) : list;
+  }
+
+  private Map<String, Object> renderReadme(RevWalk walk, GitilesView view,
+      Config cfg, RevObject head) throws IOException {
+    RevTree rootTree;
+    try {
+      rootTree = walk.parseTree(head);
+    } catch (IncorrectObjectTypeException notTreeish) {
+      return null;
+    }
+
+    ReadmeHelper readme = new ReadmeHelper(walk.getObjectReader(), view, cfg, rootTree);
+    readme.scanTree(rootTree);
+    if (readme.isPresent()) {
+      return ImmutableMap.<String, Object> of("readmeHtml", readme.render());
+    }
+    return null;
   }
 }

@@ -28,15 +28,27 @@
  * @param tags list of tag objects with url and name keys.
  * @param? moreTagsUrl URL to show more branches, if necessary.
  * @param hasLog whether a log should be shown for HEAD.
+ * @param? readmeHtml optional rendered README.md contents.
  */
 {template .repositoryIndex}
-{call .header}
-  {param title: $repositoryName /}
-  {param repositoryName: null /}
-  {param menuEntries: $menuEntries /}
-  {param headerVariant: $headerVariant /}
-  {param breadcrumbs: $breadcrumbs /}
-{/call}
+{if $readmeHtml}
+  {call .header data="all"}
+    {param title: $repositoryName /}
+    {param repositoryName: null /}
+    {param menuEntries: $menuEntries /}
+    {param headerVariant: $headerVariant /}
+    {param breadcrumbs: $breadcrumbs /}
+    {param css: [gitiles.DOC_CSS_URL] /}
+  {/call}
+{else}
+  {call .header}
+    {param title: $repositoryName /}
+    {param repositoryName: null /}
+    {param menuEntries: $menuEntries /}
+    {param headerVariant: $headerVariant /}
+    {param breadcrumbs: $breadcrumbs /}
+  {/call}
+{/if}
 
 {if $description or $mirroredFromUrl}
   <div class="repository-description">
@@ -62,6 +74,9 @@
     <div class="repository-shortlog">
       {call .streamingPlaceholder /}
     </div>
+    {if $readmeHtml}
+      <div class="doc repository-index-doc">{$readmeHtml}</div>
+    {/if}
   </div>
 
   <div class="repository-refs">
