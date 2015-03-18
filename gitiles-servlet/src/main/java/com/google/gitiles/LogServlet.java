@@ -42,15 +42,19 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevObject;
 import org.eclipse.jgit.revwalk.RevTag;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.revwalk.filter.AndRevFilter;
+import org.eclipse.jgit.revwalk.filter.RevFilter;
 import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
+import org.eclipse.jgit.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -211,15 +215,33 @@ public class LogServlet extends BaseServlet {
           PathFilterGroup.createFromStrings(view.getPathPart()),
           TreeFilter.ANY_DIFF));
     }
+    List<RevFilter> filters = new ArrayList<>(3);
+    if (isTrue(Iterables.getFirst(view.getParameters().get("no-merges"), null))) {
+      filters.add(RevFilter.NO_MERGES);
+    }
     String author = Iterables.getFirst(view.getParameters().get("author"), null);
     if (author != null) {
-      walk.setRevFilter(IdentRevFilter.author(author));
+      filters.add(IdentRevFilter.author(author));
     }
     String committer = Iterables.getFirst(view.getParameters().get("committer"), null);
     if (committer != null) {
-      walk.setRevFilter(IdentRevFilter.committer(committer));
+      filters.add(IdentRevFilter.committer(committer));
+    }
+    if (filters.size() > 1) {
+      walk.setRevFilter(AndRevFilter.create(filters));
+    } else if (filters.size() == 1) {
+      walk.setRevFilter(filters.get(0));
     }
     return walk;
+  }
+
+  private static boolean isTrue(String v) {
+    if (v == null) {
+      return false;
+    } else if (v.isEmpty()) {
+      return true;
+    }
+    return Boolean.TRUE.equals(StringUtils.toBooleanOrNull(v));
   }
 
   private static Paginator newPaginator(Repository repo, GitilesView view) throws IOException {
