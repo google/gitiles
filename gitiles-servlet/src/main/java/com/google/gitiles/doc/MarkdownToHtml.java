@@ -291,7 +291,9 @@ public class MarkdownToHtml implements Visitor {
       html.close("a");
     } else {
       // Treat a broken RefLink as plain text.
+      html.appendAndEscape("[");
       visitChildren(node);
+      html.appendAndEscape("]");
     }
   }
 

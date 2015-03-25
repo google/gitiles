@@ -35,6 +35,9 @@ class ReferenceMap {
 
   ReferenceNode get(SuperNode keyNode, String text) {
     String id = keyNode != null ? getInnerText(keyNode) : text;
+    if (id == null || id.isEmpty()) {
+      return null;
+    }
     return references.get(key(id));
   }
 
