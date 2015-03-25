@@ -142,7 +142,10 @@ public class RepositoryIndexServlet extends BaseServlet {
       return null;
     }
 
-    ReadmeHelper readme = new ReadmeHelper(walk.getObjectReader(), view, cfg, rootTree);
+    ReadmeHelper readme = new ReadmeHelper(
+        walk.getObjectReader(),
+        GitilesView.path().copyFrom(view).setRevision(Revision.HEAD).setPathPart("/").build(),
+        cfg, rootTree);
     readme.scanTree(rootTree);
     if (readme.isPresent()) {
       return ImmutableMap.<String, Object> of("readmeHtml", readme.render());

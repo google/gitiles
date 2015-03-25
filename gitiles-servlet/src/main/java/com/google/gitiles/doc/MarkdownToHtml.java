@@ -75,6 +75,7 @@ public class MarkdownToHtml implements Visitor {
   private final GitilesView view;
   private final Config cfg;
   private ImageLoader imageLoader;
+  private boolean readme;
   private TableState table;
 
   public MarkdownToHtml(GitilesView view, Config cfg) {
@@ -84,6 +85,11 @@ public class MarkdownToHtml implements Visitor {
 
   public MarkdownToHtml setImageLoader(ImageLoader img) {
     imageLoader = img;
+    return this;
+  }
+
+  public MarkdownToHtml setReadme(boolean readme) {
+    this.readme = readme;
     return this;
   }
 
@@ -298,8 +304,22 @@ public class MarkdownToHtml implements Visitor {
   }
 
   private String href(String url) {
+    if (HtmlBuilder.isValidHttpUri(url)) {
+      return url;
+    }
     if (MarkdownUtil.isAbsolutePathToMarkdown(url)) {
-      return GitilesView.doc().copyFrom(view).setPathPart(url).build().toUrl();
+      return GitilesView.path().copyFrom(view).setPathPart(url).build().toUrl();
+    }
+    if (readme && !url.startsWith("../") && !url.startsWith("./")) {
+      String dir = "";
+      if (view.getPathPart() != null && view.getPathPart().endsWith("/")) {
+        dir = view.getPathPart();
+      } else if (view.getPathPart() != null) {
+        dir = view.getPathPart() + '/';
+      }
+      return GitilesView.path().copyFrom(view)
+          .setPathPart(dir + url)
+          .build().toUrl();
     }
     return url;
   }

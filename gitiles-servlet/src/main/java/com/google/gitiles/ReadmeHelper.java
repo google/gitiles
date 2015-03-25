@@ -105,6 +105,7 @@ class ReadmeHelper {
 
       return new MarkdownToHtml(view, cfg)
         .setImageLoader(img)
+        .setReadme(true)
         .toSoyHtml(root);
     } catch (LargeObjectException | IOException e) {
       log.error(String.format("error rendering %s/%s",
