@@ -115,7 +115,7 @@ public class DocServlet extends BaseServlet {
           view, srcmd.path,
           srcmd.read(rw.getObjectReader(), inputLimit));
       if (doc == null) {
-        res.setStatus(SC_INTERNAL_SERVER_ERROR);
+        res.sendRedirect(GitilesView.show().copyFrom(view).toUrl());
         return;
       }
 
