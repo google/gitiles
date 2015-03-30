@@ -14,10 +14,12 @@
 
 package com.google.gitiles.doc;
 
+import com.google.common.base.Throwables;
 import com.google.gitiles.GitilesView;
 
 import org.parboiled.Rule;
 import org.parboiled.common.Factory;
+import org.parboiled.errors.ParserRuntimeException;
 import org.parboiled.support.StringBuilderVar;
 import org.parboiled.support.Var;
 import org.pegdown.Parser;
@@ -52,7 +54,12 @@ public class GitilesMarkdown extends Parser implements BlockPluginParser {
     }
 
     try {
-      return newParser().parseMarkdown(md.toCharArray());
+      try {
+        return newParser().parseMarkdown(md.toCharArray());
+      } catch (ParserRuntimeException e) {
+        Throwables.propagateIfInstanceOf(e.getCause(), ParsingTimeoutException.class);
+        throw e;
+      }
     } catch (ParsingTimeoutException e) {
       log.error("timeout rendering {}/{} at {}",
           view.getRepositoryName(),
