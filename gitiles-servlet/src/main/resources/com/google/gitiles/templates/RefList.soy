@@ -34,7 +34,7 @@
 {/call}
 
 {if length($branches)}
-  <div class="refs-branches">
+  <div class="refs-branches refs-detail">
     {call .refList}
       {param type: 'Branches' /}
       {param refs: $branches /}
@@ -43,7 +43,7 @@
 {/if}
 
 {if length($tags)}
-  <div class="refs-tags">
+  <div class="refs-tags refs-detail">
     {call .refList}
       {param type: 'Tags' /}
       {param refs: $tags /}
