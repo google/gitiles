@@ -152,9 +152,6 @@ class CommitData {
       if (fs.contains(Field.PARENTS)) {
         result.parents = Arrays.asList(c.getParents());
       }
-      if (fs.contains(Field.SHORT_MESSAGE)) {
-        result.shortMessage = c.getShortMessage();
-      }
       if (fs.contains(Field.BRANCHES)) {
         result.branches = getRefsById(repo, c, Constants.R_HEADS);
       }
@@ -163,6 +160,20 @@ class CommitData {
       }
       if (fs.contains(Field.MESSAGE)) {
         result.message = c.getFullMessage();
+      }
+      if (fs.contains(Field.SHORT_MESSAGE)) {
+        String msg = c.getShortMessage();
+        if (msg.length() > 80) {
+          String ft = result.message;
+          if (ft == null) {
+            ft = c.getFullMessage();
+          }
+          int lf = ft.indexOf('\n');
+          if (lf > 0) {
+            msg = ft.substring(0, lf);
+          }
+        }
+        result.shortMessage = msg;
       }
       if (fs.contains(Field.DIFF_TREE)) {
         result.diffEntries = computeDiffEntries(repo, view, c);
