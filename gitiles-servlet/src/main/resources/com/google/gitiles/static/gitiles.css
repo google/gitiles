@@ -156,6 +156,18 @@ table.list td {
   float: left;
   width: 200px;
 }
+.refs-detail {
+  width: 500px;
+}
+.ref-list {
+  padding-left: 15px;
+  padding-right: 5px;
+}
+.ref-list li {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .ref-list li.head-ref {
   font-weight: bold;
 }
