@@ -79,8 +79,7 @@ public class ArchiveServlet extends BaseServlet {
   }
 
   private ObjectId getTree(GitilesView view, Repository repo, Revision rev) throws IOException {
-    RevWalk rw = new RevWalk(repo);
-    try {
+    try (RevWalk rw = new RevWalk(repo)) {
       RevTree tree = rw.parseTree(rev.getId());
       if (Strings.isNullOrEmpty(view.getPathPart())) {
         return tree;
@@ -92,8 +91,6 @@ public class ArchiveServlet extends BaseServlet {
       return tw.getObjectId(0);
     } catch (IncorrectObjectTypeException e) {
       return ObjectId.zeroId();
-    } finally {
-      rw.release();
     }
   }
 

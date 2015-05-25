@@ -130,7 +130,7 @@ public class LogServlet extends BaseServlet {
       res.setStatus(SC_INTERNAL_SERVER_ERROR);
       return;
     } finally {
-      paginator.getWalk().release();
+      paginator.getWalk().close();
     }
   }
 
@@ -161,7 +161,7 @@ public class LogServlet extends BaseServlet {
       }
       renderJson(req, res, result, new TypeToken<Map<String, Object>>() {}.getType());
     } finally {
-      paginator.getWalk().release();
+      paginator.getWalk().close();
     }
   }
 
@@ -174,14 +174,11 @@ public class LogServlet extends BaseServlet {
     if (headRef == null) {
       return null;
     }
-    RevWalk walk = new RevWalk(repo);
-    try {
+    try (RevWalk walk = new RevWalk(repo)) {
       return GitilesView.log()
         .copyFrom(view)
         .setRevision(Revision.peel(Constants.HEAD, walk.parseAny(headRef.getObjectId()), walk))
         .build();
-    } finally {
-      walk.release();
     }
   }
 
@@ -260,7 +257,7 @@ public class LogServlet extends BaseServlet {
     try {
       start = getStart(view.getParameters(), walk.getObjectReader());
     } catch (IOException e) {
-      walk.release();
+      walk.close();
       throw e;
     }
     if (start == null) {

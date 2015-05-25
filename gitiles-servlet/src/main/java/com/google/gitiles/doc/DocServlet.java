@@ -84,8 +84,7 @@ public class DocServlet extends BaseServlet {
 
     GitilesView view = ViewFilter.getView(req);
     Repository repo = ServletUtils.getRepository(req);
-    RevWalk rw = new RevWalk(repo);
-    try {
+    try (RevWalk rw = new RevWalk(repo)) {
       String path = view.getPathPart();
       RevTree root;
       try {
@@ -139,8 +138,6 @@ public class DocServlet extends BaseServlet {
 
       res.setHeader(HttpHeaders.ETAG, curEtag);
       showDoc(req, res, view, cfg, img, nav, doc);
-    } finally {
-      rw.release();
     }
   }
 

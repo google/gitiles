@@ -50,7 +50,7 @@ public class PaginatorTest {
 
   @After
   public void tearDown() throws Exception {
-    walk.release();
+    walk.close();
   }
 
   @Test

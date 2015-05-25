@@ -125,10 +125,8 @@ public class PathServlet extends BaseServlet {
     GitilesView view = ViewFilter.getView(req);
     Repository repo = ServletUtils.getRepository(req);
 
-    RevWalk rw = new RevWalk(repo);
-    WalkResult wr = null;
-    try {
-      wr = WalkResult.forPath(rw, view);
+    try (RevWalk rw = new RevWalk(repo);
+        WalkResult wr = WalkResult.forPath(rw, view)) {
       if (wr == null) {
         res.setStatus(SC_NOT_FOUND);
         return;
@@ -154,11 +152,6 @@ public class PathServlet extends BaseServlet {
       }
     } catch (LargeObjectException e) {
       res.setStatus(SC_INTERNAL_SERVER_ERROR);
-    } finally {
-      if (wr != null) {
-        wr.release();
-      }
-      rw.release();
     }
   }
 
@@ -167,10 +160,8 @@ public class PathServlet extends BaseServlet {
     GitilesView view = ViewFilter.getView(req);
     Repository repo = ServletUtils.getRepository(req);
 
-    RevWalk rw = new RevWalk(repo);
-    WalkResult wr = null;
-    try {
-      wr = WalkResult.forPath(rw, view);
+    try (RevWalk rw = new RevWalk(repo);
+        WalkResult wr = WalkResult.forPath(rw, view)) {
       if (wr == null) {
         res.setStatus(SC_NOT_FOUND);
         return;
@@ -195,11 +186,6 @@ public class PathServlet extends BaseServlet {
       }
     } catch (LargeObjectException e) {
       res.setStatus(SC_INTERNAL_SERVER_ERROR);
-    } finally {
-      if (wr != null) {
-        wr.release();
-      }
-      rw.release();
     }
   }
 
@@ -248,10 +234,8 @@ public class PathServlet extends BaseServlet {
     GitilesView view = ViewFilter.getView(req);
     Repository repo = ServletUtils.getRepository(req);
 
-    RevWalk rw = new RevWalk(repo);
-    WalkResult wr = null;
-    try {
-      wr = WalkResult.forPath(rw, view);
+    try (RevWalk rw = new RevWalk(repo);
+        WalkResult wr = WalkResult.forPath(rw, view)) {
       if (wr == null) {
         res.setStatus(SC_NOT_FOUND);
         return;
@@ -266,11 +250,6 @@ public class PathServlet extends BaseServlet {
       }
     } catch (LargeObjectException e) {
       res.setStatus(SC_INTERNAL_SERVER_ERROR);
-    } finally {
-      if (wr != null) {
-        wr.release();
-      }
-      rw.release();
     }
   }
 
@@ -356,7 +335,7 @@ public class PathServlet extends BaseServlet {
    * Unlike {@link TreeWalk} itself, supports positioning at the root tree.
    * Includes information to help the auto-dive routine as well.
    */
-  private static class WalkResult {
+  private static class WalkResult implements AutoCloseable {
     private static WalkResult forPath(RevWalk rw, GitilesView view) throws IOException {
       RevTree root = getRoot(view, rw);
       String path = view.getPathPart();
@@ -385,7 +364,7 @@ public class PathServlet extends BaseServlet {
       } catch (IOException | RuntimeException e) {
         // Fallthrough.
       }
-      tw.release();
+      tw.close();
       return null;
     }
 
@@ -410,8 +389,9 @@ public class PathServlet extends BaseServlet {
       return tw.getObjectReader();
     }
 
-    private void release() {
-      tw.release();
+    @Override
+    public void close() {
+      tw.close();
     }
   }
 
@@ -534,12 +514,13 @@ public class PathServlet extends BaseServlet {
   private void showGitlink(HttpServletRequest req, HttpServletResponse res, WalkResult wr)
       throws IOException {
     GitilesView view = ViewFilter.getView(req);
-    SubmoduleWalk sw = SubmoduleWalk.forPath(ServletUtils.getRepository(req), wr.root,
-        view.getPathPart());
-
     String modulesUrl;
     String remoteUrl = null;
-    try {
+
+    try (SubmoduleWalk sw = SubmoduleWalk.forPath(
+          ServletUtils.getRepository(req),
+          wr.root,
+          view.getPathPart())) {
       modulesUrl = sw.getModulesUrl();
       if (modulesUrl != null && (modulesUrl.startsWith("./") || modulesUrl.startsWith("../"))) {
         String moduleRepo = PathUtil.simplifyPathUpToRoot(modulesUrl, view.getRepositoryName());
@@ -551,8 +532,6 @@ public class PathServlet extends BaseServlet {
       }
     } catch (ConfigInvalidException e) {
       throw new IOException(e);
-    } finally {
-      sw.release();
     }
 
     Map<String, Object> data = Maps.newHashMap();

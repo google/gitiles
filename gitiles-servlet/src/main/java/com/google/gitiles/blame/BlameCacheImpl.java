@@ -133,8 +133,7 @@ public class BlameCacheImpl implements BlameCache {
   public ObjectId findLastCommit(Repository repo, ObjectId commitId, String path)
       throws IOException {
     // Default implementation does no caching.
-    RevWalk rw = new RevWalk(repo);
-    try {
+    try (RevWalk rw = new RevWalk(repo)) {
       rw.markStart(rw.parseCommit(commitId));
       rw.setRewriteParents(false);
       // Don't use rename detection, even though BlameGenerator does. It is not
@@ -144,20 +143,13 @@ public class BlameCacheImpl implements BlameCache {
           PathFilterGroup.createFromStrings(path),
           TreeFilter.ANY_DIFF));
       return rw.next();
-    } finally {
-      rw.release();
     }
   }
 
   public static List<Region> loadBlame(Key key) throws IOException {
-    try {
-      BlameGenerator gen = new BlameGenerator(key.repo, key.path);
-      try {
-        gen.push(null, key.commitId);
-        return loadRegions(gen);
-      } finally {
-        gen.release();
-      }
+    try (BlameGenerator gen = new BlameGenerator(key.repo, key.path)) {
+      gen.push(null, key.commitId);
+      return loadRegions(gen);
     } finally {
       key.repo = null;
     }

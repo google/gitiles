@@ -74,8 +74,7 @@ public class BlameServlet extends BaseServlet {
     GitilesView view = ViewFilter.getView(req);
     Repository repo = ServletUtils.getRepository(req);
 
-    RevWalk rw = new RevWalk(repo);
-    try {
+    try (RevWalk rw = new RevWalk(repo)) {
       GitilesAccess access = getAccess(req);
       RegionResult result = getRegions(view, access, repo, rw, res);
       if (result == null) {
@@ -98,8 +97,6 @@ public class BlameServlet extends BaseServlet {
             "breadcrumbs", view.getBreadcrumbs(),
             "data", blobData));
       }
-    } finally {
-      rw.release();
     }
   }
 
@@ -108,8 +105,7 @@ public class BlameServlet extends BaseServlet {
     GitilesView view = ViewFilter.getView(req);
     Repository repo = ServletUtils.getRepository(req);
 
-    RevWalk rw = new RevWalk(repo);
-    try {
+    try (RevWalk rw = new RevWalk(repo)) {
       RegionResult result = getRegions(view, getAccess(req), repo, rw, res);
       if (result == null) {
         return;
@@ -124,8 +120,6 @@ public class BlameServlet extends BaseServlet {
       }
       renderJson(req, res, ImmutableMap.of("regions", result.regions),
           new TypeToken<Map<String, List<Region>>>() {}.getType());
-    } finally {
-      rw.release();
     }
   }
 

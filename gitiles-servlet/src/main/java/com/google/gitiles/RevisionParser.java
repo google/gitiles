@@ -109,8 +109,7 @@ class RevisionParser {
     if (path.startsWith("/")) {
       path = path.substring(1);
     }
-    RevWalk walk = new RevWalk(repo);
-    try {
+    try (RevWalk walk = new RevWalk(repo)) {
       Revision oldRevision = null;
 
       StringBuilder b = new StringBuilder();
@@ -194,8 +193,6 @@ class RevisionParser {
         first = false;
       }
       return null;
-    } finally {
-      walk.release();
     }
   }
 

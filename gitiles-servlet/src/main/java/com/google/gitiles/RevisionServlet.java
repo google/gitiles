@@ -80,8 +80,7 @@ public class RevisionServlet extends BaseServlet {
     GitilesAccess access = getAccess(req);
     Config cfg = getAccess(req).getConfig();
 
-    RevWalk walk = new RevWalk(repo);
-    try {
+    try (RevWalk walk = new RevWalk(repo)) {
       DateFormatter df = new DateFormatter(access, Format.DEFAULT);
       List<RevObject> objects = listObjects(walk, view.getRevision());
       List<Map<String, ?>> soyObjects = Lists.newArrayListWithCapacity(objects.size());
@@ -142,8 +141,6 @@ public class RevisionServlet extends BaseServlet {
           "objects", soyObjects,
           "hasBlob", hasBlob,
           "hasReadme", hasReadme));
-    } finally {
-      walk.release();
     }
   }
 
@@ -151,8 +148,7 @@ public class RevisionServlet extends BaseServlet {
   protected void doGetText(HttpServletRequest req, HttpServletResponse res) throws IOException {
     GitilesView view = ViewFilter.getView(req);
     Repository repo = ServletUtils.getRepository(req);
-    ObjectReader reader = repo.newObjectReader();
-    try {
+    try (ObjectReader reader = repo.newObjectReader()) {
         ObjectLoader loader = reader.open(view.getRevision().getId());
         if (loader.getType() != OBJ_COMMIT) {
           res.setStatus(SC_NOT_FOUND);
@@ -163,8 +159,6 @@ public class RevisionServlet extends BaseServlet {
             loader.copyTo(out);
           }
         }
-    } finally {
-      reader.release();
     }
   }
 
@@ -173,8 +167,7 @@ public class RevisionServlet extends BaseServlet {
     GitilesView view = ViewFilter.getView(req);
     Repository repo = ServletUtils.getRepository(req);
 
-    RevWalk walk = new RevWalk(repo);
-    try {
+    try (RevWalk walk = new RevWalk(repo)) {
       DateFormatter df = new DateFormatter(getAccess(req), Format.DEFAULT);
       RevObject obj = walk.parseAny(view.getRevision().getId());
       switch (obj.getType()) {
@@ -189,8 +182,6 @@ public class RevisionServlet extends BaseServlet {
           res.setStatus(SC_NOT_FOUND);
           break;
       }
-    } finally {
-      walk.release();
     }
   }
 

@@ -65,12 +65,9 @@ public class RefServlet extends BaseServlet {
       res.setStatus(SC_NOT_FOUND);
       return;
     }
-    RevWalk walk = new RevWalk(ServletUtils.getRepository(req));
     List<Map<String, Object>> tags;
-    try {
+    try (RevWalk walk = new RevWalk(ServletUtils.getRepository(req))) {
       tags = getTagsSoyData(req, timeCache, walk, 0);
-    } finally {
-      walk.release();
     }
     renderHtml(req, res, "gitiles.refsDetail",
         ImmutableMap.of("branches", getBranchesSoyData(req, 0), "tags", tags));

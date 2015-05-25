@@ -119,11 +119,8 @@ class CommitData {
         result.sha = c.copy();
       }
       if (fs.contains(Field.ABBREV_SHA)) {
-        ObjectReader reader = repo.getObjectDatabase().newReader();
-        try {
+        try (ObjectReader reader = repo.getObjectDatabase().newReader()) {
           result.abbrev = reader.abbreviate(c);
-        } finally {
-          reader.release();
         }
       }
       if (fs.contains(Field.URL)) {
@@ -245,14 +242,11 @@ class CommitData {
       }
       AbstractTreeIterator newTree = getTreeIterator(commit);
 
-      DiffFormatter diff = new DiffFormatter(NullOutputStream.INSTANCE);
-      try {
+      try (DiffFormatter diff = new DiffFormatter(NullOutputStream.INSTANCE)) {
         diff.setRepository(repo);
         diff.setDetectRenames(true);
         result.entries = diff.scan(oldTree, newTree);
         return result;
-      } finally {
-        diff.release();
       }
     }
   }

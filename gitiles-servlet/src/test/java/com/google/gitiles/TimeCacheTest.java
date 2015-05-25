@@ -116,13 +116,10 @@ public class TimeCacheTest {
     builder.setObjectId(commit);
     builder.setTag("tag");
     builder.setMessage("");
-    ObjectInserter ins = repo.getRepository().newObjectInserter();
     ObjectId id;
-    try {
+    try (ObjectInserter ins = repo.getRepository().newObjectInserter()) {
       id = ins.insert(builder);
       ins.flush();
-    } finally {
-      ins.release();
     }
     assertEquals(start + 1, getTime(commit));
     assertEquals(start + 1, getTime(id));
@@ -139,13 +136,10 @@ public class TimeCacheTest {
     builder.setObjectId(tag);
     builder.setTag("tagtag");
     builder.setMessage("");
-    ObjectInserter ins = repo.getRepository().newObjectInserter();
     ObjectId tagTagId;
-    try {
+    try (ObjectInserter ins = repo.getRepository().newObjectInserter()) {
       tagTagId = ins.insert(builder);
       ins.flush();
-    } finally {
-      ins.release();
     }
     assertEquals(start + 1, getTime(commit));
     assertEquals(start + 2, getTime(tag));

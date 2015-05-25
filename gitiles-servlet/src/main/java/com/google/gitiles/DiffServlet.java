@@ -62,14 +62,12 @@ public class DiffServlet extends BaseServlet {
     GitilesView view = ViewFilter.getView(req);
     Repository repo = ServletUtils.getRepository(req);
 
-    RevWalk walk = new RevWalk(repo);
-    TreeWalk tw = null;
-    try {
+    try (RevWalk walk = new RevWalk(repo);
+        TreeWalk tw = newTreeWalk(walk, view)) {
       boolean showCommit, isFile;
       AbstractTreeIterator oldTree;
       AbstractTreeIterator newTree;
       try {
-        tw = newTreeWalk(walk, view);
         if (tw == null && !view.getPathPart().isEmpty()) {
           res.setStatus(SC_NOT_FOUND);
           return;
@@ -108,15 +106,10 @@ public class DiffServlet extends BaseServlet {
       }
 
       setCacheHeaders(res);
-      try (OutputStream out = startRenderStreamingHtml(req, res, "gitiles.diffDetail", data)) {
-        DiffFormatter diff = new HtmlDiffFormatter(renderer, view, out);
+      try (OutputStream out = startRenderStreamingHtml(req, res, "gitiles.diffDetail", data);
+        DiffFormatter diff = new HtmlDiffFormatter(renderer, view, out)) {
         formatDiff(repo, oldTree, newTree, view.getPathPart(), diff);
       }
-    } finally {
-      if (tw != null) {
-        tw.release();
-      }
-      walk.release();
     }
   }
 
@@ -126,8 +119,7 @@ public class DiffServlet extends BaseServlet {
     GitilesView view = ViewFilter.getView(req);
     Repository repo = ServletUtils.getRepository(req);
 
-    RevWalk walk = new RevWalk(repo);
-    try {
+    try (RevWalk walk = new RevWalk(repo)) {
       AbstractTreeIterator oldTree;
       AbstractTreeIterator newTree;
       try {
@@ -139,11 +131,10 @@ public class DiffServlet extends BaseServlet {
       }
 
       try (Writer writer = startRenderText(req, res);
-          OutputStream out = BaseEncoding.base64().encodingStream(writer)) {
-        formatDiff(repo, oldTree, newTree, view.getPathPart(), new DiffFormatter(out));
+          OutputStream out = BaseEncoding.base64().encodingStream(writer);
+          DiffFormatter diff = new DiffFormatter(out)) {
+        formatDiff(repo, oldTree, newTree, view.getPathPart(), diff);
       }
-    } finally {
-      walk.release();
     }
   }
 
@@ -173,16 +164,12 @@ public class DiffServlet extends BaseServlet {
 
   private static void formatDiff(Repository repo, AbstractTreeIterator oldTree,
       AbstractTreeIterator newTree, String path, DiffFormatter diff) throws IOException {
-    try {
-      if (!path.isEmpty()) {
-        diff.setPathFilter(PathFilter.create(path));
-      }
-      diff.setRepository(repo);
-      diff.setDetectRenames(true);
-      diff.format(oldTree, newTree);
-    } finally {
-      diff.release();
+    if (!path.isEmpty()) {
+      diff.setPathFilter(PathFilter.create(path));
     }
+    diff.setRepository(repo);
+    diff.setDetectRenames(true);
+    diff.format(oldTree, newTree);
   }
 
   private static AbstractTreeIterator getTreeIterator(RevWalk walk, ObjectId id)

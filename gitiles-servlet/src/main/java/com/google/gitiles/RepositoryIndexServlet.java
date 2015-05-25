@@ -66,9 +66,8 @@ public class RepositoryIndexServlet extends BaseServlet {
     GitilesAccess access = getAccess(req);
     RepositoryDescription desc = access.getRepositoryDescription();
 
-    RevWalk walk = new RevWalk(repo);
-    Paginator paginator = null;
-    try {
+    try (RevWalk walk = new RevWalk(repo)) {
+      Paginator paginator = null;
       Map<String, Object> data = Maps.newHashMapWithExpectedSize(7);
       List<Map<String, Object>> tags = RefServlet.getTagsSoyData(req, timeCache, walk, REF_LIMIT);
       ObjectId headId = repo.resolve(Constants.HEAD);
@@ -117,8 +116,6 @@ public class RepositoryIndexServlet extends BaseServlet {
       } else {
         renderHtml(req, res, "gitiles.repositoryIndex", data);
       }
-    } finally {
-      walk.release();
     }
   }
 

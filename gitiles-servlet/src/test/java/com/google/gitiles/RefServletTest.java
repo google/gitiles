@@ -364,12 +364,9 @@ public class RefServletTest {
   }
 
   private List<?> buildTagsSoyData() throws Exception {
-    RevWalk rw = new RevWalk(repo.getRepository());
-    try {
+    try (RevWalk rw = new RevWalk(repo.getRepository())) {
       return RefServlet.getTagsSoyData(buildSoyRequest(),
           new TimeCache(TimeCache.defaultBuilder()), rw, Integer.MAX_VALUE);
-    } finally {
-      rw.release();
     }
   }
 
