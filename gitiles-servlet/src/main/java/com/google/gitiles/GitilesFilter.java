@@ -258,6 +258,7 @@ class GitilesFilter extends MetaFilter {
       case BLAME:
         return new BlameServlet(accessFactory, renderer, blameCache);
       case DOC:
+      case ROOTED_DOC:
         return new DocServlet(accessFactory, renderer);
       default:
         throw new IllegalArgumentException("Invalid view type: " + view);

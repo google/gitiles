@@ -64,9 +64,9 @@
   <div class="footer-line">
     <div class="nav-aux">
       <ul>
-      <li><a href="{$sourceUrl}">{msg desc="text for the source link"}source{/msg}</a></li>
-      <li><a href="{$logUrl}">{msg desc="text for the log link"}log{/msg}</a></li>
-      <li><a href="{$blameUrl}">{msg desc="text for the blame link"}blame{/msg}</a></li>
+      {if $sourceUrl}<li><a href="{$sourceUrl}">{msg desc="text for the source link"}source{/msg}</a></li>{/if}
+      {if $logUrl}<li><a href="{$logUrl}">{msg desc="text for the log link"}log{/msg}</a></li>{/if}
+      {if $blameUrl}<li><a href="{$blameUrl}">{msg desc="text for the blame link"}blame{/msg}</a></li>{/if}
       </ul>
       <div class="gitiles-att">
       Powered by <a href="https://code.google.com/p/gitiles/">Gitiles</a>

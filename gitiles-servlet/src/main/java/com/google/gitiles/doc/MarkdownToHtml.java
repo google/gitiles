@@ -308,7 +308,7 @@ public class MarkdownToHtml implements Visitor {
       return url;
     }
     if (MarkdownUtil.isAbsolutePathToMarkdown(url)) {
-      return GitilesView.path().copyFrom(view).setPathPart(url).build().toUrl();
+      return GitilesView.doc().copyFrom(view).setPathPart(url).build().toUrl();
     }
     if (readme && !url.startsWith("../") && !url.startsWith("./")) {
       String dir = "";

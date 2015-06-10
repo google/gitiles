@@ -67,7 +67,8 @@ public class GitilesView {
     DESCRIBE,
     ARCHIVE,
     BLAME,
-    DOC;
+    DOC,
+    ROOTED_DOC;
   }
 
   /** Exception thrown when building a view that is invalid. */
@@ -81,7 +82,7 @@ public class GitilesView {
 
   /** Builder for views. */
   public static class Builder {
-    private final Type type;
+    private Type type;
     private final ListMultimap<String, String> params = LinkedListMultimap.create();
 
     private String hostName;
@@ -98,6 +99,10 @@ public class GitilesView {
     }
 
     public Builder copyFrom(GitilesView other) {
+      if (type == Type.DOC && other.type == Type.ROOTED_DOC) {
+        type = Type.ROOTED_DOC;
+      }
+
       hostName = other.hostName;
       servletPath = other.servletPath;
       switch (type) {
@@ -107,6 +112,7 @@ public class GitilesView {
           // Fallthrough.
         case PATH:
         case DOC:
+        case ROOTED_DOC:
         case ARCHIVE:
         case BLAME:
         case SHOW:
@@ -238,6 +244,7 @@ public class GitilesView {
         case REFS:
         case LOG:
         case DOC:
+        case ROOTED_DOC:
           break;
         default:
           checkState(path == null, "cannot set path on %s view", type);
@@ -332,6 +339,8 @@ public class GitilesView {
           break;
         case DOC:
           checkDoc();
+        case ROOTED_DOC:
+          checkRootedDoc();
           break;
       }
       return new GitilesView(type, hostName, servletPath, repositoryName, revision,
@@ -395,6 +404,13 @@ public class GitilesView {
     private void checkDoc() {
       checkRevision();
     }
+
+    private void checkRootedDoc() {
+      checkView(hostName != null, "missing hostName on %s view", type);
+      checkView(servletPath != null, "missing hostName on %s view", type);
+      checkView(revision != Revision.NULL, "missing revision on %s view", type);
+      checkView(path != null, "missing path on %s view", type);
+    }
   }
 
   public static Builder hostIndex() {
@@ -443,6 +459,10 @@ public class GitilesView {
 
   public static Builder doc() {
     return new Builder(Type.DOC);
+  }
+
+  public static Builder rootedDoc() {
+    return new Builder(Type.ROOTED_DOC);
   }
 
   static String maybeTrimLeadingAndTrailingSlash(String str) {
@@ -646,6 +666,11 @@ public class GitilesView {
         url.append(revision.getName());
         if (path != null) {
           url.append('/').append(path);
+        }
+        break;
+      case ROOTED_DOC:
+        if (path != null) {
+          url.append(path);
         }
         break;
       default:

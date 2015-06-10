@@ -327,6 +327,25 @@ public class GitilesViewTest {
   }
 
   @Test
+  public void rootedDoc() throws Exception {
+    ObjectId id = ObjectId.fromString("abcd1234abcd1234abcd1234abcd1234abcd1234");
+    GitilesView view = GitilesView.rootedDoc()
+        .copyFrom(HOST)
+        .setRevision(Revision.unpeeled("master", id))
+        .setPathPart("/docs/")
+        .build();
+
+    assertEquals("/b", view.getServletPath());
+    assertEquals(Type.ROOTED_DOC, view.getType());
+    assertEquals("host", view.getHostName());
+    assertEquals(id, view.getRevision().getId());
+    assertEquals("master", view.getRevision().getName());
+    assertEquals("docs", view.getPathPart());
+    assertTrue(HOST.getParameters().isEmpty());
+    assertEquals("/b/docs", view.toUrl());
+  }
+
+  @Test
   public void multiplePathComponents() throws Exception {
     ObjectId id = ObjectId.fromString("abcd1234abcd1234abcd1234abcd1234abcd1234");
     GitilesView view = GitilesView.path()

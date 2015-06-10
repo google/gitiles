@@ -67,6 +67,10 @@ public class ViewFilter extends AbstractHttpFilter {
     req.setAttribute(VIEW_ATTRIBUTE, view);
   }
 
+  static void removeView(HttpServletRequest req) {
+    req.removeAttribute(VIEW_ATTRIBUTE);
+  }
+
   static String trimLeadingSlash(String str) {
     return checkLeadingSlash(str).substring(1);
   }
@@ -121,7 +125,7 @@ public class ViewFilter extends AbstractHttpFilter {
     try {
       chain.doFilter(req, res);
     } finally {
-      req.removeAttribute(VIEW_ATTRIBUTE);
+      removeView(req);
     }
   }
 

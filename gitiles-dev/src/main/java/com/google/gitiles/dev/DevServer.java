@@ -17,9 +17,14 @@ package com.google.gitiles.dev;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.gitiles.GitilesServlet.STATIC_PREFIX;
 
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Strings;
 import com.google.gitiles.DebugRenderer;
+import com.google.gitiles.GitilesAccess;
 import com.google.gitiles.GitilesServlet;
 import com.google.gitiles.PathServlet;
+import com.google.gitiles.RepositoryDescription;
+import com.google.gitiles.RootedDocServlet;
 
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
@@ -34,8 +39,14 @@ import org.eclipse.jetty.util.resource.FileResource;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.util.thread.ThreadPool;
 import org.eclipse.jgit.errors.ConfigInvalidException;
+import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.Config;
+import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.RepositoryCache;
+import org.eclipse.jgit.lib.RepositoryCache.FileKey;
 import org.eclipse.jgit.storage.file.FileBasedConfig;
+import org.eclipse.jgit.transport.resolver.RepositoryResolver;
 import org.eclipse.jgit.util.FS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +59,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.Servlet;
+import javax.servlet.http.HttpServletRequest;
 
 class DevServer {
   private static final Logger log = LoggerFactory.getLogger(PathServlet.class);
@@ -184,15 +201,23 @@ class DevServer {
   }
 
   private Handler appHandler() {
-    GitilesServlet servlet = new GitilesServlet(
-        cfg,
-        new DebugRenderer(
-            STATIC_PREFIX,
-            Arrays.asList(cfg.getStringList("gitiles", null, "customTemplates")),
-            new File(sourceRoot, "gitiles-servlet/src/main/resources/com/google/gitiles/templates")
-                .getPath(),
-            firstNonNull(cfg.getString("gitiles", null, "siteTitle"), "Gitiles")),
-        null, null, null, null, null, null, null);
+    DebugRenderer renderer = new DebugRenderer(
+        STATIC_PREFIX,
+        Arrays.asList(cfg.getStringList("gitiles", null, "customTemplates")),
+        new File(sourceRoot, "gitiles-servlet/src/main/resources/com/google/gitiles/templates")
+            .getPath(),
+        firstNonNull(cfg.getString("gitiles", null, "siteTitle"), "Gitiles"));
+
+    String docRoot = cfg.getString("gitiles", null, "docroot");
+    Servlet servlet;
+    if (!Strings.isNullOrEmpty(docRoot)) {
+      servlet = createRootedDocServlet(renderer, docRoot);
+    } else {
+      servlet = new GitilesServlet(
+          cfg,
+          renderer,
+          null, null, null, null, null, null, null);
+    }
 
     ServletContextHandler handler = new ServletContextHandler();
     handler.setContextPath("");
@@ -215,4 +240,71 @@ class DevServer {
     handler.setHandler(rh);
     return handler;
   }
+
+  private Servlet createRootedDocServlet(DebugRenderer renderer, String docRoot) {
+    File docRepo = new File(docRoot);
+    final FileKey repoKey = FileKey.exact(docRepo, FS.DETECTED);
+
+    RepositoryResolver<HttpServletRequest> resolver = new RepositoryResolver<HttpServletRequest>() {
+      @Override
+      public Repository open(HttpServletRequest req, String name)
+          throws RepositoryNotFoundException {
+        try {
+          return RepositoryCache.open(repoKey, true);
+        } catch (IOException e) {
+          throw new RepositoryNotFoundException(repoKey.getFile(), e);
+        }
+      }
+    };
+
+    return new RootedDocServlet(
+        resolver,
+        new RootedDocAccess(docRepo),
+        renderer);
+  }
+
+  private class RootedDocAccess implements GitilesAccess.Factory {
+    private final String repoName;
+
+    RootedDocAccess(File docRepo) {
+      if (Constants.DOT_GIT.equals(docRepo.getName())) {
+        repoName = docRepo.getParentFile().getName();
+      } else {
+        repoName = docRepo.getName();
+      }
+    }
+
+    @Override
+    public GitilesAccess forRequest(HttpServletRequest req) {
+      return new GitilesAccess() {
+        @Override
+        public Map<String, RepositoryDescription> listRepositories(Set<String> branches) {
+          return Collections.emptyMap();
+        }
+
+        @Override
+        public Object getUserKey() {
+          return null;
+        }
+
+        @Override
+        public String getRepositoryName() {
+          return repoName;
+        }
+
+        @Override
+        public RepositoryDescription getRepositoryDescription() {
+          RepositoryDescription d = new RepositoryDescription();
+          d.name = getRepositoryName();
+          return d;
+        }
+
+        @Override
+        public Config getConfig() {
+          return cfg;
+        }
+      };
+    }
+  }
+
 }
