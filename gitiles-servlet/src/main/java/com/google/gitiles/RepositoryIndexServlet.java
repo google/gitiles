@@ -130,8 +130,8 @@ public class RepositoryIndexServlet extends BaseServlet {
     return list.size() > REF_LIMIT ? list.subList(0, REF_LIMIT) : list;
   }
 
-  private Map<String, Object> renderReadme(RevWalk walk, GitilesView view,
-      Config cfg, RevObject head) throws IOException {
+  private static Map<String, Object> renderReadme(RevWalk walk,
+      GitilesView view, Config cfg, RevObject head) throws IOException {
     RevTree rootTree;
     try {
       rootTree = walk.parseTree(head);
