@@ -185,6 +185,11 @@ public class DocServlet extends BaseServlet {
         .setImageLoader(img)
         .toSoyHtml(doc));
 
+    String analyticsId = cfg.getString("google", null, "analyticsId");
+    if (!Strings.isNullOrEmpty(analyticsId)) {
+      data.put("analyticsId", analyticsId);
+    }
+
     String page = renderer.render(SOY_TEMPLATE, data);
     byte[] raw = page.getBytes(UTF_8);
     res.setContentType(FormatType.HTML.getMimeType());
