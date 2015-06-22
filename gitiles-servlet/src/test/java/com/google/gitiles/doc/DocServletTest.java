@@ -69,7 +69,7 @@ public class DocServletTest {
 
     String html = buildHtml("/repo/+doc/master/README.md");
     assertTrue(html.contains("<title>" + title + "</title>"));
-    assertTrue(html.contains("<h1>" + title + "</h1>"));
+    assertTrue(html.contains("<h1 id=\"DocServletTest-simpleDoc\">" + title + "</h1>"));
     assertTrue(html.contains("<a href=\"" + url + "\">Markdown</a>"));
   }
 
@@ -91,8 +91,7 @@ public class DocServletTest {
     assertTrue(html.contains("<h2>page</h2>"));
     assertTrue(html.contains("<li><a href=\"index.md\">Home</a></li>"));
     assertTrue(html.contains("<li><a href=\"README.md\">README</a></li>"));
-
-    assertTrue(html.contains("<h1>page</h1>"));
+    assertTrue(html.contains("<h1 id=\"page\">page</h1>"));
   }
 
   @Test
@@ -107,7 +106,7 @@ public class DocServletTest {
         .create();
 
     String html = buildHtml("/repo/+doc/master/");
-    assertTrue(html.contains("<h1>B. Ad</h1>"));
+    assertTrue(html.contains("<h1 id=\"B_Ad\">B. Ad</h1>"));
     assertTrue(html.contains("Non-HTML is fine."));
 
     assertFalse(html.contains("window.alert"));
