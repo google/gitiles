@@ -172,7 +172,10 @@ public class MarkdownToHtml implements Visitor {
   public void visit(HeaderNode node) {
     String tag = "h" + node.getLevel();
     html.open(tag);
-    html.attribute("id", toc.idFromHeader(node));
+    String id = toc.idFromHeader(node);
+    if (id != null) {
+      html.attribute("id", id);
+    }
     visitChildren(node);
     html.close(tag);
   }

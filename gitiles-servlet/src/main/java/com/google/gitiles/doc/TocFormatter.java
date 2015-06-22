@@ -14,9 +14,10 @@
 
 package com.google.gitiles.doc;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import com.google.common.hash.Hashing;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import com.google.gitiles.doc.html.HtmlBuilder;
 
 import org.apache.commons.lang3.StringUtils;
@@ -24,17 +25,21 @@ import org.pegdown.ast.HeaderNode;
 import org.pegdown.ast.Node;
 import org.pegdown.ast.RootNode;
 
-import java.nio.charset.StandardCharsets;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Deque;
+import java.util.List;
+import java.util.Map;
 
 /** Outputs outline from HeaderNodes in the AST. */
 class TocFormatter {
   private final HtmlBuilder html;
   private final int maxLevel;
 
-  private RootNode root;
-  private Boolean hasToc;
   private int countH1;
-  private BiMap<HeaderNode, String> ids;
+  private List<HeaderNode> outline;
+  private Map<HeaderNode, String> ids;
 
   private int level;
 
@@ -44,45 +49,25 @@ class TocFormatter {
   }
 
   void setRoot(RootNode doc) {
-    root = doc;
-    hasToc = null;
-    ids = HashBiMap.create();
+    outline = new ArrayList<>();
+    Multimap<String, TocEntry> entries = ArrayListMultimap.create(16, 4);
+    scan(doc, entries, new ArrayDeque<HeaderNode>());
+    ids = generateIds(entries);
   }
 
-  boolean include(HeaderNode h) {
-    init();
-    if (!hasToc) {
-      return false;
-    } else if (h.getLevel() == 1) {
+  private boolean include(HeaderNode h) {
+    if (h.getLevel() == 1) {
       return countH1 > 1;
     }
     return h.getLevel() <= maxLevel;
   }
 
   String idFromHeader(HeaderNode header) {
-    String id = ids.get(header);
-    if (id == null) {
-      String title = MarkdownUtil.getInnerText(header);
-      if (title == null) {
-        return null;
-      }
-
-      id = idFromTitle(title);
-      if (ids.values().contains(id)) {
-        id = String.format("%s-%x",
-            id,
-            Hashing.md5().hashString(id, StandardCharsets.UTF_8).asInt());
-      }
-      ids.put(header, id);
-    }
-    return id;
+    return ids.get(header);
   }
 
   void format() {
-    init();
-
     int startLevel = countH1 > 1 ? 1 : 2;
-    hasToc = true;
     level = startLevel;
 
     html.open("div")
@@ -91,22 +76,14 @@ class TocFormatter {
       .open("h2").appendAndEscape("Contents").close("h2")
       .open("div").attribute("class", "toc-aux")
       .open("ul");
-    outline(root);
+    for (HeaderNode header : outline) {
+      outline(header);
+    }
     while (level >= startLevel) {
       html.close("ul");
       level--;
     }
     html.close("div").close("div");
-  }
-
-  private void outline(Node node) {
-    if (node instanceof HeaderNode) {
-      outline((HeaderNode) node);
-    } else {
-      for (Node child : node.getChildren()) {
-        outline(child);
-      }
-    }
   }
 
   private void outline(HeaderNode h) {
@@ -133,6 +110,90 @@ class TocFormatter {
       .appendAndEscape(MarkdownUtil.getInnerText(h))
       .close("a")
       .close("li");
+  }
+
+  private void scan(Node node,
+      Multimap<String, TocEntry> entries,
+      Deque<HeaderNode> stack) {
+    if (node instanceof HeaderNode) {
+      scan((HeaderNode) node, entries, stack);
+    } else {
+      for (Node child : node.getChildren()) {
+        scan(child, entries, stack);
+      }
+    }
+  }
+
+  private void scan(HeaderNode header,
+      Multimap<String, TocEntry> entries,
+      Deque<HeaderNode> stack) {
+    if (header.getLevel() == 1) {
+      countH1++;
+    }
+    while (!stack.isEmpty() && stack.getLast().getLevel() >= header.getLevel()) {
+      stack.removeLast();
+    }
+
+    String title = MarkdownUtil.getInnerText(header);
+    if (title != null) {
+      String id = idFromTitle(title);
+      entries.put(id, new TocEntry(stack, header, id));
+      stack.add(header);
+      outline.add(header);
+    }
+  }
+
+  private Map<HeaderNode, String> generateIds(Multimap<String, TocEntry> entries) {
+    Multimap<String, TocEntry> tmp = ArrayListMultimap.create(entries.size(), 2);
+    for (Collection<TocEntry> headers : entries.asMap().values()) {
+      if (headers.size() == 1) {
+        TocEntry entry = Iterables.getOnlyElement(headers);
+        tmp.put(entry.id, entry);
+        continue;
+      }
+
+      // Try to deduplicate by prefixing with text derived from parents.
+      for (TocEntry entry : headers) {
+        StringBuilder b = new StringBuilder();
+        for (HeaderNode p : entry.path) {
+          if (p.getLevel() > 1 || countH1 > 1) {
+            String text = MarkdownUtil.getInnerText(p);
+            if (text != null) {
+              b.append(idFromTitle(text)).append('-');
+            }
+          }
+        }
+        b.append(idFromTitle(MarkdownUtil.getInnerText(entry.header)));
+        entry.id = b.toString();
+        tmp.put(entry.id, entry);
+      }
+    }
+
+    Map<HeaderNode, String> ids = Maps.newHashMapWithExpectedSize(tmp.size());
+    for (Collection<TocEntry> headers : tmp.asMap().values()) {
+      if (headers.size() == 1) {
+        TocEntry entry = Iterables.getOnlyElement(headers);
+        ids.put(entry.header, entry.id);
+      } else {
+        int i = 1;
+        for (TocEntry entry : headers) {
+          ids.put(entry.header, entry.id + "-" + (i++));
+        }
+      }
+    }
+    return ids;
+  }
+
+  private static class TocEntry {
+    final HeaderNode[] path;
+    final HeaderNode header;
+    String id;
+
+    TocEntry(Deque<HeaderNode> stack, HeaderNode header, String id) {
+      this.path = stack.toArray(new HeaderNode[stack.size()]);
+      this.header = header;
+      this.id = id;
+    }
   }
 
   private static String idFromTitle(String title) {
@@ -163,29 +224,5 @@ class TocFormatter {
       break;
     }
     return b.toString();
-  }
-
-  private void init() {
-    if (hasToc == null) {
-      hasToc = false;
-      init(root);
-    }
-  }
-
-  private void init(Node node) {
-    if (node instanceof TocNode) {
-      hasToc = true;
-      return;
-    } else if (node instanceof HeaderNode
-        && ((HeaderNode) node).getLevel() == 1) {
-      countH1++;
-      return;
-    }
-    for (Node child : node.getChildren()) {
-      init(child);
-      if (hasToc && countH1 > 1) {
-        break;
-      }
-    }
   }
 }
