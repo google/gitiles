@@ -14,11 +14,26 @@
 
 package com.google.gitiles.doc;
 
-public interface Visitor extends org.pegdown.ast.Visitor {
-  void visit(ColsNode node);
-  void visit(ColsNode.Column node);
-  void visit(DivNode node);
-  void visit(IframeNode node);
-  void visit(TocNode node);
-  void visit(NamedAnchorNode node);
+import org.pegdown.ast.AbstractNode;
+import org.pegdown.ast.Node;
+
+import java.util.Collections;
+import java.util.List;
+
+class NamedAnchorNode extends AbstractNode {
+  final String name;
+
+  NamedAnchorNode(String name) {
+    this.name = name;
+  }
+
+  @Override
+  public void accept(org.pegdown.ast.Visitor visitor) {
+    ((Visitor) visitor).visit(this);
+  }
+
+  @Override
+  public List<Node> getChildren() {
+    return Collections.emptyList();
+  }
 }

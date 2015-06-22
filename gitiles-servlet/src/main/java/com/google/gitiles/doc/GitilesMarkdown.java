@@ -29,6 +29,7 @@ import org.pegdown.ast.Node;
 import org.pegdown.ast.RootNode;
 import org.pegdown.ast.SimpleNode;
 import org.pegdown.plugins.BlockPluginParser;
+import org.pegdown.plugins.InlinePluginParser;
 import org.pegdown.plugins.PegDownPlugins;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +38,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Parses Gitiles extensions to markdown. */
-public class GitilesMarkdown extends Parser implements BlockPluginParser {
+public class GitilesMarkdown extends Parser
+    implements BlockPluginParser, InlinePluginParser {
   private static final Logger log = LoggerFactory.getLogger(MarkdownUtil.class);
 
   // SUPPRESS_ALL_HTML is enabled to permit hosting arbitrary user content
@@ -93,6 +95,14 @@ public class GitilesMarkdown extends Parser implements BlockPluginParser {
     };
   }
 
+  @Override
+  public Rule[] inlinePluginRules() {
+    return new Rule[]{
+        namedAnchorHtmlStyle(),
+        namedAnchorMarkdownExtensionStyle(),
+    };
+  }
+
   public Rule toc() {
     return NodeSequence(
         string("[TOC]"),
@@ -105,6 +115,28 @@ public class GitilesMarkdown extends Parser implements BlockPluginParser {
         NonindentSpace(), string("--"), zeroOrMore('-'), Newline(),
         oneOrMore(BlankLine()),
         push(new SimpleNode(SimpleNode.Type.HRule)));
+  }
+
+  public Rule namedAnchorHtmlStyle() {
+    StringBuilderVar name = new StringBuilderVar();
+    return NodeSequence(
+        Sp(), string("<a"),
+        Spn1(),
+        sequence(string("name="), attribute(name)),
+        Spn1(), '>',
+        Spn1(), string("</a>"),
+        push(new NamedAnchorNode(name.getString())));
+  }
+
+  public Rule namedAnchorMarkdownExtensionStyle() {
+    StringBuilderVar name = new StringBuilderVar();
+    return NodeSequence(
+        Sp(), string("{#"), anchorId(name), '}',
+        push(new NamedAnchorNode(name.getString())));
+  }
+
+  public Rule anchorId(StringBuilderVar name) {
+    return sequence(zeroOrMore(testNot('}'), ANY), name.append(match()));
   }
 
   public Rule iframe() {

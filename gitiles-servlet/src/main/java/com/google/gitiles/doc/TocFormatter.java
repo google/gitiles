@@ -134,13 +134,34 @@ class TocFormatter {
       stack.removeLast();
     }
 
+    NamedAnchorNode node = findAnchor(header);
+    if (node != null) {
+      entries.put(node.name, new TocEntry(stack, header, false, node.name));
+      stack.add(header);
+      outline.add(header);
+      return;
+    }
+
     String title = MarkdownUtil.getInnerText(header);
     if (title != null) {
       String id = idFromTitle(title);
-      entries.put(id, new TocEntry(stack, header, id));
+      entries.put(id, new TocEntry(stack, header, true, id));
       stack.add(header);
       outline.add(header);
     }
+  }
+
+  private static NamedAnchorNode findAnchor(Node node) {
+    for (Node child : node.getChildren()) {
+      if (child instanceof NamedAnchorNode) {
+        return (NamedAnchorNode) child;
+      }
+      NamedAnchorNode anchor = findAnchor(child);
+      if (anchor != null) {
+        return anchor;
+      }
+    }
+    return null;
   }
 
   private Map<HeaderNode, String> generateIds(Multimap<String, TocEntry> entries) {
@@ -154,6 +175,11 @@ class TocFormatter {
 
       // Try to deduplicate by prefixing with text derived from parents.
       for (TocEntry entry : headers) {
+        if (!entry.generated) {
+          tmp.put(entry.id, entry);
+          continue;
+        }
+
         StringBuilder b = new StringBuilder();
         for (HeaderNode p : entry.path) {
           if (p.getLevel() > 1 || countH1 > 1) {
@@ -187,11 +213,13 @@ class TocFormatter {
   private static class TocEntry {
     final HeaderNode[] path;
     final HeaderNode header;
+    final boolean generated;
     String id;
 
-    TocEntry(Deque<HeaderNode> stack, HeaderNode header, String id) {
+    TocEntry(Deque<HeaderNode> stack, HeaderNode header, boolean generated, String id) {
       this.path = stack.toArray(new HeaderNode[stack.size()]);
       this.header = header;
+      this.generated = generated;
       this.id = id;
     }
   }

@@ -335,6 +335,18 @@ Links may point to any file in the repository.  A link to a `*.md`
 file will present the rendered markdown, while a link to a source file
 will display the syntax highlighted source.
 
+### Named anchors
+
+Explicit anchors may be inserted into a document to make stable references.
+This is recommended at the end of a section header to avoid ambigous names.
+The following are identical and will wrap the section header inside of an
+anchor tag:
+
+```
+## Examples {#live-examples}
+## Examples <a name="live-examples"></a>
+```
+
 ### Images
 
 Similar to links but begin with `!` to denote an image reference:
@@ -377,8 +389,8 @@ HTML tags are not supported.  HTML will be dropped on the floor by the
 parser with no warnings, and no output from that section of the
 document.
 
-There is a small exception for the `<iframe>` element, see
-[HTML IFrame](#HTML-IFrame) below.
+There is a small exception for `<a name>` and `<iframe>` elements, see
+[named anchor](#Named-anchors) and [HTML IFrame](#HTML-IFrame).
 
 ## Markdown extensions
 

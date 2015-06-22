@@ -112,6 +112,8 @@ public final class HtmlBuilder {
       // allow
     } else if ("title".equals(att) && ("img".equals(tag) || "a".equals(tag))) {
       // allow
+    } else if ("name".equals(att) && "a".equals(tag)) {
+      // allow
     } else if (("colspan".equals(att) || "align".equals(att))
         && ("td".equals(tag) || "th".equals(tag))) {
       // allow

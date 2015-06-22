@@ -77,6 +77,7 @@ public class MarkdownToHtml implements Visitor {
   private ImageLoader imageLoader;
   private boolean readme;
   private TableState table;
+  private boolean outputNamedAnchor = true;
 
   public MarkdownToHtml(GitilesView view, Config cfg) {
     this.view = view;
@@ -170,14 +171,26 @@ public class MarkdownToHtml implements Visitor {
 
   @Override
   public void visit(HeaderNode node) {
-    String tag = "h" + node.getLevel();
-    html.open(tag);
     String id = toc.idFromHeader(node);
     if (id != null) {
-      html.attribute("id", id);
+      html.open("a").attribute("name", id);
     }
-    visitChildren(node);
-    html.close(tag);
+    try {
+      outputNamedAnchor = false;
+      wrapChildren("h" + node.getLevel(), node);
+    } finally {
+      outputNamedAnchor = true;
+    }
+    if (id != null) {
+      html.close("a");
+    }
+  }
+
+  @Override
+  public void visit(NamedAnchorNode node) {
+    if (outputNamedAnchor) {
+      html.open("a").attribute("name", node.name).close("a");
+    }
   }
 
   @Override
