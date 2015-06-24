@@ -401,9 +401,9 @@ the anchor `Section-1`.
 *Anchor generation*
 
 * letters and digits, after removing accents (á →  a)
-* spaces are replaced with -
-* other characters are replaced with _
-* runs of - and _ are collapsed
+* spaces are replaced with hyphens (`-`)
+* other characters are replaced with underscores (`_`)
+* runs of hyphens and underscores are collapsed
 ***
 
 If a document contains the same named subsection under different
