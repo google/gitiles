@@ -178,19 +178,21 @@ public class MarkdownToHtml implements Visitor {
 
   @Override
   public void visit(HeaderNode node) {
+    outputNamedAnchor = false;
+    String tag = "h" + node.getLevel();
+    html.open(tag);
     String id = toc.idFromHeader(node);
     if (id != null) {
-      html.open("a").attribute("name", id);
+      html.open("a")
+          .attribute("class", "h")
+          .attribute("name", id)
+          .attribute("href", "#" + id)
+          .open("span").close("span")
+          .close("a");
     }
-    try {
-      outputNamedAnchor = false;
-      wrapChildren("h" + node.getLevel(), node);
-    } finally {
-      outputNamedAnchor = true;
-    }
-    if (id != null) {
-      html.close("a");
-    }
+    visitChildren(node);
+    html.close(tag);
+    outputNamedAnchor = true;
   }
 
   @Override
