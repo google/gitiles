@@ -33,7 +33,7 @@
   {/call}
 {elseif $data.readmeHtml}
   {call .header data="all"}
-    {param css: [gitiles.DOC_CSS_URL] /}
+    {param css: [gitiles.DOC_CSS_URL, gitiles.PRETTIFY_CSS_URL] /}
   {/call}
 {else}
   {call .header data="all" /}
