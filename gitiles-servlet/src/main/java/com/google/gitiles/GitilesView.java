@@ -323,6 +323,7 @@ public class GitilesView {
           break;
         case PATH:
         case SHOW:
+        case DOC:
           checkPath();
           break;
         case DIFF:
@@ -337,8 +338,6 @@ public class GitilesView {
         case BLAME:
           checkBlame();
           break;
-        case DOC:
-          checkDoc();
         case ROOTED_DOC:
           checkRootedDoc();
           break;
@@ -399,10 +398,6 @@ public class GitilesView {
 
     private void checkBlame() {
       checkPath();
-    }
-
-    private void checkDoc() {
-      checkRevision();
     }
 
     private void checkRootedDoc() {

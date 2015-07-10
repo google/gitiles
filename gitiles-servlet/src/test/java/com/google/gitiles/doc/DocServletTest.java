@@ -69,7 +69,7 @@ public class DocServletTest {
 
     String html = buildHtml("/repo/+doc/master/README.md");
     assertTrue(html.contains("<title>" + title + "</title>"));
-    assertTrue(html.contains("<h1>" + title + "</h1>"));
+    assertTrue(html.contains(title + "</h1>"));
     assertTrue(html.contains("<a href=\"" + url + "\">Markdown</a>"));
   }
 
@@ -91,7 +91,9 @@ public class DocServletTest {
     assertTrue(html.contains("<h2>page</h2>"));
     assertTrue(html.contains("<li><a href=\"index.md\">Home</a></li>"));
     assertTrue(html.contains("<li><a href=\"README.md\">README</a></li>"));
-    assertTrue(html.contains("<h1>page</h1>"));
+    assertTrue(html.contains("<h1>"
+        + "<a class=\"h\" name=\"page\" href=\"#page\"><span></span></a>"
+        + "page</h1>"));
   }
 
   @Test
@@ -106,7 +108,7 @@ public class DocServletTest {
         .create();
 
     String html = buildHtml("/repo/+doc/master/");
-    assertTrue(html.contains("<h1>B. Ad</h1>"));
+    assertTrue(html.contains("B. Ad</h1>"));
     assertTrue(html.contains("Non-HTML is fine."));
 
     assertFalse(html.contains("window.alert"));
@@ -121,8 +123,12 @@ public class DocServletTest {
       .add("index.md", markdown)
       .create();
     String html = buildHtml("/repo/+doc/master/");
-    assertTrue(html.contains("<a name=\"debug\"><h1>Section</h1></a>"));
-    assertTrue(html.contains("<a name=\"old-school\"><h1>Other</h1></a>"));
+    assertTrue(html.contains("<h1>"
+        + "<a class=\"h\" name=\"debug\" href=\"#debug\"><span></span></a>"
+        + "Section</h1>"));
+    assertTrue(html.contains("<h1>"
+        + "<a class=\"h\" name=\"old-school\" href=\"#old-school\"><span></span></a>"
+        + "Other</h1>"));
   }
 
   @Test
@@ -134,6 +140,26 @@ public class DocServletTest {
 
     String html = buildHtml("/repo/+doc/master/index.md");
     assertTrue(html.contains("Incomplete &lt;html is literal."));
+  }
+
+  @Test
+  public void relativeLink() throws Exception {
+    repo.branch("master").commit()
+        .add("A/B/README.md", "[c](../../C)")
+        .create();
+
+    String html = buildHtml("/repo/+doc/master/A/B/README.md");
+    assertTrue(html.contains("<a href=\"/b/repo/+show/master/C\">c</a>"));
+  }
+
+  @Test
+  public void absoluteLink() throws Exception {
+    repo.branch("master").commit()
+        .add("README.md", "[c](/x)")
+        .create();
+
+    String html = buildHtml("/repo/+doc/master/README.md");
+    assertTrue(html.contains("<a href=\"/b/repo/+show/master/x\">c</a>"));
   }
 
   private String buildHtml(String pathAndQuery) throws Exception {
