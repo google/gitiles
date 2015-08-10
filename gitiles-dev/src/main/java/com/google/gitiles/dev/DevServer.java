@@ -17,7 +17,6 @@ package com.google.gitiles.dev;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.gitiles.GitilesServlet.STATIC_PREFIX;
 
-import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
 import com.google.gitiles.DebugRenderer;
 import com.google.gitiles.GitilesAccess;

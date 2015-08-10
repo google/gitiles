@@ -108,12 +108,12 @@ public class DescribeServlet extends BaseServlet {
     if (id == null) {
       return null;
     }
-    NameRevCommand cmd = nameRevCommand(id, req, res);
-    if (cmd == null) {
-      return null;
-    }
     String name;
-    try {
+    try (Git git = new Git(repo)) {
+      NameRevCommand cmd = nameRevCommand(git, id, req, res);
+      if (cmd == null) {
+        return null;
+      }
       name = cmd.call().get(id);
     } catch (GitAPIException e) {
       throw new IOException(e);
@@ -125,11 +125,10 @@ public class DescribeServlet extends BaseServlet {
     return name;
   }
 
-  private NameRevCommand nameRevCommand(ObjectId id, HttpServletRequest req,
-      HttpServletResponse res) throws IOException {
-    Repository repo = ServletUtils.getRepository(req);
+  private NameRevCommand nameRevCommand(Git git, ObjectId id,
+      HttpServletRequest req, HttpServletResponse res) throws IOException {
     GitilesView view = ViewFilter.getView(req);
-    NameRevCommand cmd = new Git(repo).nameRev();
+    NameRevCommand cmd = git.nameRev();
     boolean all = getBooleanParam(view, ALL_PARAM);
     boolean tags = getBooleanParam(view, TAGS_PARAM);
     if (all && tags) {
