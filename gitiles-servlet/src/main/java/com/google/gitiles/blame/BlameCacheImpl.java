@@ -17,9 +17,8 @@ package com.google.gitiles.blame;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.hash;
 
+import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.google.common.cache.Weigher;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Interner;
@@ -42,6 +41,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
 /** Guava implementation of BlameCache, weighted by number of blame regions. */
@@ -63,12 +63,10 @@ public class BlameCacheImpl implements BlameCache {
   public static class Key {
     private final ObjectId commitId;
     private final String path;
-    private Repository repo;
 
-    public Key(Repository repo, ObjectId commitId, String path) {
+    public Key(ObjectId commitId, String path) {
       this.commitId = commitId;
       this.path = path;
-      this.repo = repo;
     }
 
     public ObjectId getCommitId() {
@@ -100,30 +98,35 @@ public class BlameCacheImpl implements BlameCache {
     }
   }
 
-  private final LoadingCache<Key, List<Region>> cache;
+  private final Cache<Key, List<Region>> cache;
 
   public BlameCacheImpl() {
     this(defaultBuilder());
   }
 
-  public LoadingCache<Key, List<Region>> getCache() {
+  public Cache<Key, List<Region>> getCache() {
     return cache;
   }
 
-  public BlameCacheImpl(CacheBuilder<? super Key, ? super List<Region>> builder) {
-    this.cache = builder.build(new CacheLoader<Key, List<Region>>() {
+  public Callable<List<Region>> newLoader(final Key key, final Repository repo) {
+    return new Callable<List<Region>>() {
       @Override
-      public List<Region> load(Key key) throws IOException {
-        return loadBlame(key);
+      public List<Region> call() throws IOException {
+        return loadBlame(key, repo);
       }
-    });
+    };
+  }
+
+  public BlameCacheImpl(CacheBuilder<? super Key, ? super List<Region>> builder) {
+    this.cache = builder.build();
   }
 
   @Override
   public List<Region> get(Repository repo, ObjectId commitId, String path)
       throws IOException {
     try {
-      return cache.get(new Key(repo, commitId, path));
+      Key key = new Key(commitId, path);
+      return cache.get(key, newLoader(key, repo));
     } catch (ExecutionException e) {
       throw new IOException(e);
     }
@@ -146,12 +149,10 @@ public class BlameCacheImpl implements BlameCache {
     }
   }
 
-  public static List<Region> loadBlame(Key key) throws IOException {
-    try (BlameGenerator gen = new BlameGenerator(key.repo, key.path)) {
+  public static List<Region> loadBlame(Key key, Repository repo) throws IOException {
+    try (BlameGenerator gen = new BlameGenerator(repo, key.path)) {
       gen.push(null, key.commitId);
       return loadRegions(gen);
-    } finally {
-      key.repo = null;
     }
   }
 
