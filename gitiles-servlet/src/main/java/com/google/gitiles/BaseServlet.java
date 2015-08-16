@@ -58,7 +58,7 @@ public abstract class BaseServlet extends HttpServlet {
   static void setNotCacheable(HttpServletResponse res) {
     res.setHeader(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, max-age=0, must-revalidate");
     res.setHeader(HttpHeaders.PRAGMA, "no-cache");
-    res.setHeader(HttpHeaders.EXPIRES, "Fri, 01 Jan 1990 00:00:00 GMT");
+    res.setHeader(HttpHeaders.EXPIRES, "Mon, 01 Jan 1990 00:00:00 GMT");
     res.setDateHeader(HttpHeaders.DATE, new Instant().getMillis());
   }
 
