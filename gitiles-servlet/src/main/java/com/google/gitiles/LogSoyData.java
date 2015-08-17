@@ -47,6 +47,7 @@ public class LogSoyData {
   private final Set<Field> fields;
   private final String pretty;
   private final String variant;
+  private CommitSoyData csd;
 
   public LogSoyData(HttpServletRequest req, GitilesAccess access, String pretty)
       throws IOException {
@@ -97,7 +98,11 @@ public class LogSoyData {
 
   private Map<String, Object> toEntrySoyData(Paginator paginator, RevCommit c, DateFormatter df,
       boolean first) throws IOException {
-    Map<String, Object> entry = new CommitSoyData().setRevWalk(paginator.getWalk())
+    if (csd == null) {
+      csd = new CommitSoyData();
+    }
+
+    Map<String, Object> entry = csd.setRevWalk(paginator.getWalk())
         .toSoyData(req, c, fields, df);
     return ImmutableMap.of(
         "firstWithPrevious", first && paginator.getPreviousStart() != null,
