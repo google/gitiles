@@ -18,19 +18,10 @@ import static org.junit.Assert.assertEquals;
 
 import com.google.common.collect.Iterables;
 import com.google.gitiles.CommitJsonData.Ident;
-import com.google.gitiles.FakeHttpServletRequest;
-import com.google.gitiles.FakeHttpServletResponse;
-import com.google.gitiles.GitilesServlet;
-import com.google.gitiles.TestGitilesServlet;
-import com.google.gson.Gson;
+import com.google.gitiles.ServletTest;
 import com.google.gson.reflect.TypeToken;
 
-import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
-import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
-import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
-import org.eclipse.jgit.junit.TestRepository;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -39,23 +30,13 @@ import java.util.List;
 import java.util.Map;
 
 @RunWith(JUnit4.class)
-public class BlameServletTest {
+public class BlameServletTest extends ServletTest {
   private static class RegionJsonData {
     int start;
     int count;
     String path;
     String commit;
     Ident author;
-  }
-
-  private TestRepository<DfsRepository> repo;
-  private GitilesServlet servlet;
-
-  @Before
-  public void setUp() throws Exception {
-    DfsRepository r = new InMemoryRepository(new DfsRepositoryDescription("test"));
-    repo = new TestRepository<>(r);
-    servlet = TestGitilesServlet.create(repo);
   }
 
   @Test
@@ -65,7 +46,7 @@ public class BlameServletTest {
     RevCommit c1 = repo.update("master", repo.commit().add("foo", contents1));
     RevCommit c2 = repo.update("master", repo.commit().tick(10).parent(c1).add("foo", contents2));
 
-    Map<String, List<RegionJsonData>> result = getBlameJson("/test/+blame/" + c2.name() + "/foo");
+    Map<String, List<RegionJsonData>> result = getBlameJson("/repo/+blame/" + c2.name() + "/foo");
     assertEquals("regions", Iterables.getOnlyElement(result.keySet()));
     List<RegionJsonData> regions = result.get("regions");
     assertEquals(2, regions.size());
@@ -90,17 +71,6 @@ public class BlameServletTest {
   }
 
   private Map<String, List<RegionJsonData>> getBlameJson(String path) throws Exception {
-    FakeHttpServletRequest req = FakeHttpServletRequest.newRequest();
-    req.setPathInfo(path);
-    req.setQueryString("format=JSON");
-
-    FakeHttpServletResponse res = new FakeHttpServletResponse();
-    servlet.service(req, res);
-    assertEquals(200, res.getStatus());
-    String body = res.getActualBodyString();
-    String magic = ")]}'\n";
-    assertEquals(magic, body.substring(0, magic.length()));
-    return new Gson().fromJson(body.substring(magic.length()),
-        new TypeToken<Map<String, List<RegionJsonData>>>() {}.getType());
+    return buildJson(path, new TypeToken<Map<String, List<RegionJsonData>>>() {}.getType());
   }
 }

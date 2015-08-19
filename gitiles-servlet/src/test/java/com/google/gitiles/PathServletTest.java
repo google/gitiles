@@ -17,52 +17,29 @@ package com.google.gitiles;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.assertEquals;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.io.BaseEncoding;
-import com.google.common.net.HttpHeaders;
 import com.google.gitiles.TreeJsonData.Tree;
-import com.google.gson.Gson;
 import com.google.template.soy.data.SoyListData;
 import com.google.template.soy.data.restricted.StringData;
 
 import org.eclipse.jgit.dircache.DirCacheEditor.PathEdit;
 import org.eclipse.jgit.dircache.DirCacheEntry;
-import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
-import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
-import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
-import org.eclipse.jgit.junit.TestRepository;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevBlob;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
 /** Tests for {@PathServlet}. */
 @SuppressWarnings("unchecked")
 @RunWith(JUnit4.class)
-public class PathServletTest {
-  private static final Renderer RENDERER =
-      new DefaultRenderer("/+static", ImmutableList.<URL> of(), "Test");
-
-  private TestRepository<DfsRepository> repo;
-  private PathServlet servlet;
-
-  @Before
-  public void setUp() throws Exception {
-    DfsRepository r = new InMemoryRepository(new DfsRepositoryDescription("repo"));
-    repo = new TestRepository<>(r);
-    servlet = new PathServlet(
-        new TestGitilesAccess(repo.getRepository()), RENDERER, TestGitilesUrls.URLS);
-  }
-
+public class PathServletTest extends ServletTest {
   @Test
   public void rootTreeHtml() throws Exception {
     repo.branch("master").commit().add("foo", "contents").create();
@@ -166,8 +143,8 @@ public class PathServletTest {
   @Test
   public void blobText() throws Exception {
     repo.branch("master").commit().add("foo", "contents").create();
-    String text = buildText("/repo/+/master/foo?format=TEXT", "100644");
-    assertEquals("contents", decodeBase64(text));
+    String text = buildBlob("/repo/+/master/foo", "100644");
+    assertEquals("contents", text);
   }
 
   @Test
@@ -181,8 +158,8 @@ public class PathServletTest {
             ent.setObjectId(link);
           }
         }).create();
-    String text = buildText("/repo/+/master/baz?format=TEXT", "120000");
-    assertEquals("foo", decodeBase64(text));
+    String text = buildBlob("/repo/+/master/baz", "120000");
+    assertEquals("foo", text);
   }
 
   @Test
@@ -192,11 +169,11 @@ public class PathServletTest {
     repo.branch("master").commit().setTopLevelTree(tree).create();
 
     String expected = "040000 tree " + repo.get(tree, "foo").name() + "\tfoo\n";
-    assertEquals(expected, decodeBase64(buildText("/repo/+/master/?format=TEXT", "040000")));
+    assertEquals(expected, buildBlob("/repo/+/master/", "040000"));
 
     expected = "100644 blob " + blob.name() + "\tbar\n";
-    assertEquals(expected, decodeBase64(buildText("/repo/+/master/foo?format=TEXT", "040000")));
-    assertEquals(expected, decodeBase64(buildText("/repo/+/master/foo/?format=TEXT", "040000")));
+    assertEquals(expected, buildBlob("/repo/+/master/foo", "040000"));
+    assertEquals(expected, buildBlob("/repo/+/master/foo/", "040000"));
   }
 
   @Test
@@ -205,7 +182,7 @@ public class PathServletTest {
     repo.branch("master").commit().add("foo\nbar\rbaz", blob).create();
 
     assertEquals("100644 blob " + blob.name() + "\t\"foo\\nbar\\rbaz\"\n",
-        decodeBase64(buildText("/repo/+/master/?format=TEXT", "040000")));
+        buildBlob("/repo/+/master/", "040000"));
   }
 
   @Test
@@ -225,8 +202,8 @@ public class PathServletTest {
           }
         }).create();
 
-    assertNotFound("/repo/+/master/nonexistent?format=TEXT");
-    assertNotFound("/repo/+/master/gitiles?format=TEXT");
+    assertNotFound("/repo/+/master/nonexistent", "format=text");
+    assertNotFound("/repo/+/master/gitiles", "format=text");
   }
 
   @Test
@@ -236,7 +213,7 @@ public class PathServletTest {
         .add("baz", "baz contents")
         .create());
 
-    Tree tree = buildJson("/repo/+/master/?format=JSON", Tree.class);
+    Tree tree = buildJson("/repo/+/master/", Tree.class);
     assertEquals(c.getTree().name(), tree.id);
     assertEquals(2, tree.entries.size());
     assertEquals(0100644, tree.entries.get(0).mode);
@@ -248,7 +225,7 @@ public class PathServletTest {
     assertEquals(repo.get(c.getTree(), "foo").name(), tree.entries.get(1).id);
     assertEquals("foo", tree.entries.get(1).name);
 
-    tree = buildJson("/repo/+/master/foo?format=JSON", Tree.class);
+    tree = buildJson("/repo/+/master/foo", Tree.class);
     assertEquals(repo.get(c.getTree(), "foo").name(), tree.id);
     assertEquals(1, tree.entries.size());
     assertEquals(0100644, tree.entries.get(0).mode);
@@ -256,7 +233,7 @@ public class PathServletTest {
     assertEquals(repo.get(c.getTree(), "foo/bar").name(), tree.entries.get(0).id);
     assertEquals("bar", tree.entries.get(0).name);
 
-    tree = buildJson("/repo/+/master/foo/?format=JSON", Tree.class);
+    tree = buildJson("/repo/+/master/foo/", Tree.class);
     assertEquals(repo.get(c.getTree(), "foo").name(), tree.id);
     assertEquals(1, tree.entries.size());
     assertEquals(0100644, tree.entries.get(0).mode);
@@ -273,41 +250,10 @@ public class PathServletTest {
     return ((Map<String, List<Map<String, ?>>>) data.get("data")).get("entries");
   }
 
-  private TestViewFilter.Result service(String pathAndQuery) throws Exception {
-    TestViewFilter.Result res = TestViewFilter.service(repo, pathAndQuery);
-    assertEquals(200, res.getResponse().getStatus());
-    assertEquals(GitilesView.Type.PATH, res.getView().getType());
-    servlet.service(res.getRequest(), res.getResponse());
-    return res;
-  }
-
-  private void assertNotFound(String pathAndQuery) throws Exception {
-    assertEquals(404, service(pathAndQuery).getResponse().getStatus());
-  }
-
-  private String buildText(String pathAndQuery, String expectedMode) throws Exception {
-    TestViewFilter.Result res = service(pathAndQuery);
-    assertEquals("text/plain", res.getResponse().getHeader(HttpHeaders.CONTENT_TYPE));
-    assertEquals(expectedMode, res.getResponse().getHeader(PathServlet.MODE_HEADER));
-    return res.getResponse().getActualBodyString();
-  }
-
-  private <T> T buildJson(String pathAndQuery, Class<T> clazz) throws Exception {
-    TestViewFilter.Result res = service(pathAndQuery);
-    assertEquals("application/json", res.getResponse().getHeader(HttpHeaders.CONTENT_TYPE));
-    String body = res.getResponse().getActualBodyString();
-    String magic = ")]}'\n";
-    assertEquals(magic, body.substring(0, magic.length()));
-    return new Gson().fromJson(body.substring(magic.length()), clazz);
-  }
-
-  private Map<String, ?> buildData(String pathAndQuery) throws Exception {
-    // Render the page through Soy to ensure templates are valid, then return
-    // the Soy data for introspection.
-    return BaseServlet.getData(service(pathAndQuery).getRequest());
-  }
-
-  private static String decodeBase64(String in) {
-    return new String(BaseEncoding.base64().decode(in), UTF_8);
+  private String buildBlob(String path, String expectedMode) throws Exception {
+    FakeHttpServletResponse res = buildText(path);
+    assertEquals(expectedMode, res.getHeader(PathServlet.MODE_HEADER));
+    String base64 = res.getActualBodyString();
+    return new String(BaseEncoding.base64().decode(base64), UTF_8);
   }
 }

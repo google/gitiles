@@ -28,30 +28,15 @@ import org.eclipse.jgit.diff.DiffEntry.Side;
 import org.eclipse.jgit.diff.Edit;
 import org.eclipse.jgit.diff.Edit.Type;
 import org.eclipse.jgit.diff.RawText;
-import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
-import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
-import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
-import org.eclipse.jgit.junit.TestRepository;
 import org.eclipse.jgit.patch.FileHeader;
 import org.eclipse.jgit.patch.Patch;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
-public class DiffServletTest {
-  private TestRepository<DfsRepository> repo;
-  private GitilesServlet servlet;
-
-  @Before
-  public void setUp() throws Exception {
-    DfsRepository r = new InMemoryRepository(new DfsRepositoryDescription("test"));
-    repo = new TestRepository<>(r);
-    servlet = TestGitilesServlet.create(repo);
-  }
-
+public class DiffServletTest extends ServletTest {
   @Test
   public void diffFileOneParentHtml() throws Exception {
     String contents1 = "foo\n";
@@ -59,15 +44,11 @@ public class DiffServletTest {
     RevCommit c1 = repo.update("master", repo.commit().add("foo", contents1));
     RevCommit c2 = repo.update("master", repo.commit().parent(c1).add("foo", contents2));
 
-    FakeHttpServletRequest req = FakeHttpServletRequest.newRequest();
-    req.setPathInfo("/test/+diff/" + c2.name() + "^!/foo");
-    FakeHttpServletResponse res = new FakeHttpServletResponse();
-    servlet.service(req, res);
+    String actual = buildHtml("/repo/+diff/" + c2.name() + "^!/foo", false);
 
     String diffHeader = String.format(
-        "diff --git <a href=\"/b/test/+/%s/foo\">a/foo</a> <a href=\"/b/test/+/%s/foo\">b/foo</a>",
+        "diff --git <a href=\"/b/repo/+/%s/foo\">a/foo</a> <a href=\"/b/repo/+/%s/foo\">b/foo</a>",
         c1.name(), c2.name());
-    String actual = res.getActualBodyString();
     assertTrue(String.format("Expected diff body to contain [%s]:\n%s", diffHeader, actual),
         actual.contains(diffHeader));
   }
@@ -77,11 +58,7 @@ public class DiffServletTest {
     String contents = "foo\ncontents\n";
     RevCommit c = repo.update("master", repo.commit().add("foo", contents));
 
-    FakeHttpServletRequest req = FakeHttpServletRequest.newRequest();
-    req.setPathInfo("/test/+diff/" + c.name() + "^!/foo");
-    req.setQueryString("format=TEXT");
-    FakeHttpServletResponse res = new FakeHttpServletResponse();
-    servlet.service(req, res);
+    FakeHttpServletResponse res = buildText("/repo/+diff/" + c.name() + "^!/foo");
 
     Patch p = parsePatch(res.getActualBody());
     FileHeader f = getOnlyElement(p.getFiles());
@@ -102,11 +79,7 @@ public class DiffServletTest {
     RevCommit c1 = repo.update("master", repo.commit().add("foo", contents1));
     RevCommit c2 = repo.update("master", repo.commit().parent(c1).add("foo", contents2));
 
-    FakeHttpServletRequest req = FakeHttpServletRequest.newRequest();
-    req.setPathInfo("/test/+diff/" + c2.name() + "^!/foo");
-    req.setQueryString("format=TEXT");
-    FakeHttpServletResponse res = new FakeHttpServletResponse();
-    servlet.service(req, res);
+    FakeHttpServletResponse res = buildText("/repo/+diff/" + c2.name() + "^!/foo");
 
     Patch p = parsePatch(res.getActualBody());
     FileHeader f = getOnlyElement(p.getFiles());
@@ -128,11 +101,7 @@ public class DiffServletTest {
         .add("dir/bar", contents)
         .add("baz", contents));
 
-    FakeHttpServletRequest req = FakeHttpServletRequest.newRequest();
-    req.setPathInfo("/test/+diff/" + c.name() + "^!/dir");
-    req.setQueryString("format=TEXT");
-    FakeHttpServletResponse res = new FakeHttpServletResponse();
-    servlet.service(req, res);
+    FakeHttpServletResponse res = buildText("/repo/+diff/" + c.name() + "^!/dir");
 
     Patch p = parsePatch(res.getActualBody());
     assertEquals(2, p.getFiles().size());
