@@ -22,7 +22,6 @@ import static org.junit.Assert.assertEquals;
 
 import com.google.common.collect.ImmutableList;
 
-import org.eclipse.jgit.http.server.ServletUtils;
 import org.eclipse.jgit.http.server.glue.MetaFilter;
 import org.eclipse.jgit.http.server.glue.MetaServlet;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
@@ -78,7 +77,6 @@ public class TestViewFilter {
     }
 
     FakeHttpServletRequest req = newRequest(repo, pathAndQuery);
-    req.setAttribute(ServletUtils.ATTRIBUTE_REPOSITORY, repo.getRepository());
     FakeHttpServletResponse res = new FakeHttpServletResponse();
     dummyServlet(mf).service(req, res);
     if (servlet.view != null) {
