@@ -20,7 +20,7 @@ import org.pegdown.ast.SuperNode;
 
 import java.util.List;
 
-/** Block note to render as {@code &lt;div class="{clazz}"&gt;}. */
+/** Block note to render as {@code &lt;div class="clazz"&gt;}. */
 public class DivNode extends SuperNode {
   private final String style;
 
