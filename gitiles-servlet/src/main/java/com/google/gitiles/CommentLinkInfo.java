@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
  * Example:
  * <pre>
  *  new CommentLinkInfo(
- *      Pattern.compile("bug \d+"),
+ *      Pattern.compile("bug (\d+)"),
  *      "http://bugs/$1")
  *    .linkify("do something nice\n\nbug 5")
  * </pre>
