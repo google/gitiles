@@ -39,7 +39,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-/** Tests for {@link Linkifier}. */
+/** Tests for {@link RefServlet}. */
 @RunWith(JUnit4.class)
 public class RefServletTest extends ServletTest {
   private void setUpSimpleRefs() throws Exception {
