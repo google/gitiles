@@ -16,11 +16,13 @@ package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.base.CharMatcher;
 import com.google.common.collect.ImmutableMap;
 
 import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
 import org.eclipse.jgit.lib.Config;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -38,12 +40,20 @@ public class TestGitilesAccess implements GitilesAccess.Factory {
   public GitilesAccess forRequest(final HttpServletRequest req) {
     return new GitilesAccess() {
       @Override
-      public Map<String, RepositoryDescription> listRepositories(Set<String> branches) {
+      public Map<String, RepositoryDescription> listRepositories(String prefix,
+          Set<String> branches) {
+        String name = repo.getDescription().getRepositoryName();
+        if (prefix != null) {
+          String pattern = CharMatcher.is('/').trimFrom(prefix) + '/';
+          if (!name.startsWith(pattern)) {
+            return Collections.emptyMap();
+          }
+        }
         if (branches != null && !branches.isEmpty()) {
           throw new UnsupportedOperationException("branches set not yet supported");
         }
         RepositoryDescription desc = new RepositoryDescription();
-        desc.name = repo.getDescription().getRepositoryName();
+        desc.name = name;
         desc.cloneUrl = TestGitilesUrls.URLS.getBaseGitUrl(req) + "/" + desc.name;
         return ImmutableMap.of(desc.name, desc);
       }

@@ -18,7 +18,6 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.gitiles.GitilesServlet.STATIC_PREFIX;
-import static com.google.gitiles.ViewFilter.getRegexGroup;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.FluentIterable;
@@ -33,17 +32,11 @@ import com.google.gitiles.blame.BlameServlet;
 import com.google.gitiles.doc.DocServlet;
 
 import org.eclipse.jgit.errors.ConfigInvalidException;
-import org.eclipse.jgit.errors.RepositoryNotFoundException;
-import org.eclipse.jgit.http.server.RepositoryFilter;
 import org.eclipse.jgit.http.server.glue.MetaFilter;
 import org.eclipse.jgit.http.server.glue.ServletBinder;
 import org.eclipse.jgit.lib.Config;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.transport.ServiceMayNotContinueException;
 import org.eclipse.jgit.transport.resolver.FileResolver;
 import org.eclipse.jgit.transport.resolver.RepositoryResolver;
-import org.eclipse.jgit.transport.resolver.ServiceNotAuthorizedException;
-import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
 
 import java.io.File;
 import java.io.IOException;
@@ -195,7 +188,7 @@ class GitilesFilter extends MetaFilter {
     this.blameCache = blameCache;
     this.gitwebRedirect = gitwebRedirect;
     if (resolver != null) {
-      this.resolver = wrapResolver(resolver);
+      this.resolver = resolver;
     }
   }
 
@@ -285,19 +278,6 @@ class GitilesFilter extends MetaFilter {
     checkState(!initialized, "Gitiles already initialized");
   }
 
-  private static RepositoryResolver<HttpServletRequest> wrapResolver(
-      final RepositoryResolver<HttpServletRequest> resolver) {
-    checkNotNull(resolver, "resolver");
-    return new RepositoryResolver<HttpServletRequest>() {
-      @Override
-      public Repository open(HttpServletRequest req, String name)
-          throws RepositoryNotFoundException, ServiceNotAuthorizedException,
-          ServiceNotEnabledException, ServiceMayNotContinueException {
-        return resolver.open(req, ViewFilter.trimLeadingSlash(getRegexGroup(req, 1)));
-      }
-    };
-  }
-
   private synchronized Linkifier linkifier() {
     if (linkifier == null) {
       checkState(urls != null, "GitilesUrls not yet set");
@@ -362,7 +342,7 @@ class GitilesFilter extends MetaFilter {
       FileResolver<HttpServletRequest> fileResolver;
       if (resolver == null) {
         fileResolver = new FileResolver<>(new File(basePath), exportAll);
-        resolver = wrapResolver(fileResolver);
+        resolver = fileResolver;
       } else if (resolver instanceof FileResolver) {
         fileResolver = (FileResolver<HttpServletRequest>) resolver;
       } else {

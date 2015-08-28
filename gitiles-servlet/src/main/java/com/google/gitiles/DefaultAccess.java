@@ -17,6 +17,7 @@ package com.google.gitiles;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.CharMatcher;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
@@ -105,10 +106,10 @@ public class DefaultAccess implements GitilesAccess {
   }
 
   @Override
-  public Map<String, RepositoryDescription> listRepositories(Set<String> branches)
-      throws IOException {
+  public Map<String, RepositoryDescription> listRepositories(String prefix,
+      Set<String> branches) throws IOException {
     Map<String, RepositoryDescription> repos = Maps.newTreeMap(US_COLLATOR);
-    for (Repository repo : scanRepositories(basePath, req)) {
+    for (Repository repo : scanRepositories(basePath, prefix, req)) {
       repos.put(getRepositoryName(repo), buildDescription(repo, branches));
       repo.close();
     }
@@ -219,15 +220,10 @@ public class DefaultAccess implements GitilesAccess {
     return "refs/heads/" + name;
   }
 
-  private Collection<Repository> scanRepositories(final File basePath, final HttpServletRequest req)
-      throws IOException {
+  private Collection<Repository> scanRepositories(File basePath, String prefix,
+      HttpServletRequest req) throws IOException {
     List<Repository> repos = Lists.newArrayList();
-    Queue<File> todo = Queues.newArrayDeque();
-    File[] baseFiles = basePath.listFiles();
-    if (baseFiles == null) {
-      throw new IOException("base path is not a directory: " + basePath.getPath());
-    }
-    Collections.addAll(todo, baseFiles);
+    Queue<File> todo = initScan(basePath, prefix);
     while (!todo.isEmpty()) {
       File file = todo.remove();
       try {
@@ -242,5 +238,29 @@ public class DefaultAccess implements GitilesAccess {
       }
     }
     return repos;
+  }
+
+  private Queue<File> initScan(File basePath, String prefix)
+      throws IOException {
+    Queue<File> todo = Queues.newArrayDeque();
+    File[] entries;
+    if (isValidPrefix(prefix)) {
+      entries = new File(basePath, CharMatcher.is('/').trimFrom(prefix)).listFiles();
+    } else {
+      entries = basePath.listFiles();
+    }
+    if (entries != null) {
+      Collections.addAll(todo, entries);
+    } else if (!basePath.isDirectory()) {
+      throw new IOException("base path is not a directory: " + basePath.getPath());
+    }
+    return todo;
+  }
+
+  private static boolean isValidPrefix(String prefix) {
+    return !Strings.isNullOrEmpty(prefix)
+        && !prefix.equals(".") && !prefix.equals("..")
+        && !prefix.contains("../")
+        && !prefix.endsWith("/..");
   }
 }

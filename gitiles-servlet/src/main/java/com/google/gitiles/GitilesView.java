@@ -23,7 +23,9 @@ import static com.google.gitiles.GitilesUrls.NAME_ESCAPER;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Joiner;
 import com.google.common.base.MoreObjects.ToStringHelper;
+import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -36,6 +38,7 @@ import org.eclipse.jgit.revwalk.RevObject;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
@@ -87,6 +90,7 @@ public class GitilesView {
 
     private String hostName;
     private String servletPath;
+    private String repositoryPrefix;
     private String repositoryName;
     private Revision revision = Revision.NULL;
     private Revision oldRevision = Revision.NULL;
@@ -106,6 +110,9 @@ public class GitilesView {
       hostName = other.hostName;
       servletPath = other.servletPath;
       switch (type) {
+        case HOST_INDEX:
+          repositoryPrefix = other.repositoryPrefix;
+          break;
         case LOG:
         case DIFF:
           oldRevision = other.oldRevision;
@@ -159,6 +166,19 @@ public class GitilesView {
 
     public String getServletPath() {
       return servletPath;
+    }
+
+    public Builder setRepositoryPrefix(String prefix) {
+      switch (type) {
+        case HOST_INDEX:
+          this.repositoryPrefix = prefix != null
+              ? Strings.emptyToNull(maybeTrimLeadingAndTrailingSlash(prefix))
+              : null;
+          return this;
+        default:
+          throw new IllegalStateException(
+              String.format("cannot set repository prefix on %s view", type));
+      }
     }
 
     public Builder setRepositoryName(String repositoryName) {
@@ -342,8 +362,9 @@ public class GitilesView {
           checkRootedDoc();
           break;
       }
-      return new GitilesView(type, hostName, servletPath, repositoryName, revision,
-          oldRevision, path, extension, params, anchor);
+      return new GitilesView(type, hostName, servletPath, repositoryPrefix,
+          repositoryName, revision, oldRevision, path, extension, params,
+          anchor);
     }
 
     public String toUrl() {
@@ -470,6 +491,7 @@ public class GitilesView {
   private final Type type;
   private final String hostName;
   private final String servletPath;
+  private final String repositoryPrefix;
   private final String repositoryName;
   private final Revision revision;
   private final Revision oldRevision;
@@ -481,6 +503,7 @@ public class GitilesView {
   private GitilesView(Type type,
       String hostName,
       String servletPath,
+      String repositoryPrefix,
       String repositoryName,
       Revision revision,
       Revision oldRevision,
@@ -491,6 +514,7 @@ public class GitilesView {
     this.type = type;
     this.hostName = hostName;
     this.servletPath = servletPath;
+    this.repositoryPrefix = repositoryPrefix;
     this.repositoryName = repositoryName;
     this.revision = firstNonNull(revision, Revision.NULL);
     this.oldRevision = firstNonNull(oldRevision, Revision.NULL);
@@ -514,6 +538,10 @@ public class GitilesView {
 
   public String getServletPath() {
     return servletPath;
+  }
+
+  public String getRepositoryPrefix() {
+    return repositoryPrefix;
   }
 
   public String getRepositoryName() {
@@ -574,6 +602,7 @@ public class GitilesView {
         .omitNullValues()
         .add("host", hostName)
         .add("servlet", servletPath)
+        .add("prefix", repositoryPrefix)
         .add("repo", repositoryName)
         .add("rev", revision)
         .add("old", oldRevision)
@@ -592,8 +621,11 @@ public class GitilesView {
     ListMultimap<String, String> params = this.params;
     switch (type) {
       case HOST_INDEX:
+        if (repositoryPrefix != null) {
+          url.append(repositoryPrefix).append('/');
+        }
         params = LinkedListMultimap.create();
-        if (!this.params.containsKey("format")) {
+        if (repositoryPrefix == null && !this.params.containsKey("format")) {
           params.put("format", FormatType.HTML.toString());
         }
         params.putAll(this.params);
@@ -712,9 +744,11 @@ public class GitilesView {
         "hasSingleTree must be null for %s view", type);
     String path = this.path;
     ImmutableList.Builder<Map<String, String>> breadcrumbs = ImmutableList.builder();
-    breadcrumbs.add(breadcrumb(hostName, hostIndex().copyFrom(this)));
-    if (repositoryName != null) {
-      breadcrumbs.add(breadcrumb(repositoryName, repositoryIndex().copyFrom(this)));
+    breadcrumbs.add(breadcrumb(hostName, hostIndex().copyFrom(this).setRepositoryPrefix(null)));
+    if (repositoryPrefix != null) {
+      breadcrumbs.addAll(hostIndexBreadcrumbs(repositoryPrefix));
+    } else if (repositoryName != null) {
+      breadcrumbs.addAll(hostIndexBreadcrumbs(repositoryName));
     }
     if (type == Type.DIFF) {
       // TODO(dborowitz): Tweak the breadcrumbs template to allow us to render
@@ -760,6 +794,18 @@ public class GitilesView {
       }
     }
     return breadcrumbs.build();
+  }
+
+  private List<Map<String, String>> hostIndexBreadcrumbs(String name) {
+    List<String> parts = Splitter.on('/').splitToList(name);
+    List<Map<String, String>> r = new ArrayList<>(parts.size());
+    for (int i = 0; i < parts.size(); i++) {
+      String prefix = Joiner.on('/').join(parts.subList(0, i + 1));
+      r.add(breadcrumb(
+          parts.get(i),
+          hostIndex().copyFrom(this).setRepositoryPrefix(prefix)));
+    }
+    return r;
   }
 
   private static Map<String, String> breadcrumb(String text, Builder url) {

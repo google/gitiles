@@ -18,6 +18,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
+import static org.eclipse.jgit.http.server.ServletUtils.ATTRIBUTE_REPOSITORY;
 
 import com.google.common.base.Strings;
 
@@ -152,7 +153,7 @@ public class ViewFilter extends AbstractHttpFilter {
     String path = getRegexGroup(req, 3);
 
     if (command.isEmpty()) {
-      return parseNoCommand(repoName);
+      return parseNoCommand(req, repoName);
     } else if (command.equals(CMD_ARCHIVE)) {
       return parseArchiveCommand(req, repoName, path);
     } else if (command.equals(CMD_AUTO)) {
@@ -176,7 +177,11 @@ public class ViewFilter extends AbstractHttpFilter {
     }
   }
 
-  private GitilesView.Builder parseNoCommand(String repoName) {
+  private GitilesView.Builder parseNoCommand(HttpServletRequest req,
+      String repoName) {
+    if (req.getAttribute(ATTRIBUTE_REPOSITORY) == null) {
+      return GitilesView.hostIndex().setRepositoryPrefix(repoName);
+    }
     return GitilesView.repositoryIndex().setRepositoryName(repoName);
   }
 

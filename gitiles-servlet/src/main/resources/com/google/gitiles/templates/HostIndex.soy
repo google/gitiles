@@ -19,31 +19,36 @@
  * @param hostName host name.
  * @param? menuEntries menu entries.
  * @param? headerVariant variant name for custom header.
+ * @param? prefix prefix path for matching repositories.
+ * @param? breadcrumbs map of breadcrumbs for header.
  * @param baseUrl base URL for repositories.
  * @param repositories list of repository description maps with name, cloneUrl,
  *     and optional description values.
  */
 {template .hostIndex}
 {call .header}
-  {param title: $hostName ? $hostName + ' Git repositories' : 'Git repositories' /}
+  {param title: $prefix ? $prefix : $hostName ? $hostName + ' Git repositories' : 'Git repositories' /}
   {param menuEntries: $menuEntries /}
-  {param breadcrumbs: null /}
+  {param breadcrumbs: $breadcrumbs /}
   {param headerVariant: $headerVariant /}
 {/call}
 
 {if length($repositories)}
-
-  <h2>
-    {msg desc="Git repositories available on the host"}
-      {$hostName} Git repositories
-    {/msg}
-  </h2>
+  {if not $breadcrumbs}
+    <h2>
+      {msg desc="Git repositories available on the host"}
+        {$hostName} Git repositories
+      {/msg}
+    </h2>
+  {else}
+    <br />
+  {/if}
 
   <div class="instructions">
     {msg desc="description on how to use this repository"}
     To clone one of these repositories, install{sp}
     <a href="http://www.git-scm.com/">git</a>, and run:
-    <pre>git clone {$baseUrl}<em>name</em></pre>
+    <pre>git clone {$baseUrl}{$prefix}<em>name</em></pre>
     {/msg}
   </div>
 

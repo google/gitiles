@@ -72,6 +72,35 @@ public class GitilesViewTest {
   }
 
   @Test
+  public void hostIndexOneComponentPrefix() throws Exception {
+    GitilesView view = GitilesView.hostIndex()
+        .copyFrom(HOST)
+        .setRepositoryPrefix("foo")
+        .build();
+
+    assertEquals("/b/foo/", view.toUrl());
+    assertEquals(ImmutableList.of(
+        ImmutableMap.of("text", "host", "url", "/b/?format=HTML"),
+        ImmutableMap.of("text", "foo", "url", "/b/foo/")),
+      view.getBreadcrumbs());
+  }
+
+  @Test
+  public void hostIndexTwoComponentPrefix() throws Exception {
+    GitilesView view = GitilesView.hostIndex()
+        .copyFrom(HOST)
+        .setRepositoryPrefix("foo/bar")
+        .build();
+
+    assertEquals("/b/foo/bar/", view.toUrl());
+    assertEquals(ImmutableList.of(
+          ImmutableMap.of("text", "host", "url", "/b/?format=HTML"),
+          ImmutableMap.of("text", "foo", "url", "/b/foo/"),
+          ImmutableMap.of("text", "bar", "url", "/b/foo/bar/")),
+        view.getBreadcrumbs());
+  }
+
+  @Test
   public void queryParams() throws Exception {
     GitilesView view = GitilesView.log().copyFrom(HOST)
         .setRepositoryName("repo")
@@ -133,7 +162,8 @@ public class GitilesViewTest {
     assertEquals(
         ImmutableList.of(
             breadcrumb("host", "/b/?format=HTML"),
-            breadcrumb("foo/bar", "/b/foo/bar/")),
+            breadcrumb("foo", "/b/foo/"),
+            breadcrumb("bar", "/b/foo/bar/")),
         view.getBreadcrumbs());
   }
 
@@ -156,7 +186,8 @@ public class GitilesViewTest {
     assertEquals(
         ImmutableList.of(
             breadcrumb("host", "/b/?format=HTML"),
-            breadcrumb("foo/bar", "/b/foo/bar/")),
+            breadcrumb("foo", "/b/foo/"),
+            breadcrumb("bar", "/b/foo/bar/")),
         view.getBreadcrumbs());
   }
 
@@ -182,7 +213,8 @@ public class GitilesViewTest {
     assertEquals(
         ImmutableList.of(
             breadcrumb("host", "/b/?format=HTML"),
-            breadcrumb("foo/bar", "/b/foo/bar/"),
+            breadcrumb("foo", "/b/foo/"),
+            breadcrumb("bar", "/b/foo/bar/"),
             breadcrumb("master", "/b/foo/bar/+/master")),
         view.getBreadcrumbs());
   }
@@ -227,7 +259,8 @@ public class GitilesViewTest {
     assertEquals(
         ImmutableList.of(
             breadcrumb("host", "/b/?format=HTML"),
-            breadcrumb("foo/bar", "/b/foo/bar/"),
+            breadcrumb("foo", "/b/foo/"),
+            breadcrumb("bar", "/b/foo/bar/"),
             breadcrumb("master", "/b/foo/bar/+/master"),
             breadcrumb(".", "/b/foo/bar/+/master/")),
         view.getBreadcrumbs());
@@ -256,7 +289,8 @@ public class GitilesViewTest {
     assertEquals(
         ImmutableList.of(
             breadcrumb("host", "/b/?format=HTML"),
-            breadcrumb("foo/bar", "/b/foo/bar/"),
+            breadcrumb("foo", "/b/foo/"),
+            breadcrumb("bar", "/b/foo/bar/"),
             breadcrumb("master", "/b/foo/bar/+/master"),
             breadcrumb(".", "/b/foo/bar/+/master/"),
             breadcrumb("file", "/b/foo/bar/+/master/file")),
@@ -368,7 +402,8 @@ public class GitilesViewTest {
     assertEquals(
         ImmutableList.of(
             breadcrumb("host", "/b/?format=HTML"),
-            breadcrumb("foo/bar", "/b/foo/bar/"),
+            breadcrumb("foo", "/b/foo/"),
+            breadcrumb("bar", "/b/foo/bar/"),
             breadcrumb("master", "/b/foo/bar/+/master"),
             breadcrumb(".", "/b/foo/bar/+/master/"),
             breadcrumb("path", "/b/foo/bar/+/master/path"),
@@ -404,7 +439,8 @@ public class GitilesViewTest {
     assertEquals(
         ImmutableList.of(
             breadcrumb("host", "/b/?format=HTML"),
-            breadcrumb("foo/bar", "/b/foo/bar/"),
+            breadcrumb("foo", "/b/foo/"),
+            breadcrumb("bar", "/b/foo/bar/"),
             breadcrumb("master^!", "/b/foo/bar/+/master%5E%21/"),
             breadcrumb(".", "/b/foo/bar/+/master%5E%21/"),
             breadcrumb("path", "/b/foo/bar/+/master%5E%21/path"),
@@ -438,7 +474,8 @@ public class GitilesViewTest {
     assertEquals(
         ImmutableList.of(
             breadcrumb("host", "/b/?format=HTML"),
-            breadcrumb("foo/bar", "/b/foo/bar/"),
+            breadcrumb("foo", "/b/foo/"),
+            breadcrumb("bar", "/b/foo/bar/"),
             breadcrumb("master^!", "/b/foo/bar/+/master%5E%21/"),
             breadcrumb(".", "/b/foo/bar/+/master%5E%21/"),
             breadcrumb("path", "/b/foo/bar/+/master%5E%21/path"),
@@ -474,7 +511,8 @@ public class GitilesViewTest {
     assertEquals(
         ImmutableList.of(
             breadcrumb("host", "/b/?format=HTML"),
-            breadcrumb("foo/bar", "/b/foo/bar/"),
+            breadcrumb("foo", "/b/foo/"),
+            breadcrumb("bar", "/b/foo/bar/"),
             breadcrumb("efab5678..master", "/b/foo/bar/+/efab5678..master/"),
             breadcrumb(".", "/b/foo/bar/+/efab5678..master/"),
             breadcrumb("path", "/b/foo/bar/+/efab5678..master/path"),
@@ -507,7 +545,8 @@ public class GitilesViewTest {
     assertEquals(
         ImmutableList.of(
             breadcrumb("host", "/b/?format=HTML"),
-            breadcrumb("foo/bar", "/b/foo/bar/"),
+            breadcrumb("foo", "/b/foo/"),
+            breadcrumb("bar", "/b/foo/bar/"),
             breadcrumb("master", "/b/foo/bar/+log/master")),
         view.getBreadcrumbs());
   }
@@ -535,7 +574,8 @@ public class GitilesViewTest {
     assertEquals(
         ImmutableList.of(
             breadcrumb("host", "/b/?format=HTML"),
-            breadcrumb("foo/bar", "/b/foo/bar/"),
+            breadcrumb("foo", "/b/foo/"),
+            breadcrumb("bar", "/b/foo/bar/"),
             breadcrumb("abcd1234", "/b/foo/bar/+log/abcd1234")),
         view.getBreadcrumbs());
   }
@@ -564,7 +604,8 @@ public class GitilesViewTest {
     assertEquals(
         ImmutableList.of(
             breadcrumb("host", "/b/?format=HTML"),
-            breadcrumb("foo/bar", "/b/foo/bar/"),
+            breadcrumb("foo", "/b/foo/"),
+            breadcrumb("bar", "/b/foo/bar/"),
             breadcrumb("master", "/b/foo/bar/+log/master"),
             breadcrumb("path", "/b/foo/bar/+log/master/path"),
             breadcrumb("to", "/b/foo/bar/+log/master/path/to"),
@@ -599,7 +640,8 @@ public class GitilesViewTest {
     assertEquals(
         ImmutableList.of(
             breadcrumb("host", "/b/?format=HTML"),
-            breadcrumb("foo/bar", "/b/foo/bar/"),
+            breadcrumb("foo", "/b/foo/"),
+            breadcrumb("bar", "/b/foo/bar/"),
             breadcrumb("master^..master", "/b/foo/bar/+log/master%5E..master"),
             breadcrumb("path", "/b/foo/bar/+log/master%5E..master/path"),
             breadcrumb("to", "/b/foo/bar/+log/master%5E..master/path/to"),
@@ -627,7 +669,8 @@ public class GitilesViewTest {
     assertEquals(
         ImmutableList.of(
             breadcrumb("host", "/b/?format=HTML"),
-            breadcrumb("foo/bar", "/b/foo/bar/"),
+            breadcrumb("foo", "/b/foo/"),
+            breadcrumb("bar", "/b/foo/bar/"),
             breadcrumb("HEAD", "/b/foo/bar/+log")),
         view.getBreadcrumbs());
   }
@@ -700,7 +743,8 @@ public class GitilesViewTest {
     assertEquals(
         ImmutableList.of(
             breadcrumb("host", "/b/?format=HTML"),
-            breadcrumb("foo/bar", "/b/foo/bar/"),
+            breadcrumb("foo", "/b/foo/"),
+            breadcrumb("bar", "/b/foo/bar/"),
             breadcrumb("master", "/b/foo/bar/+/master"),
             breadcrumb(".", "/b/foo/bar/+/master/"),
             breadcrumb("dir", "/b/foo/bar/+/master/dir"),
@@ -770,7 +814,8 @@ public class GitilesViewTest {
     assertEquals(
         ImmutableList.of(
             breadcrumb("host", "/b/?format=HTML"),
-            breadcrumb("foo/bar", "/b/foo/bar/"),
+            breadcrumb("foo", "/b/foo/"),
+            breadcrumb("bar", "/b/foo/bar/"),
             breadcrumb("master", "/b/foo/bar/+/master"),
             breadcrumb(".", "/b/foo/bar/+/master/"),
             breadcrumb("path", "/b/foo/bar/+/master/path"),
@@ -781,7 +826,8 @@ public class GitilesViewTest {
     assertEquals(
         ImmutableList.of(
             breadcrumb("host", "/b/?format=HTML"),
-            breadcrumb("foo/bar", "/b/foo/bar/"),
+            breadcrumb("foo", "/b/foo/"),
+            breadcrumb("bar", "/b/foo/bar/"),
             breadcrumb("master", "/b/foo/bar/+/master"),
             breadcrumb(".", "/b/foo/bar/+/master/"),
             breadcrumb("path", "/b/foo/bar/+/master/path?autodive=0"),
@@ -805,7 +851,8 @@ public class GitilesViewTest {
     assertEquals(
         ImmutableList.of(
             breadcrumb("host", "/b/?format=HTML"),
-            breadcrumb("foo/bar", "/b/foo/bar/"),
+            breadcrumb("foo", "/b/foo/"),
+            breadcrumb("bar", "/b/foo/bar/"),
             breadcrumb("master", "/b/foo/bar/+/master"),
             breadcrumb(".", "/b/foo/bar/+/master/")),
         view.getBreadcrumbs(ImmutableList.<Boolean> of()));

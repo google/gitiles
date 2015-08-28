@@ -277,7 +277,8 @@ class DevServer {
     public GitilesAccess forRequest(HttpServletRequest req) {
       return new GitilesAccess() {
         @Override
-        public Map<String, RepositoryDescription> listRepositories(Set<String> branches) {
+        public Map<String, RepositoryDescription> listRepositories(
+            String prefix, Set<String> branches) {
           return Collections.emptyMap();
         }
 

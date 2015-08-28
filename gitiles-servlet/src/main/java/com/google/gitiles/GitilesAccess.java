@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -39,16 +40,22 @@ public interface GitilesAccess {
   /**
    * List repositories on the host.
    *
+   * @param prefix repository base path to list. Trailing "/" is implicitly
+   *        added if missing. Null or empty string will match all repositories.
    * @param branches branches to list along with each repository.
    * @return map of repository names to descriptions.
    * @throws ServiceNotEnabledException to trigger an HTTP 403 Forbidden
-   *     (matching behavior in {@link org.eclipse.jgit.http.server.RepositoryFilter}).
+   *         (matching behavior in
+   *         {@link org.eclipse.jgit.http.server.RepositoryFilter}).
    * @throws ServiceNotAuthorizedException to trigger an HTTP 401 Unauthorized
-   *     (matching behavior in {@link org.eclipse.jgit.http.server.RepositoryFilter}).
+   *         (matching behavior in
+   *         {@link org.eclipse.jgit.http.server.RepositoryFilter}).
    * @throws IOException if an error occurred.
    */
-  public Map<String, RepositoryDescription> listRepositories(Set<String> branches)
-      throws ServiceNotEnabledException, ServiceNotAuthorizedException, IOException;
+  public Map<String, RepositoryDescription> listRepositories(
+      @Nullable String prefix, Set<String> branches)
+          throws ServiceNotEnabledException, ServiceNotAuthorizedException,
+          IOException;
 
   /**
    * @return an opaque object that uniquely identifies the end-user making the
