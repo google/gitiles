@@ -152,4 +152,12 @@ public class LinkifierTest {
         ImmutableMap.of("text", "&lt;p&rt;")),
         l.linkify(REQ, "http://weird/htmlified/?url&lt;p&rt;"));
   }
+
+  @Test
+  public void invalidCommentlinkMatchRegex() throws Exception {
+    Config config = new Config();
+    config.setString("commentlink", "foo", "match", "bad-regex(");
+    new Linkifier(TestGitilesUrls.URLS, config);
+    // Must not throw an exception
+  }
 }

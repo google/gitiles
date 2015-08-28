@@ -29,9 +29,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -66,14 +66,12 @@ public class Linkifier {
 
     List<CommentLinkInfo> list = new ArrayList<>();
     list.add(new CommentLinkInfo(HTTP_URL_PATTERN, "$0"));
-    Set<String> subsections = config.getSubsections(COMMENTLINK);
 
     List<String> patterns = new ArrayList<>();
-
     patterns.add(HTTP_URL_PATTERN.pattern());
     patterns.add(CHANGE_ID_PATTERN.pattern());
 
-    for (String subsection : subsections) {
+    for (String subsection : config.getSubsections(COMMENTLINK)) {
       String match = config.getString("commentlink", subsection, "match");
       String link = config.getString("commentlink", subsection, "link");
       String html = config.getString("commentlink", subsection, "html");
@@ -85,11 +83,17 @@ public class Linkifier {
         log.warn("invalid commentlink.%s.match", subsection);
         continue;
       }
+      Pattern pattern;
+      try {
+        pattern = Pattern.compile(match);
+      } catch(PatternSyntaxException ex) {
+        log.warn("invalid commentlink." + subsection + ".match", ex);
+        continue;
+      }
       if (Strings.isNullOrEmpty(link)) {
         log.warn("invalid commentlink.%s.link", subsection);
         continue;
       }
-      Pattern pattern = Pattern.compile(match);
       list.add(new CommentLinkInfo(pattern, link));
       patterns.add(match);
     }
