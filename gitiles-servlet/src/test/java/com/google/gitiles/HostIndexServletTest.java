@@ -17,7 +17,8 @@ package com.google.gitiles;
 import static com.google.gitiles.TestGitilesUrls.URLS;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 
 import com.google.gson.reflect.TypeToken;
 import com.google.template.soy.data.SoyListData;
@@ -30,10 +31,13 @@ import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
 import org.eclipse.jgit.junit.TestRepository;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 import java.util.Map;
 
 /** Tests for {@link HostIndexServlet}. */
+@RunWith(JUnit4.class)
 public class HostIndexServletTest extends ServletTest {
   private static final String NAME = "foo/bar/repo";
 
