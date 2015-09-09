@@ -33,23 +33,21 @@
   {param breadcrumbs: $breadcrumbs /}
 {/call}
 
-{if length($branches)}
-  <div class="refs-branches refs-detail">
+<div class="Refs">
+  {if length($branches)}
     {call .refList}
       {param type: 'Branches' /}
       {param refs: $branches /}
     {/call}
-  </div>
-{/if}
+  {/if}
 
-{if length($tags)}
-  <div class="refs-tags refs-detail">
+  {if length($tags)}
     {call .refList}
       {param type: 'Tags' /}
       {param refs: $tags /}
     {/call}
-  </div>
-{/if}
+  {/if}
+</div>
 
 {call .footer /}
 {/template}
@@ -61,10 +59,12 @@
  * @param refs list of branch objects with url, name, and optional isHead keys.
  */
 {template .refList}
-  <h3>{$type}</h3>
-  <ul class="ref-list">
-  {foreach $ref in $refs}
-    <li{if $ref.isHead} class="head-ref"{/if}><a href="{$ref.url}">{$ref.name}</a></li>
-  {/foreach}
-  </ul>
+  <div class="RefList">
+    <h3 class="RefList-title">{$type}</h3>
+    <ul class="RefList-items">
+    {foreach $ref in $refs}
+      <li class="RefList-item"><a href="{$ref.url}">{$ref.name}</a></li>
+    {/foreach}
+    </ul>
+  </div>
 {/template}

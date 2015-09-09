@@ -42,31 +42,27 @@
 /**
  * Header for list of log entries.
  *
- * @param? pretty base "pretty" format for the log entry template.
  * @param? previousUrl URL for the previous page of results.
  */
 {template .logEntriesHeader}
 {if $previousUrl}
-  <div class="log-nav">
-    <a href="{$previousUrl}">{msg desc="text for previous URL"}&laquo; Previous{/msg}</a>
-  </div>
+  <nav class="LogNav">
+    <a class="LogNav-prev" href="{$previousUrl}">{msg desc="text for previous URL"}&laquo; Previous{/msg}</a>
+  </nav>
 {/if}
 
-<ol class="{$pretty ?: 'default'} log">
+<ol class="CommitLog">
 {/template}
 
 
 /**
  * Wrapper for a single log entry with pretty format and variant.
  *
- * @param firstWithPrevious whether this entry is the first in the current list,
- *     but also comes below a "Previous" link.
  * @param variant variant name for log entry template.
  * @param entry log entry; see .logEntry.
  */
 {template .logEntryWrapper}
-// TODO(dborowitz): Better CSS instead of this firstWithPrevious hack.
-<li{if $firstWithPrevious} class="first"{/if}>
+<li class="CommitLog-item CommitLog-item--{$variant}">
   {delcall gitiles.logEntry variant="$variant ?: 'default'" data="$entry" /}
 </li>
 {/template}
@@ -80,9 +76,9 @@
 {template .logEntriesFooter}
 </ol>
 {if $nextUrl}
-  <div class="log-nav">
-    <a href="{$nextUrl}">{msg desc="text for next URL"}Next &raquo;{/msg}</a>
-  </div>
+  <nav class="LogNav">
+    <a class="LogNav-next" href="{$nextUrl}">{msg desc="text for next URL"}Next &raquo;{/msg}</a>
+  </nav>
 {/if}
 {/template}
 
@@ -91,7 +87,7 @@
  * Single log entry indicating the full log is empty.
  */
 {template .emptyLog}
-<li class="empty">{msg desc="informational text for when the log is empty"}No commits.{/msg}</p>
+<li class="CommitLog-item CommitLog-item--empty">{msg desc="informational text for when the log is empty"}No commits.{/msg}</p>
 {/template}
 
 
@@ -112,25 +108,21 @@
  * @param diffTree unused in this variant.
  */
 {deltemplate gitiles.logEntry variant="'oneline'"}
-<a href="{$url}">
-  <span class="sha1">{$abbrevSha}</span>
-  // nbsp instad of CSS padding/margin because those cause a break in the
-  // underline.
-  &nbsp;
-  {sp}<span>{$shortMessage}</span>
-</a>
-{sp}<span class="author" title="{$author.email}">{msg desc="commit author name"}by {$author.name}{/msg}</span>
-{sp}<span class="time" title="{$author.time}">- {$author.relativeTime}</span>
+<a class="u-sha1 CommitLog-sha1" href="{$url}">{$abbrevSha}</a>
+{sp}<a href="{$url}">{$shortMessage}</a>
+{sp}<span class="CommitLog-author" title="{$author.email}">{msg desc="commit author name"}by {$author.name}{/msg}</span>
+{sp}<span class="CommitLog-time" title="{$author.time}">· {$author.relativeTime}</span>
 {if length($branches)}
   {foreach $branch in $branches}
-    {sp}<a href="{$branch.url}" class="branch-label">{$branch.name}</a>
+    {sp}<a class="CommitLog-branchLabel" href="{$branch.url}">{$branch.name}</a>
   {/foreach}
 {/if}
 {if length($tags)}
   {foreach $tag in $tags}
-    {sp}<a href="{$tag.url}" class="tag-label">{$tag.name}</a>
+    {sp}<a class="CommitLog-tagLabel" href="{$tag.url}">{$tag.name}</a>
   {/foreach}
 {/if}
+
 {/deltemplate}
 
 
@@ -172,10 +164,10 @@
  * @param diffTree unused in this variant.
  */
 {deltemplate gitiles.logEntry variant="'full'"}
-<div class="git-commit">
+<div class="Metadata">
 <table>
   <tr>
-    <th>{msg desc="Header for commit SHA entry"}commit{/msg}</th>
+    <th class="Metadata-title">{msg desc="Header for commit SHA entry"}commit{/msg}</th>
     <td class="sha1">
       <a href="{$url}">{$sha}</a>
     </td>
@@ -195,18 +187,18 @@
     </td>
   </tr>
   <tr>
-    <th>{msg desc="Header for commit author"}author{/msg}</th>
+    <th class="Metadata-title">{msg desc="Header for commit author"}author{/msg}</th>
     <td>{call .person_ data="$author" /}</td>
     <td>{$author.time}</td>
   </tr>
   <tr>
-    <th>{msg desc="Header for committer"}committer{/msg}</th>
+    <th class="Metadata-title">{msg desc="Header for committer"}committer{/msg}</th>
     <td>{call .person_ data="$committer" /}</td>
     <td>{$committer.time}</td>
   </tr>
 </table>
 </div>
-<pre class="commit-message">
+<pre class="MetadataMessage">
   {$message}
 </pre>
 {/deltemplate}

@@ -28,53 +28,56 @@
  * @param bodyHtml safe html to embed into the body of the page.
  */
 {template .markdownDoc}
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html class="doc-page">
+<!DOCTYPE html>
+<html lang="en">
 <head>
+  <meta charset="utf-8">
   <title>
     {if $siteTitle}{$siteTitle} -{sp}{/if}
     {$pageTitle}
   </title>
+  <link rel="stylesheet" type="text/css" href="{gitiles.BASE_CSS_URL}" />
   <link rel="stylesheet" type="text/css" href="{gitiles.DOC_CSS_URL}" />
   <link rel="stylesheet" type="text/css" href="{gitiles.PRETTIFY_CSS_URL}" />
 </head>
-<body>
-  {if $siteTitle}
-    <div class="banner" role="banner">
-      <div class="nav-aux">
-        <h1>
-          {if $homeUrl}<a href="{$homeUrl}">{/if}
-          {if $logoUrl}<img src="{$logoUrl}" alt="project logo" />{/if}
-          {$siteTitle}
-          {if $homeUrl}</a>{/if}
-        </h1>
-        <h2>{$pageTitle}</h2>
+<body class="Site">
+  <header class="Site-header">
+    <div class="Header">
+      <div class="Header-title">
+        {if $homeUrl}<a href="{$homeUrl}">{/if}
+        {if $logoUrl}<img src="{$logoUrl}" alt="project logo" />{/if}
+        {if $siteTitle}{$siteTitle}{/if}
+        {if $homeUrl}</a>{/if}
       </div>
     </div>
-  {/if}
-  {if $navbarHtml}
-    <div class="nav" role="navigation">
-    <div class="nav-aux">
-      {$navbarHtml}
+    {if $navbarHtml}
+      <div class="nav" role="navigation">
+        <div class="nav-aux">
+          {$navbarHtml}
+        </div>
+      </div>
+    {/if}
+  </header>
+  <div class="Site-content Site-Content--markdown">
+    <div class="Container">
+      <div class="doc">
+        {$bodyHtml}
+      </div>
     </div>
-    </div>
-  {/if}
-  <div class="doc">
-    {$bodyHtml}
   </div>
-  <div class="footer-break"></div>
-  <div class="footer-line">
-    <div class="nav-aux">
-      <ul>
-      {if $sourceUrl}<li><a href="{$sourceUrl}">{msg desc="text for the source link"}source{/msg}</a></li>{/if}
-      {if $logUrl}<li><a href="{$logUrl}">{msg desc="text for the log link"}log{/msg}</a></li>{/if}
-      {if $blameUrl}<li><a href="{$blameUrl}">{msg desc="text for the blame link"}blame{/msg}</a></li>{/if}
+  <footer class="Site-footer">
+    <div class="Footer">
+      <div class="Footer-poweredBy">
+        Powered by <a href="https://code.google.com/p/gitiles/">Gitiles</a>
+      </div>
+      <div class="Footer-links">
+        {if $sourceUrl}<a class="Footer-link" href="{$sourceUrl}">{msg desc="text for the source link"}source{/msg}</a>{/if}
+        {if $logUrl}<a class="Footer-link" href="{$logUrl}">{msg desc="text for the log link"}log{/msg}</a>{/if}
+        {if $blameUrl}<a class="Footer-link" href="{$blameUrl}">{msg desc="text for the blame link"}blame{/msg}</a>{/if}
       </ul>
-      <div class="gitiles-att">
-      Powered by <a href="https://code.google.com/p/gitiles/">Gitiles</a>
-      </div>
+
     </div>
-  </div>
+  </footer>
   {if $analyticsId}
     /* From https://developers.google.com/analytics/devguides/collection/analyticsjs/ */
     <script>

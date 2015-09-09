@@ -39,40 +39,41 @@
 {if $regions}
   {call .header data="all"}
     {param css: [gitiles.PRETTIFY_CSS_URL] /}
+    {param containerClass: 'Container--fullWidth' /}
   {/call}
 
   {call .blobHeader data="$data" /}
 
-  <table id="blame">
+  <div class="Blame">
     {foreach $line in $data.lines}
       {let $i: index($line) /}
       {let $region: $regions[$i] /}
-      <tr class="{$region.class}">
-        {if isNonnull($region.abbrevSha)}
-          <td class="author">{$region.author.name}</td>
-          <td class="time">{$region.author.time}</td>
-          <td class="sha1"><a href="{$region.commitUrl}">{$region.abbrevSha}</a></td>
-          <td class="regionLink">
-            [<a href="{$region.diffUrl}">{msg desc="text for diff URL"}diff{/msg}</a>]
-            [<a href="{$region.blameUrl}">{msg desc="text for blame URL"}blame{/msg}</a>]
-          </td>
-        {else}
-          <td colspan="4"></td>
-        {/if}
-        {let $n: $i + 1 /}
-        <td class="linenum"><a name="{$n}"></a>{$n}.</td>
-        <td class="prettyprint">
+      <div class="Blame-region {$region.class}">
+        <div class="Blame-leftCol">
+          {if isNonnull($region.abbrevSha)}
+            <span class="Blame-author">{$region.author.name}</span>
+            {sp}<a class="u-sha1 Blame-sha1" href="{$region.commitUrl}">{$region.abbrevSha}</a>
+            {sp}<span class="Blame-time">{$region.author.time}</span>
+            {sp}<span class="Blame-regionLink">
+              [<a href="{$region.diffUrl}">{msg desc="text for diff URL"}diff{/msg}</a>]
+              [<a href="{$region.blameUrl}">{msg desc="text for blame URL"}blame{/msg}</a>]
+            </span>
+          {/if}
+        </div>
+        <div class="u-pre Blame-rightCol">
+          {let $n: $i + 1 /}
+          <a class="u-lineNum Blame-lineNum" href="#{$n}" name="{$n}">{$n}</a>
           {foreach $span in $line}
             <span class="{$span.classes}">{$span.text}</span>
           {/foreach}
-        </td>
-      </tr>
+        </div>
+      </div>
     {/foreach}
-  </table>
+  </div>
 {else}
   {call .header data="all" /}
   {call .blobDetail data="$data" /}
-  <div class="file-binary">
+  <div class="FileContents-binary">
     {msg desc="blame not available for binary file"}
       No blame information available
     {/msg}

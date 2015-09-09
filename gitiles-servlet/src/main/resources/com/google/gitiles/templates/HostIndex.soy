@@ -21,7 +21,6 @@
  * @param? headerVariant variant name for custom header.
  * @param? prefix prefix path for matching repositories.
  * @param? breadcrumbs map of breadcrumbs for header.
- * @param baseUrl base URL for repositories.
  * @param repositories list of repository description maps with name, cloneUrl,
  *     and optional description values.
  */
@@ -35,49 +34,32 @@
 
 {if length($repositories)}
   {if not $breadcrumbs}
-    <h2>
+    <h1>
       {msg desc="Git repositories available on the host"}
-        {$hostName} Git repositories
+        Git repositories on {$hostName}
       {/msg}
-    </h2>
-  {else}
-    <br />
+    </h1>
   {/if}
 
-  <div class="instructions">
-    {msg desc="description on how to use this repository"}
-    To clone one of these repositories, install{sp}
-    <a href="http://www.git-scm.com/">git</a>, and run:
-    <pre>git clone {$baseUrl}{$prefix}<em>name</em></pre>
-    {/msg}
-  </div>
-
-  <table class="list">
-    <tr class="no-hover">
-      <th width="25%">
+  <div class="RepoList">
+    <div class="RepoList-item RepoList-item--header">
+      <span class="RepoList-itemName">
         {msg desc="column header for repository name"}
           Name
         {/msg}
-      </th>
-      <th>
+      </span>
+      <span class="RepoList-itemDescription">
         {msg desc="column header for repository description"}
           Description
         {/msg}
-      </th>
-    </tr>
+      </span>
+    </div>
     {foreach $repo in $repositories}
-      <tr>
-        <td>
-          <a href="{$repo.url}">{$repo.name}</a>
-        </td>
-        <td>{$repo.description}</td>
-      </tr>
+      <a class="RepoList-item" href="{$repo.url}">
+        <span class="RepoList-itemName">{$repo.name}</span>
+        <span class="RepoList-itemDescription">{$repo.description}</span>
+      </a>
     {/foreach}
-  </table>
-  <div class="formats">
-    <a href="?format=TEXT">{msg desc="text format"}TXT{/msg}</a>
-    {sp}
-    <a href="?format=JSON">{msg desc="JSON format"}JSON{/msg}</a>
   </div>
 {/if}
 {call .footer /}

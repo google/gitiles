@@ -69,7 +69,7 @@ public abstract class Renderer {
       "RepositoryIndex.soy");
 
   public static final Map<String, String> STATIC_URL_GLOBALS = ImmutableMap.of(
-      "gitiles.CSS_URL", "gitiles.css",
+      "gitiles.BASE_CSS_URL", "base.css",
       "gitiles.DOC_CSS_URL", "doc.css",
       "gitiles.PRETTIFY_CSS_URL", "prettify/prettify.css");
 

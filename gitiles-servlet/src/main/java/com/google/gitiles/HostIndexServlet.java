@@ -126,7 +126,6 @@ public class HostIndexServlet extends BaseServlet {
     renderHtml(req, res, "gitiles.hostIndex", ImmutableMap.of(
         "hostName", hostName,
         "breadcrumbs", SoyData.createFromExistingData(breadcrumbs),
-        "baseUrl", urls.getBaseGitUrl(req),
         "prefix", prefix != null ? prefix + '/' : "",
         "repositories", repos));
   }

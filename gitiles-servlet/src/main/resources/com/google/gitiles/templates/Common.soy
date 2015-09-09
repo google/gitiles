@@ -25,11 +25,13 @@
  * @param breadcrumbs navigation breadcrumbs for this page.
  * @param? css optional list of CSS URLs to include.
  * @param? js optional list of Javascript URLs to include.
+ * @param? containerClass optional class to append to the main container.
  */
 {template .header}
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
+  <meta charset="utf-8">
   <title>
     {$title}
     {if $repositoryName}
@@ -37,68 +39,84 @@
     {/if}
     {sp}- {msg desc="name of the application"}{gitiles.SITE_TITLE}{/msg}
   </title>
-  <link rel="stylesheet" type="text/css" href="//www.google.com/css/go.css" />
 
+  <link rel="stylesheet" type="text/css" href="{gitiles.BASE_CSS_URL}">
   {if $css and length($css)}
     {foreach $url in $css}
-      <link rel="stylesheet" type="text/css" href="{$url}" />
+      <link rel="stylesheet" type="text/css" href="{$url}">
     {/foreach}
   {/if}
-  // Include default CSS after custom CSS so it can override defaults in third-
-  // party stylesheets (e.g. prettify).
-  <link rel="stylesheet" type="text/css" href="{gitiles.CSS_URL}" />
 
   {if $js and length($js)}
     {foreach $url in $js}
-      <script src="{$url}" type="text/javascript"></script>
+      <script src="{$url}"></script>
     {/foreach}
   {/if}
 </head>
-<body>
-  {delcall gitiles.customHeader variant="$headerVariant ?: 'default'" /}
+<body class="Site">
+  <header class="Site-header">
+    <div class="Header">
+      {delcall gitiles.customHeader variant="$headerVariant ?: 'default'" /}
 
-  {if $menuEntries and length($menuEntries)}
-    <div class="menu">
-    {foreach $entry in $menuEntries}
-      {sp}
-      {if $entry.url}
-        <a href="{$entry.url}"{if not isLast($entry)} class="entry"{/if}>{$entry.text}</a>
-      {else}
-        <span{if not isLast($entry)} class="entry"{/if}>{$entry.text}</span>
+      {if $menuEntries and length($menuEntries)}
+        <div class="Header-menu">
+        {foreach $entry in $menuEntries}
+          {sp}
+          {if $entry.url}
+            <a class="Header-menuItem" href="{$entry.url}">{$entry.text}</a>
+          {else}
+            <span class="Header-menuItem Header-menuItem--noAction">{$entry.text}</span>
+          {/if}
+        {/foreach}
+        {sp}
+        </div>
       {/if}
-    {/foreach}
-    {sp}
     </div>
-  {/if}
+  </header>
 
-  {if $breadcrumbs and length($breadcrumbs)}
-    <div class="breadcrumbs">
-      {foreach $entry in $breadcrumbs}
-        {if not isFirst($entry)}{sp}/{sp}{/if}
-        {if not isLast($entry)}
-          <a href="{$entry.url}">{$entry.text}</a>
-        {else}
-          {$entry.text}
-        {/if}
-      {/foreach}
-    </div>
-  {/if}
+  <div class="Site-content">
+    <div class="Container {if $containerClass}{$containerClass}{/if}">
+      {if $breadcrumbs and length($breadcrumbs)}
+        <div class="Breadcrumbs">
+          {foreach $entry in $breadcrumbs}
+            {if not isFirst($entry)}{sp}/{sp}{/if}
+            {if not isLast($entry)}
+              <a class="Breadcrumbs-crumb" href="{$entry.url}">{$entry.text}</a>
+            {else}
+              <span class="Breadcrumbs-crumb">{$entry.text}</span>
+            {/if}
+          {/foreach}
+        </div>
+      {/if}
 {/template}
 
 /**
  * Default custom header implementation for Gitiles.
  */
 {deltemplate gitiles.customHeader variant="'default'"}
-<h1>{msg desc="short name of the application"}{gitiles.SITE_TITLE}{/msg}</h1>
+<div class="Header-title">
+  {msg desc="short name of the application"}{gitiles.SITE_TITLE}{/msg}
+</div>
 {/deltemplate}
 
 /**
  * Standard footer.
  */
 {template .footer}
-  <div class="footer">
-      Powered by <a href="https://code.google.com/p/gitiles/">Gitiles</a>
-  </div>
+    </div> <!-- Container -->
+  </div> <!-- Site-content -->
+  <footer class="Site-footer">
+    <div class="Footer">
+      <span class="Footer-poweredBy">
+        Powered by <a href="https://code.google.com/p/gitiles/">Gitiles</a>
+      </span>
+      <span class="Footer-formats">
+        <a class="Footer-formatsItem" href="?format=TEXT">{msg desc="text format"}txt{/msg}</a>
+        {sp}
+        <a class="Footer-formatsItem" href="?format=JSON">{msg desc="JSON format"}json{/msg}</a>
+      </span>
+    </div>
+  </footer>
 </body>
 </html>
 {/template}
