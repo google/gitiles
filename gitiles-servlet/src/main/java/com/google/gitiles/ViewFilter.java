@@ -85,6 +85,10 @@ public class ViewFilter extends AbstractHttpFilter {
     return path.isEmpty() || path.equals("/");
   }
 
+  private static boolean hasRepository(HttpServletRequest req) {
+    return req.getAttribute(ATTRIBUTE_REPOSITORY) != null;
+  }
+
   private final GitilesUrls urls;
   private final GitilesAccess.Factory accessFactory;
   private final VisibilityCache visibilityCache;
@@ -154,7 +158,11 @@ public class ViewFilter extends AbstractHttpFilter {
 
     if (command.isEmpty()) {
       return parseNoCommand(req, repoName);
-    } else if (command.equals(CMD_ARCHIVE)) {
+    }
+    if (!hasRepository(req)) {
+      return null; // no repository? return null to 404.
+    }
+    if (command.equals(CMD_ARCHIVE)) {
       return parseArchiveCommand(req, repoName, path);
     } else if (command.equals(CMD_AUTO)) {
       return parseAutoCommand(req, repoName, path);
@@ -179,7 +187,7 @@ public class ViewFilter extends AbstractHttpFilter {
 
   private GitilesView.Builder parseNoCommand(HttpServletRequest req,
       String repoName) {
-    if (req.getAttribute(ATTRIBUTE_REPOSITORY) == null) {
+    if (!hasRepository(req)) {
       return GitilesView.hostIndex().setRepositoryPrefix(repoName);
     }
     return GitilesView.repositoryIndex().setRepositoryName(repoName);
