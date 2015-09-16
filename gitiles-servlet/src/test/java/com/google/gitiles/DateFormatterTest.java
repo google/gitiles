@@ -83,7 +83,8 @@ public class DateFormatterTest {
     // PersonIdent.toString() uses its own format with "d" instead of "dd",
     // hence the mismatches in 2 vs. 02 above. Nonetheless I think this sanity
     // check is useful enough to keep around.
-    assertThat(ident.toString()).isEqualTo("PersonIdent[A User, user@example.com, " + whenStr + "]");
+    assertThat(ident.toString())
+        .isEqualTo("PersonIdent[A User, user@example.com, " + whenStr + "]");
     return ident;
   }
 }

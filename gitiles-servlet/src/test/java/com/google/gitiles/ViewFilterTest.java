@@ -71,7 +71,8 @@ public class ViewFilterTest {
     assertThat(getView("/repo/+/" + hex + "/index.md").getType()).isEqualTo(Type.DOC);
     assertThat(getView("/repo/+/master^..master").getType()).isEqualTo(Type.DIFF);
     assertThat(getView("/repo/+/master^..master/").getType()).isEqualTo(Type.DIFF);
-    assertThat(getView("/repo/+/" + parent.name() + ".." + hex + "/").getType()).isEqualTo(Type.DIFF);
+    assertThat(getView("/repo/+/" + parent.name() + ".." + hex + "/").getType())
+        .isEqualTo(Type.DIFF);
   }
 
   @Test

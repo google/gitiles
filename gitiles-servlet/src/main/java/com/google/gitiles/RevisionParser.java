@@ -187,7 +187,8 @@ class RevisionParser {
             // foo..bar (foo may be empty)
             pathStart = oldRevision.getName().length() + 2 + name.length();
           }
-          Result result = new Result(Revision.peel(name, obj, walk), oldRevision, path.substring(pathStart));
+          Result result =
+              new Result(Revision.peel(name, obj, walk), oldRevision, path.substring(pathStart));
           return isVisible(walk, result) ? result : null;
         }
         first = false;

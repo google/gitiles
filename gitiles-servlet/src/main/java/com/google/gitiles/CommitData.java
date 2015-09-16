@@ -186,7 +186,8 @@ class CommitData {
       }
     }
 
-    private static String urlFromView(GitilesView view, RevCommit commit, GitilesView.Builder builder) {
+    private static String urlFromView(GitilesView view, RevCommit commit,
+        GitilesView.Builder builder) {
       Revision rev = view.getRevision();
       return builder.copyFrom(view)
           .setOldRevision(Revision.NULL)
@@ -233,7 +234,8 @@ class CommitData {
           oldTree = new EmptyTreeIterator();
           break;
         case 1:
-          result.oldRevision = Revision.peeled(result.revision.getName() + "^", commit.getParent(0));
+          result.oldRevision =
+              Revision.peeled(result.revision.getName() + "^", commit.getParent(0));
           oldTree = getTreeIterator(commit.getParent(0));
           break;
         default:
