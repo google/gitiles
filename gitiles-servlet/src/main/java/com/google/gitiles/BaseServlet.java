@@ -256,8 +256,8 @@ public abstract class BaseServlet extends HttpServlet {
    *
    * @param req in-progress request.
    * @param res in-progress response.
-   * @param src @see Gson#toJson(Object, Type, Appendable)
-   * @param typeOfSrc @see Gson#toJson(Object, Type, Appendable)
+   * @param src @see com.google.gson.Gson#toJson(Object, Type, Appendable)
+   * @param typeOfSrc @see com.google.gson.Gson#toJson(Object, Type, Appendable)
    */
   protected void renderJson(HttpServletRequest req, HttpServletResponse res, Object src,
       Type typeOfSrc) throws IOException {
