@@ -14,8 +14,8 @@
 
 package com.google.gitiles;
 
+import static com.google.common.truth.Truth.assertThat;
 import static com.google.gitiles.ConfigUtil.getDuration;
-import static org.junit.Assert.assertEquals;
 
 import org.eclipse.jgit.lib.Config;
 import org.joda.time.Duration;
@@ -34,14 +34,14 @@ public class ConfigUtilTest {
 
     config.setString("core", "dht", "timeout", "500 ms");
     t = getDuration(config, "core", "dht", "timeout", def);
-    assertEquals(500, t.getMillis());
+    assertThat(t.getMillis()).isEqualTo(500);
 
     config.setString("core", "dht", "timeout", "5.2 sec");
     t = getDuration(config, "core", "dht", "timeout", def);
-    assertEquals(5200, t.getMillis());
+    assertThat(t.getMillis()).isEqualTo(5200);
 
     config.setString("core", "dht", "timeout", "1 min");
     t = getDuration(config, "core", "dht", "timeout", def);
-    assertEquals(60000, t.getMillis());
+    assertThat(t.getMillis()).isEqualTo(60000);
   }
 }

@@ -14,10 +14,9 @@
 
 package com.google.gitiles;
 
+import static com.google.common.truth.Truth.assertThat;
 import static com.google.gitiles.TreeSoyData.getTargetDisplayName;
 import static com.google.gitiles.TreeSoyData.resolveTargetUrl;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 import com.google.common.base.Strings;
 
@@ -31,16 +30,16 @@ import org.junit.runners.JUnit4;
 public class TreeSoyDataTest {
   @Test
   public void getTargetDisplayNameReturnsDisplayName() throws Exception {
-    assertEquals("foo", getTargetDisplayName("foo"));
-    assertEquals("foo/bar", getTargetDisplayName("foo/bar"));
-    assertEquals("a/a/a/a/a/a/a/a/a/a/bar",
-        getTargetDisplayName(Strings.repeat("a/", 10) + "bar"));
-    assertEquals("a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/bar",
-        getTargetDisplayName(Strings.repeat("a/", 34) + "bar"));
-    assertEquals(".../bar", getTargetDisplayName(Strings.repeat("a/", 35) + "bar"));
-    assertEquals(".../bar", getTargetDisplayName(Strings.repeat("a/", 100) + "bar"));
-    assertEquals("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        getTargetDisplayName(Strings.repeat("a", 80)));
+    assertThat(getTargetDisplayName("foo")).isEqualTo("foo");
+    assertThat(getTargetDisplayName("foo/bar")).isEqualTo("foo/bar");
+    assertThat(getTargetDisplayName(Strings.repeat("a/", 10) + "bar")).isEqualTo(
+        "a/a/a/a/a/a/a/a/a/a/bar");
+    assertThat(getTargetDisplayName(Strings.repeat("a/", 34) + "bar")).isEqualTo(
+        "a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/bar");
+    assertThat(getTargetDisplayName(Strings.repeat("a/", 35) + "bar")).isEqualTo(".../bar");
+    assertThat(getTargetDisplayName(Strings.repeat("a/", 100) + "bar")).isEqualTo(".../bar");
+    assertThat(getTargetDisplayName(Strings.repeat("a", 80))).isEqualTo(
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
   }
 
   @Test
@@ -53,15 +52,15 @@ public class TreeSoyDataTest {
         .setRevision(Revision.unpeeled("m", id))
         .setPathPart("a/b/c")
         .build();
-    assertNull(resolveTargetUrl(view, "/foo"));
-    assertEquals("/x/repo/+/m/a", resolveTargetUrl(view, "../../"));
-    assertEquals("/x/repo/+/m/a", resolveTargetUrl(view, ".././../"));
-    assertEquals("/x/repo/+/m/a", resolveTargetUrl(view, "..//../"));
-    assertEquals("/x/repo/+/m/a/d", resolveTargetUrl(view, "../../d"));
-    assertEquals("/x/repo/+/m/", resolveTargetUrl(view, "../../.."));
-    assertEquals("/x/repo/+/m/a/d/e", resolveTargetUrl(view, "../../d/e"));
-    assertEquals("/x/repo/+/m/a/b", resolveTargetUrl(view, "../d/../e/../"));
-    assertNull(resolveTargetUrl(view, "../../../../"));
-    assertNull(resolveTargetUrl(view, "../../a/../../.."));
+    assertThat(resolveTargetUrl(view, "/foo")).isNull();
+    assertThat(resolveTargetUrl(view, "../../")).isEqualTo("/x/repo/+/m/a");
+    assertThat(resolveTargetUrl(view, ".././../")).isEqualTo("/x/repo/+/m/a");
+    assertThat(resolveTargetUrl(view, "..//../")).isEqualTo("/x/repo/+/m/a");
+    assertThat(resolveTargetUrl(view, "../../d")).isEqualTo("/x/repo/+/m/a/d");
+    assertThat(resolveTargetUrl(view, "../../..")).isEqualTo("/x/repo/+/m/");
+    assertThat(resolveTargetUrl(view, "../../d/e")).isEqualTo("/x/repo/+/m/a/d/e");
+    assertThat(resolveTargetUrl(view, "../d/../e/../")).isEqualTo("/x/repo/+/m/a/b");
+    assertThat(resolveTargetUrl(view, "../../../../")).isNull();
+    assertThat(resolveTargetUrl(view, "../../a/../../..")).isNull();
   }
 }

@@ -14,8 +14,8 @@
 
 package com.google.gitiles;
 
+import static com.google.common.truth.Truth.assertThat;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.Assert.assertEquals;
 
 import com.google.common.io.BaseEncoding;
 import com.google.gitiles.TreeJsonData.Tree;
@@ -45,10 +45,10 @@ public class PathServletTest extends ServletTest {
     repo.branch("master").commit().add("foo", "contents").create();
 
     Map<String, ?> data = buildData("/repo/+/master/");
-    assertEquals("TREE", data.get("type"));
+    assertThat(data).containsEntry("type", "TREE");
     List<Map<String, ?>> entries = getTreeEntries(data);
-    assertEquals(1, entries.size());
-    assertEquals("foo", entries.get(0).get("name"));
+    assertThat(entries).hasSize(1);
+    assertThat(entries.get(0).get("name")).isEqualTo("foo");
   }
 
   @Test
@@ -59,23 +59,23 @@ public class PathServletTest extends ServletTest {
         .create();
 
     Map<String, ?> data = buildData("/repo/+/master/");
-    assertEquals("TREE", data.get("type"));
+    assertThat(data).containsEntry("type", "TREE");
     List<Map<String, ?>> entries = getTreeEntries(data);
-    assertEquals(2, entries.size());
-    assertEquals("baz", entries.get(0).get("name"));
-    assertEquals("foo/", entries.get(1).get("name"));
+    assertThat(entries).hasSize(2);
+    assertThat(entries.get(0).get("name")).isEqualTo("baz");
+    assertThat(entries.get(1).get("name")).isEqualTo("foo/");
 
     data = buildData("/repo/+/master/foo");
-    assertEquals("TREE", data.get("type"));
+    assertThat(data).containsEntry("type", "TREE");
     entries = getTreeEntries(data);
-    assertEquals(1, entries.size());
-    assertEquals("bar", entries.get(0).get("name"));
+    assertThat(entries).hasSize(1);
+    assertThat(entries.get(0).get("name")).isEqualTo("bar");
 
     data = buildData("/repo/+/master/foo/");
-    assertEquals("TREE", data.get("type"));
+    assertThat(data).containsEntry("type", "TREE");
     entries = getTreeEntries(data);
-    assertEquals(1, entries.size());
-    assertEquals("bar", entries.get(0).get("name"));
+    assertThat(entries).hasSize(1);
+    assertThat(entries.get(0).get("name")).isEqualTo("bar");
   }
 
   @Test
@@ -83,20 +83,20 @@ public class PathServletTest extends ServletTest {
     repo.branch("master").commit().add("foo", "foo\ncontents\n").create();
 
     Map<String, ?> data = buildData("/repo/+/master/foo");
-    assertEquals("REGULAR_FILE", data.get("type"));
+    assertThat(data).containsEntry("type", "REGULAR_FILE");
 
     SoyListData lines = (SoyListData) getBlobData(data).get("lines");
-    assertEquals(2, lines.length());
+    assertThat(lines.length()).isEqualTo(2);
 
     SoyListData spans = lines.getListData(0);
-    assertEquals(1, spans.length());
-    assertEquals(StringData.forValue("pln"), spans.getMapData(0).get("classes"));
-    assertEquals(StringData.forValue("foo"), spans.getMapData(0).get("text"));
+    assertThat(spans.length()).isEqualTo(1);
+    assertThat(spans.getMapData(0).get("classes")).isEqualTo(StringData.forValue("pln"));
+    assertThat(spans.getMapData(0).get("text")).isEqualTo(StringData.forValue("foo"));
 
     spans = lines.getListData(1);
-    assertEquals(1, spans.length());
-    assertEquals(StringData.forValue("pln"), spans.getMapData(0).get("classes"));
-    assertEquals(StringData.forValue("contents"), spans.getMapData(0).get("text"));
+    assertThat(spans.length()).isEqualTo(1);
+    assertThat(spans.getMapData(0).get("classes")).isEqualTo(StringData.forValue("pln"));
+    assertThat(spans.getMapData(0).get("text")).isEqualTo(StringData.forValue("contents"));
   }
 
   @Test
@@ -112,8 +112,8 @@ public class PathServletTest extends ServletTest {
       }).create();
 
     Map<String, ?> data = buildData("/repo/+/master/bar");
-    assertEquals("SYMLINK", data.get("type"));
-    assertEquals("foo", getBlobData(data).get("target"));
+    assertThat(data).containsEntry("type", "SYMLINK");
+    assertThat(getBlobData(data)).containsEntry("target", "foo");
   }
 
   @Test
@@ -132,19 +132,19 @@ public class PathServletTest extends ServletTest {
         }).create();
 
     Map<String, ?> data = buildData("/repo/+/master/gitiles");
-    assertEquals("GITLINK", data.get("type"));
+    assertThat(data).containsEntry("type", "GITLINK");
 
     Map<String, ?> linkData = getBlobData(data);
-    assertEquals(gitilesSha, linkData.get("sha"));
-    assertEquals("https://gerrit.googlesource.com/gitiles", linkData.get("remoteUrl"));
-    assertEquals("https://gerrit.googlesource.com/gitiles", linkData.get("httpUrl"));
+    assertThat(linkData).containsEntry("sha", gitilesSha);
+    assertThat(linkData).containsEntry("remoteUrl", "https://gerrit.googlesource.com/gitiles");
+    assertThat(linkData).containsEntry("httpUrl", "https://gerrit.googlesource.com/gitiles");
   }
 
   @Test
   public void blobText() throws Exception {
     repo.branch("master").commit().add("foo", "contents").create();
     String text = buildBlob("/repo/+/master/foo", "100644");
-    assertEquals("contents", text);
+    assertThat(text).isEqualTo("contents");
   }
 
   @Test
@@ -159,7 +159,7 @@ public class PathServletTest extends ServletTest {
           }
         }).create();
     String text = buildBlob("/repo/+/master/baz", "120000");
-    assertEquals("foo", text);
+    assertThat(text).isEqualTo("foo");
   }
 
   @Test
@@ -169,11 +169,11 @@ public class PathServletTest extends ServletTest {
     repo.branch("master").commit().setTopLevelTree(tree).create();
 
     String expected = "040000 tree " + repo.get(tree, "foo").name() + "\tfoo\n";
-    assertEquals(expected, buildBlob("/repo/+/master/", "040000"));
+    assertThat(buildBlob("/repo/+/master/", "040000")).isEqualTo(expected);
 
     expected = "100644 blob " + blob.name() + "\tbar\n";
-    assertEquals(expected, buildBlob("/repo/+/master/foo", "040000"));
-    assertEquals(expected, buildBlob("/repo/+/master/foo/", "040000"));
+    assertThat(buildBlob("/repo/+/master/foo", "040000")).isEqualTo(expected);
+    assertThat(buildBlob("/repo/+/master/foo/", "040000")).isEqualTo(expected);
   }
 
   @Test
@@ -181,8 +181,8 @@ public class PathServletTest extends ServletTest {
     RevBlob blob = repo.blob("contents");
     repo.branch("master").commit().add("foo\nbar\rbaz", blob).create();
 
-    assertEquals("100644 blob " + blob.name() + "\t\"foo\\nbar\\rbaz\"\n",
-        buildBlob("/repo/+/master/", "040000"));
+    assertThat(buildBlob("/repo/+/master/", "040000"))
+        .isEqualTo("100644 blob " + blob.name() + "\t\"foo\\nbar\\rbaz\"\n");
   }
 
   @Test
@@ -214,32 +214,32 @@ public class PathServletTest extends ServletTest {
         .create());
 
     Tree tree = buildJson("/repo/+/master/", Tree.class);
-    assertEquals(c.getTree().name(), tree.id);
-    assertEquals(2, tree.entries.size());
-    assertEquals(0100644, tree.entries.get(0).mode);
-    assertEquals("blob", tree.entries.get(0).type);
-    assertEquals(repo.get(c.getTree(), "baz").name(), tree.entries.get(0).id);
-    assertEquals("baz", tree.entries.get(0).name);
-    assertEquals(040000, tree.entries.get(1).mode);
-    assertEquals("tree", tree.entries.get(1).type);
-    assertEquals(repo.get(c.getTree(), "foo").name(), tree.entries.get(1).id);
-    assertEquals("foo", tree.entries.get(1).name);
+    assertThat(tree.id).isEqualTo(c.getTree().name());
+    assertThat(tree.entries).hasSize(2);
+    assertThat(tree.entries.get(0).mode).isEqualTo(0100644);
+    assertThat(tree.entries.get(0).type).isEqualTo("blob");
+    assertThat(tree.entries.get(0).id).isEqualTo(repo.get(c.getTree(), "baz").name());
+    assertThat(tree.entries.get(0).name).isEqualTo("baz");
+    assertThat(tree.entries.get(1).mode).isEqualTo(040000);
+    assertThat(tree.entries.get(1).type).isEqualTo("tree");
+    assertThat(tree.entries.get(1).id).isEqualTo(repo.get(c.getTree(), "foo").name());
+    assertThat(tree.entries.get(1).name).isEqualTo("foo");
 
     tree = buildJson("/repo/+/master/foo", Tree.class);
-    assertEquals(repo.get(c.getTree(), "foo").name(), tree.id);
-    assertEquals(1, tree.entries.size());
-    assertEquals(0100644, tree.entries.get(0).mode);
-    assertEquals("blob", tree.entries.get(0).type);
-    assertEquals(repo.get(c.getTree(), "foo/bar").name(), tree.entries.get(0).id);
-    assertEquals("bar", tree.entries.get(0).name);
+    assertThat(tree.id).isEqualTo(repo.get(c.getTree(), "foo").name());
+    assertThat(tree.entries).hasSize(1);
+    assertThat(tree.entries.get(0).mode).isEqualTo(0100644);
+    assertThat(tree.entries.get(0).type).isEqualTo("blob");
+    assertThat(tree.entries.get(0).id).isEqualTo(repo.get(c.getTree(), "foo/bar").name());
+    assertThat(tree.entries.get(0).name).isEqualTo("bar");
 
     tree = buildJson("/repo/+/master/foo/", Tree.class);
-    assertEquals(repo.get(c.getTree(), "foo").name(), tree.id);
-    assertEquals(1, tree.entries.size());
-    assertEquals(0100644, tree.entries.get(0).mode);
-    assertEquals("blob", tree.entries.get(0).type);
-    assertEquals(repo.get(c.getTree(), "foo/bar").name(), tree.entries.get(0).id);
-    assertEquals("bar", tree.entries.get(0).name);
+    assertThat(tree.id).isEqualTo(repo.get(c.getTree(), "foo").name());
+    assertThat(tree.entries).hasSize(1);
+    assertThat(tree.entries.get(0).mode).isEqualTo(0100644);
+    assertThat(tree.entries.get(0).type).isEqualTo("blob");
+    assertThat(tree.entries.get(0).id).isEqualTo(repo.get(c.getTree(), "foo/bar").name());
+    assertThat(tree.entries.get(0).name).isEqualTo("bar");
   }
 
   private Map<String, ?> getBlobData(Map<String, ?> data) {
@@ -252,7 +252,7 @@ public class PathServletTest extends ServletTest {
 
   private String buildBlob(String path, String expectedMode) throws Exception {
     FakeHttpServletResponse res = buildText(path);
-    assertEquals(expectedMode, res.getHeader(PathServlet.MODE_HEADER));
+    assertThat(res.getHeader(PathServlet.MODE_HEADER)).isEqualTo(expectedMode);
     String base64 = res.getActualBodyString();
     return new String(BaseEncoding.base64().decode(base64), UTF_8);
   }

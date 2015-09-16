@@ -14,8 +14,7 @@
 
 package com.google.gitiles;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static com.google.common.truth.Truth.assertThat;
 
 import org.eclipse.jgit.junit.TestRepository;
 import org.eclipse.jgit.lib.PersonIdent;
@@ -37,55 +36,55 @@ public class IdentRevFilterTest {
   @Test
   public void matchesName() throws Exception {
     IdentRevFilter filter = IdentRevFilter.author("eSt");
-    assertTrue(filter.matchesPerson(new PersonIdent("eSt", "null@google.com")));
-    assertTrue(filter.matchesPerson(new PersonIdent("eStablish", "null@google.com")));
-    assertTrue(filter.matchesPerson(new PersonIdent("teSt", "null@google.com")));
-    assertTrue(filter.matchesPerson(new PersonIdent("teSting", "null@google.com")));
+    assertThat(filter.matchesPerson(new PersonIdent("eSt", "null@google.com"))).isTrue();
+    assertThat(filter.matchesPerson(new PersonIdent("eStablish", "null@google.com"))).isTrue();
+    assertThat(filter.matchesPerson(new PersonIdent("teSt", "null@google.com"))).isTrue();
+    assertThat(filter.matchesPerson(new PersonIdent("teSting", "null@google.com"))).isTrue();
   }
 
   @Test
   public void caseSensitiveName() throws Exception {
     IdentRevFilter filter = IdentRevFilter.author("eSt");
-    assertFalse(filter.matchesPerson(new PersonIdent("est", "null@google.com")));
-    assertFalse(filter.matchesPerson(new PersonIdent("Establish", "null@google.com")));
-    assertFalse(filter.matchesPerson(new PersonIdent("tESt", "null@google.com")));
-    assertFalse(filter.matchesPerson(new PersonIdent("tesTing", "null@google.com")));
+    assertThat(filter.matchesPerson(new PersonIdent("est", "null@google.com"))).isFalse();
+    assertThat(filter.matchesPerson(new PersonIdent("Establish", "null@google.com"))).isFalse();
+    assertThat(filter.matchesPerson(new PersonIdent("tESt", "null@google.com"))).isFalse();
+    assertThat(filter.matchesPerson(new PersonIdent("tesTing", "null@google.com"))).isFalse();
   }
 
   @Test
   public void matchesEmailLocalPart() throws Exception {
     IdentRevFilter filter = IdentRevFilter.author("eSt");
-    assertTrue(filter.matchesPerson(new PersonIdent("null", "eSt@google.com")));
-    assertTrue(filter.matchesPerson(new PersonIdent("null", "eStablish@google.com")));
-    assertTrue(filter.matchesPerson(new PersonIdent("null", "teSt@google.com")));
-    assertTrue(filter.matchesPerson(new PersonIdent("null", "teSting@google.com")));
+    assertThat(filter.matchesPerson(new PersonIdent("null", "eSt@google.com"))).isTrue();
+    assertThat(filter.matchesPerson(new PersonIdent("null", "eStablish@google.com"))).isTrue();
+    assertThat(filter.matchesPerson(new PersonIdent("null", "teSt@google.com"))).isTrue();
+    assertThat(filter.matchesPerson(new PersonIdent("null", "teSting@google.com"))).isTrue();
   }
 
   @Test
   public void caseSensitiveEmailLocalPart() throws Exception {
     IdentRevFilter filter = IdentRevFilter.author("eSt");
-    assertFalse(filter.matchesPerson(new PersonIdent("null", "est@google.com")));
-    assertFalse(filter.matchesPerson(new PersonIdent("null", "Establish@google.com")));
-    assertFalse(filter.matchesPerson(new PersonIdent("null", "tESt@google.com")));
-    assertFalse(filter.matchesPerson(new PersonIdent("null", "tesTing@google.com")));
+    assertThat(filter.matchesPerson(new PersonIdent("null", "est@google.com"))).isFalse();
+    assertThat(filter.matchesPerson(new PersonIdent("null", "Establish@google.com"))).isFalse();
+    assertThat(filter.matchesPerson(new PersonIdent("null", "tESt@google.com"))).isFalse();
+    assertThat(filter.matchesPerson(new PersonIdent("null", "tesTing@google.com"))).isFalse();
   }
 
   @Test
   public void matchesEmailDomain() throws Exception {
     // git log --author matches the email domain as well as the enail name.
     IdentRevFilter filter = IdentRevFilter.author("eSt");
-    assertTrue(filter.matchesPerson(new PersonIdent("null", "null@eSt.com")));
-    assertTrue(filter.matchesPerson(new PersonIdent("null", "null@eStablish.com")));
-    assertTrue(filter.matchesPerson(new PersonIdent("null", "null@teSt.com")));
-    assertTrue(filter.matchesPerson(new PersonIdent("null", "null@teSting.com")));
+    assertThat(filter.matchesPerson(new PersonIdent("null", "null@eSt.com"))).isTrue();
+    assertThat(filter.matchesPerson(new PersonIdent("null", "null@eStablish.com"))).isTrue();
+    assertThat(filter.matchesPerson(new PersonIdent("null", "null@teSt.com"))).isTrue();
+    assertThat(filter.matchesPerson(new PersonIdent("null", "null@teSting.com"))).isTrue();
   }
 
   @Test
   public void caseSensitiveEmailDomain() throws Exception {
     IdentRevFilter filter = IdentRevFilter.author("eSt");
-    assertFalse(filter.matchesPerson(new PersonIdent("null", "null@est.com")));
-    assertFalse(filter.matchesPerson(new PersonIdent("null", "null@Establish.com")));
-    assertFalse(filter.matchesPerson(new PersonIdent("null", "null@tESt.com")));
-    assertFalse(filter.matchesPerson(new PersonIdent("null", "null@tesTing.com")));
+    assertThat(filter.matchesPerson(new PersonIdent("null", "null@est.com"))).isFalse();
+    assertThat(filter.matchesPerson(new PersonIdent("null", "null@Establish.com"))).isFalse();
+    assertThat(filter.matchesPerson(new PersonIdent("null", "null@tESt.com"))).isFalse();
+    assertThat(filter.matchesPerson(new PersonIdent("null", "null@tesTing.com"))).isFalse();
   }
 }

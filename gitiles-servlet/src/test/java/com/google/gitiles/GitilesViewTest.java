@@ -14,10 +14,7 @@
 
 package com.google.gitiles;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
@@ -43,32 +40,32 @@ public class GitilesViewTest {
         .setServletPath("")
         .setHostName("host")
         .build();
-    assertEquals("", view.getServletPath());
-    assertEquals(Type.HOST_INDEX, view.getType());
-    assertEquals("host", view.getHostName());
-    assertNull(view.getRepositoryName());
-    assertEquals(Revision.NULL, view.getRevision());
-    assertNull(view.getPathPart());
-    assertTrue(HOST.getParameters().isEmpty());
+    assertThat(view.getServletPath()).isEqualTo("");
+    assertThat(view.getType()).isEqualTo(Type.HOST_INDEX);
+    assertThat(view.getHostName()).isEqualTo("host");
+    assertThat(view.getRepositoryName()).isNull();
+    assertThat(view.getRevision()).isEqualTo(Revision.NULL);
+    assertThat(view.getPathPart()).isNull();
+    assertThat(HOST.getParameters()).isEmpty();
 
-    assertEquals("/?format=HTML", view.toUrl());
-    assertEquals(ImmutableList.of(ImmutableMap.of("text", "host", "url", "/?format=HTML")),
-        view.getBreadcrumbs());
+    assertThat(view.toUrl()).isEqualTo("/?format=HTML");
+    assertThat(view.getBreadcrumbs())
+        .containsExactly(breadcrumb("host", "/?format=HTML"));
   }
 
   @Test
   public void hostIndex() throws Exception {
-    assertEquals("/b", HOST.getServletPath());
-    assertEquals(Type.HOST_INDEX, HOST.getType());
-    assertEquals("host", HOST.getHostName());
-    assertNull(HOST.getRepositoryName());
-    assertEquals(Revision.NULL, HOST.getRevision());
-    assertNull(HOST.getPathPart());
-    assertTrue(HOST.getParameters().isEmpty());
+    assertThat(HOST.getServletPath()).isEqualTo("/b");
+    assertThat(HOST.getType()).isEqualTo(Type.HOST_INDEX);
+    assertThat(HOST.getHostName()).isEqualTo("host");
+    assertThat(HOST.getRepositoryName()).isNull();
+    assertThat(HOST.getRevision()).isEqualTo(Revision.NULL);
+    assertThat(HOST.getPathPart()).isNull();
+    assertThat(HOST.getParameters()).isEmpty();
 
-    assertEquals("/b/?format=HTML", HOST.toUrl());
-    assertEquals(ImmutableList.of(ImmutableMap.of("text", "host", "url", "/b/?format=HTML")),
-        HOST.getBreadcrumbs());
+    assertThat(HOST.toUrl()).isEqualTo("/b/?format=HTML");
+    assertThat(HOST.getBreadcrumbs())
+        .containsExactly(breadcrumb("host", "/b/?format=HTML"));
   }
 
   @Test
@@ -78,11 +75,12 @@ public class GitilesViewTest {
         .setRepositoryPrefix("foo")
         .build();
 
-    assertEquals("/b/foo/", view.toUrl());
-    assertEquals(ImmutableList.of(
-        ImmutableMap.of("text", "host", "url", "/b/?format=HTML"),
-        ImmutableMap.of("text", "foo", "url", "/b/foo/")),
-      view.getBreadcrumbs());
+    assertThat(view.toUrl()).isEqualTo("/b/foo/");
+    assertThat(view.getBreadcrumbs())
+        .containsExactly(
+          breadcrumb("host", "/b/?format=HTML"),
+          breadcrumb("foo", "/b/foo/"))
+        .inOrder();
   }
 
   @Test
@@ -92,12 +90,13 @@ public class GitilesViewTest {
         .setRepositoryPrefix("foo/bar")
         .build();
 
-    assertEquals("/b/foo/bar/", view.toUrl());
-    assertEquals(ImmutableList.of(
-          ImmutableMap.of("text", "host", "url", "/b/?format=HTML"),
-          ImmutableMap.of("text", "foo", "url", "/b/foo/"),
-          ImmutableMap.of("text", "bar", "url", "/b/foo/bar/")),
-        view.getBreadcrumbs());
+    assertThat(view.toUrl()).isEqualTo("/b/foo/bar/");
+    assertThat(view.getBreadcrumbs())
+        .containsExactly(
+            breadcrumb("host", "/b/?format=HTML"),
+            breadcrumb("foo", "/b/foo/"),
+            breadcrumb("bar", "/b/foo/bar/"))
+        .inOrder();
   }
 
   @Test
@@ -109,25 +108,24 @@ public class GitilesViewTest {
         .putParam("bar", "barvalue")
         .build();
 
-    assertEquals("/b", view.getServletPath());
-    assertEquals(Type.LOG, view.getType());
-    assertEquals("host", view.getHostName());
-    assertEquals("repo", view.getRepositoryName());
-    assertEquals(Revision.named("master"), view.getRevision());
-    assertNull(view.getPathPart());
-    assertEquals(
+    assertThat(view.getServletPath()).isEqualTo("/b");
+    assertThat(view.getType()).isEqualTo(Type.LOG);
+    assertThat(view.getHostName()).isEqualTo("host");
+    assertThat(view.getRepositoryName()).isEqualTo("repo");
+    assertThat(view.getRevision()).isEqualTo(Revision.named("master"));
+    assertThat(view.getPathPart()).isNull();
+    assertThat(view.getParameters()).containsExactly(
         ImmutableListMultimap.of(
             "foo", "foovalue",
-            "bar", "barvalue"),
-        view.getParameters());
+            "bar", "barvalue"));
 
-    assertEquals("/b/repo/+log/master?foo=foovalue&bar=barvalue", view.toUrl());
-    assertEquals(
-        ImmutableList.of(
+    assertThat(view.toUrl()).isEqualTo("/b/repo/+log/master?foo=foovalue&bar=barvalue");
+    assertThat(view.getBreadcrumbs())
+        .containsExactly(
             breadcrumb("host", "/b/?format=HTML"),
             breadcrumb("repo", "/b/repo/"),
-            breadcrumb("master", "/b/repo/+log/master?foo=foovalue&bar=barvalue")),
-        view.getBreadcrumbs());
+            breadcrumb("master", "/b/repo/+log/master?foo=foovalue&bar=barvalue"))
+        .inOrder();
   }
 
   @Test
@@ -137,10 +135,10 @@ public class GitilesViewTest {
         .putParam("foo", "foovalue")
         .putParam("bar", "barvalue")
         .build();
-    assertFalse(view.getParameters().isEmpty());
-    assertEquals(view.getParameters(),
-        GitilesView.repositoryIndex().copyFrom(view).build().getParameters());
-    assertTrue(GitilesView.hostIndex().copyFrom(view).build().getParameters().isEmpty());
+    assertThat(view.getParameters()).isNotEmpty();
+    assertThat(GitilesView.repositoryIndex().copyFrom(view).build().getParameters())
+        .isEqualTo(view.getParameters());
+    assertThat(GitilesView.hostIndex().copyFrom(view).build().getParameters()).isEmpty();
   }
 
   @Test
@@ -150,21 +148,21 @@ public class GitilesViewTest {
         .setRepositoryName("foo/bar")
         .build();
 
-    assertEquals("/b", view.getServletPath());
-    assertEquals(Type.REPOSITORY_INDEX, view.getType());
-    assertEquals("host", view.getHostName());
-    assertEquals("foo/bar", view.getRepositoryName());
-    assertEquals(Revision.NULL, view.getRevision());
-    assertNull(view.getPathPart());
-    assertTrue(HOST.getParameters().isEmpty());
+    assertThat(view.getServletPath()).isEqualTo("/b");
+    assertThat(view.getType()).isEqualTo(Type.REPOSITORY_INDEX);
+    assertThat(view.getHostName()).isEqualTo("host");
+    assertThat(view.getRepositoryName()).isEqualTo("foo/bar");
+    assertThat(view.getRevision()).isEqualTo(Revision.NULL);
+    assertThat(view.getPathPart()).isNull();
+    assertThat(HOST.getParameters()).isEmpty();
 
-    assertEquals("/b/foo/bar/", view.toUrl());
-    assertEquals(
-        ImmutableList.of(
+    assertThat(view.toUrl()).isEqualTo("/b/foo/bar/");
+    assertThat(view.getBreadcrumbs())
+        .containsExactly(
             breadcrumb("host", "/b/?format=HTML"),
             breadcrumb("foo", "/b/foo/"),
-            breadcrumb("bar", "/b/foo/bar/")),
-        view.getBreadcrumbs());
+            breadcrumb("bar", "/b/foo/bar/"))
+        .inOrder();
   }
 
   @Test
@@ -174,21 +172,21 @@ public class GitilesViewTest {
         .setRepositoryName("foo/bar")
         .build();
 
-    assertEquals("/b", view.getServletPath());
-    assertEquals(Type.REFS, view.getType());
-    assertEquals("host", view.getHostName());
-    assertEquals("foo/bar", view.getRepositoryName());
-    assertEquals(Revision.NULL, view.getRevision());
-    assertNull(view.getPathPart());
-    assertTrue(HOST.getParameters().isEmpty());
+    assertThat(view.getServletPath()).isEqualTo("/b");
+    assertThat(view.getType()).isEqualTo(Type.REFS);
+    assertThat(view.getHostName()).isEqualTo("host");
+    assertThat(view.getRepositoryName()).isEqualTo("foo/bar");
+    assertThat(view.getRevision()).isEqualTo(Revision.NULL);
+    assertThat(view.getPathPart()).isNull();
+    assertThat(HOST.getParameters()).isEmpty();
 
-    assertEquals("/b/foo/bar/+refs", view.toUrl());
-    assertEquals(
-        ImmutableList.of(
+    assertThat(view.toUrl()).isEqualTo("/b/foo/bar/+refs");
+    assertThat(view.getBreadcrumbs())
+        .containsExactly(
             breadcrumb("host", "/b/?format=HTML"),
             breadcrumb("foo", "/b/foo/"),
-            breadcrumb("bar", "/b/foo/bar/")),
-        view.getBreadcrumbs());
+            breadcrumb("bar", "/b/foo/bar/"))
+        .inOrder();
   }
 
   @Test
@@ -200,23 +198,23 @@ public class GitilesViewTest {
         .setRevision(Revision.unpeeled("master", id))
         .build();
 
-    assertEquals("/b", view.getServletPath());
-    assertEquals(Type.REVISION, view.getType());
-    assertEquals("host", view.getHostName());
-    assertEquals("foo/bar", view.getRepositoryName());
-    assertEquals(id, view.getRevision().getId());
-    assertEquals("master", view.getRevision().getName());
-    assertNull(view.getPathPart());
-    assertTrue(HOST.getParameters().isEmpty());
+    assertThat(view.getServletPath()).isEqualTo("/b");
+    assertThat(view.getType()).isEqualTo(Type.REVISION);
+    assertThat(view.getHostName()).isEqualTo("host");
+    assertThat(view.getRepositoryName()).isEqualTo("foo/bar");
+    assertThat(view.getRevision().getId()).isEqualTo(id);
+    assertThat(view.getRevision().getName()).isEqualTo("master");
+    assertThat(view.getPathPart()).isNull();
+    assertThat(HOST.getParameters()).isEmpty();
 
-    assertEquals("/b/foo/bar/+/master", view.toUrl());
-    assertEquals(
-        ImmutableList.of(
+    assertThat(view.toUrl()).isEqualTo("/b/foo/bar/+/master");
+    assertThat(view.getBreadcrumbs())
+        .containsExactly(
             breadcrumb("host", "/b/?format=HTML"),
             breadcrumb("foo", "/b/foo/"),
             breadcrumb("bar", "/b/foo/bar/"),
-            breadcrumb("master", "/b/foo/bar/+/master")),
-        view.getBreadcrumbs());
+            breadcrumb("master", "/b/foo/bar/+/master"))
+        .inOrder();
   }
 
   @Test
@@ -227,13 +225,13 @@ public class GitilesViewTest {
         .setPathPart("deadbeef")
         .build();
 
-    assertEquals("/b", view.getServletPath());
-    assertEquals(Type.DESCRIBE, view.getType());
-    assertEquals("host", view.getHostName());
-    assertEquals("foo/bar", view.getRepositoryName());
-    assertEquals(Revision.NULL, view.getRevision());
-    assertEquals("deadbeef", view.getPathPart());
-    assertTrue(HOST.getParameters().isEmpty());
+    assertThat(view.getServletPath()).isEqualTo("/b");
+    assertThat(view.getType()).isEqualTo(Type.DESCRIBE);
+    assertThat(view.getHostName()).isEqualTo("host");
+    assertThat(view.getRepositoryName()).isEqualTo("foo/bar");
+    assertThat(view.getRevision()).isEqualTo(Revision.NULL);
+    assertThat(view.getPathPart()).isEqualTo("deadbeef");
+    assertThat(HOST.getParameters()).isEmpty();
   }
 
   @Test
@@ -246,24 +244,24 @@ public class GitilesViewTest {
         .setPathPart("/")
         .build();
 
-    assertEquals("/b", view.getServletPath());
-    assertEquals(Type.PATH, view.getType());
-    assertEquals("host", view.getHostName());
-    assertEquals("foo/bar", view.getRepositoryName());
-    assertEquals(id, view.getRevision().getId());
-    assertEquals("master", view.getRevision().getName());
-    assertEquals("", view.getPathPart());
-    assertTrue(HOST.getParameters().isEmpty());
+    assertThat(view.getServletPath()).isEqualTo("/b");
+    assertThat(view.getType()).isEqualTo(Type.PATH);
+    assertThat(view.getHostName()).isEqualTo("host");
+    assertThat(view.getRepositoryName()).isEqualTo("foo/bar");
+    assertThat(view.getRevision().getId()).isEqualTo(id);
+    assertThat(view.getRevision().getName()).isEqualTo("master");
+    assertThat(view.getPathPart()).isEqualTo("");
+    assertThat(HOST.getParameters()).isEmpty();
 
-    assertEquals("/b/foo/bar/+/master/", view.toUrl());
-    assertEquals(
-        ImmutableList.of(
+    assertThat(view.toUrl()).isEqualTo("/b/foo/bar/+/master/");
+    assertThat(view.getBreadcrumbs())
+        .containsExactly(
             breadcrumb("host", "/b/?format=HTML"),
             breadcrumb("foo", "/b/foo/"),
             breadcrumb("bar", "/b/foo/bar/"),
             breadcrumb("master", "/b/foo/bar/+/master"),
-            breadcrumb(".", "/b/foo/bar/+/master/")),
-        view.getBreadcrumbs());
+            breadcrumb(".", "/b/foo/bar/+/master/"))
+        .inOrder();
   }
 
   @Test
@@ -276,25 +274,25 @@ public class GitilesViewTest {
         .setPathPart("/file")
         .build();
 
-    assertEquals("/b", view.getServletPath());
-    assertEquals(Type.PATH, view.getType());
-    assertEquals("host", view.getHostName());
-    assertEquals("foo/bar", view.getRepositoryName());
-    assertEquals(id, view.getRevision().getId());
-    assertEquals("master", view.getRevision().getName());
-    assertEquals("file", view.getPathPart());
-    assertTrue(HOST.getParameters().isEmpty());
+    assertThat(view.getServletPath()).isEqualTo("/b");
+    assertThat(view.getType()).isEqualTo(Type.PATH);
+    assertThat(view.getHostName()).isEqualTo("host");
+    assertThat(view.getRepositoryName()).isEqualTo("foo/bar");
+    assertThat(view.getRevision().getId()).isEqualTo(id);
+    assertThat(view.getRevision().getName()).isEqualTo("master");
+    assertThat(view.getPathPart()).isEqualTo("file");
+    assertThat(HOST.getParameters()).isEmpty();
 
-    assertEquals("/b/foo/bar/+/master/file", view.toUrl());
-    assertEquals(
-        ImmutableList.of(
+    assertThat(view.toUrl()).isEqualTo("/b/foo/bar/+/master/file");
+    assertThat(view.getBreadcrumbs())
+        .containsExactly(
             breadcrumb("host", "/b/?format=HTML"),
             breadcrumb("foo", "/b/foo/"),
             breadcrumb("bar", "/b/foo/bar/"),
             breadcrumb("master", "/b/foo/bar/+/master"),
             breadcrumb(".", "/b/foo/bar/+/master/"),
-            breadcrumb("file", "/b/foo/bar/+/master/file")),
-        view.getBreadcrumbs());
+            breadcrumb("file", "/b/foo/bar/+/master/file"))
+        .inOrder();
   }
 
   @Test
@@ -307,15 +305,15 @@ public class GitilesViewTest {
         .setPathPart("/README.md")
         .build();
 
-    assertEquals("/b", view.getServletPath());
-    assertEquals(Type.DOC, view.getType());
-    assertEquals("host", view.getHostName());
-    assertEquals("foo/bar", view.getRepositoryName());
-    assertEquals(id, view.getRevision().getId());
-    assertEquals("master", view.getRevision().getName());
-    assertEquals("README.md", view.getPathPart());
-    assertTrue(HOST.getParameters().isEmpty());
-    assertEquals("/b/foo/bar/+/master/README.md", view.toUrl());
+    assertThat(view.getServletPath()).isEqualTo("/b");
+    assertThat(view.getType()).isEqualTo(Type.DOC);
+    assertThat(view.getHostName()).isEqualTo("host");
+    assertThat(view.getRepositoryName()).isEqualTo("foo/bar");
+    assertThat(view.getRevision().getId()).isEqualTo(id);
+    assertThat(view.getRevision().getName()).isEqualTo("master");
+    assertThat(view.getPathPart()).isEqualTo("README.md");
+    assertThat(HOST.getParameters()).isEmpty();
+    assertThat(view.toUrl()).isEqualTo("/b/foo/bar/+/master/README.md");
   }
 
   @Test
@@ -328,15 +326,15 @@ public class GitilesViewTest {
         .setPathPart("/docs/")
         .build();
 
-    assertEquals("/b", view.getServletPath());
-    assertEquals(Type.DOC, view.getType());
-    assertEquals("host", view.getHostName());
-    assertEquals("foo/bar", view.getRepositoryName());
-    assertEquals(id, view.getRevision().getId());
-    assertEquals("master", view.getRevision().getName());
-    assertEquals("docs", view.getPathPart());
-    assertTrue(HOST.getParameters().isEmpty());
-    assertEquals("/b/foo/bar/+doc/master/docs", view.toUrl());
+    assertThat(view.getServletPath()).isEqualTo("/b");
+    assertThat(view.getType()).isEqualTo(Type.DOC);
+    assertThat(view.getHostName()).isEqualTo("host");
+    assertThat(view.getRepositoryName()).isEqualTo("foo/bar");
+    assertThat(view.getRevision().getId()).isEqualTo(id);
+    assertThat(view.getRevision().getName()).isEqualTo("master");
+    assertThat(view.getPathPart()).isEqualTo("docs");
+    assertThat(HOST.getParameters()).isEmpty();
+    assertThat(view.toUrl()).isEqualTo("/b/foo/bar/+doc/master/docs");
   }
 
   @Test
@@ -349,15 +347,15 @@ public class GitilesViewTest {
         .setPathPart("/README.md")
         .build();
 
-    assertEquals("/b", view.getServletPath());
-    assertEquals(Type.SHOW, view.getType());
-    assertEquals("host", view.getHostName());
-    assertEquals("foo/bar", view.getRepositoryName());
-    assertEquals(id, view.getRevision().getId());
-    assertEquals("master", view.getRevision().getName());
-    assertEquals("README.md", view.getPathPart());
-    assertTrue(HOST.getParameters().isEmpty());
-    assertEquals("/b/foo/bar/+show/master/README.md", view.toUrl());
+    assertThat(view.getServletPath()).isEqualTo("/b");
+    assertThat(view.getType()).isEqualTo(Type.SHOW);
+    assertThat(view.getHostName()).isEqualTo("host");
+    assertThat(view.getRepositoryName()).isEqualTo("foo/bar");
+    assertThat(view.getRevision().getId()).isEqualTo(id);
+    assertThat(view.getRevision().getName()).isEqualTo("master");
+    assertThat(view.getPathPart()).isEqualTo("README.md");
+    assertThat(HOST.getParameters()).isEmpty();
+    assertThat(view.toUrl()).isEqualTo("/b/foo/bar/+show/master/README.md");
   }
 
   @Test
@@ -369,14 +367,14 @@ public class GitilesViewTest {
         .setPathPart("/docs/")
         .build();
 
-    assertEquals("/b", view.getServletPath());
-    assertEquals(Type.ROOTED_DOC, view.getType());
-    assertEquals("host", view.getHostName());
-    assertEquals(id, view.getRevision().getId());
-    assertEquals("master", view.getRevision().getName());
-    assertEquals("docs", view.getPathPart());
-    assertTrue(HOST.getParameters().isEmpty());
-    assertEquals("/b/docs", view.toUrl());
+    assertThat(view.getServletPath()).isEqualTo("/b");
+    assertThat(view.getType()).isEqualTo(Type.ROOTED_DOC);
+    assertThat(view.getHostName()).isEqualTo("host");
+    assertThat(view.getRevision().getId()).isEqualTo(id);
+    assertThat(view.getRevision().getName()).isEqualTo("master");
+    assertThat(view.getPathPart()).isEqualTo("docs");
+    assertThat(HOST.getParameters()).isEmpty();
+    assertThat(view.toUrl()).isEqualTo("/b/docs");
   }
 
   @Test
@@ -389,18 +387,18 @@ public class GitilesViewTest {
         .setPathPart("/path/to/a/file")
         .build();
 
-    assertEquals("/b", view.getServletPath());
-    assertEquals(Type.PATH, view.getType());
-    assertEquals("host", view.getHostName());
-    assertEquals("foo/bar", view.getRepositoryName());
-    assertEquals(id, view.getRevision().getId());
-    assertEquals("master", view.getRevision().getName());
-    assertEquals("path/to/a/file", view.getPathPart());
-    assertTrue(HOST.getParameters().isEmpty());
+    assertThat(view.getServletPath()).isEqualTo("/b");
+    assertThat(view.getType()).isEqualTo(Type.PATH);
+    assertThat(view.getHostName()).isEqualTo("host");
+    assertThat(view.getRepositoryName()).isEqualTo("foo/bar");
+    assertThat(view.getRevision().getId()).isEqualTo(id);
+    assertThat(view.getRevision().getName()).isEqualTo("master");
+    assertThat(view.getPathPart()).isEqualTo("path/to/a/file");
+    assertThat(HOST.getParameters()).isEmpty();
 
-    assertEquals("/b/foo/bar/+/master/path/to/a/file", view.toUrl());
-    assertEquals(
-        ImmutableList.of(
+    assertThat(view.toUrl()).isEqualTo("/b/foo/bar/+/master/path/to/a/file");
+    assertThat(view.getBreadcrumbs())
+        .containsExactly(
             breadcrumb("host", "/b/?format=HTML"),
             breadcrumb("foo", "/b/foo/"),
             breadcrumb("bar", "/b/foo/bar/"),
@@ -409,8 +407,8 @@ public class GitilesViewTest {
             breadcrumb("path", "/b/foo/bar/+/master/path"),
             breadcrumb("to", "/b/foo/bar/+/master/path/to"),
             breadcrumb("a", "/b/foo/bar/+/master/path/to/a"),
-            breadcrumb("file", "/b/foo/bar/+/master/path/to/a/file")),
-        view.getBreadcrumbs());
+            breadcrumb("file", "/b/foo/bar/+/master/path/to/a/file"))
+        .inOrder();
   }
 
   @Test
@@ -425,19 +423,19 @@ public class GitilesViewTest {
         .setPathPart("/path/to/a/file")
         .build();
 
-    assertEquals("/b", view.getServletPath());
-    assertEquals(Type.DIFF, view.getType());
-    assertEquals("host", view.getHostName());
-    assertEquals("foo/bar", view.getRepositoryName());
-    assertEquals(id, view.getRevision().getId());
-    assertEquals("master", view.getRevision().getName());
-    assertEquals("master^", view.getOldRevision().getName());
-    assertEquals("path/to/a/file", view.getPathPart());
-    assertTrue(HOST.getParameters().isEmpty());
+    assertThat(view.getServletPath()).isEqualTo("/b");
+    assertThat(view.getType()).isEqualTo(Type.DIFF);
+    assertThat(view.getHostName()).isEqualTo("host");
+    assertThat(view.getRepositoryName()).isEqualTo("foo/bar");
+    assertThat(view.getRevision().getId()).isEqualTo(id);
+    assertThat(view.getRevision().getName()).isEqualTo("master");
+    assertThat(view.getOldRevision().getName()).isEqualTo("master^");
+    assertThat(view.getPathPart()).isEqualTo("path/to/a/file");
+    assertThat(HOST.getParameters()).isEmpty();
 
-    assertEquals("/b/foo/bar/+/master%5E%21/path/to/a/file", view.toUrl());
-    assertEquals(
-        ImmutableList.of(
+    assertThat(view.toUrl()).isEqualTo("/b/foo/bar/+/master%5E%21/path/to/a/file");
+    assertThat(view.getBreadcrumbs())
+        .containsExactly(
             breadcrumb("host", "/b/?format=HTML"),
             breadcrumb("foo", "/b/foo/"),
             breadcrumb("bar", "/b/foo/bar/"),
@@ -446,8 +444,8 @@ public class GitilesViewTest {
             breadcrumb("path", "/b/foo/bar/+/master%5E%21/path"),
             breadcrumb("to", "/b/foo/bar/+/master%5E%21/path/to"),
             breadcrumb("a", "/b/foo/bar/+/master%5E%21/path/to/a"),
-            breadcrumb("file", "/b/foo/bar/+/master%5E%21/path/to/a/file")),
-        view.getBreadcrumbs());
+            breadcrumb("file", "/b/foo/bar/+/master%5E%21/path/to/a/file"))
+        .inOrder();
   }
 
   @Test
@@ -460,19 +458,19 @@ public class GitilesViewTest {
         .setPathPart("/path/to/a/file")
         .build();
 
-    assertEquals("/b", view.getServletPath());
-    assertEquals(Type.DIFF, view.getType());
-    assertEquals("host", view.getHostName());
-    assertEquals("foo/bar", view.getRepositoryName());
-    assertEquals(id, view.getRevision().getId());
-    assertEquals("master", view.getRevision().getName());
-    assertEquals(Revision.NULL, view.getOldRevision());
-    assertEquals("path/to/a/file", view.getPathPart());
-    assertTrue(HOST.getParameters().isEmpty());
+    assertThat(view.getServletPath()).isEqualTo("/b");
+    assertThat(view.getType()).isEqualTo(Type.DIFF);
+    assertThat(view.getHostName()).isEqualTo("host");
+    assertThat(view.getRepositoryName()).isEqualTo("foo/bar");
+    assertThat(view.getRevision().getId()).isEqualTo(id);
+    assertThat(view.getRevision().getName()).isEqualTo("master");
+    assertThat(view.getOldRevision()).isEqualTo(Revision.NULL);
+    assertThat(view.getPathPart()).isEqualTo("path/to/a/file");
+    assertThat(HOST.getParameters()).isEmpty();
 
-    assertEquals("/b/foo/bar/+/master%5E%21/path/to/a/file", view.toUrl());
-    assertEquals(
-        ImmutableList.of(
+    assertThat(view.toUrl()).isEqualTo("/b/foo/bar/+/master%5E%21/path/to/a/file");
+    assertThat(view.getBreadcrumbs())
+        .containsExactly(
             breadcrumb("host", "/b/?format=HTML"),
             breadcrumb("foo", "/b/foo/"),
             breadcrumb("bar", "/b/foo/bar/"),
@@ -481,8 +479,8 @@ public class GitilesViewTest {
             breadcrumb("path", "/b/foo/bar/+/master%5E%21/path"),
             breadcrumb("to", "/b/foo/bar/+/master%5E%21/path/to"),
             breadcrumb("a", "/b/foo/bar/+/master%5E%21/path/to/a"),
-            breadcrumb("file", "/b/foo/bar/+/master%5E%21/path/to/a/file")),
-        view.getBreadcrumbs());
+            breadcrumb("file", "/b/foo/bar/+/master%5E%21/path/to/a/file"))
+        .inOrder();
   }
 
   @Test
@@ -497,19 +495,19 @@ public class GitilesViewTest {
         .setPathPart("/path/to/a/file")
         .build();
 
-    assertEquals("/b", view.getServletPath());
-    assertEquals(Type.DIFF, view.getType());
-    assertEquals("host", view.getHostName());
-    assertEquals("foo/bar", view.getRepositoryName());
-    assertEquals(id, view.getRevision().getId());
-    assertEquals("master", view.getRevision().getName());
-    assertEquals("efab5678", view.getOldRevision().getName());
-    assertEquals("path/to/a/file", view.getPathPart());
-    assertTrue(HOST.getParameters().isEmpty());
+    assertThat(view.getServletPath()).isEqualTo("/b");
+    assertThat(view.getType()).isEqualTo(Type.DIFF);
+    assertThat(view.getHostName()).isEqualTo("host");
+    assertThat(view.getRepositoryName()).isEqualTo("foo/bar");
+    assertThat(view.getRevision().getId()).isEqualTo(id);
+    assertThat(view.getRevision().getName()).isEqualTo("master");
+    assertThat(view.getOldRevision().getName()).isEqualTo("efab5678");
+    assertThat(view.getPathPart()).isEqualTo("path/to/a/file");
+    assertThat(HOST.getParameters()).isEmpty();
 
-    assertEquals("/b/foo/bar/+/efab5678..master/path/to/a/file", view.toUrl());
-    assertEquals(
-        ImmutableList.of(
+    assertThat(view.toUrl()).isEqualTo("/b/foo/bar/+/efab5678..master/path/to/a/file");
+    assertThat(view.getBreadcrumbs())
+        .containsExactly(
             breadcrumb("host", "/b/?format=HTML"),
             breadcrumb("foo", "/b/foo/"),
             breadcrumb("bar", "/b/foo/bar/"),
@@ -518,8 +516,8 @@ public class GitilesViewTest {
             breadcrumb("path", "/b/foo/bar/+/efab5678..master/path"),
             breadcrumb("to", "/b/foo/bar/+/efab5678..master/path/to"),
             breadcrumb("a", "/b/foo/bar/+/efab5678..master/path/to/a"),
-            breadcrumb("file", "/b/foo/bar/+/efab5678..master/path/to/a/file")),
-        view.getBreadcrumbs());
+            breadcrumb("file", "/b/foo/bar/+/efab5678..master/path/to/a/file"))
+        .inOrder();
   }
 
   @Test
@@ -531,24 +529,24 @@ public class GitilesViewTest {
         .setRevision(Revision.unpeeled("master", id))
         .build();
 
-    assertEquals("/b", view.getServletPath());
-    assertEquals(Type.LOG, view.getType());
-    assertEquals("host", view.getHostName());
-    assertEquals("foo/bar", view.getRepositoryName());
-    assertEquals(id, view.getRevision().getId());
-    assertEquals("master", view.getRevision().getName());
-    assertEquals(Revision.NULL, view.getOldRevision());
-    assertNull(view.getPathPart());
-    assertTrue(HOST.getParameters().isEmpty());
+    assertThat(view.getServletPath()).isEqualTo("/b");
+    assertThat(view.getType()).isEqualTo(Type.LOG);
+    assertThat(view.getHostName()).isEqualTo("host");
+    assertThat(view.getRepositoryName()).isEqualTo("foo/bar");
+    assertThat(view.getRevision().getId()).isEqualTo(id);
+    assertThat(view.getRevision().getName()).isEqualTo("master");
+    assertThat(view.getOldRevision()).isEqualTo(Revision.NULL);
+    assertThat(view.getPathPart()).isNull();
+    assertThat(HOST.getParameters()).isEmpty();
 
-    assertEquals("/b/foo/bar/+log/master", view.toUrl());
-    assertEquals(
-        ImmutableList.of(
+    assertThat(view.toUrl()).isEqualTo("/b/foo/bar/+log/master");
+    assertThat(view.getBreadcrumbs())
+        .containsExactly(
             breadcrumb("host", "/b/?format=HTML"),
             breadcrumb("foo", "/b/foo/"),
             breadcrumb("bar", "/b/foo/bar/"),
-            breadcrumb("master", "/b/foo/bar/+log/master")),
-        view.getBreadcrumbs());
+            breadcrumb("master", "/b/foo/bar/+log/master"))
+        .inOrder();
   }
 
   @Test
@@ -560,24 +558,24 @@ public class GitilesViewTest {
         .setRevision(Revision.unpeeled("abcd1234", id))
         .build();
 
-    assertEquals("/b", view.getServletPath());
-    assertEquals(Type.LOG, view.getType());
-    assertEquals("host", view.getHostName());
-    assertEquals("foo/bar", view.getRepositoryName());
-    assertEquals(id, view.getRevision().getId());
-    assertEquals("abcd1234", view.getRevision().getName());
-    assertEquals(Revision.NULL, view.getOldRevision());
-    assertNull(view.getPathPart());
-    assertTrue(HOST.getParameters().isEmpty());
+    assertThat(view.getServletPath()).isEqualTo("/b");
+    assertThat(view.getType()).isEqualTo(Type.LOG);
+    assertThat(view.getHostName()).isEqualTo("host");
+    assertThat(view.getRepositoryName()).isEqualTo("foo/bar");
+    assertThat(view.getRevision().getId()).isEqualTo(id);
+    assertThat(view.getRevision().getName()).isEqualTo("abcd1234");
+    assertThat(view.getOldRevision()).isEqualTo(Revision.NULL);
+    assertThat(view.getPathPart()).isNull();
+    assertThat(HOST.getParameters()).isEmpty();
 
-    assertEquals("/b/foo/bar/+log/abcd1234", view.toUrl());
-    assertEquals(
-        ImmutableList.of(
+    assertThat(view.toUrl()).isEqualTo("/b/foo/bar/+log/abcd1234");
+    assertThat(view.getBreadcrumbs())
+        .containsExactly(
             breadcrumb("host", "/b/?format=HTML"),
             breadcrumb("foo", "/b/foo/"),
             breadcrumb("bar", "/b/foo/bar/"),
-            breadcrumb("abcd1234", "/b/foo/bar/+log/abcd1234")),
-        view.getBreadcrumbs());
+            breadcrumb("abcd1234", "/b/foo/bar/+log/abcd1234"))
+        .inOrder();
   }
 
   @Test
@@ -590,19 +588,19 @@ public class GitilesViewTest {
         .setPathPart("/path/to/a/file")
         .build();
 
-    assertEquals("/b", view.getServletPath());
-    assertEquals(Type.LOG, view.getType());
-    assertEquals("host", view.getHostName());
-    assertEquals("foo/bar", view.getRepositoryName());
-    assertEquals(id, view.getRevision().getId());
-    assertEquals("master", view.getRevision().getName());
-    assertEquals(Revision.NULL, view.getOldRevision());
-    assertEquals("path/to/a/file", view.getPathPart());
-    assertTrue(HOST.getParameters().isEmpty());
+    assertThat(view.getServletPath()).isEqualTo("/b");
+    assertThat(view.getType()).isEqualTo(Type.LOG);
+    assertThat(view.getHostName()).isEqualTo("host");
+    assertThat(view.getRepositoryName()).isEqualTo("foo/bar");
+    assertThat(view.getRevision().getId()).isEqualTo(id);
+    assertThat(view.getRevision().getName()).isEqualTo("master");
+    assertThat(view.getOldRevision()).isEqualTo(Revision.NULL);
+    assertThat(view.getPathPart()).isEqualTo("path/to/a/file");
+    assertThat(HOST.getParameters()).isEmpty();
 
-    assertEquals("/b/foo/bar/+log/master/path/to/a/file", view.toUrl());
-    assertEquals(
-        ImmutableList.of(
+    assertThat(view.toUrl()).isEqualTo("/b/foo/bar/+log/master/path/to/a/file");
+    assertThat(view.getBreadcrumbs())
+        .containsExactly(
             breadcrumb("host", "/b/?format=HTML"),
             breadcrumb("foo", "/b/foo/"),
             breadcrumb("bar", "/b/foo/bar/"),
@@ -610,8 +608,8 @@ public class GitilesViewTest {
             breadcrumb("path", "/b/foo/bar/+log/master/path"),
             breadcrumb("to", "/b/foo/bar/+log/master/path/to"),
             breadcrumb("a", "/b/foo/bar/+log/master/path/to/a"),
-            breadcrumb("file", "/b/foo/bar/+log/master/path/to/a/file")),
-        view.getBreadcrumbs());
+            breadcrumb("file", "/b/foo/bar/+log/master/path/to/a/file"))
+        .inOrder();
   }
 
   @Test
@@ -626,19 +624,19 @@ public class GitilesViewTest {
         .setPathPart("/path/to/a/file")
         .build();
 
-    assertEquals("/b", view.getServletPath());
-    assertEquals(Type.LOG, view.getType());
-    assertEquals("host", view.getHostName());
-    assertEquals("foo/bar", view.getRepositoryName());
-    assertEquals(id, view.getRevision().getId());
-    assertEquals("master", view.getRevision().getName());
-    assertEquals("master^", view.getOldRevision().getName());
-    assertEquals("path/to/a/file", view.getPathPart());
-    assertTrue(HOST.getParameters().isEmpty());
+    assertThat(view.getServletPath()).isEqualTo("/b");
+    assertThat(view.getType()).isEqualTo(Type.LOG);
+    assertThat(view.getHostName()).isEqualTo("host");
+    assertThat(view.getRepositoryName()).isEqualTo("foo/bar");
+    assertThat(view.getRevision().getId()).isEqualTo(id);
+    assertThat(view.getRevision().getName()).isEqualTo("master");
+    assertThat(view.getOldRevision().getName()).isEqualTo("master^");
+    assertThat(view.getPathPart()).isEqualTo("path/to/a/file");
+    assertThat(HOST.getParameters()).isEmpty();
 
-    assertEquals("/b/foo/bar/+log/master%5E..master/path/to/a/file", view.toUrl());
-    assertEquals(
-        ImmutableList.of(
+    assertThat(view.toUrl()).isEqualTo("/b/foo/bar/+log/master%5E..master/path/to/a/file");
+    assertThat(view.getBreadcrumbs())
+        .containsExactly(
             breadcrumb("host", "/b/?format=HTML"),
             breadcrumb("foo", "/b/foo/"),
             breadcrumb("bar", "/b/foo/bar/"),
@@ -646,8 +644,8 @@ public class GitilesViewTest {
             breadcrumb("path", "/b/foo/bar/+log/master%5E..master/path"),
             breadcrumb("to", "/b/foo/bar/+log/master%5E..master/path/to"),
             breadcrumb("a", "/b/foo/bar/+log/master%5E..master/path/to/a"),
-            breadcrumb("file", "/b/foo/bar/+log/master%5E..master/path/to/a/file")),
-        view.getBreadcrumbs());
+            breadcrumb("file", "/b/foo/bar/+log/master%5E..master/path/to/a/file"))
+        .inOrder();
   }
 
   @Test
@@ -657,22 +655,22 @@ public class GitilesViewTest {
         .setRepositoryName("foo/bar")
         .build();
 
-    assertEquals("/b", view.getServletPath());
-    assertEquals(Type.LOG, view.getType());
-    assertEquals("host", view.getHostName());
-    assertEquals("foo/bar", view.getRepositoryName());
-    assertEquals(Revision.NULL, view.getRevision());
-    assertEquals(Revision.NULL, view.getOldRevision());
-    assertTrue(HOST.getParameters().isEmpty());
+    assertThat(view.getServletPath()).isEqualTo("/b");
+    assertThat(view.getType()).isEqualTo(Type.LOG);
+    assertThat(view.getHostName()).isEqualTo("host");
+    assertThat(view.getRepositoryName()).isEqualTo("foo/bar");
+    assertThat(view.getRevision()).isEqualTo(Revision.NULL);
+    assertThat(view.getOldRevision()).isEqualTo(Revision.NULL);
+    assertThat(HOST.getParameters()).isEmpty();
 
-    assertEquals("/b/foo/bar/+log", view.toUrl());
-    assertEquals(
-        ImmutableList.of(
+    assertThat(view.toUrl()).isEqualTo("/b/foo/bar/+log");
+    assertThat(view.getBreadcrumbs())
+        .containsExactly(
             breadcrumb("host", "/b/?format=HTML"),
             breadcrumb("foo", "/b/foo/"),
             breadcrumb("bar", "/b/foo/bar/"),
-            breadcrumb("HEAD", "/b/foo/bar/+log")),
-        view.getBreadcrumbs());
+            breadcrumb("HEAD", "/b/foo/bar/+log"))
+        .inOrder();
   }
 
   @Test
@@ -685,16 +683,16 @@ public class GitilesViewTest {
         .setExtension(".tar.bz2")
         .build();
 
-    assertEquals("/b", view.getServletPath());
-    assertEquals(Type.ARCHIVE, view.getType());
-    assertEquals("host", view.getHostName());
-    assertEquals("foo/bar", view.getRepositoryName());
-    assertEquals(id, view.getRevision().getId());
-    assertEquals("master", view.getRevision().getName());
-    assertEquals(Revision.NULL, view.getOldRevision());
-    assertNull(view.getPathPart());
-    assertTrue(HOST.getParameters().isEmpty());
-    assertEquals("/b/foo/bar/+archive/master.tar.bz2", view.toUrl());
+    assertThat(view.getServletPath()).isEqualTo("/b");
+    assertThat(view.getType()).isEqualTo(Type.ARCHIVE);
+    assertThat(view.getHostName()).isEqualTo("host");
+    assertThat(view.getRepositoryName()).isEqualTo("foo/bar");
+    assertThat(view.getRevision().getId()).isEqualTo(id);
+    assertThat(view.getRevision().getName()).isEqualTo("master");
+    assertThat(view.getOldRevision()).isEqualTo(Revision.NULL);
+    assertThat(view.getPathPart()).isNull();
+    assertThat(HOST.getParameters()).isEmpty();
+    assertThat(view.toUrl()).isEqualTo("/b/foo/bar/+archive/master.tar.bz2");
   }
 
   @Test
@@ -708,16 +706,16 @@ public class GitilesViewTest {
         .setExtension(".tar.bz2")
         .build();
 
-    assertEquals("/b", view.getServletPath());
-    assertEquals(Type.ARCHIVE, view.getType());
-    assertEquals("host", view.getHostName());
-    assertEquals("foo/bar", view.getRepositoryName());
-    assertEquals(id, view.getRevision().getId());
-    assertEquals("master", view.getRevision().getName());
-    assertEquals(Revision.NULL, view.getOldRevision());
-    assertEquals("path/to/a/dir", view.getPathPart());
-    assertTrue(HOST.getParameters().isEmpty());
-    assertEquals("/b/foo/bar/+archive/master/path/to/a/dir.tar.bz2", view.toUrl());
+    assertThat(view.getServletPath()).isEqualTo("/b");
+    assertThat(view.getType()).isEqualTo(Type.ARCHIVE);
+    assertThat(view.getHostName()).isEqualTo("host");
+    assertThat(view.getRepositoryName()).isEqualTo("foo/bar");
+    assertThat(view.getRevision().getId()).isEqualTo(id);
+    assertThat(view.getRevision().getName()).isEqualTo("master");
+    assertThat(view.getOldRevision()).isEqualTo(Revision.NULL);
+    assertThat(view.getPathPart()).isEqualTo("path/to/a/dir");
+    assertThat(HOST.getParameters()).isEmpty();
+    assertThat(view.toUrl()).isEqualTo("/b/foo/bar/+archive/master/path/to/a/dir.tar.bz2");
   }
 
   @Test
@@ -730,26 +728,26 @@ public class GitilesViewTest {
         .setPathPart("/dir/file")
         .build();
 
-    assertEquals("/b", view.getServletPath());
-    assertEquals(Type.BLAME, view.getType());
-    assertEquals("host", view.getHostName());
-    assertEquals("foo/bar", view.getRepositoryName());
-    assertEquals(id, view.getRevision().getId());
-    assertEquals("master", view.getRevision().getName());
-    assertEquals(Revision.NULL, view.getOldRevision());
-    assertEquals("dir/file", view.getPathPart());
-    assertTrue(HOST.getParameters().isEmpty());
-    assertEquals("/b/foo/bar/+blame/master/dir/file", view.toUrl());
-    assertEquals(
-        ImmutableList.of(
+    assertThat(view.getServletPath()).isEqualTo("/b");
+    assertThat(view.getType()).isEqualTo(Type.BLAME);
+    assertThat(view.getHostName()).isEqualTo("host");
+    assertThat(view.getRepositoryName()).isEqualTo("foo/bar");
+    assertThat(view.getRevision().getId()).isEqualTo(id);
+    assertThat(view.getRevision().getName()).isEqualTo("master");
+    assertThat(view.getOldRevision()).isEqualTo(Revision.NULL);
+    assertThat(view.getPathPart()).isEqualTo("dir/file");
+    assertThat(HOST.getParameters()).isEmpty();
+    assertThat(view.toUrl()).isEqualTo("/b/foo/bar/+blame/master/dir/file");
+    assertThat(view.getBreadcrumbs())
+        .containsExactly(
             breadcrumb("host", "/b/?format=HTML"),
             breadcrumb("foo", "/b/foo/"),
             breadcrumb("bar", "/b/foo/bar/"),
             breadcrumb("master", "/b/foo/bar/+/master"),
             breadcrumb(".", "/b/foo/bar/+/master/"),
             breadcrumb("dir", "/b/foo/bar/+/master/dir"),
-            breadcrumb("file", "/b/foo/bar/+blame/master/dir/file")),
-        view.getBreadcrumbs());
+            breadcrumb("file", "/b/foo/bar/+blame/master/dir/file"))
+        .inOrder();
   }
 
   @Test
@@ -768,24 +766,23 @@ public class GitilesViewTest {
         .build();
 
     // Fields returned by getters are not escaped.
-    assertEquals("/b", view.getServletPath());
-    assertEquals(Type.LOG, view.getType());
-    assertEquals("host", view.getHostName());
-    assertEquals("foo?bar", view.getRepositoryName());
-    assertEquals(id, view.getRevision().getId());
-    assertEquals("ba/d#name", view.getRevision().getName());
-    assertEquals(parent, view.getOldRevision().getId());
-    assertEquals("other\"na/me", view.getOldRevision().getName());
-    assertEquals("we ird/pa'th/name", view.getPathPart());
-    assertEquals(ImmutableListMultimap.<String, String> of("k e y", "val/ue"),
-        view.getParameters());
+    assertThat(view.getServletPath()).isEqualTo("/b");
+    assertThat(view.getType()).isEqualTo(Type.LOG);
+    assertThat(view.getHostName()).isEqualTo("host");
+    assertThat(view.getRepositoryName()).isEqualTo("foo?bar");
+    assertThat(view.getRevision().getId()).isEqualTo(id);
+    assertThat(view.getRevision().getName()).isEqualTo("ba/d#name");
+    assertThat(view.getOldRevision().getId()).isEqualTo(parent);
+    assertThat(view.getOldRevision().getName()).isEqualTo("other\"na/me");
+    assertThat(view.getPathPart()).isEqualTo("we ird/pa'th/name");
+    assertThat(view.getParameters())
+        .isEqualTo(ImmutableListMultimap.<String, String> of("k e y", "val/ue"));
 
     String qs = "?k+e+y=val%2Fue";
-    assertEquals(
-        "/b/foo%3Fbar/+log/other%22na/me..ba/d%23name/we%20ird/pa%27th/name" + qs + "#anc%23hor",
-        view.toUrl());
-    assertEquals(
-        ImmutableList.of(
+    assertThat(view.toUrl()).isEqualTo(
+        "/b/foo%3Fbar/+log/other%22na/me..ba/d%23name/we%20ird/pa%27th/name" + qs + "#anc%23hor");
+    assertThat(view.getBreadcrumbs())
+        .containsExactly(
             // Names are not escaped (auto-escaped by Soy) but values are.
             breadcrumb("host", "/b/?format=HTML"),
             breadcrumb("foo?bar", "/b/foo%3Fbar/"),
@@ -796,8 +793,8 @@ public class GitilesViewTest {
             breadcrumb("pa'th",
               "/b/foo%3Fbar/+log/other%22na/me..ba/d%23name/we%20ird/pa%27th" + qs),
             breadcrumb("name",
-              "/b/foo%3Fbar/+log/other%22na/me..ba/d%23name/we%20ird/pa%27th/name" + qs)),
-        view.getBreadcrumbs());
+              "/b/foo%3Fbar/+log/other%22na/me..ba/d%23name/we%20ird/pa%27th/name" + qs))
+        .inOrder();
   }
 
   @Test
@@ -810,9 +807,9 @@ public class GitilesViewTest {
         .setPathPart("/path/to/a/file")
         .build();
 
-    assertEquals("/b/foo/bar/+/master/path/to/a/file", view.toUrl());
-    assertEquals(
-        ImmutableList.of(
+    assertThat(view.toUrl()).isEqualTo("/b/foo/bar/+/master/path/to/a/file");
+    assertThat(view.getBreadcrumbs(ImmutableList.of(false, true, true)))
+        .containsExactly(
             breadcrumb("host", "/b/?format=HTML"),
             breadcrumb("foo", "/b/foo/"),
             breadcrumb("bar", "/b/foo/bar/"),
@@ -821,10 +818,10 @@ public class GitilesViewTest {
             breadcrumb("path", "/b/foo/bar/+/master/path"),
             breadcrumb("to", "/b/foo/bar/+/master/path/to?autodive=0"),
             breadcrumb("a", "/b/foo/bar/+/master/path/to/a?autodive=0"),
-            breadcrumb("file", "/b/foo/bar/+/master/path/to/a/file")),
-        view.getBreadcrumbs(ImmutableList.of(false, true, true)));
-    assertEquals(
-        ImmutableList.of(
+            breadcrumb("file", "/b/foo/bar/+/master/path/to/a/file"))
+        .inOrder();
+    assertThat(view.getBreadcrumbs(ImmutableList.of(true, false, false)))
+        .containsExactly(
             breadcrumb("host", "/b/?format=HTML"),
             breadcrumb("foo", "/b/foo/"),
             breadcrumb("bar", "/b/foo/bar/"),
@@ -833,8 +830,8 @@ public class GitilesViewTest {
             breadcrumb("path", "/b/foo/bar/+/master/path?autodive=0"),
             breadcrumb("to", "/b/foo/bar/+/master/path/to"),
             breadcrumb("a", "/b/foo/bar/+/master/path/to/a"),
-            breadcrumb("file", "/b/foo/bar/+/master/path/to/a/file")),
-        view.getBreadcrumbs(ImmutableList.of(true, false, false)));
+            breadcrumb("file", "/b/foo/bar/+/master/path/to/a/file"))
+        .inOrder();
   }
 
   @Test
@@ -847,15 +844,15 @@ public class GitilesViewTest {
         .setPathPart("")
         .build();
 
-    assertEquals("/b/foo/bar/+/master/", view.toUrl());
-    assertEquals(
-        ImmutableList.of(
+    assertThat(view.toUrl()).isEqualTo("/b/foo/bar/+/master/");
+    assertThat(view.getBreadcrumbs(ImmutableList.<Boolean> of()))
+        .containsExactly(
             breadcrumb("host", "/b/?format=HTML"),
             breadcrumb("foo", "/b/foo/"),
             breadcrumb("bar", "/b/foo/bar/"),
             breadcrumb("master", "/b/foo/bar/+/master"),
-            breadcrumb(".", "/b/foo/bar/+/master/")),
-        view.getBreadcrumbs(ImmutableList.<Boolean> of()));
+            breadcrumb(".", "/b/foo/bar/+/master/"))
+        .inOrder();
   }
 
   private static ImmutableMap<String, String> breadcrumb(String text, String url) {

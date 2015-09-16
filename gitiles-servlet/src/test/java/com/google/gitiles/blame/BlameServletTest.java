@@ -14,7 +14,7 @@
 
 package com.google.gitiles.blame;
 
-import static org.junit.Assert.assertEquals;
+import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.Iterables;
 import com.google.gitiles.CommitJsonData.Ident;
@@ -47,27 +47,27 @@ public class BlameServletTest extends ServletTest {
     RevCommit c2 = repo.update("master", repo.commit().tick(10).parent(c1).add("foo", contents2));
 
     Map<String, List<RegionJsonData>> result = getBlameJson("/repo/+blame/" + c2.name() + "/foo");
-    assertEquals("regions", Iterables.getOnlyElement(result.keySet()));
+    assertThat(Iterables.getOnlyElement(result.keySet())).isEqualTo("regions");
     List<RegionJsonData> regions = result.get("regions");
-    assertEquals(2, regions.size());
+    assertThat(regions.size()).isEqualTo(2);
 
     RegionJsonData r1 = regions.get(0);
-    assertEquals(1, r1.start);
-    assertEquals(1, r1.count);
-    assertEquals("foo", r1.path);
-    assertEquals(c1.name(), r1.commit);
-    assertEquals("J. Author", r1.author.name);
-    assertEquals("jauthor@example.com", r1.author.email);
-    assertEquals("2009-03-13 17:29:48 -0330", r1.author.time);
+    assertThat(r1.start).isEqualTo(1);
+    assertThat(r1.count).isEqualTo(1);
+    assertThat(r1.path).isEqualTo("foo");
+    assertThat(r1.commit).isEqualTo(c1.name());
+    assertThat(r1.author.name).isEqualTo("J. Author");
+    assertThat(r1.author.email).isEqualTo("jauthor@example.com");
+    assertThat(r1.author.time).isEqualTo("2009-03-13 17:29:48 -0330");
 
     RegionJsonData r2 = regions.get(1);
-    assertEquals(2, r2.start);
-    assertEquals(1, r2.count);
-    assertEquals("foo", r2.path);
-    assertEquals(c2.name(), r2.commit);
-    assertEquals("J. Author", r2.author.name);
-    assertEquals("jauthor@example.com", r2.author.email);
-    assertEquals("2009-03-13 17:29:58 -0330", r2.author.time);
+    assertThat(r2.start).isEqualTo(2);
+    assertThat(r2.count).isEqualTo(1);
+    assertThat(r2.path).isEqualTo("foo");
+    assertThat(r2.commit).isEqualTo(c2.name());
+    assertThat(r2.author.name).isEqualTo("J. Author");
+    assertThat(r2.author.email).isEqualTo("jauthor@example.com");
+    assertThat(r2.author.time).isEqualTo("2009-03-13 17:29:58 -0330");
   }
 
   private Map<String, List<RegionJsonData>> getBlameJson(String path) throws Exception {

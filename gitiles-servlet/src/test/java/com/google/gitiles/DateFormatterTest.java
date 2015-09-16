@@ -14,10 +14,10 @@
 
 package com.google.gitiles;
 
+import static com.google.common.truth.Truth.assertThat;
 import static com.google.gitiles.DateFormatter.Format.DEFAULT;
 import static com.google.gitiles.DateFormatter.Format.ISO;
 import static java.util.TimeZone.getTimeZone;
-import static org.junit.Assert.assertEquals;
 
 import com.google.common.base.Optional;
 
@@ -37,42 +37,42 @@ public class DateFormatterTest {
   public void defaultIncludingTimeZone() throws Exception {
     PersonIdent ident = newIdent("Mon Jan 2 15:04:05 2006", "-0700");
     DateFormatter df = new DateFormatter(Optional.<TimeZone> absent(), DEFAULT);
-    assertEquals("Mon Jan 02 15:04:05 2006 -0700", df.format(ident));
+    assertThat(df.format(ident)).isEqualTo("Mon Jan 02 15:04:05 2006 -0700");
   }
 
   @Test
   public void defaultWithUtc() throws Exception {
     PersonIdent ident = newIdent("Mon Jan 2 15:04:05 2006", "-0700");
     DateFormatter df = new DateFormatter(Optional.of(getTimeZone("UTC")), DEFAULT);
-    assertEquals("Mon Jan 02 22:04:05 2006", df.format(ident));
+    assertThat(df.format(ident)).isEqualTo("Mon Jan 02 22:04:05 2006");
   }
 
   @Test
   public void defaultWithOtherTimeZone() throws Exception {
     PersonIdent ident = newIdent("Mon Jan 2 15:04:05 2006", "-0700");
     DateFormatter df = new DateFormatter(Optional.of(getTimeZone("GMT-0400")), DEFAULT);
-    assertEquals("Mon Jan 02 18:04:05 2006", df.format(ident));
+    assertThat(df.format(ident)).isEqualTo("Mon Jan 02 18:04:05 2006");
   }
 
   @Test
   public void isoIncludingTimeZone() throws Exception {
     PersonIdent ident = newIdent("Mon Jan 2 15:04:05 2006", "-0700");
     DateFormatter df = new DateFormatter(Optional.<TimeZone> absent(), ISO);
-    assertEquals("2006-01-02 15:04:05 -0700", df.format(ident));
+    assertThat(df.format(ident)).isEqualTo("2006-01-02 15:04:05 -0700");
   }
 
   @Test
   public void isoWithUtc() throws Exception {
     PersonIdent ident = newIdent("Mon Jan 2 15:04:05 2006", "-0700");
     DateFormatter df = new DateFormatter(Optional.of(getTimeZone("UTC")), ISO);
-    assertEquals("2006-01-02 22:04:05", df.format(ident));
+    assertThat(df.format(ident)).isEqualTo("2006-01-02 22:04:05");
   }
 
   @Test
   public void isoWithOtherTimeZone() throws Exception {
     PersonIdent ident = newIdent("Mon Jan 2 15:04:05 2006", "-0700");
     DateFormatter df = new DateFormatter(Optional.of(getTimeZone("GMT-0400")), ISO);
-    assertEquals("2006-01-02 18:04:05", df.format(ident));
+    assertThat(df.format(ident)).isEqualTo("2006-01-02 18:04:05");
   }
 
   private PersonIdent newIdent(String whenStr, String tzStr) throws ParseException {
@@ -83,7 +83,7 @@ public class DateFormatterTest {
     // PersonIdent.toString() uses its own format with "d" instead of "dd",
     // hence the mismatches in 2 vs. 02 above. Nonetheless I think this sanity
     // check is useful enough to keep around.
-    assertEquals("PersonIdent[A User, user@example.com, " + whenStr + "]", ident.toString());
+    assertThat(ident.toString()).isEqualTo("PersonIdent[A User, user@example.com, " + whenStr + "]");
     return ident;
   }
 }

@@ -14,12 +14,10 @@
 
 package com.google.gitiles;
 
+import static com.google.common.truth.Truth.assertThat;
 import static com.google.gitiles.GitilesFilter.REPO_PATH_REGEX;
 import static com.google.gitiles.GitilesFilter.REPO_REGEX;
 import static com.google.gitiles.GitilesFilter.ROOT_REGEX;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,149 +30,149 @@ import java.util.regex.Matcher;
 public class GitilesFilterTest {
   @Test
   public void rootUrls() throws Exception {
-    assertFalse(ROOT_REGEX.matcher("").matches());
-    assertFalse(ROOT_REGEX.matcher("/foo").matches());
-    assertFalse(ROOT_REGEX.matcher("/foo/").matches());
-    assertFalse(ROOT_REGEX.matcher("/foo/ ").matches());
-    assertFalse(ROOT_REGEX.matcher("/foo/+").matches());
-    assertFalse(ROOT_REGEX.matcher("/foo/+").matches());
-    assertFalse(ROOT_REGEX.matcher("/foo/ /").matches());
-    assertFalse(ROOT_REGEX.matcher("/foo/+/").matches());
-    assertFalse(ROOT_REGEX.matcher("/foo/+/bar").matches());
+    assertThat("").doesNotMatch(ROOT_REGEX);
+    assertThat("/foo").doesNotMatch(ROOT_REGEX);
+    assertThat("/foo/").doesNotMatch(ROOT_REGEX);
+    assertThat("/foo/ ").doesNotMatch(ROOT_REGEX);
+    assertThat("/foo/+").doesNotMatch(ROOT_REGEX);
+    assertThat("/foo/+").doesNotMatch(ROOT_REGEX);
+    assertThat("/foo/ /").doesNotMatch(ROOT_REGEX);
+    assertThat("/foo/+/").doesNotMatch(ROOT_REGEX);
+    assertThat("/foo/+/bar").doesNotMatch(ROOT_REGEX);
     Matcher m;
 
     m = ROOT_REGEX.matcher("/");
-    assertTrue(m.matches());
-    assertEquals("/", m.group(0));
-    assertEquals(m.group(0), m.group(1));
-    assertEquals("/", m.group(2));
-    assertEquals("", m.group(3));
-    assertEquals("", m.group(4));
+    assertThat(m.matches()).isTrue();
+    assertThat(m.group(0)).isEqualTo("/");
+    assertThat(m.group(1)).isEqualTo(m.group(0));
+    assertThat(m.group(2)).isEqualTo("/");
+    assertThat(m.group(3)).isEqualTo("");
+    assertThat(m.group(4)).isEqualTo("");
 
     m = ROOT_REGEX.matcher("//");
-    assertTrue(m.matches());
-    assertEquals("//", m.group(0));
-    assertEquals(m.group(0), m.group(1));
-    assertEquals("/", m.group(2));
-    assertEquals("", m.group(3));
-    assertEquals("", m.group(4));
+    assertThat(m.matches()).isTrue();
+    assertThat(m.group(0)).isEqualTo("//");
+    assertThat(m.group(1)).isEqualTo(m.group(0));
+    assertThat(m.group(2)).isEqualTo("/");
+    assertThat(m.group(3)).isEqualTo("");
+    assertThat(m.group(4)).isEqualTo("");
   }
 
   @Test
   public void repoUrls() throws Exception {
-    assertFalse(REPO_REGEX.matcher("").matches());
+    assertThat("").doesNotMatch(REPO_REGEX);
 
     // These match the regex but are served by the root regex binder, which is
     // matched first.
-    assertTrue(REPO_REGEX.matcher("/").matches());
-    assertTrue(REPO_REGEX.matcher("//").matches());
+    assertThat("/").matches(REPO_REGEX);
+    assertThat("//").matches(REPO_REGEX);
 
-    assertFalse(REPO_REGEX.matcher("/foo/+").matches());
-    assertFalse(REPO_REGEX.matcher("/foo/bar/+").matches());
-    assertFalse(REPO_REGEX.matcher("/foo/bar/+/").matches());
-    assertFalse(REPO_REGEX.matcher("/foo/bar/+/baz").matches());
+    assertThat("/foo/+").doesNotMatch(REPO_REGEX);
+    assertThat("/foo/bar/+").doesNotMatch(REPO_REGEX);
+    assertThat("/foo/bar/+/").doesNotMatch(REPO_REGEX);
+    assertThat("/foo/bar/+/baz").doesNotMatch(REPO_REGEX);
     Matcher m;
 
     m = REPO_REGEX.matcher("/foo");
-    assertTrue(m.matches());
-    assertEquals("/foo", m.group(0));
-    assertEquals(m.group(0), m.group(1));
-    assertEquals("/foo", m.group(2));
-    assertEquals("", m.group(3));
-    assertEquals("", m.group(4));
+    assertThat(m.matches()).isTrue();
+    assertThat(m.group(0)).isEqualTo("/foo");
+    assertThat(m.group(1)).isEqualTo(m.group(0));
+    assertThat(m.group(2)).isEqualTo("/foo");
+    assertThat(m.group(3)).isEqualTo("");
+    assertThat(m.group(4)).isEqualTo("");
 
     m = REPO_REGEX.matcher("/foo/");
-    assertTrue(m.matches());
-    assertEquals("/foo/", m.group(0));
-    assertEquals(m.group(0), m.group(1));
-    assertEquals("/foo", m.group(2));
-    assertEquals("", m.group(3));
-    assertEquals("", m.group(4));
+    assertThat(m.matches()).isTrue();
+    assertThat(m.group(0)).isEqualTo("/foo/");
+    assertThat(m.group(1)).isEqualTo(m.group(0));
+    assertThat(m.group(2)).isEqualTo("/foo");
+    assertThat(m.group(3)).isEqualTo("");
+    assertThat(m.group(4)).isEqualTo("");
 
     m = REPO_REGEX.matcher("/foo/bar");
-    assertTrue(m.matches());
-    assertEquals("/foo/bar", m.group(0));
-    assertEquals(m.group(0), m.group(1));
-    assertEquals("/foo/bar", m.group(2));
-    assertEquals("", m.group(3));
-    assertEquals("", m.group(4));
+    assertThat(m.matches()).isTrue();
+    assertThat(m.group(0)).isEqualTo("/foo/bar");
+    assertThat(m.group(1)).isEqualTo(m.group(0));
+    assertThat(m.group(2)).isEqualTo("/foo/bar");
+    assertThat(m.group(3)).isEqualTo("");
+    assertThat(m.group(4)).isEqualTo("");
 
     m = REPO_REGEX.matcher("/foo/bar+baz");
-    assertTrue(m.matches());
-    assertEquals("/foo/bar+baz", m.group(0));
-    assertEquals(m.group(0), m.group(1));
-    assertEquals("/foo/bar+baz", m.group(2));
-    assertEquals("", m.group(3));
-    assertEquals("", m.group(4));
+    assertThat(m.matches()).isTrue();
+    assertThat(m.group(0)).isEqualTo("/foo/bar+baz");
+    assertThat(m.group(1)).isEqualTo(m.group(0));
+    assertThat(m.group(2)).isEqualTo("/foo/bar+baz");
+    assertThat(m.group(3)).isEqualTo("");
+    assertThat(m.group(4)).isEqualTo("");
   }
 
   @Test
   public void repoPathUrls() throws Exception {
-    assertFalse(REPO_PATH_REGEX.matcher("").matches());
-    assertFalse(REPO_PATH_REGEX.matcher("/").matches());
-    assertFalse(REPO_PATH_REGEX.matcher("//").matches());
-    assertFalse(REPO_PATH_REGEX.matcher("/foo").matches());
-    assertFalse(REPO_PATH_REGEX.matcher("/foo/ ").matches());
-    assertFalse(REPO_PATH_REGEX.matcher("/foo/ /").matches());
-    assertFalse(REPO_PATH_REGEX.matcher("/foo/ /bar").matches());
-    assertFalse(REPO_PATH_REGEX.matcher("/foo/bar").matches());
-    assertFalse(REPO_PATH_REGEX.matcher("/foo/bar+baz").matches());
+    assertThat("").doesNotMatch(REPO_PATH_REGEX);
+    assertThat("/").doesNotMatch(REPO_PATH_REGEX);
+    assertThat("//").doesNotMatch(REPO_PATH_REGEX);
+    assertThat("/foo").doesNotMatch(REPO_PATH_REGEX);
+    assertThat("/foo/ ").doesNotMatch(REPO_PATH_REGEX);
+    assertThat("/foo/ /").doesNotMatch(REPO_PATH_REGEX);
+    assertThat("/foo/ /bar").doesNotMatch(REPO_PATH_REGEX);
+    assertThat("/foo/bar").doesNotMatch(REPO_PATH_REGEX);
+    assertThat("/foo/bar+baz").doesNotMatch(REPO_PATH_REGEX);
     Matcher m;
 
     m = REPO_PATH_REGEX.matcher("/foo/+");
-    assertTrue(m.matches());
-    assertEquals("/foo/+", m.group(0));
-    assertEquals(m.group(0), m.group(1));
-    assertEquals("/foo", m.group(2));
-    assertEquals("+", m.group(3));
-    assertEquals("", m.group(4));
+    assertThat(m.matches()).isTrue();
+    assertThat(m.group(0)).isEqualTo("/foo/+");
+    assertThat(m.group(1)).isEqualTo(m.group(0));
+    assertThat(m.group(2)).isEqualTo("/foo");
+    assertThat(m.group(3)).isEqualTo("+");
+    assertThat(m.group(4)).isEqualTo("");
 
     m = REPO_PATH_REGEX.matcher("/foo/+/");
-    assertTrue(m.matches());
-    assertEquals("/foo/+/", m.group(0));
-    assertEquals(m.group(0), m.group(1));
-    assertEquals("/foo", m.group(2));
-    assertEquals("+", m.group(3));
-    assertEquals("/", m.group(4));
+    assertThat(m.matches()).isTrue();
+    assertThat(m.group(0)).isEqualTo("/foo/+/");
+    assertThat(m.group(1)).isEqualTo(m.group(0));
+    assertThat(m.group(2)).isEqualTo("/foo");
+    assertThat(m.group(3)).isEqualTo("+");
+    assertThat(m.group(4)).isEqualTo("/");
 
     m = REPO_PATH_REGEX.matcher("/foo/+/bar/baz");
-    assertTrue(m.matches());
-    assertEquals("/foo/+/bar/baz", m.group(0));
-    assertEquals(m.group(0), m.group(1));
-    assertEquals("/foo", m.group(2));
-    assertEquals("+", m.group(3));
-    assertEquals("/bar/baz", m.group(4));
+    assertThat(m.matches()).isTrue();
+    assertThat(m.group(0)).isEqualTo("/foo/+/bar/baz");
+    assertThat(m.group(1)).isEqualTo(m.group(0));
+    assertThat(m.group(2)).isEqualTo("/foo");
+    assertThat(m.group(3)).isEqualTo("+");
+    assertThat(m.group(4)).isEqualTo("/bar/baz");
 
     m = REPO_PATH_REGEX.matcher("/foo/+/bar/baz/");
-    assertTrue(m.matches());
-    assertEquals("/foo/+/bar/baz/", m.group(0));
-    assertEquals(m.group(0), m.group(1));
-    assertEquals("/foo", m.group(2));
-    assertEquals("+", m.group(3));
-    assertEquals("/bar/baz/", m.group(4));
+    assertThat(m.matches()).isTrue();
+    assertThat(m.group(0)).isEqualTo("/foo/+/bar/baz/");
+    assertThat(m.group(1)).isEqualTo(m.group(0));
+    assertThat(m.group(2)).isEqualTo("/foo");
+    assertThat(m.group(3)).isEqualTo("+");
+    assertThat(m.group(4)).isEqualTo("/bar/baz/");
 
     m = REPO_PATH_REGEX.matcher("/foo/+/bar baz");
-    assertTrue(m.matches());
-    assertEquals("/foo/+/bar baz", m.group(0));
-    assertEquals(m.group(0), m.group(1));
-    assertEquals("/foo", m.group(2));
-    assertEquals("+", m.group(3));
-    assertEquals("/bar baz", m.group(4));
+    assertThat(m.matches()).isTrue();
+    assertThat(m.group(0)).isEqualTo("/foo/+/bar baz");
+    assertThat(m.group(1)).isEqualTo(m.group(0));
+    assertThat(m.group(2)).isEqualTo("/foo");
+    assertThat(m.group(3)).isEqualTo("+");
+    assertThat(m.group(4)).isEqualTo("/bar baz");
 
     m = REPO_PATH_REGEX.matcher("/foo/+/bar/+/baz");
-    assertTrue(m.matches());
-    assertEquals("/foo/+/bar/+/baz", m.group(0));
-    assertEquals(m.group(0), m.group(1));
-    assertEquals("/foo", m.group(2));
-    assertEquals("+", m.group(3));
-    assertEquals("/bar/+/baz", m.group(4));
+    assertThat(m.matches()).isTrue();
+    assertThat(m.group(0)).isEqualTo("/foo/+/bar/+/baz");
+    assertThat(m.group(1)).isEqualTo(m.group(0));
+    assertThat(m.group(2)).isEqualTo("/foo");
+    assertThat(m.group(3)).isEqualTo("+");
+    assertThat(m.group(4)).isEqualTo("/bar/+/baz");
 
     m = REPO_PATH_REGEX.matcher("/foo/+bar/baz");
-    assertTrue(m.matches());
-    assertEquals("/foo/+bar/baz", m.group(0));
-    assertEquals(m.group(0), m.group(1));
-    assertEquals("/foo", m.group(2));
-    assertEquals("+bar", m.group(3));
-    assertEquals("/baz", m.group(4));
+    assertThat(m.matches()).isTrue();
+    assertThat(m.group(0)).isEqualTo("/foo/+bar/baz");
+    assertThat(m.group(1)).isEqualTo(m.group(0));
+    assertThat(m.group(2)).isEqualTo("/foo");
+    assertThat(m.group(3)).isEqualTo("+bar");
+    assertThat(m.group(4)).isEqualTo("/baz");
   }
 }

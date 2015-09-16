@@ -14,8 +14,7 @@
 
 package com.google.gitiles.doc;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static com.google.common.truth.Truth.assertThat;
 
 import com.google.gitiles.ServletTest;
 
@@ -39,9 +38,9 @@ public class DocServletTest extends ServletTest {
         .create();
 
     String html = buildHtml("/repo/+doc/master/README.md");
-    assertTrue(html.contains("<title>" + title + "</title>"));
-    assertTrue(html.contains(title + "</h1>"));
-    assertTrue(html.contains("<a href=\"" + url + "\">Markdown</a>"));
+    assertThat(html).contains("<title>" + title + "</title>");
+    assertThat(html).contains(title + "</h1>");
+    assertThat(html).contains("<a href=\"" + url + "\">Markdown</a>");
   }
 
   @Test
@@ -56,15 +55,15 @@ public class DocServletTest extends ServletTest {
         .create();
 
     String html = buildHtml("/repo/+doc/master/README.md");
-    assertTrue(html.contains("<title>Site Title - page</title>"));
+    assertThat(html).contains("<title>Site Title - page</title>");
 
-    assertTrue(html.contains("<h1>Site Title</h1>"));
-    assertTrue(html.contains("<h2>page</h2>"));
-    assertTrue(html.contains("<li><a href=\"index.md\">Home</a></li>"));
-    assertTrue(html.contains("<li><a href=\"README.md\">README</a></li>"));
-    assertTrue(html.contains("<h1>"
+    assertThat(html).contains("<h1>Site Title</h1>");
+    assertThat(html).contains("<h2>page</h2>");
+    assertThat(html).contains("<li><a href=\"index.md\">Home</a></li>");
+    assertThat(html).contains("<li><a href=\"README.md\">README</a></li>");
+    assertThat(html).contains("<h1>"
         + "<a class=\"h\" name=\"page\" href=\"#page\"><span></span></a>"
-        + "page</h1>"));
+        + "page</h1>");
   }
 
   @Test
@@ -79,11 +78,11 @@ public class DocServletTest extends ServletTest {
         .create();
 
     String html = buildHtml("/repo/+doc/master/");
-    assertTrue(html.contains("B. Ad</h1>"));
-    assertTrue(html.contains("Non-HTML is fine."));
+    assertThat(html).contains("B. Ad</h1>");
+    assertThat(html).contains("Non-HTML is fine.");
 
-    assertFalse(html.contains("window.alert"));
-    assertFalse(html.contains("<script>"));
+    assertThat(html).doesNotContain("window.alert");
+    assertThat(html).doesNotContain("<script>");
   }
 
   @Test
@@ -94,12 +93,12 @@ public class DocServletTest extends ServletTest {
       .add("index.md", markdown)
       .create();
     String html = buildHtml("/repo/+doc/master/");
-    assertTrue(html.contains("<h1>"
+    assertThat(html).contains("<h1>"
         + "<a class=\"h\" name=\"debug\" href=\"#debug\"><span></span></a>"
-        + "Section</h1>"));
-    assertTrue(html.contains("<h1>"
+        + "Section</h1>");
+    assertThat(html).contains("<h1>"
         + "<a class=\"h\" name=\"old-school\" href=\"#old-school\"><span></span></a>"
-        + "Other</h1>"));
+        + "Other</h1>");
   }
 
   @Test
@@ -110,7 +109,7 @@ public class DocServletTest extends ServletTest {
         .create();
 
     String html = buildHtml("/repo/+doc/master/index.md");
-    assertTrue(html.contains("Incomplete &lt;html is literal."));
+    assertThat(html).contains("Incomplete &lt;html is literal.");
   }
 
   @Test
@@ -120,7 +119,7 @@ public class DocServletTest extends ServletTest {
         .create();
 
     String html = buildHtml("/repo/+doc/master/A/B/README.md");
-    assertTrue(html.contains("<a href=\"/b/repo/+show/master/C\">c</a>"));
+    assertThat(html).contains("<a href=\"/b/repo/+show/master/C\">c</a>");
   }
 
   @Test
@@ -130,7 +129,7 @@ public class DocServletTest extends ServletTest {
         .create();
 
     String html = buildHtml("/repo/+doc/master/README.md");
-    assertTrue(html.contains("<a href=\"/b/repo/+show/master/x\">c</a>"));
+    assertThat(html).contains("<a href=\"/b/repo/+show/master/x\">c</a>");
   }
 
 }

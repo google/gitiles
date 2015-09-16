@@ -14,9 +14,8 @@
 
 package com.google.gitiles;
 
-import static org.junit.Assert.assertEquals;
+import static com.google.common.truth.Truth.assertThat;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import org.eclipse.jgit.lib.Config;
@@ -35,32 +34,36 @@ public class LinkifierTest {
   public void linkifyMessageNoMatch() throws Exception {
     Config config = new Config();
     Linkifier l = new Linkifier(TestGitilesUrls.URLS, config);
-    assertEquals(ImmutableList.of(ImmutableMap.of("text", "some message text")),
-        l.linkify(FakeHttpServletRequest.newRequest(), "some message text"));
+    assertThat(l.linkify(FakeHttpServletRequest.newRequest(), "some message text"))
+        .containsExactly(ImmutableMap.of("text", "some message text"));
   }
 
   @Test
   public void linkifyMessageUrl() throws Exception {
     Config config = new Config();
     Linkifier l = new Linkifier(TestGitilesUrls.URLS, config);
-    assertEquals(ImmutableList.of(
-        ImmutableMap.of("text", "http://my/url", "url", "http://my/url")),
-        l.linkify(REQ, "http://my/url"));
-    assertEquals(ImmutableList.of(
-        ImmutableMap.of("text", "https://my/url", "url", "https://my/url")),
-        l.linkify(REQ, "https://my/url"));
-    assertEquals(ImmutableList.of(
-        ImmutableMap.of("text", "foo "),
-        ImmutableMap.of("text", "http://my/url", "url", "http://my/url"),
-        ImmutableMap.of("text", " bar")),
-        l.linkify(REQ, "foo http://my/url bar"));
-    assertEquals(ImmutableList.of(
-        ImmutableMap.of("text", "foo "),
-        ImmutableMap.of("text", "http://my/url", "url", "http://my/url"),
-        ImmutableMap.of("text", " bar "),
-        ImmutableMap.of("text", "http://my/other/url", "url", "http://my/other/url"),
-        ImmutableMap.of("text", " baz")),
-        l.linkify(REQ, "foo http://my/url bar http://my/other/url baz"));
+    assertThat(l.linkify(REQ, "http://my/url"))
+        .containsExactly(
+            ImmutableMap.of("text", "http://my/url", "url", "http://my/url"))
+        .inOrder();
+    assertThat(l.linkify(REQ, "https://my/url"))
+        .containsExactly(
+            ImmutableMap.of("text", "https://my/url", "url", "https://my/url"))
+        .inOrder();
+    assertThat(l.linkify(REQ, "foo http://my/url bar"))
+        .containsExactly(
+            ImmutableMap.of("text", "foo "),
+            ImmutableMap.of("text", "http://my/url", "url", "http://my/url"),
+            ImmutableMap.of("text", " bar"))
+        .inOrder();
+    assertThat(l.linkify(REQ, "foo http://my/url bar http://my/other/url baz"))
+        .containsExactly(
+            ImmutableMap.of("text", "foo "),
+            ImmutableMap.of("text", "http://my/url", "url", "http://my/url"),
+            ImmutableMap.of("text", " bar "),
+            ImmutableMap.of("text", "http://my/other/url", "url", "http://my/other/url"),
+            ImmutableMap.of("text", " baz"))
+        .inOrder();
   }
 
   @Test
@@ -82,33 +85,42 @@ public class LinkifierTest {
         throw new UnsupportedOperationException();
       }
     }, config);
-    assertEquals(ImmutableList.of(ImmutableMap.of("text", "I0123456789")),
-        l.linkify(REQ, "I0123456789"));
-    assertEquals(ImmutableList.of(ImmutableMap.of("text", "Change-Id: I0123456789")),
-        l.linkify(REQ, "Change-Id: I0123456789"));
-    assertEquals(ImmutableList.of(ImmutableMap.of("text", "Change-Id: I0123456789 does not exist")),
-        l.linkify(REQ, "Change-Id: I0123456789 does not exist"));
+    assertThat(l.linkify(REQ, "I0123456789"))
+        .containsExactly(
+            ImmutableMap.of("text", "I0123456789"))
+        .inOrder();
+    assertThat(l.linkify(REQ, "Change-Id: I0123456789"))
+        .containsExactly(
+            ImmutableMap.of("text", "Change-Id: I0123456789"))
+        .inOrder();
+    assertThat(l.linkify(REQ, "Change-Id: I0123456789 does not exist"))
+        .containsExactly(
+            ImmutableMap.of("text", "Change-Id: I0123456789 does not exist"))
+        .inOrder();
   }
 
   @Test
   public void linkifyMessageChangeId() throws Exception {
     Config config = new Config();
     Linkifier l = new Linkifier(TestGitilesUrls.URLS, config);
-    assertEquals(ImmutableList.of(
-        ImmutableMap.of("text", "I0123456789",
-          "url", "http://test-host-review/foo/#/q/I0123456789,n,z")),
-        l.linkify(REQ, "I0123456789"));
-    assertEquals(ImmutableList.of(
-        ImmutableMap.of("text", "Change-Id: "),
-        ImmutableMap.of("text", "I0123456789",
-          "url", "http://test-host-review/foo/#/q/I0123456789,n,z")),
-        l.linkify(REQ, "Change-Id: I0123456789"));
-    assertEquals(ImmutableList.of(
-        ImmutableMap.of("text", "Change-Id: "),
-        ImmutableMap.of("text", "I0123456789",
-          "url", "http://test-host-review/foo/#/q/I0123456789,n,z"),
-        ImmutableMap.of("text", " exists")),
-        l.linkify(REQ, "Change-Id: I0123456789 exists"));
+    assertThat(l.linkify(REQ, "I0123456789"))
+        .containsExactly(
+            ImmutableMap.of("text", "I0123456789",
+              "url", "http://test-host-review/foo/#/q/I0123456789,n,z"))
+        .inOrder();
+    assertThat(l.linkify(REQ, "Change-Id: I0123456789"))
+        .containsExactly(
+            ImmutableMap.of("text", "Change-Id: "),
+            ImmutableMap.of("text", "I0123456789",
+              "url", "http://test-host-review/foo/#/q/I0123456789,n,z"))
+        .inOrder();
+    assertThat(l.linkify(REQ, "Change-Id: I0123456789 exists"))
+        .containsExactly(
+            ImmutableMap.of("text", "Change-Id: "),
+            ImmutableMap.of("text", "I0123456789",
+              "url", "http://test-host-review/foo/#/q/I0123456789,n,z"),
+            ImmutableMap.of("text", " exists"))
+        .inOrder();
   }
 
   @Test
@@ -119,38 +131,44 @@ public class LinkifierTest {
     config.setString("commentlink", "featurelink", "match", "(Feature:\\s+)(\\d+)");
     config.setString("commentlink", "featurelink", "link", "http://features/$2");
     Linkifier l = new Linkifier(TestGitilesUrls.URLS, config);
-    assertEquals(ImmutableList.of(
-        ImmutableMap.of("text", "There is a new "),
-        ImmutableMap.of("text", "Feature: 103", "url", "http://features/103"),
-        ImmutableMap.of("text", ", which is similar to the reported "),
-        ImmutableMap.of("text", "bug 100", "url", "http://bugs/100")),
-        l.linkify(REQ, "There is a new Feature: 103, which is similar to the reported bug 100"));
+    assertThat(
+            l.linkify(REQ, "There is a new Feature: 103, which is similar to the reported bug 100"))
+        .containsExactly(
+            ImmutableMap.of("text", "There is a new "),
+            ImmutableMap.of("text", "Feature: 103", "url", "http://features/103"),
+            ImmutableMap.of("text", ", which is similar to the reported "),
+            ImmutableMap.of("text", "bug 100", "url", "http://bugs/100"))
+        .inOrder();
   }
 
   @Test
   public void linkifyMessageUrlAndChangeId() throws Exception {
     Config config = new Config();
     Linkifier l = new Linkifier(TestGitilesUrls.URLS, config);
-    assertEquals(ImmutableList.of(
-        ImmutableMap.of("text", "http://my/url/I0123456789", "url", "http://my/url/I0123456789"),
-        ImmutableMap.of("text", " is not change "),
-        ImmutableMap.of("text", "I0123456789",
-          "url", "http://test-host-review/foo/#/q/I0123456789,n,z")),
-        l.linkify(REQ, "http://my/url/I0123456789 is not change I0123456789"));
+    assertThat(l.linkify(REQ, "http://my/url/I0123456789 is not change I0123456789"))
+        .containsExactly(
+            ImmutableMap.of("text", "http://my/url/I0123456789",
+              "url", "http://my/url/I0123456789"),
+            ImmutableMap.of("text", " is not change "),
+            ImmutableMap.of("text", "I0123456789",
+              "url", "http://test-host-review/foo/#/q/I0123456789,n,z"))
+        .inOrder();
   }
 
   @Test
   public void linkifyAmpersand() throws Exception {
     Config config = new Config();
     Linkifier l = new Linkifier(TestGitilesUrls.URLS, config);
-    assertEquals(ImmutableList.of(
-        ImmutableMap.of("text", "http://my/url?a&b", "url", "http://my/url?a&b")),
-        l.linkify(REQ, "http://my/url?a&b"));
-    assertEquals(ImmutableList.of(
-        ImmutableMap.of("text", "http://weird/htmlified/?url",
-          "url", "http://weird/htmlified/?url"),
-        ImmutableMap.of("text", "&lt;p&rt;")),
-        l.linkify(REQ, "http://weird/htmlified/?url&lt;p&rt;"));
+    assertThat(l.linkify(REQ, "http://my/url?a&b"))
+        .containsExactly(
+            ImmutableMap.of("text", "http://my/url?a&b", "url", "http://my/url?a&b"))
+        .inOrder();
+    assertThat(l.linkify(REQ, "http://weird/htmlified/?url&lt;p&rt;"))
+        .containsExactly(
+            ImmutableMap.of("text", "http://weird/htmlified/?url",
+              "url", "http://weird/htmlified/?url"),
+            ImmutableMap.of("text", "&lt;p&rt;"))
+        .inOrder();
   }
 
   @Test

@@ -36,6 +36,7 @@ java_test(
     ':servlet',
     # Gitiles is designed to compile against the Servlet API v2.5.
     '//lib:servlet-api_2_5',
+    '//lib:truth',
     '//lib/jgit:junit',
     '//lib/junit:junit',
   ],

@@ -14,11 +14,11 @@
 
 package com.google.gitiles;
 
+import static com.google.common.truth.Truth.assertThat;
 import static com.google.gitiles.FakeHttpServletRequest.SERVLET_PATH;
 import static com.google.gitiles.TestGitilesUrls.HOST_NAME;
 import static javax.servlet.http.HttpServletResponse.SC_GONE;
 import static javax.servlet.http.HttpServletResponse.SC_MOVED_PERMANENTLY;
-import static org.junit.Assert.assertEquals;
 
 import com.google.common.net.HttpHeaders;
 
@@ -51,14 +51,14 @@ public class GitwebRedirectFilterTest {
   private void assertRedirectsTo(String expectedLocation, HttpServletRequest req) throws Exception {
     FakeHttpServletResponse res = new FakeHttpServletResponse();
     servlet.service(req, res);
-    assertEquals(SC_MOVED_PERMANENTLY, res.getStatus());
-    assertEquals(expectedLocation, res.getHeader(HttpHeaders.LOCATION));
+    assertThat(res.getStatus()).isEqualTo(SC_MOVED_PERMANENTLY);
+    assertThat(res.getHeader(HttpHeaders.LOCATION)).isEqualTo(expectedLocation);
   }
 
   private void assertGone(HttpServletRequest req) throws Exception {
     FakeHttpServletResponse res = new FakeHttpServletResponse();
     servlet.service(req, res);
-    assertEquals(SC_GONE, res.getStatus());
+    assertThat(res.getStatus()).isEqualTo(SC_GONE);
   }
 
   private static FakeHttpServletRequest newRequest(String qs) {

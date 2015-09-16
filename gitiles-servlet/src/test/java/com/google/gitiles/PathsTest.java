@@ -14,9 +14,8 @@
 
 package com.google.gitiles;
 
+import static com.google.common.truth.Truth.assertThat;
 import static com.google.gitiles.PathUtil.simplifyPathUpToRoot;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,25 +27,25 @@ public class PathsTest {
   @Test
   public void simplifyPathUpToRootSimplifiesPath() throws Exception {
     String root = "a/b/c";
-    assertNull(simplifyPathUpToRoot("/foo", root));
-    assertEquals("a", simplifyPathUpToRoot("../../", root));
-    assertEquals("a", simplifyPathUpToRoot(".././../", root));
-    assertEquals("a", simplifyPathUpToRoot("..//../", root));
-    assertEquals("a/d", simplifyPathUpToRoot("../../d", root));
-    assertEquals("", simplifyPathUpToRoot("../../..", root));
-    assertEquals("a/d/e", simplifyPathUpToRoot("../../d/e", root));
-    assertEquals("a/b", simplifyPathUpToRoot("../d/../e/../", root));
-    assertNull(simplifyPathUpToRoot("../../../../", root));
-    assertNull(simplifyPathUpToRoot("../../a/../../..", root));
+    assertThat(simplifyPathUpToRoot("/foo", root)).isNull();
+    assertThat(simplifyPathUpToRoot("../../", root)).isEqualTo("a");
+    assertThat(simplifyPathUpToRoot(".././../", root)).isEqualTo("a");
+    assertThat(simplifyPathUpToRoot("..//../", root)).isEqualTo("a");
+    assertThat(simplifyPathUpToRoot("../../d", root)).isEqualTo("a/d");
+    assertThat(simplifyPathUpToRoot("../../..", root)).isEqualTo("");
+    assertThat(simplifyPathUpToRoot("../../d/e", root)).isEqualTo("a/d/e");
+    assertThat(simplifyPathUpToRoot("../d/../e/../", root)).isEqualTo("a/b");
+    assertThat(simplifyPathUpToRoot("../../../../", root)).isNull();
+    assertThat(simplifyPathUpToRoot("../../a/../../..", root)).isNull();
   }
 
   @Test
   public void simplifyPathUpToNullRootDetectsNullRoot() throws Exception {
-    assertNull(simplifyPathUpToRoot("/foo", null));
-    assertNull(simplifyPathUpToRoot("../", null));
-    assertNull(simplifyPathUpToRoot("../../", null));
-    assertNull(simplifyPathUpToRoot(".././../", null));
-    assertEquals("a/b", simplifyPathUpToRoot("a/b", null));
-    assertEquals("a/c", simplifyPathUpToRoot("a/b/../c", null));
+    assertThat(simplifyPathUpToRoot("/foo", null)).isNull();
+    assertThat(simplifyPathUpToRoot("../", null)).isNull();
+    assertThat(simplifyPathUpToRoot("../../", null)).isNull();
+    assertThat(simplifyPathUpToRoot(".././../", null)).isNull();
+    assertThat(simplifyPathUpToRoot("a/b", null)).isEqualTo("a/b");
+    assertThat(simplifyPathUpToRoot("a/b/../c", null)).isEqualTo("a/c");
   }
 }

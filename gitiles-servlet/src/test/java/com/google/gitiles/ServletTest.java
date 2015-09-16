@@ -14,10 +14,10 @@
 
 package com.google.gitiles;
 
+import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 import com.google.common.net.HttpHeaders;
 import com.google.gson.Gson;
@@ -53,7 +53,7 @@ public class ServletTest {
     }
     FakeHttpServletResponse res = new FakeHttpServletResponse();
     servlet.service(req, res);
-    assertEquals(expectedStatus, res.getStatus());
+    assertThat(res.getStatus()).isEqualTo(expectedStatus);
     return res;
   }
 
@@ -63,9 +63,9 @@ public class ServletTest {
 
   protected String buildHtml(String path, boolean assertHasETag) throws Exception {
     FakeHttpServletResponse res = build(path);
-    assertEquals("text/html", res.getHeader(HttpHeaders.CONTENT_TYPE));
+    assertThat(res.getHeader(HttpHeaders.CONTENT_TYPE)).isEqualTo("text/html");
     if (assertHasETag) {
-      assertNotNull("has ETag", res.getHeader(HttpHeaders.ETAG));
+      assertWithMessage("missing ETag").that(res.getHeader(HttpHeaders.ETAG)).isNotNull();
     }
     return res.getActualBodyString();
   }
@@ -86,16 +86,16 @@ public class ServletTest {
 
   protected FakeHttpServletResponse buildText(String path) throws Exception {
     FakeHttpServletResponse res = buildResponse(path, "format=text", SC_OK);
-    assertEquals("text/plain", res.getHeader(HttpHeaders.CONTENT_TYPE));
+    assertThat(res.getHeader(HttpHeaders.CONTENT_TYPE)).isEqualTo("text/plain");
     return res;
   }
 
   private String buildJsonRaw(String path) throws Exception {
     FakeHttpServletResponse res = buildResponse(path, "format=json", SC_OK);
-    assertEquals("application/json", res.getHeader(HttpHeaders.CONTENT_TYPE));
+    assertThat(res.getHeader(HttpHeaders.CONTENT_TYPE)).isEqualTo("application/json");
     String body = res.getActualBodyString();
     String magic = ")]}'\n";
-    assertEquals(magic, body.substring(0, magic.length()));
+    assertThat(body).startsWith(magic);
     return body.substring(magic.length());
   }
 

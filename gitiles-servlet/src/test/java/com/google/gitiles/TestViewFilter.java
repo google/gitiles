@@ -15,10 +15,10 @@
 package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.truth.Truth.assertThat;
 import static com.google.gitiles.GitilesFilter.REPO_PATH_REGEX;
 import static com.google.gitiles.GitilesFilter.REPO_REGEX;
 import static com.google.gitiles.GitilesFilter.ROOT_REGEX;
-import static org.junit.Assert.assertEquals;
 
 import com.google.common.collect.ImmutableList;
 
@@ -82,8 +82,8 @@ public class TestViewFilter {
     if (servlet.view != null) {
       ViewFilter.setView(req, servlet.view);
       if (servlet.view.getRepositoryName() != null) {
-        assertEquals(repo.getRepository().getDescription().getRepositoryName(),
-            servlet.view.getRepositoryName());
+        assertThat(servlet.view.getRepositoryName())
+            .isEqualTo(repo.getRepository().getDescription().getRepositoryName());
       }
     }
     return new Result(servlet.view, req, res);

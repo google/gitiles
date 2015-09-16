@@ -15,10 +15,8 @@
 package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static com.google.common.truth.Truth.assertThat;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
@@ -58,11 +56,9 @@ public class PaginatorTest {
     List<RevCommit> commits = linearCommits(1);
     walk.markStart(commits.get(0));
     Paginator p = new Paginator(walk, 10, null);
-    assertEquals(
-        ImmutableList.of(commits.get(0)),
-        ImmutableList.copyOf(p));
-    assertNull(p.getPreviousStart());
-    assertNull(p.getNextStart());
+    assertThat(p).containsExactly(commits.get(0));
+    assertThat(p.getPreviousStart()).isNull();
+    assertThat(p.getNextStart()).isNull();
   }
 
   @Test
@@ -70,14 +66,14 @@ public class PaginatorTest {
     List<RevCommit> commits = linearCommits(3);
     walk.markStart(commits.get(2));
     Paginator p = new Paginator(walk, 10, null);
-    assertEquals(
-        ImmutableList.of(
-          commits.get(2),
-          commits.get(1),
-          commits.get(0)),
-        ImmutableList.copyOf(p));
-    assertNull(p.getPreviousStart());
-    assertNull(p.getNextStart());
+    assertThat(p)
+        .containsExactly(
+            commits.get(2),
+            commits.get(1),
+            commits.get(0))
+        .inOrder();
+    assertThat(p.getPreviousStart()).isNull();
+    assertThat(p.getNextStart()).isNull();
   }
 
   @Test
@@ -85,14 +81,14 @@ public class PaginatorTest {
     List<RevCommit> commits = linearCommits(3);
     walk.markStart(commits.get(2));
     Paginator p = new Paginator(walk, 3, null);
-    assertEquals(
-        ImmutableList.of(
-          commits.get(2),
-          commits.get(1),
-          commits.get(0)),
-        ImmutableList.copyOf(p));
-    assertNull(p.getPreviousStart());
-    assertNull(p.getNextStart());
+    assertThat(p)
+        .containsExactly(
+            commits.get(2),
+            commits.get(1),
+            commits.get(0))
+        .inOrder();
+    assertThat(p.getPreviousStart()).isNull();
+    assertThat(p.getNextStart()).isNull();
   }
 
   @Test
@@ -100,14 +96,14 @@ public class PaginatorTest {
     List<RevCommit> commits = linearCommits(5);
     walk.markStart(commits.get(4));
     Paginator p = new Paginator(walk, 3, null);
-    assertEquals(
-        ImmutableList.of(
-          commits.get(4),
-          commits.get(3),
-          commits.get(2)),
-        ImmutableList.copyOf(p));
-    assertNull(p.getPreviousStart());
-    assertEquals(commits.get(1), p.getNextStart());
+    assertThat(p)
+        .containsExactly(
+            commits.get(4),
+            commits.get(3),
+            commits.get(2))
+        .inOrder();
+    assertThat(p.getPreviousStart()).isNull();
+    assertThat(p.getNextStart()).isEqualTo(commits.get(1));
   }
 
   @Test
@@ -115,14 +111,14 @@ public class PaginatorTest {
     List<RevCommit> commits = linearCommits(10);
     walk.markStart(commits.get(9));
     Paginator p = new Paginator(walk, 3, commits.get(9));
-    assertEquals(
-        ImmutableList.of(
-            commits.get(9),
-            commits.get(8),
-            commits.get(7)),
-        ImmutableList.copyOf(p));
-    assertNull(p.getPreviousStart());
-    assertEquals(commits.get(6), p.getNextStart());
+    assertThat(p)
+        .containsExactly(
+              commits.get(9),
+              commits.get(8),
+              commits.get(7))
+        .inOrder();
+    assertThat(p.getPreviousStart()).isNull();
+    assertThat(p.getNextStart()).isEqualTo(commits.get(6));
   }
 
   @Test
@@ -130,14 +126,14 @@ public class PaginatorTest {
     List<RevCommit> commits = linearCommits(10);
     walk.markStart(commits.get(9));
     Paginator p = new Paginator(walk, 3, null);
-    assertEquals(
-        ImmutableList.of(
-            commits.get(9),
-            commits.get(8),
-            commits.get(7)),
-        ImmutableList.copyOf(p));
-    assertNull(p.getPreviousStart());
-    assertEquals(commits.get(6), p.getNextStart());
+    assertThat(p)
+        .containsExactly(
+              commits.get(9),
+              commits.get(8),
+              commits.get(7))
+        .inOrder();
+    assertThat(p.getPreviousStart()).isNull();
+    assertThat(p.getNextStart()).isEqualTo(commits.get(6));
   }
 
   @Test
@@ -145,14 +141,14 @@ public class PaginatorTest {
     List<RevCommit> commits = linearCommits(10);
     walk.markStart(commits.get(9));
     Paginator p = new Paginator(walk, 3, commits.get(8));
-    assertEquals(
-        ImmutableList.of(
-            commits.get(8),
-            commits.get(7),
-            commits.get(6)),
-        ImmutableList.copyOf(p));
-    assertEquals(commits.get(9), p.getPreviousStart());
-    assertEquals(commits.get(5), p.getNextStart());
+    assertThat(p)
+        .containsExactly(
+              commits.get(8),
+              commits.get(7),
+              commits.get(6))
+        .inOrder();
+    assertThat(p.getPreviousStart()).isEqualTo(commits.get(9));
+    assertThat(p.getNextStart()).isEqualTo(commits.get(5));
   }
 
   @Test
@@ -160,14 +156,14 @@ public class PaginatorTest {
     List<RevCommit> commits = linearCommits(10);
     walk.markStart(commits.get(9));
     Paginator p = new Paginator(walk, 3, commits.get(7));
-    assertEquals(
-        ImmutableList.of(
-            commits.get(7),
-            commits.get(6),
-            commits.get(5)),
-        ImmutableList.copyOf(p));
-    assertEquals(commits.get(9), p.getPreviousStart());
-    assertEquals(commits.get(4), p.getNextStart());
+    assertThat(p)
+        .containsExactly(
+              commits.get(7),
+              commits.get(6),
+              commits.get(5))
+        .inOrder();
+    assertThat(p.getPreviousStart()).isEqualTo(commits.get(9));
+    assertThat(p.getNextStart()).isEqualTo(commits.get(4));
   }
 
   @Test
@@ -175,14 +171,14 @@ public class PaginatorTest {
     List<RevCommit> commits = linearCommits(10);
     walk.markStart(commits.get(9));
     Paginator p = new Paginator(walk, 3, commits.get(2));
-    assertEquals(
-        ImmutableList.of(
-            commits.get(2),
-            commits.get(1),
-            commits.get(0)),
-        ImmutableList.copyOf(p));
-    assertEquals(commits.get(5), p.getPreviousStart());
-    assertNull(p.getNextStart());
+    assertThat(p)
+        .containsExactly(
+              commits.get(2),
+              commits.get(1),
+              commits.get(0))
+        .inOrder();
+    assertThat(p.getPreviousStart()).isEqualTo(commits.get(5));
+    assertThat(p.getNextStart()).isNull();
   }
 
   @Test
@@ -190,13 +186,13 @@ public class PaginatorTest {
     List<RevCommit> commits = linearCommits(10);
     walk.markStart(commits.get(9));
     Paginator p = new Paginator(walk, 3, commits.get(1));
-    assertEquals(
-        ImmutableList.of(
-            commits.get(1),
-            commits.get(0)),
-        ImmutableList.copyOf(p));
-    assertEquals(commits.get(4), p.getPreviousStart());
-    assertNull(p.getNextStart());
+    assertThat(p)
+        .containsExactly(
+              commits.get(1),
+              commits.get(0))
+        .inOrder();
+    assertThat(p.getPreviousStart()).isEqualTo(commits.get(4));
+    assertThat(p.getNextStart()).isNull();
   }
 
   @Test
@@ -204,13 +200,13 @@ public class PaginatorTest {
     List<RevCommit> commits = linearCommits(10);
     walk.markStart(commits.get(9));
     Paginator p = new Paginator(walk, 5, commits.get(1));
-    assertEquals(
-        ImmutableList.of(
-            commits.get(1),
-            commits.get(0)),
-        ImmutableList.copyOf(p));
-    assertEquals(commits.get(6), p.getPreviousStart());
-    assertNull(p.getNextStart());
+    assertThat(p)
+        .containsExactly(
+              commits.get(1),
+              commits.get(0))
+        .inOrder();
+    assertThat(p.getPreviousStart()).isEqualTo(commits.get(6));
+    assertThat(p.getNextStart()).isNull();
   }
 
   private List<RevCommit> linearCommits(int n) throws Exception {

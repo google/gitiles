@@ -15,9 +15,8 @@
 package com.google.gitiles;
 
 import static com.google.common.collect.Iterables.getOnlyElement;
+import static com.google.common.truth.Truth.assertThat;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.BaseEncoding;
@@ -49,8 +48,7 @@ public class DiffServletTest extends ServletTest {
     String diffHeader = String.format(
         "diff --git <a href=\"/b/repo/+/%s/foo\">a/foo</a> <a href=\"/b/repo/+/%s/foo\">b/foo</a>",
         c1.name(), c2.name());
-    assertTrue(String.format("Expected diff body to contain [%s]:\n%s", diffHeader, actual),
-        actual.contains(diffHeader));
+    assertThat(actual).contains(diffHeader);
   }
 
   @Test
@@ -62,14 +60,14 @@ public class DiffServletTest extends ServletTest {
 
     Patch p = parsePatch(res.getActualBody());
     FileHeader f = getOnlyElement(p.getFiles());
-    assertEquals(ChangeType.ADD, f.getChangeType());
-    assertEquals(DiffEntry.DEV_NULL, f.getPath(Side.OLD));
-    assertEquals("foo", f.getPath(Side.NEW));
+    assertThat(f.getChangeType()).isEqualTo(ChangeType.ADD);
+    assertThat(f.getPath(Side.OLD)).isEqualTo(DiffEntry.DEV_NULL);
+    assertThat(f.getPath(Side.NEW)).isEqualTo("foo");
 
     RawText rt = new RawText(contents.getBytes(UTF_8));
     Edit e = getOnlyElement(getOnlyElement(f.getHunks()).toEditList());
-    assertEquals(Type.INSERT, e.getType());
-    assertEquals(contents, rt.getString(e.getBeginB(), e.getEndB(), false));
+    assertThat(e.getType()).isEqualTo(Type.INSERT);
+    assertThat(rt.getString(e.getBeginB(), e.getEndB(), false)).isEqualTo(contents);
   }
 
   @Test
@@ -83,14 +81,14 @@ public class DiffServletTest extends ServletTest {
 
     Patch p = parsePatch(res.getActualBody());
     FileHeader f = getOnlyElement(p.getFiles());
-    assertEquals(ChangeType.MODIFY, f.getChangeType());
-    assertEquals("foo", f.getPath(Side.OLD));
-    assertEquals("foo", f.getPath(Side.NEW));
+    assertThat(f.getChangeType()).isEqualTo(ChangeType.MODIFY);
+    assertThat(f.getPath(Side.OLD)).isEqualTo("foo");
+    assertThat(f.getPath(Side.NEW)).isEqualTo("foo");
 
     RawText rt2 = new RawText(contents2.getBytes(UTF_8));
     Edit e = getOnlyElement(getOnlyElement(f.getHunks()).toEditList());
-    assertEquals(Type.INSERT, e.getType());
-    assertEquals("contents\n", rt2.getString(e.getBeginB(), e.getEndB(), false));
+    assertThat(e.getType()).isEqualTo(Type.INSERT);
+    assertThat(rt2.getString(e.getBeginB(), e.getEndB(), false)).isEqualTo("contents\n");
   }
 
   @Test
@@ -104,16 +102,16 @@ public class DiffServletTest extends ServletTest {
     FakeHttpServletResponse res = buildText("/repo/+diff/" + c.name() + "^!/dir");
 
     Patch p = parsePatch(res.getActualBody());
-    assertEquals(2, p.getFiles().size());
-    assertEquals("dir/bar", p.getFiles().get(0).getPath(Side.NEW));
-    assertEquals("dir/foo", p.getFiles().get(1).getPath(Side.NEW));
+    assertThat(p.getFiles().size()).isEqualTo(2);
+    assertThat(p.getFiles().get(0).getPath(Side.NEW)).isEqualTo("dir/bar");
+    assertThat(p.getFiles().get(1).getPath(Side.NEW)).isEqualTo("dir/foo");
   }
 
   private static Patch parsePatch(byte[] enc) {
     byte[] buf = BaseEncoding.base64().decode(new String(enc, UTF_8));
     Patch p = new Patch();
     p.parse(buf, 0, buf.length);
-    assertEquals(ImmutableList.of(), p.getErrors());
+    assertThat(p.getErrors()).isEqualTo(ImmutableList.of());
     return p;
   }
 }

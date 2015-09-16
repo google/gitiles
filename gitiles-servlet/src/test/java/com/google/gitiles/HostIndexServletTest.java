@@ -14,11 +14,9 @@
 
 package com.google.gitiles;
 
+import static com.google.common.truth.Truth.assertThat;
 import static com.google.gitiles.TestGitilesUrls.URLS;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
 
 import com.google.gson.reflect.TypeToken;
 import com.google.template.soy.data.SoyListData;
@@ -52,69 +50,69 @@ public class HostIndexServletTest extends ServletTest {
   @Test
   public void rootHtml() throws Exception {
     Map<String, ?> data = buildData("/");
-    assertEquals(URLS.getHostName(null), data.get("hostName"));
-    assertSame(NullData.INSTANCE, data.get("breadcrumbs"));
-    assertEquals("", data.get("prefix"));
+    assertThat(data).containsEntry("hostName", URLS.getHostName(null));
+    assertThat(data).containsEntry("breadcrumbs", NullData.INSTANCE);
+    assertThat(data).containsEntry("prefix", "");
 
     SoyListData repos = (SoyListData) data.get("repositories");
-    assertEquals(1, repos.length());
+    assertThat(repos).hasSize(1);
 
     SoyMapData ent = (SoyMapData) repos.get(0);
-    assertEquals(NAME, ent.get("name").toString());
-    assertEquals("/b/" + NAME + "/", ent.get("url").toString());
+    assertThat(ent.get("name").toString()).isEqualTo(NAME);
+    assertThat(ent.get("url").toString()).isEqualTo("/b/" + NAME + "/");
   }
 
   @Test
   public void fooSubdirHtml() throws Exception {
     Map<String, ?> data = buildData("/foo/");
-    assertEquals(URLS.getHostName(null) + "/foo", data.get("hostName"));
-    assertEquals("foo/", data.get("prefix"));
+    assertThat(data).containsEntry("hostName", URLS.getHostName(null) + "/foo");
+    assertThat(data).containsEntry("prefix", "foo/");
 
     SoyListData breadcrumbs = (SoyListData) data.get("breadcrumbs");
-    assertEquals(2, breadcrumbs.length());
+    assertThat(breadcrumbs.length()).isEqualTo(2);
 
     SoyListData repos = (SoyListData) data.get("repositories");
-    assertEquals(1, repos.length());
+    assertThat(repos.length()).isEqualTo(1);
 
     SoyMapData ent = (SoyMapData) repos.get(0);
-    assertEquals("bar/repo", ent.get("name").toString());
-    assertEquals("/b/" + NAME + "/", ent.get("url").toString());
+    assertThat(ent.get("name").toString()).isEqualTo("bar/repo");
+    assertThat(ent.get("url").toString()).isEqualTo("/b/" + NAME + "/");
   }
 
   @Test
   public void fooBarSubdirHtml() throws Exception {
     Map<String, ?> data = buildData("/foo/bar/");
-    assertEquals(URLS.getHostName(null) + "/foo/bar", data.get("hostName"));
-    assertEquals("foo/bar/", data.get("prefix"));
+    assertThat(data).containsEntry("hostName", URLS.getHostName(null) + "/foo/bar");
+    assertThat(data).containsEntry("prefix", "foo/bar/");
 
     SoyListData breadcrumbs = (SoyListData) data.get("breadcrumbs");
-    assertEquals(3, breadcrumbs.length());
+    assertThat(breadcrumbs.length()).isEqualTo(3);
 
     SoyListData repos = (SoyListData) data.get("repositories");
-    assertEquals(1, repos.length());
+    assertThat(repos.length()).isEqualTo(1);
 
     SoyMapData ent = (SoyMapData) repos.get(0);
-    assertEquals("repo", ent.get("name").toString());
-    assertEquals("/b/" + NAME + "/", ent.get("url").toString());
+    assertThat(ent.get("name").toString()).isEqualTo("repo");
+    assertThat(ent.get("url").toString()).isEqualTo("/b/" + NAME + "/");
   }
 
   @Test
   public void rootText() throws Exception {
     String name = repo.getRepository().getDescription().getRepositoryName();
     FakeHttpServletResponse res = buildText("/");
-    assertEquals(name + "\n", new String(res.getActualBody(), UTF_8));
+    assertThat(new String(res.getActualBody(), UTF_8)).isEqualTo(name + "\n");
   }
 
   @Test
   public void fooSubdirText() throws Exception {
     FakeHttpServletResponse res = buildText("/foo/");
-    assertEquals("bar/repo\n", new String(res.getActualBody(), UTF_8));
+    assertThat(new String(res.getActualBody(), UTF_8)).isEqualTo("bar/repo\n");
   }
 
   @Test
   public void fooBarSubdirText() throws Exception {
     FakeHttpServletResponse res = buildText("/foo/bar/");
-    assertEquals("repo\n", new String(res.getActualBody(), UTF_8));
+    assertThat(new String(res.getActualBody(), UTF_8)).isEqualTo("repo\n");
   }
 
   @Test
@@ -124,10 +122,10 @@ public class HostIndexServletTest extends ServletTest {
         "/",
         new TypeToken<Map<String, RepositoryDescription>>() {}.getType());
 
-    assertEquals(1, res.size());
+    assertThat(res).hasSize(1);
+    assertThat(res).containsKey(name);
     RepositoryDescription d = res.get(name);
-    assertNotNull(name + " exists", d);
-    assertEquals(name, d.name);
+    assertThat(d.name).isEqualTo(name);
   }
 
   @Test
@@ -136,10 +134,10 @@ public class HostIndexServletTest extends ServletTest {
         "/foo/",
         new TypeToken<Map<String, RepositoryDescription>>() {}.getType());
 
-    assertEquals(1, res.size());
+    assertThat(res).hasSize(1);
+    assertThat(res).containsKey("bar/repo");
     RepositoryDescription d = res.get("bar/repo");
-    assertNotNull("bar/repo exists", d);
-    assertEquals(repo.getRepository().getDescription().getRepositoryName(), d.name);
+    assertThat(d.name).isEqualTo(repo.getRepository().getDescription().getRepositoryName());
   }
 
   @Test
@@ -148,10 +146,10 @@ public class HostIndexServletTest extends ServletTest {
         "/foo/bar/",
         new TypeToken<Map<String, RepositoryDescription>>() {}.getType());
 
-    assertEquals(1, res.size());
+    assertThat(res).hasSize(1);
+    assertThat(res).containsKey("repo");
     RepositoryDescription d = res.get("repo");
-    assertNotNull("repo exists", d);
-    assertEquals(repo.getRepository().getDescription().getRepositoryName(), d.name);
+    assertThat(d.name).isEqualTo(repo.getRepository().getDescription().getRepositoryName());
   }
 
   @Test

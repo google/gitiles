@@ -84,3 +84,14 @@ maven_jar(
   sha1 = '0aaaa85845fb5c59da00193f06b8e5278d8bf3f8',
   unsign = True,
 )
+
+maven_jar(
+  name = 'truth',
+  id = 'com.google.truth:truth:0.27',
+  sha1 = 'bd17774d2dc0fffa884d42c07d2537e86c67acd6',
+  license = 'DO_NOT_DISTRIBUTE',
+  exported_deps = [
+    ':guava',
+    '//lib/junit:junit',
+  ],
+)

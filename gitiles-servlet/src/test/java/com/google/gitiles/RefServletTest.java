@@ -14,10 +14,8 @@
 
 package com.google.gitiles;
 
+import static com.google.common.truth.Truth.assertThat;
 import static com.google.gitiles.TestGitilesUrls.URLS;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -55,13 +53,12 @@ public class RefServletTest extends ServletTest {
   public void evilRefName() throws Exception {
     setUpSimpleRefs();
     String evilRefName = "refs/evil/<script>window.close();</script>/&foo";
-    assertTrue(Repository.isValidRefName(evilRefName));
+    assertThat(Repository.isValidRefName(evilRefName)).isTrue();
     repo.branch(evilRefName).commit().create();
 
     FakeHttpServletResponse res = buildText("/repo/+refs/evil");
-    assertEquals(
-        id(evilRefName) + " refs/evil/&lt;script&gt;window.close();&lt;/script&gt;/&amp;foo\n",
-        res.getActualBodyString());
+    assertThat(res.getActualBodyString()).isEqualTo(
+        id(evilRefName) + " refs/evil/&lt;script&gt;window.close();&lt;/script&gt;/&amp;foo\n");
   }
 
   @Test
@@ -69,14 +66,13 @@ public class RefServletTest extends ServletTest {
     setUpSimpleRefs();
     FakeHttpServletResponse res = buildText("/repo/+refs");
 
-    assertEquals(
+    assertThat(res.getActualBodyString()).isEqualTo(
         id("HEAD") + " HEAD\n"
         + id("refs/heads/branch") + " refs/heads/branch\n"
         + id("refs/heads/master") + " refs/heads/master\n"
         + id("refs/tags/atag") + " refs/tags/atag\n"
         + peeled("refs/tags/atag") + " refs/tags/atag^{}\n"
-        + id("refs/tags/ctag") + " refs/tags/ctag\n",
-        res.getActualBodyString());
+        + id("refs/tags/ctag") + " refs/tags/ctag\n");
   }
 
   @Test
@@ -84,14 +80,13 @@ public class RefServletTest extends ServletTest {
     setUpSimpleRefs();
     FakeHttpServletResponse res = buildText("/repo/+refs/");
 
-    assertEquals(
+    assertThat(res.getActualBodyString()).isEqualTo(
         id("HEAD") + " HEAD\n"
         + id("refs/heads/branch") + " refs/heads/branch\n"
         + id("refs/heads/master") + " refs/heads/master\n"
         + id("refs/tags/atag") + " refs/tags/atag\n"
         + peeled("refs/tags/atag") + " refs/tags/atag^{}\n"
-        + id("refs/tags/ctag") + " refs/tags/ctag\n",
-        res.getActualBodyString());
+        + id("refs/tags/ctag") + " refs/tags/ctag\n");
   }
 
   @Test
@@ -99,10 +94,9 @@ public class RefServletTest extends ServletTest {
     setUpSimpleRefs();
     FakeHttpServletResponse res = buildText("/repo/+refs/heads");
 
-    assertEquals(
+    assertThat(res.getActualBodyString()).isEqualTo(
         id("refs/heads/branch") + " refs/heads/branch\n"
-        + id("refs/heads/master") + " refs/heads/master\n",
-        res.getActualBodyString());
+        + id("refs/heads/master") + " refs/heads/master\n");
   }
 
   @Test
@@ -110,10 +104,9 @@ public class RefServletTest extends ServletTest {
     setUpSimpleRefs();
     FakeHttpServletResponse res = buildText("/repo/+refs/heads/");
 
-    assertEquals(
+    assertThat(res.getActualBodyString()).isEqualTo(
         id("refs/heads/branch") + " refs/heads/branch\n"
-        + id("refs/heads/master") + " refs/heads/master\n",
-        res.getActualBodyString());
+        + id("refs/heads/master") + " refs/heads/master\n");
   }
 
   @Test
@@ -122,7 +115,7 @@ public class RefServletTest extends ServletTest {
     FakeHttpServletResponse res = buildText("/repo/+refs/HEAD");
 
     // /+refs/foo means refs/foo(/*), so this is empty.
-    assertEquals("", res.getActualBodyString());
+    assertThat(res.getActualBodyString()).isEqualTo("");
   }
 
   @Test
@@ -130,9 +123,8 @@ public class RefServletTest extends ServletTest {
     setUpSimpleRefs();
     FakeHttpServletResponse res = buildText("/repo/+refs/heads/master");
 
-    assertEquals(
-        id("refs/heads/master") + " refs/heads/master\n",
-        res.getActualBodyString());
+    assertThat(res.getActualBodyString()).isEqualTo(
+        id("refs/heads/master") + " refs/heads/master\n");
   }
 
   @Test
@@ -140,10 +132,9 @@ public class RefServletTest extends ServletTest {
     setUpSimpleRefs();
     FakeHttpServletResponse res = buildText("/repo/+refs/tags/atag");
 
-    assertEquals(
+    assertThat(res.getActualBodyString()).isEqualTo(
         id("refs/tags/atag") + " refs/tags/atag\n"
-        + peeled("refs/tags/atag") + " refs/tags/atag^{}\n",
-        res.getActualBodyString());
+        + peeled("refs/tags/atag") + " refs/tags/atag^{}\n");
   }
 
   @Test
@@ -151,38 +142,39 @@ public class RefServletTest extends ServletTest {
     setUpSimpleRefs();
     Map<String, RefJsonData> result = buildRefJson("/repo/+refs");
     List<String> keys = ImmutableList.copyOf(result.keySet());
-    assertEquals(ImmutableList.of(
-          "HEAD",
-          "refs/heads/branch",
-          "refs/heads/master",
-          "refs/tags/atag",
-          "refs/tags/ctag"),
-        keys);
+    assertThat(keys)
+        .containsExactly(
+            "HEAD",
+            "refs/heads/branch",
+            "refs/heads/master",
+            "refs/tags/atag",
+            "refs/tags/ctag")
+        .inOrder();
 
     RefJsonData head = result.get(keys.get(0));
-    assertEquals(id("HEAD"), head.value);
-    assertNull(head.peeled);
-    assertEquals("refs/heads/master", head.target);
+    assertThat(head.value).isEqualTo(id("HEAD"));
+    assertThat(head.peeled).isNull();
+    assertThat(head.target).isEqualTo("refs/heads/master");
 
     RefJsonData branch = result.get(keys.get(1));
-    assertEquals(id("refs/heads/branch"), branch.value);
-    assertNull(branch.peeled);
-    assertNull(branch.target);
+    assertThat(branch.value).isEqualTo(id("refs/heads/branch"));
+    assertThat(branch.peeled).isNull();
+    assertThat(branch.target).isNull();
 
     RefJsonData master = result.get(keys.get(2));
-    assertEquals(id("refs/heads/master"), master.value);
-    assertNull(master.peeled);
-    assertNull(master.target);
+    assertThat(master.value).isEqualTo(id("refs/heads/master"));
+    assertThat(master.peeled).isNull();
+    assertThat(master.target).isNull();
 
     RefJsonData atag = result.get(keys.get(3));
-    assertEquals(id("refs/tags/atag"), atag.value);
-    assertEquals(peeled("refs/tags/atag"), atag.peeled);
-    assertNull(atag.target);
+    assertThat(atag.value).isEqualTo(id("refs/tags/atag"));
+    assertThat(atag.peeled).isEqualTo(peeled("refs/tags/atag"));
+    assertThat(atag.target).isNull();
 
     RefJsonData ctag = result.get(keys.get(4));
-    assertEquals(id("refs/tags/ctag"), ctag.value);
-    assertNull(ctag.peeled);
-    assertNull(ctag.target);
+    assertThat(ctag.value).isEqualTo(id("refs/tags/ctag"));
+    assertThat(ctag.peeled).isNull();
+    assertThat(ctag.target).isNull();
   }
 
   @Test
@@ -190,20 +182,21 @@ public class RefServletTest extends ServletTest {
     setUpSimpleRefs();
     Map<String, RefJsonData> result = buildRefJson("/repo/+refs/heads");
     List<String> keys = ImmutableList.copyOf(result.keySet());
-    assertEquals(ImmutableList.of(
-          "branch",
-          "master"),
-        keys);
+    assertThat(keys)
+        .containsExactly(
+            "branch",
+            "master")
+        .inOrder();
 
     RefJsonData branch = result.get(keys.get(0));
-    assertEquals(id("refs/heads/branch"), branch.value);
-    assertNull(branch.peeled);
-    assertNull(branch.target);
+    assertThat(branch.value).isEqualTo(id("refs/heads/branch"));
+    assertThat(branch.peeled).isNull();
+    assertThat(branch.target).isNull();
 
     RefJsonData master = result.get(keys.get(1));
-    assertEquals(id("refs/heads/master"), master.value);
-    assertNull(master.peeled);
-    assertNull(master.target);
+    assertThat(master.value).isEqualTo(id("refs/heads/master"));
+    assertThat(master.peeled).isNull();
+    assertThat(master.target).isNull();
   }
 
   private Map<String, RefJsonData> buildRefJson(String path) throws Exception {
@@ -214,8 +207,8 @@ public class RefServletTest extends ServletTest {
 
   @Test
   public void emptySoy() throws Exception {
-    assertEquals(ImmutableList.of(), buildBranchesSoyData());
-    assertEquals(ImmutableList.of(), buildTagsSoyData());
+    assertThat(buildBranchesSoyData()).isEmpty();
+    assertThat(buildTagsSoyData()).isEmpty();
   }
 
   @Test
@@ -225,15 +218,15 @@ public class RefServletTest extends ServletTest {
     repo.branch("refs/tags/baz").commit().create();
     repo.branch("refs/nope/quux").commit().create();
 
-    assertEquals(
-        ImmutableList.of(
+    assertThat(buildBranchesSoyData())
+        .containsExactly(
             ref("/b/test/+/bar", "bar"),
-            ref("/b/test/+/foo", "foo")),
-        buildBranchesSoyData());
-    assertEquals(
-        ImmutableList.of(
-            ref("/b/test/+/baz", "baz")),
-        buildTagsSoyData());
+            ref("/b/test/+/foo", "foo"))
+        .inOrder();
+    assertThat(buildTagsSoyData())
+        .containsExactly(
+            ref("/b/test/+/baz", "baz"))
+        .inOrder();
   }
 
   @Test
@@ -242,17 +235,17 @@ public class RefServletTest extends ServletTest {
     repo.branch("refs/heads/bar").commit().create();
     repo.branch("refs/tags/foo").commit().create();
 
-    assertEquals(
-        ImmutableList.of(
+    assertThat(buildBranchesSoyData())
+        .containsExactly(
             ref("/b/test/+/bar", "bar"),
-            ref("/b/test/+/refs/heads/foo", "foo")),
-        buildBranchesSoyData());
-    assertEquals(
-        ImmutableList.of(
+            ref("/b/test/+/refs/heads/foo", "foo"))
+        .inOrder();
+    assertThat(buildTagsSoyData())
+        .containsExactly(
             // refs/tags/ is searched before refs/heads/, so this does not
             // appear ambiguous.
-            ref("/b/test/+/foo", "foo")),
-        buildTagsSoyData());
+            ref("/b/test/+/foo", "foo"))
+        .inOrder();
   }
 
   @Test
@@ -261,14 +254,14 @@ public class RefServletTest extends ServletTest {
     repo.branch("refs/heads/foo").commit().create();
     repo.branch("refs/tags/foo").commit().create();
 
-    assertEquals(
-        ImmutableList.of(
-            ref("/b/test/+/refs/heads/foo", "foo")),
-        buildBranchesSoyData());
-    assertEquals(
-        ImmutableList.of(
-            ref("/b/test/+/refs/tags/foo", "foo")),
-        buildTagsSoyData());
+    assertThat(buildBranchesSoyData())
+        .containsExactly(
+            ref("/b/test/+/refs/heads/foo", "foo"))
+        .inOrder();
+    assertThat(buildTagsSoyData())
+        .containsExactly(
+            ref("/b/test/+/refs/tags/foo", "foo"))
+        .inOrder();
   }
 
   @Test
@@ -276,11 +269,11 @@ public class RefServletTest extends ServletTest {
     repo.branch("refs/heads/foo").commit().create();
     repo.branch("refs/heads/refs/heads/foo").commit().create();
 
-    assertEquals(
-        ImmutableList.of(
+    assertThat(buildBranchesSoyData())
+        .containsExactly(
             ref("/b/test/+/foo", "foo"),
-            ref("/b/test/+/refs/heads/refs/heads/foo", "refs/heads/foo")),
-        buildBranchesSoyData());
+            ref("/b/test/+/refs/heads/refs/heads/foo", "refs/heads/foo"))
+        .inOrder();
   }
 
   private HttpServletRequest buildSoyRequest() {

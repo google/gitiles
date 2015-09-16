@@ -14,7 +14,7 @@
 
 package com.google.gitiles;
 
-import static org.junit.Assert.assertEquals;
+import static com.google.common.truth.Truth.assertThat;
 
 import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
@@ -66,8 +66,8 @@ public class TimeCacheTest {
   public void commitTime() throws Exception {
     RevCommit root = repo.commit().create();
     RevCommit master = repo.commit().parent(root).create();
-    assertEquals(start + 1, getTime(root));
-    assertEquals(start + 2, getTime(master));
+    assertThat(getTime(root)).isEqualTo(start + 1);
+    assertThat(getTime(master)).isEqualTo(start + 2);
   }
 
   @Test
@@ -75,8 +75,8 @@ public class TimeCacheTest {
     RevCommit commit = repo.commit().create();
     repo.tick(1);
     RevTag tag = repo.tag("tag", commit);
-    assertEquals(start + 1, getTime(commit));
-    assertEquals(start + 2, getTime(tag));
+    assertThat(getTime(commit)).isEqualTo(start + 1);
+    assertThat(getTime(tag)).isEqualTo(start + 2);
   }
 
   @Test
@@ -87,8 +87,8 @@ public class TimeCacheTest {
     RevTag blobTag = repo.tag("blob", blob);
     repo.tick(1);
     RevTag treeTag = repo.tag("tree", tree);
-    assertEquals(start + 1, getTime(blobTag));
-    assertEquals(start + 2, getTime(treeTag));
+    assertThat(getTime(blobTag)).isEqualTo(start + 1);
+    assertThat(getTime(treeTag)).isEqualTo(start + 2);
   }
 
   @Test
@@ -97,16 +97,16 @@ public class TimeCacheTest {
     RevTag tag = repo.tag("tag", repo.commit().create());
     repo.tick(-1);
     RevTag tagTag = repo.tag("tagtag", tag);
-    assertEquals(start + 3, getTime(tag));
-    assertEquals(start + 2, getTime(tagTag));
+    assertThat(getTime(tag)).isEqualTo(start + 3);
+    assertThat(getTime(tagTag)).isEqualTo(start + 2);
   }
 
   @Test
   public void treeAndBlobTime() throws Exception {
     RevBlob blob = repo.blob("contents");
     RevTree tree = repo.tree(repo.file("foo", blob));
-    assertEquals(Long.MIN_VALUE, getTime(blob));
-    assertEquals(Long.MIN_VALUE, getTime(tree));
+    assertThat(getTime(blob)).isEqualTo(Long.MIN_VALUE);
+    assertThat(getTime(tree)).isEqualTo(Long.MIN_VALUE);
   }
 
   @Test
@@ -121,8 +121,8 @@ public class TimeCacheTest {
       id = ins.insert(builder);
       ins.flush();
     }
-    assertEquals(start + 1, getTime(commit));
-    assertEquals(start + 1, getTime(id));
+    assertThat(getTime(commit)).isEqualTo(start + 1);
+    assertThat(getTime(id)).isEqualTo(start + 1);
   }
 
   @Test
@@ -141,8 +141,8 @@ public class TimeCacheTest {
       tagTagId = ins.insert(builder);
       ins.flush();
     }
-    assertEquals(start + 1, getTime(commit));
-    assertEquals(start + 2, getTime(tag));
-    assertEquals(start + 2, getTime(tagTagId));
+    assertThat(getTime(commit)).isEqualTo(start + 1);
+    assertThat(getTime(tag)).isEqualTo(start + 2);
+    assertThat(getTime(tagTagId)).isEqualTo(start + 2);
   }
 }
