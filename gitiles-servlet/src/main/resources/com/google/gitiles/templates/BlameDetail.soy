@@ -44,32 +44,34 @@
 
   {call .blobHeader data="$data" /}
 
-  <div class="Blame">
+  <table class="Blame">
     {foreach $line in $data.lines}
       {let $i: index($line) /}
       {let $region: $regions[$i] /}
-      <div class="Blame-region {$region.class}">
-        <div class="Blame-leftCol">
-          {if isNonnull($region.abbrevSha)}
-            <span class="Blame-author">{$region.author.name}</span>
-            {sp}<a class="u-sha1 u-monospace Blame-sha1" href="{$region.commitUrl}">{$region.abbrevSha}</a>
-            {sp}<span class="Blame-time">{$region.author.time}</span>
-            {sp}<span class="Blame-regionLink">
-              [<a href="{$region.diffUrl}">{msg desc="text for diff URL"}diff{/msg}</a>]
-              [<a href="{$region.blameUrl}">{msg desc="text for blame URL"}blame{/msg}</a>]
-            </span>
-          {/if}
-        </div>
-        <div class="u-pre u-monospace Blame-rightCol">
-          {let $n: $i + 1 /}
-          <a class="u-lineNum Blame-lineNum" href="#{$n}" name="{$n}">{$n}</a>
+      <tr class="Blame-region {$region.class}">
+        {if isNonnull($region.abbrevSha)}
+          <td class="Blame-author">{$region.author.name}</td>
+          <td class="Blame-sha1"><a class="u-sha1 u-monospace Blame-sha1" href="{$region.commitUrl}">{$region.abbrevSha}</a></td>
+          <td class="Blame-time">{$region.author.time}</span>
+          <td class="Blame-regionLink">
+            [<a href="{$region.diffUrl}">{msg desc="text for diff URL"}diff{/msg}</a>]
+            [<a href="{$region.blameUrl}">{msg desc="text for blame URL"}blame{/msg}</a>]
+          </td>
+        {else}
+          <td colspan="4"></td>
+        {/if}
+        {let $n: $i + 1 /}
+        <td class="Blame-lineNum">
+          <a class="u-monospace u-lineNum" href="#{$n}" name="{$n}">{$n}</a>
+        </td>
+        <td class="u-pre u-monospace Blame-lineContent">
           {foreach $span in $line}
             <span class="{$span.classes}">{$span.text}</span>
           {/foreach}
-        </div>
-      </div>
+        </td>
+      </tr>
     {/foreach}
-  </div>
+  </table>
 {else}
   {call .header data="all" /}
   {call .blobDetail data="$data" /}
