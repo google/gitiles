@@ -57,8 +57,7 @@ public class DocServletTest extends ServletTest {
     String html = buildHtml("/repo/+doc/master/README.md");
     assertThat(html).contains("<title>Site Title - page</title>");
 
-    assertThat(html).contains("<h1>Site Title</h1>");
-    assertThat(html).contains("<h2>page</h2>");
+    assertThat(html).contains("<span class=\"Header-anchorTitle\">Site Title</span>");
     assertThat(html).contains("<li><a href=\"index.md\">Home</a></li>");
     assertThat(html).contains("<li><a href=\"README.md\">README</a></li>");
     assertThat(html).contains("<h1>"
