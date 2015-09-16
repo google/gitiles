@@ -52,7 +52,7 @@
         <div class="Blame-leftCol">
           {if isNonnull($region.abbrevSha)}
             <span class="Blame-author">{$region.author.name}</span>
-            {sp}<a class="u-sha1 Blame-sha1" href="{$region.commitUrl}">{$region.abbrevSha}</a>
+            {sp}<a class="u-sha1 u-monospace Blame-sha1" href="{$region.commitUrl}">{$region.abbrevSha}</a>
             {sp}<span class="Blame-time">{$region.author.time}</span>
             {sp}<span class="Blame-regionLink">
               [<a href="{$region.diffUrl}">{msg desc="text for diff URL"}diff{/msg}</a>]
@@ -60,7 +60,7 @@
             </span>
           {/if}
         </div>
-        <div class="u-pre Blame-rightCol">
+        <div class="u-pre u-monospace Blame-rightCol">
           {let $n: $i + 1 /}
           <a class="u-lineNum Blame-lineNum" href="#{$n}" name="{$n}">{$n}</a>
           {foreach $span in $line}

@@ -108,7 +108,7 @@
  * @param diffTree unused in this variant.
  */
 {deltemplate gitiles.logEntry variant="'oneline'"}
-<a class="u-sha1 CommitLog-sha1" href="{$url}">{$abbrevSha}</a>
+<a class="u-sha1 u-monospace CommitLog-sha1" href="{$url}">{$abbrevSha}</a>
 {sp}<a href="{$url}">{$shortMessage}</a>
 {sp}<span class="CommitLog-author" title="{$author.email}">{msg desc="commit author name"}by {$author.name}{/msg}</span>
 {sp}<span class="CommitLog-time" title="{$author.time}">· {$author.relativeTime}</span>
@@ -164,7 +164,7 @@
  * @param diffTree unused in this variant.
  */
 {deltemplate gitiles.logEntry variant="'full'"}
-<div class="Metadata">
+<div class="u-monospace Metadata">
 <table>
   <tr>
     <th class="Metadata-title">{msg desc="Header for commit SHA entry"}commit{/msg}</th>

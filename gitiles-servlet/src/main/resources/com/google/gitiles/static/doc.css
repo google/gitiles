@@ -155,7 +155,7 @@ iframe.noborder {
   border-radius: 4px;
 }
 .doc .code {
-  font-family: monospace;
+  font-family: 'Source Code Pro', monospace;
 }
 .doc dl dt {
   margin-top: 1em;

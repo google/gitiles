@@ -17,7 +17,7 @@
 /* Common styles and definitions. */
 
 @import "//fonts.googleapis.com/css?family=Open+Sans:300,400,700&subset=latin,cyrillic-ext,greek-ext,cyrillic,greek,vietnamese,latin-ext";
-
+@import "//fonts.googleapis.com/css?family=Source+Code+Pro";
 *,
 *::after,
 *::before {
@@ -51,12 +51,10 @@ ul, ol {
 .u-sha1 {
   background-color: #f1f2f3;
   color: #000;
-  font-family: monospace;
   font-size: 13px;
 }
 .u-pre {
   font-size: 10pt;
-  font-family: monospace;
   font-weight: 500;
   white-space: pre;
 }
@@ -72,6 +70,9 @@ ul, ol {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+}
+.u-monospace {
+  font-family: 'Source Code Pro', monospace;
 }
 
 /* Common.soy */
@@ -198,7 +199,6 @@ ul, ol {
 }
 .Footer-formatsItem {
   display: inline-block;
-  font-family: monospace;
 }
 .Footer-formatsItem:first-child {
   margin-right: 20px;
@@ -270,7 +270,6 @@ ul, ol {
   border-radius: 4px;
   display: block;
   font-size: inherit;
-  font-family: monospace;
   padding: 10px;
   width: 100%;
 }
@@ -353,7 +352,6 @@ ul, ol {
 /* ObjectDetail.soy */
 
 .Metadata {
-  font-family: monospace;
   margin-bottom: 15px;
 }
 .Metadata-title {

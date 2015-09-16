@@ -44,7 +44,7 @@
  * @param fileIndex position of the file within the difference.
  */
 {template .diffHeader}
-<pre class="u-pre Diff">
+<pre class="u-pre u-monospace Diff">
   <a name="F{$fileIndex}" class="Diff-fileIndex"></a>
   {foreach $part in $firstParts}
     {if not isFirst($part)}{sp}{/if}

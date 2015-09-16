@@ -41,7 +41,7 @@
  * @param archiveType type of the archive to download.
  */
 {template .commitDetail}
-<div class="Metadata">
+<div class="u-monospace Metadata">
   <table>
     <tr>
       <th class="Metadata-title">{msg desc="Header for commit SHA entry"}commit{/msg}</th>
@@ -86,7 +86,7 @@
   </table>
 </div>
 {call .message_}
-  {param className: 'u-pre MetadataMessage' /}
+  {param className: 'u-pre u-monospace MetadataMessage' /}
   {param message: $message /}
 {/call}
 
@@ -162,7 +162,7 @@
  */
 {template .treeDetail}
 <div class="TreeDetail">
-  <div class="u-sha1 TreeDetail-sha1">
+  <div class="u-sha1 u-monospace TreeDetail-sha1">
     {msg desc="SHA-1 for the path's tree"}tree: {$sha}{/msg}
     {if $logUrl}{sp}[<a href="{$logUrl}">{msg desc="history for a path"}path history{/msg}</a>]{/if}
     {if $archiveUrl}
@@ -230,7 +230,7 @@
  * @param? docUrl optional URL to view rendered file.
  */
 {template .blobHeader}
-<div class="u-sha1 BlobSha1">
+<div class="u-sha1 u-monospace BlobSha1">
   {msg desc="SHA-1 for the file's blob"}blob: {$sha}{/msg}
   {if $fileUrl}{sp}[<a href="{$fileUrl}">{msg desc="detail view of a file"}file{/msg}</a>]{/if}
   {if $logUrl}{sp}[<a href="{$logUrl}">{msg desc="history for a file"}log{/msg}</a>]{/if}
@@ -258,7 +258,7 @@
       <table class="FileContents">
         {foreach $line in $lines}
           {let $n: index($line) + 1 /}
-          <tr class="u-pre FileContents-line">
+          <tr class="u-pre u-monospace FileContents-line">
             <td class="u-lineNum u-noSelect FileContents-lineNum"
                 data-line-number="{$n}" onclick="window.location.hash='#{$n}'"></td>
             <td class="FileContents-lineContents">
@@ -290,7 +290,7 @@
  * @param message tag message.
  */
 {template .tagDetail}
-<div class="Metadata">
+<div class="u-monospace Metadata">
   <table>
     <tr>
       <th class="Metadata-title">{msg desc="Header for tag SHA entry"}tag{/msg}</th>
@@ -313,7 +313,7 @@
 </div>
 {if $message and length($message)}
   {call .message_}
-    {param className: 'u-pre MetadataMessage' /}
+    {param className: 'u-pre u-monospace MetadataMessage' /}
     {param message: $message /}
   {/call}
 {/if}
