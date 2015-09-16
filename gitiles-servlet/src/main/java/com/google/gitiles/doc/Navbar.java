@@ -16,8 +16,8 @@ package com.google.gitiles.doc;
 
 import com.google.gitiles.GitilesView;
 import com.google.gitiles.doc.html.HtmlBuilder;
-import com.google.template.soy.shared.restricted.Sanitizers;
 import com.google.template.soy.shared.restricted.EscapingConventions.FilterImageDataUri;
+import com.google.template.soy.shared.restricted.Sanitizers;
 
 import org.pegdown.ast.HeaderNode;
 import org.pegdown.ast.Node;
