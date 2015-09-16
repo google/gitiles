@@ -132,6 +132,9 @@ ul, ol {
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
 }
 .Header-anchor {
   color: #666;
@@ -147,11 +150,6 @@ ul, ol {
 .Header-nav {
   background: #eee;
   padding: 15px 0;
-}
-.Header-title {
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
 }
 .Header-menu {
   display: -webkit-flex;
