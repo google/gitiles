@@ -188,7 +188,8 @@ public class BlameServlet extends BaseServlet {
     }
   }
 
-  private static final ImmutableList<String> CLASSES = ImmutableList.of("bg1", "bg2");
+  private static final ImmutableList<String> CLASSES =
+      ImmutableList.of("Blame-region--bg1", "Blame-region--bg2");
   private static final ImmutableList<SoyMapData> NULLS;
   static {
     ImmutableList.Builder<SoyMapData> nulls = ImmutableList.builder();

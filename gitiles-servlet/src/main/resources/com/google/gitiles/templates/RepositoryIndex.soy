@@ -50,39 +50,39 @@
   {/call}
 {/if}
 
-{if $description or $mirroredFromUrl}
-  <div class="repository-description">
-  {$description}
-  {if $mirroredFromUrl}
-    <div class="repository-mirrored-from">
+{if $description}
+  <h2 class="RepoDescription">{$description}</h2>
+{/if}
+
+{if $mirroredFromUrl}
+  <div class="RepoMirroredFrom">
     {msg desc="Informational text describing source of repository"}
-    mirrored from {$mirroredFromUrl}
+      Mirrored from <a href="{$mirroredFromUrl}">{$mirroredFromUrl}</a>
     {/msg}
-    </div>
-  {/if}
   </div>
 {/if}
 
-<textarea rows="1" cols="150" class="clone-line"
-  onclick="this.focus();this.select();"
-  readonly="readonly">
-    git clone {$cloneUrl}
-</textarea>
+<div class="CloneRepo">
+  <div class="CloneRepo-title">Clone this repo:</div>
+  <input type="text" class="CloneRepo-command"
+         onclick="this.focus();this.select();"
+         readonly="readonly" value="git clone {$cloneUrl}">
+</div>
 
 {if $hasLog and (length($branches) or length($tags))}
-  <div class="repository-shortlog-wrapper">
-    <div class="repository-shortlog">
-      {call .streamingPlaceholder /}
+  <div class="RepoShortlog">
+    <div class="RepoShortlog-refs">
+      {call .branches_ data="all" /}
+      {call .tags_ data="all" /}
     </div>
-    {if $readmeHtml}
-      <div class="doc repository-index-doc">{$readmeHtml}</div>
-    {/if}
+    <div class="RepoShortlog-log">
+      {call .streamingPlaceholder /}
+      {if $readmeHtml}
+        <div class="doc RepoIndexDoc">{$readmeHtml}</div>
+      {/if}
+    </div>
   </div>
 
-  <div class="repository-refs">
-    {call .branches_ data="all" /}
-    {call .tags_ data="all" /}
-  </div>
 {elseif $hasLog}
   {call .streamingPlaceholder /}
 {elseif length($branches) or length($tags)}

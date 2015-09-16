@@ -44,16 +44,16 @@
  * @param fileIndex position of the file within the difference.
  */
 {template .diffHeader}
-<pre class="diff-header">
-<a name="F{$fileIndex}" class="diff-git"></a>
-{foreach $part in $firstParts}
-  {if not isFirst($part)}{sp}{/if}
-  {if $part.url}
-    <a href="{$part.url}">{$part.text}</a>
-  {else}
-    {$part.text}
-  {/if}
-{/foreach}{\n}
-{$rest}
+<pre class="u-pre Diff">
+  <a name="F{$fileIndex}" class="Diff-fileIndex"></a>
+  {foreach $part in $firstParts}
+    {if not isFirst($part)}{sp}{/if}
+    {if $part.url}
+      <a href="{$part.url}">{$part.text}</a>
+    {else}
+      {$part.text}
+    {/if}
+  {/foreach}{\n}
+  {$rest}
 </pre>
 {/template}

@@ -41,39 +41,40 @@
  * @param archiveType type of the archive to download.
  */
 {template .commitDetail}
-<div class="git-commit">
+<div class="Metadata">
   <table>
     <tr>
-      <th>{msg desc="Header for commit SHA entry"}commit{/msg}</th>
-      <td class="sha">
+      <th class="Metadata-title">{msg desc="Header for commit SHA entry"}commit{/msg}</th>
+      <td>
         {$sha}
-        <span class="log-link">
+      </td>
+      <td>
+        <span>
           [<a href="{$logUrl}">{msg desc="text for the log link"}log{/msg}</a>]
         </span>
-        <span class="download-link">[<a href="{$archiveUrl}">{$archiveType}</a>]</span>
+        {sp}<span>[<a href="{$archiveUrl}">{$archiveType}</a>]</span>
       </td>
-      <td>{sp}</td>
     </tr>
     <tr>
-      <th>{msg desc="Header for commit author"}author{/msg}</th>
+      <th class="Metadata-title">{msg desc="Header for commit author"}author{/msg}</th>
       <td>{call .person_ data="$author" /}</td>
       <td>{$author.time}</td>
     </tr>
     <tr>
-      <th>{msg desc="Header for committer"}committer{/msg}</th>
+      <th class="Metadata-title">{msg desc="Header for committer"}committer{/msg}</th>
       <td>{call .person_ data="$committer" /}</td>
       <td>{$committer.time}</td>
     </tr>
     <tr>
-      <th>{msg desc="Header for tree SHA entry"}tree{/msg}</th>
-      <td class="sha"><a href="{$treeUrl}">{$tree}</a></td>
+      <th class="Metadata-title">{msg desc="Header for tree SHA entry"}tree{/msg}</th>
+      <td><a href="{$treeUrl}">{$tree}</a></td>
     </tr>
     {foreach $parent in $parents}
       <tr>
-        <th>{msg desc="Header for parent SHA"}parent{/msg}</th>
+        <th class="Metadata-title">{msg desc="Header for parent SHA"}parent{/msg}</th>
         <td>
           <a href="{$parent.url}">{$parent.sha}</a>
-          <span class="diff-link">
+          {sp}<span>
             [<a href="{$parent.diffUrl}">{msg desc="text for the parent diff link"}diff{/msg}</a>]
             {if isNonnull($parent.blameUrl)}
               {sp}[<a href="{$parent.blameUrl}">{msg desc="text for the parent blame link"}blame{/msg}</a>]
@@ -85,42 +86,42 @@
   </table>
 </div>
 {call .message_}
-  {param className: 'commit-message' /}
+  {param className: 'u-pre MetadataMessage' /}
   {param message: $message /}
 {/call}
 
 {if $diffTree and length($diffTree)}
-  <ul class="diff-tree">
+  <ul class="DiffTree">
     {foreach $entry in $diffTree}
       <li>
         <a href="{$entry.url}">{$entry.path}</a>
         {switch $entry.changeType}
           {case 'ADD'}
-            <span class="add">
+            <span class="DiffTree-action DiffTree-action--add">
               {msg desc="Text for a new tree entry"}
                 [Added - <a href="{$entry.diffUrl}">diff</a>]
               {/msg}
             </span>
           {case 'MODIFY'}
-            <span class="modify">
+            <span class="DiffTree-action DiffTree-action--modify">
               {msg desc="Text for a modified tree entry"}
                 [<a href="{$entry.diffUrl}">diff</a>]
               {/msg}
             </span>
           {case 'DELETE'}
-            <span class="delete">
+            <span class="DiffTree-action DiffTree-action--delete">
               {msg desc="Text for a deleted tree entry"}
                 [Deleted - <a href="{$entry.diffUrl}">diff</a>]
               {/msg}
             </span>
           {case 'RENAME'}
-            <span class="rename">
+            <span class="DiffTree-action DiffTree-action--rename">
               {msg desc="Text for a renamed tree entry"}
                 [Renamed from {$entry.oldPath} - <a href="{$entry.diffUrl}">diff</a>]
               {/msg}
             </span>
           {case 'COPY'}
-            <span class="copy">
+            <span class="DiffTree-action DiffTree-action--copy">
               {msg desc="Text for a copied tree entry"}
                 [Copied from {$entry.oldPath} - <a href="{$entry.diffUrl}">diff</a>]
               {/msg}
@@ -130,7 +131,7 @@
       </li>
     {/foreach}
   </ul>
-  <div class="diff-summary">
+  <div class="DiffSummary">
     {if length($diffTree) == 1}
       {msg desc="1 file changed"}1 file changed{/msg}
     {else}
@@ -160,59 +161,63 @@
  * @param? readmeHtml optional rendered README.md contents.
  */
 {template .treeDetail}
-<div class="sha1">
-  {msg desc="SHA-1 for the path's tree"}tree: {$sha}{/msg}
-  {if $logUrl}{sp}[<a href="{$logUrl}">{msg desc="history for a path"}path history{/msg}</a>]{/if}
-  {if $archiveUrl}
-    <span class="download-link">[<a href="{$archiveUrl}">{$archiveType}</a>]</span>
+<div class="TreeDetail">
+  <div class="u-sha1 TreeDetail-sha1">
+    {msg desc="SHA-1 for the path's tree"}tree: {$sha}{/msg}
+    {if $logUrl}{sp}[<a href="{$logUrl}">{msg desc="history for a path"}path history{/msg}</a>]{/if}
+    {if $archiveUrl}
+      {sp}<span>[<a href="{$archiveUrl}">{$archiveType}</a>]</span>
+    {/if}
+  </div>
+
+  {if length($entries)}
+    <ol class="FileList">
+      {foreach $entry in $entries}
+        <li class="FileList-item{sp}
+              {switch $entry.type}
+                {case 'TREE'}FileList-item--gitTree
+                {case 'SYMLINK'}FileList-item--symlink
+                {case 'REGULAR_FILE'}FileList-item--regularFile
+                {case 'EXECUTABLE_FILE'}FileList-item--executableFile
+                {case 'GITLINK'}gitlink
+                {default}regular-file
+              {/switch}
+              " title="
+              {switch $entry.type}
+                {case 'TREE'}{msg desc="Alt text for tree icon"}Tree{/msg}
+                {case 'SYMLINK'}{msg desc="Alt text for symlink icon"}Symlink{/msg}
+                {case 'REGULAR_FILE'}{msg desc="Alt text for regular file icon"}Regular file{/msg}
+                {case 'EXECUTABLE_FILE'}
+                  {msg desc="Alt text for executable file icon"}Executable file{/msg}
+                {case 'GITLINK'}
+                  {msg desc="Alt text for git submodule link icon"}Git submodule link{/msg}
+                {default}{msg desc="Alt text for other file icon"}Other{/msg}
+              {/switch}
+              {sp}- {$entry.name}">
+          <a class="FileList-itemLink" href="{$entry.url}">{$entry.name}</a>
+          {if $entry.type == 'SYMLINK'}
+            {sp}&#x21e8;{sp}
+            {if $entry.targetUrl}
+              <a href="{$entry.targetUrl}">{$entry.targetName}</a>
+            {else}
+              {$entry.targetName}
+            {/if}
+          {/if}
+          // TODO(dborowitz): Something reasonable for gitlinks.
+        </li>
+      {/foreach}
+    </ol>
+  {else}
+    <p>{msg desc="Informational text for when a tree is empty"}This tree is empty.{/msg}</p>
+  {/if}
+
+  {if $readmeHtml}
+    <div class="InlineReadme">
+      <div class="InlineReadme-path">{$readmePath}</div>
+      <div class="doc">{$readmeHtml}</div>
+    </div>
   {/if}
 </div>
-
-{if length($entries)}
-  <ol class="list files">
-    {foreach $entry in $entries}
-      <li class="
-            {switch $entry.type}
-              {case 'TREE'}git-tree
-              {case 'SYMLINK'}symlink
-              {case 'REGULAR_FILE'}regular-file
-              {case 'EXECUTABLE_FILE'}executable-file
-              {case 'GITLINK'}gitlink
-              {default}regular-file
-            {/switch}
-            " title="
-            {switch $entry.type}
-              {case 'TREE'}{msg desc="Alt text for tree icon"}Tree{/msg}
-              {case 'SYMLINK'}{msg desc="Alt text for symlink icon"}Symlink{/msg}
-              {case 'REGULAR_FILE'}{msg desc="Alt text for regular file icon"}Regular file{/msg}
-              {case 'EXECUTABLE_FILE'}
-                {msg desc="Alt text for executable file icon"}Executable file{/msg}
-              {case 'GITLINK'}
-                {msg desc="Alt text for git submodule link icon"}Git submodule link{/msg}
-              {default}{msg desc="Alt text for other file icon"}Other{/msg}
-            {/switch}
-            - {$entry.name}">
-        <a href="{$entry.url}">{$entry.name}</a>
-        {if $entry.type == 'SYMLINK'}
-          {sp}&#x21e8;{sp}
-          {if $entry.targetUrl}
-            <a href="{$entry.targetUrl}">{$entry.targetName}</a>
-          {else}
-            {$entry.targetName}
-          {/if}
-        {/if}
-        // TODO(dborowitz): Something reasonable for gitlinks.
-      </li>
-    {/foreach}
-  </ol>
-{else}
-  <p>{msg desc="Informational text for when a tree is empty"}This tree is empty.{/msg}</p>
-{/if}
-
-{if $readmeHtml}
-  <div class="readme-path">{$readmePath}</div>
-  <div class="doc">{$readmeHtml}</div>
-{/if}
 {/template}
 
 /**
@@ -225,7 +230,7 @@
  * @param? docUrl optional URL to view rendered file.
  */
 {template .blobHeader}
-<div class="sha1">
+<div class="u-sha1 BlobSha1">
   {msg desc="SHA-1 for the file's blob"}blob: {$sha}{/msg}
   {if $fileUrl}{sp}[<a href="{$fileUrl}">{msg desc="detail view of a file"}file{/msg}</a>]{/if}
   {if $logUrl}{sp}[<a href="{$logUrl}">{msg desc="history for a file"}log{/msg}</a>]{/if}
@@ -250,21 +255,26 @@
 
   {if $lines != null}
     {if $lines}
-      <ol class="prettyprint">
+      <table class="FileContents">
         {foreach $line in $lines}
-          <li>
-            <a name="{index($line) + 1}"></a>
-            {foreach $span in $line}
-              <span class="{$span.classes}">{$span.text}</span>
-            {/foreach}
-          </li>
+          {let $n: index($line) + 1 /}
+          <tr class="u-pre FileContents-line">
+            <td class="u-lineNum u-noSelect FileContents-lineNum"
+                data-line-number="{$n}" onclick="window.location.hash='#{$n}'"></td>
+            <td class="FileContents-lineContents">
+              <a name="{$n}"></a>
+              {foreach $span in $line}
+                <span class="{$span.classes}">{$span.text}</span>
+              {/foreach}
+            </td>
+          </tr>
         {/foreach}
-      </ol>
+      </table>
     {else}
-      <div class="file-empty">Empty file</div>
+      <div class="FileContents-empty">Empty file</div>
     {/if}
   {else}
-    <div class="file-binary">
+    <div class="FileContents-binary">
       {msg desc="size of binary file in bytes"}{$size}-byte binary file{/msg}
     </div>
   {/if}
@@ -280,22 +290,22 @@
  * @param message tag message.
  */
 {template .tagDetail}
-<div class="git-tag">
+<div class="Metadata">
   <table>
     <tr>
-      <th>{msg desc="Header for tag SHA entry"}tag{/msg}</th>
+      <th class="Metadata-title">{msg desc="Header for tag SHA entry"}tag{/msg}</th>
       <td class="sha">{$sha}</td>
       <td>{sp}</td>
     </tr>
     {if $tagger}
       <tr>
-        <th>{msg desc="Header for tagger"}tagger{/msg}</th>
+        <th class="Metadata-title">{msg desc="Header for tagger"}tagger{/msg}</th>
         <td>{call .person_ data="$tagger" /}</td>
         <td>{$tagger.time}</td>
       </tr>
     {/if}
     <tr>
-      <th>{msg desc="Header for tagged object SHA"}object{/msg}</th>
+      <th class="Metadata-title">{msg desc="Header for tagged object SHA"}object{/msg}</th>
       <td class="sha">{$object}</td>
       <td>{sp}</td>
     </tr>
@@ -303,7 +313,7 @@
 </div>
 {if $message and length($message)}
   {call .message_}
-    {param className: 'tag-message' /}
+    {param className: 'u-pre MetadataMessage' /}
     {param message: $message /}
   {/call}
 {/if}

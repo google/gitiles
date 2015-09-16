@@ -67,13 +67,13 @@ public class LogSoyData {
     out.flush();
 
     SoyTofu.Renderer entryRenderer = renderer.newRenderer("gitiles.logEntryWrapper");
-    boolean first = true;
+    boolean renderedEntries = false;
     for (RevCommit c : paginator) {
-      entryRenderer.setData(toEntrySoyData(paginator, c, df, first)).render(out);
+      entryRenderer.setData(toEntrySoyData(paginator, c, df)).render(out);
       out.flush();
-      first = false;
+      renderedEntries = true;
     }
-    if (first) {
+    if (!renderedEntries) {
       renderer.newRenderer("gitiles.emptyLog").render(out);
     }
 
@@ -83,8 +83,7 @@ public class LogSoyData {
   }
 
   private Map<String, Object> toHeaderSoyData(Paginator paginator, @Nullable String revision) {
-    Map<String, Object> data = Maps.newHashMapWithExpectedSize(5);
-    data.put("logEntryPretty", pretty);
+    Map<String, Object> data = Maps.newHashMapWithExpectedSize(1);
     ObjectId prev = paginator.getPreviousStart();
     if (prev != null) {
       GitilesView.Builder prevView = copyAndCanonicalizeView(revision);
@@ -96,16 +95,14 @@ public class LogSoyData {
     return data;
   }
 
-  private Map<String, Object> toEntrySoyData(Paginator paginator, RevCommit c, DateFormatter df,
-      boolean first) throws IOException {
+  private Map<String, Object> toEntrySoyData(Paginator paginator, RevCommit c, DateFormatter df)
+      throws IOException {
     if (csd == null) {
       csd = new CommitSoyData();
     }
 
-    Map<String, Object> entry = csd.setRevWalk(paginator.getWalk())
-        .toSoyData(req, c, fields, df);
+    Map<String, Object> entry = csd.setRevWalk(paginator.getWalk()).toSoyData(req, c, fields, df);
     return ImmutableMap.of(
-        "firstWithPrevious", first && paginator.getPreviousStart() != null,
         "variant", variant,
         "entry", entry);
   }

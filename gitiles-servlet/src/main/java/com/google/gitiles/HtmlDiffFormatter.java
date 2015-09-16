@@ -37,15 +37,15 @@ import java.util.Map;
 
 /** Formats a unified format patch as UTF-8 encoded HTML. */
 final class HtmlDiffFormatter extends DiffFormatter {
-  private static final byte[] DIFF_BEGIN = "<pre class=\"diff-unified\">".getBytes(UTF_8);
+  private static final byte[] DIFF_BEGIN = "<pre class=\"u-pre Diff-unified\">".getBytes(UTF_8);
   private static final byte[] DIFF_END = "</pre>".getBytes(UTF_8);
 
-  private static final byte[] HUNK_BEGIN = "<span class=\"h\">".getBytes(UTF_8);
+  private static final byte[] HUNK_BEGIN = "<span class=\"Diff-hunk\">".getBytes(UTF_8);
   private static final byte[] HUNK_END = "</span>".getBytes(UTF_8);
 
-  private static final byte[] LINE_INSERT_BEGIN = "<span class=\"i\">".getBytes(UTF_8);
-  private static final byte[] LINE_DELETE_BEGIN = "<span class=\"d\">".getBytes(UTF_8);
-  private static final byte[] LINE_CHANGE_BEGIN = "<span class=\"c\">".getBytes(UTF_8);
+  private static final byte[] LINE_INSERT_BEGIN = "<span class=\"Diff-insert\">".getBytes(UTF_8);
+  private static final byte[] LINE_DELETE_BEGIN = "<span class=\"Diff-delete\">".getBytes(UTF_8);
+  private static final byte[] LINE_CHANGE_BEGIN = "<span class=\"Diff-change\">".getBytes(UTF_8);
   private static final byte[] LINE_END = "</span>\n".getBytes(UTF_8);
 
   private final Renderer renderer;
