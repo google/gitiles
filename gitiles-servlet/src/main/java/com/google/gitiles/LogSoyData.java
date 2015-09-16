@@ -45,7 +45,6 @@ public class LogSoyData {
   private final HttpServletRequest req;
   private final GitilesView view;
   private final Set<Field> fields;
-  private final String pretty;
   private final String variant;
   private CommitSoyData csd;
 
@@ -53,7 +52,7 @@ public class LogSoyData {
       throws IOException {
     this.req = checkNotNull(req);
     this.view = checkNotNull(ViewFilter.getView(req));
-    this.pretty = checkNotNull(pretty);
+    checkNotNull(pretty);
     Config config = access.getConfig();
     fields = config.getBoolean("logFormat", pretty, "verbose", false) ? VERBOSE_FIELDS : FIELDS;
     variant = firstNonNull(config.getString("logFormat", pretty, "variant"), pretty);
