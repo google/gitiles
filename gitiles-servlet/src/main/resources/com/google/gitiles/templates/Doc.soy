@@ -41,20 +41,18 @@
   <link rel="stylesheet" type="text/css" href="{gitiles.PRETTIFY_CSS_URL}" />
 </head>
 <body class="Site">
-  <header class="Site-header">
+  <header class="Site-header {if $navbarHtml}Site-header--withNavbar{/if}">
     <div class="Header">
       <div class="Header-title">
-        {if $homeUrl}<a href="{$homeUrl}">{/if}
-        {if $logoUrl}<img src="{$logoUrl}" alt="project logo" />{/if}
-        {if $siteTitle}{$siteTitle}{/if}
+        {if $homeUrl}<a class="Header-anchor" href="{$homeUrl}">{/if}
+        {if $logoUrl}<img class="Header-anchorLogo" src="{$logoUrl}" alt="project logo" />{/if}
+        {if $siteTitle}<span class="Header-anchorTitle">{$siteTitle}</span>{/if}
         {if $homeUrl}</a>{/if}
       </div>
     </div>
     {if $navbarHtml}
-      <div class="nav" role="navigation">
-        <div class="nav-aux">
-          {$navbarHtml}
-        </div>
+      <nav class="Header-nav" role="navigation">
+        {$navbarHtml}
       </div>
     {/if}
   </header>

@@ -19,6 +19,14 @@
 .Site-Content--markdown {
   padding-top: 0;
 }
+.Header-nav ul {
+  max-width: 980px;
+  margin: 0 auto;
+}
+.Header-nav li {
+  display: inline-block;
+  margin-right: 15px;
+}
 .doc h1, .doc h2, .doc h3, .doc h4, .doc h5, .doc h6 {
   font-weight: normal;
   margin: 1.236em 0 .618em;
