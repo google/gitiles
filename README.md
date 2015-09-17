@@ -57,6 +57,15 @@ libraries have changed. For best results, ensure the project is closed in
 Eclipse before rebuilding.
 
 
+Code Style
+----------
+
+Java code in Gitiles follows the [Google Java Style Guide]
+(https://google.github.io/styleguide/javaguide.html) with a 100-column limit.
+
+CSS in Gitiles follows the [SUIT CSS naming conventions]
+(https://github.com/suitcss/suit/blob/master/doc/naming-conventions.md).
+
 Code Review
 -----------
 
