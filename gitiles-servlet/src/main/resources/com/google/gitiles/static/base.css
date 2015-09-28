@@ -234,6 +234,7 @@ ul, ol {
   display: inline-block;
 }
 .RepoList-itemName {
+  margin-right: 10px;
   min-width: 25%;
   text-decoration: underline;
 }
@@ -242,6 +243,9 @@ ul, ol {
 }
 .RepoList-itemDescription {
   color: #000;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
 }
