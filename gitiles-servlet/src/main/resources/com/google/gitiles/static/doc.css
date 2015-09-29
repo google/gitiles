@@ -49,6 +49,12 @@
   font-size: 14px;
   font-style: italic;
 }
+.doc hr {
+  border: none;
+  border-top: 1px solid #aaa;
+  display: block;
+  margin-top: 25px;
+}
 .doc a {
   text-decoration: none;
 }
@@ -230,11 +236,18 @@ iframe.noborder {
 .aside p:last-child {
   margin-bottom: 0;
 }
+.cols {
+  margin: 0 -1.533%;
+  width: 103.067%;
+}
 .col-1, .col-2, .col-3, .col-4, .col-5, .col-6,
 .col-7, .col-8, .col-9, .col-10, .col-11, .col-12 {
   display: inline-block;
-  margin-bottom: 20px;
+  margin: 0 1.488% 20px;
   vertical-align: top;
+}
+.cols h1, .cols h2, .cols h3, .cols h4, .cols h5, .cols h6 {
+  margin: .67em 0;
 }
 .col-1 { width: 5.357%; }
 .col-2 { width: 13.690%; }

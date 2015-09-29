@@ -163,20 +163,20 @@ An optional table title can be placed under the table in brackets
 Cells may span multiple columns and include formatting accepted within
 paragraphs such as emphasis, images or links:
 
-|              | Grouping                    ||  
-| First Header | Second Header | Third Header |  
-| ------------ | :-----------: | -----------: |  
-| Content      | *Long Cell*                 ||  
-| Content      | **Cell 2**    | Cell 3       |  
+|              | Grouping                    ||
+| First Header | Second Header | Third Header |
+| ------------ | :-----------: | -----------: |
+| Content      | *Long Cell*                 ||
+| Content      | **Cell 2**    | Cell 3       |
 
 the above table was created by:
 
 ```
-|              | Grouping                    ||  
-| First Header | Second Header | Third Header |  
-| ------------ | :-----------: | -----------: |  
-| Content      | *Long Cell*                 ||  
-| Content      | **Cell 2**    | Cell 3       |  
+|              | Grouping                    ||
+| First Header | Second Header | Third Header |
+| ------------ | :-----------: | -----------: |
+| Content      | *Long Cell*                 ||
+| Content      | **Cell 2**    | Cell 3       |
 ```
 
 Empty table cells are indicated by whitespace between the column
@@ -258,7 +258,7 @@ block of code, preceeded and followed by blank lines:
 
  ```c
  #include <stdio.h>
- 
+
  int main() {
    printf("Hello, World.\n");
    return 0;
@@ -285,7 +285,7 @@ Supported languages include:
 * ruby
 * tcl
 
-### Web
+#### Web
 * css
 * dart
 * html
