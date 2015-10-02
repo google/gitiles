@@ -64,7 +64,7 @@ java_sources(
 java_doc(
   name = 'javadoc',
   title = 'Gitiles API Documentation',
-  pkg = 'com.google.gitiles',
+  pkgs = ['com.google.gitiles'],
   paths = ['gitiles-servlet/src/main/java'],
   srcs = SRCS,
   deps = DEPS + [
@@ -75,4 +75,5 @@ java_doc(
     '//lib:servlet-api_2_5',
   ],
   visibility = ['PUBLIC'],
+  do_it_wrong = True,
 )
