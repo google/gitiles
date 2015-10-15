@@ -20,6 +20,8 @@ import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 
 import com.google.common.net.HttpHeaders;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.google.gson.Gson;
 
 import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
@@ -90,8 +92,8 @@ public class ServletTest {
     return res;
   }
 
-  private String buildJsonRaw(String path) throws Exception {
-    FakeHttpServletResponse res = buildResponse(path, "format=json", SC_OK);
+  private String buildJsonRaw(String path, String additionalQueryString) throws Exception {
+    FakeHttpServletResponse res = buildResponse(path, "format=json" + additionalQueryString, SC_OK);
     assertThat(res.getHeader(HttpHeaders.CONTENT_TYPE)).isEqualTo("application/json");
     String body = res.getActualBodyString();
     String magic = ")]}'\n";
@@ -99,12 +101,16 @@ public class ServletTest {
     return body.substring(magic.length());
   }
 
+  protected JsonElement buildJson(String path, String additionalQueryString) throws Exception {
+    return new JsonParser().parse(buildJsonRaw(path, additionalQueryString));
+  }
+
   protected <T> T buildJson(String path, Class<T> classOfT) throws Exception {
-    return new Gson().fromJson(buildJsonRaw(path), classOfT);
+    return new Gson().fromJson(buildJsonRaw(path, ""), classOfT);
   }
 
   protected <T> T buildJson(String path, Type typeOfT) throws Exception {
-    return new Gson().<T>fromJson(buildJsonRaw(path), typeOfT);
+    return new Gson().<T>fromJson(buildJsonRaw(path, ""), typeOfT);
   }
 
   protected void assertNotFound(String path, String queryString) throws Exception {

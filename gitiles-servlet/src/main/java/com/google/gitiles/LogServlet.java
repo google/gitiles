@@ -24,7 +24,9 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.common.primitives.Longs;
+import com.google.gitiles.CommitData.Field;
 import com.google.gitiles.DateFormatter.Format;
 import com.google.gson.reflect.TypeToken;
 
@@ -58,6 +60,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -70,6 +73,7 @@ public class LogServlet extends BaseServlet {
   static final String LIMIT_PARAM = "n";
   static final String START_PARAM = "s";
   private static final String PRETTY_PARAM = "pretty";
+  private static final String NAME_STATUS_PARAM = "name-status";
   private static final int DEFAULT_LIMIT = 100;
   private static final int MAX_LIMIT = 10000;
 
@@ -144,13 +148,20 @@ public class LogServlet extends BaseServlet {
       return;
     }
 
+    Set<Field> fs = Sets.newEnumSet(CommitJsonData.DEFAULT_FIELDS, Field.class);
+    String nameStatus = Iterables.getFirst(view.getParameters().get(NAME_STATUS_PARAM), null);
+    if ("1".equals(nameStatus) || "".equals(nameStatus)) {
+      fs.add(Field.DIFF_TREE);
+    }
+
     try {
       DateFormatter df = new DateFormatter(getAccess(req), Format.DEFAULT);
       Map<String, Object> result = Maps.newLinkedHashMap();
       List<CommitJsonData.Commit> entries = Lists.newArrayListWithCapacity(paginator.getLimit());
       for (RevCommit c : paginator) {
         paginator.getWalk().parseBody(c);
-        entries.add(new CommitJsonData().setRevWalk(paginator.getWalk()).toJsonData(req, c, df));
+        entries.add(new CommitJsonData().setRevWalk(paginator.getWalk())
+            .toJsonData(req, c, fs, df));
       }
       result.put("log", entries);
       if (paginator.getPreviousStart() != null) {
