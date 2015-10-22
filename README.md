@@ -21,6 +21,7 @@ Gitiles requires [Buck](http://facebook.github.io/buck/) to build.
   cd /path/to/gitiles
   git submodule update --init
   buck build all
+  buck test
 ```
 
 
@@ -35,6 +36,8 @@ Testing
 This will recompile and start a development server.  Open
 http://localhost:8080/ to view your local copy of gitiles, which
 will serve any repositories under `/path/to/repositories`.
+
+To run unit tests, run `buck test`.
 
 
 Eclipse IDE
