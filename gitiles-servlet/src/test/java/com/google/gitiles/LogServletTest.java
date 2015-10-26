@@ -68,6 +68,31 @@ public class LogServletTest extends ServletTest {
     assertThat(jc1.treeDiff.get(0).newPath).isEqualTo("foo");
   }
 
+  @Test
+  public void follow() throws Exception {
+    String contents = "contents";
+    RevCommit c1 = repo.branch("master")
+        .commit()
+        .add("foo", contents)
+        .create();
+    RevCommit c2 = repo.branch("master")
+        .commit()
+        .rm("foo")
+        .add("bar", contents)
+        .create();
+    repo.getRevWalk().parseBody(c1);
+    repo.getRevWalk().parseBody(c2);
+
+    Log response = buildJson(LOG, "/repo/+log/master/bar");
+    assertThat(response.log).hasSize(1);
+    verifyJsonCommit(response.log.get(0), c2);
+
+    response = buildJson(LOG, "/repo/+log/master/bar", "follow=1");
+    assertThat(response.log).hasSize(2);
+    verifyJsonCommit(response.log.get(0), c2);
+    verifyJsonCommit(response.log.get(1), c1);
+  }
+
   private void verifyJsonCommit(Commit jsonCommit, RevCommit commit) throws Exception {
     repo.getRevWalk().parseBody(commit);
     GitilesAccess access = new TestGitilesAccess(repo.getRepository()).forRequest(null);

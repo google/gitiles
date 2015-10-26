@@ -30,6 +30,7 @@ import com.google.gitiles.CommitData.Field;
 import com.google.gitiles.DateFormatter.Format;
 import com.google.gson.reflect.TypeToken;
 
+import org.eclipse.jgit.diff.DiffConfig;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.errors.RevWalkException;
@@ -40,6 +41,7 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.FollowFilter;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevObject;
 import org.eclipse.jgit.revwalk.RevTag;
@@ -72,8 +74,11 @@ public class LogServlet extends BaseServlet {
 
   static final String LIMIT_PARAM = "n";
   static final String START_PARAM = "s";
-  private static final String PRETTY_PARAM = "pretty";
+
+  private static final String FOLLOW_PARAM = "follow";
   private static final String NAME_STATUS_PARAM = "name-status";
+  private static final String PRETTY_PARAM = "pretty";
+
   private static final int DEFAULT_LIMIT = 100;
   private static final int MAX_LIMIT = 10000;
 
@@ -88,14 +93,15 @@ public class LogServlet extends BaseServlet {
   protected void doGetHtml(HttpServletRequest req, HttpServletResponse res) throws IOException {
     Repository repo = ServletUtils.getRepository(req);
     GitilesView view = getView(req, repo);
-    Paginator paginator = newPaginator(repo, view);
-    if (paginator == null) {
-      res.setStatus(SC_NOT_FOUND);
-      return;
-    }
 
+    Paginator paginator = null;
     try {
       GitilesAccess access = getAccess(req);
+      paginator = newPaginator(repo, view, getAccess(req));
+      if (paginator == null) {
+        res.setStatus(SC_NOT_FOUND);
+        return;
+      }
       DateFormatter df = new DateFormatter(access, Format.DEFAULT);
 
       // Allow the user to select a logView variant with the "pretty" param.
@@ -134,7 +140,9 @@ public class LogServlet extends BaseServlet {
       res.setStatus(SC_INTERNAL_SERVER_ERROR);
       return;
     } finally {
-      paginator.getWalk().close();
+      if (paginator != null) {
+        paginator.getWalk().close();
+      }
     }
   }
 
@@ -142,11 +150,6 @@ public class LogServlet extends BaseServlet {
   protected void doGetJson(HttpServletRequest req, HttpServletResponse res) throws IOException {
     Repository repo = ServletUtils.getRepository(req);
     GitilesView view = getView(req, repo);
-    Paginator paginator = newPaginator(repo, view);
-    if (paginator == null) {
-      res.setStatus(SC_NOT_FOUND);
-      return;
-    }
 
     Set<Field> fs = Sets.newEnumSet(CommitJsonData.DEFAULT_FIELDS, Field.class);
     String nameStatus = Iterables.getFirst(view.getParameters().get(NAME_STATUS_PARAM), null);
@@ -154,7 +157,13 @@ public class LogServlet extends BaseServlet {
       fs.add(Field.DIFF_TREE);
     }
 
+    Paginator paginator = null;
     try {
+      paginator = newPaginator(repo, view, getAccess(req));
+      if (paginator == null) {
+        res.setStatus(SC_NOT_FOUND);
+        return;
+      }
       DateFormatter df = new DateFormatter(getAccess(req), Format.DEFAULT);
       CommitJsonData.Log result = new CommitJsonData.Log();
       List<CommitJsonData.Commit> entries = Lists.newArrayListWithCapacity(paginator.getLimit());
@@ -172,7 +181,9 @@ public class LogServlet extends BaseServlet {
       }
       renderJson(req, res, result, new TypeToken<CommitJsonData.Log>() {}.getType());
     } finally {
-      paginator.getWalk().close();
+      if (paginator != null) {
+        paginator.getWalk().close();
+      }
     }
   }
 
@@ -210,19 +221,14 @@ public class LogServlet extends BaseServlet {
     }
   }
 
-  private static RevWalk newWalk(Repository repo, GitilesView view)
+  private static RevWalk newWalk(Repository repo, GitilesView view, GitilesAccess access)
       throws MissingObjectException, IncorrectObjectTypeException, IOException {
     RevWalk walk = new RevWalk(repo);
     walk.markStart(walk.parseCommit(view.getRevision().getId()));
     if (view.getOldRevision() != Revision.NULL) {
       walk.markUninteresting(walk.parseCommit(view.getOldRevision().getId()));
     }
-    if (!Strings.isNullOrEmpty(view.getPathPart())) {
-      walk.setRewriteParents(false);
-      walk.setTreeFilter(AndTreeFilter.create(
-          PathFilterGroup.createFromStrings(view.getPathPart()),
-          TreeFilter.ANY_DIFF));
-    }
+    setTreeFilter(walk, view, access);
     List<RevFilter> filters = new ArrayList<>(3);
     if (isTrue(Iterables.getFirst(view.getParameters().get("no-merges"), null))) {
       filters.add(RevFilter.NO_MERGES);
@@ -243,6 +249,22 @@ public class LogServlet extends BaseServlet {
     return walk;
   }
 
+  private static void setTreeFilter(RevWalk walk, GitilesView view, GitilesAccess access)
+      throws IOException {
+    if (Strings.isNullOrEmpty(view.getPathPart())) {
+      return;
+    }
+    walk.setRewriteParents(false);
+    String path = view.getPathPart();
+    if (isTrue(Iterables.getFirst(view.getParameters().get(FOLLOW_PARAM), null))) {
+      walk.setTreeFilter(FollowFilter.create(path, access.getConfig().get(DiffConfig.KEY)));
+    } else {
+      walk.setTreeFilter(AndTreeFilter.create(
+          PathFilterGroup.createFromStrings(view.getPathPart()),
+          TreeFilter.ANY_DIFF));
+    }
+  }
+
   private static boolean isTrue(String v) {
     if (v == null) {
       return false;
@@ -252,14 +274,15 @@ public class LogServlet extends BaseServlet {
     return Boolean.TRUE.equals(StringUtils.toBooleanOrNull(v));
   }
 
-  private static Paginator newPaginator(Repository repo, GitilesView view) throws IOException {
+  private static Paginator newPaginator(Repository repo, GitilesView view, GitilesAccess access)
+      throws IOException {
     if (view == null) {
       return null;
     }
 
     RevWalk walk = null;
     try {
-      walk = newWalk(repo, view);
+      walk = newWalk(repo, view, access);
     } catch (IncorrectObjectTypeException e) {
       return null;
     }
