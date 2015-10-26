@@ -16,11 +16,10 @@ package com.google.gitiles;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.gitiles.CommitJsonData.Commit;
+import com.google.gitiles.CommitJsonData.Log;
 import com.google.gitiles.DateFormatter.Format;
-import com.google.gson.FieldNamingPolicy;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
+import com.google.gson.reflect.TypeToken;
 
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Test;
@@ -32,21 +31,16 @@ import java.util.ArrayList;
 /** Tests for {@link LogServlet}. */
 @RunWith(JUnit4.class)
 public class LogServletTest extends ServletTest {
+  private static final TypeToken<Log> LOG = new TypeToken<Log>() {};
+
   @Test
   public void basicLog() throws Exception {
     RevCommit commit = repo.branch("HEAD").commit().create();
-    repo.getRevWalk().parseBody(commit);
 
-    JsonElement result = buildJson("/repo/+log", "");
-    JsonArray log = result.getAsJsonObject().get("log").getAsJsonArray();
-
-    GitilesAccess access = new TestGitilesAccess(repo.getRepository()).forRequest(null);
-    DateFormatter df = new DateFormatter(access, Format.DEFAULT);
-
-    assertThat(log).hasSize(1);
-    CommitJsonData.Commit jsonCommit = getJsonCommit(log.get(0));
-    verifyJsonCommit(jsonCommit, commit, df);
-    assertThat(jsonCommit.treeDiff).isNull();
+    Log response = buildJson("/repo/+log", LOG.getType(), "");
+    assertThat(response.log).hasSize(1);
+    verifyJsonCommit(response.log.get(0), commit);
+    assertThat(response.log.get(0).treeDiff).isNull();
   }
 
   @Test
@@ -55,40 +49,29 @@ public class LogServletTest extends ServletTest {
     String contents2 = "foo\ncontents\n";
     RevCommit c1 = repo.update("master", repo.commit().add("foo", contents1));
     RevCommit c2 = repo.update("master", repo.commit().parent(c1).add("foo", contents2));
-    repo.getRevWalk().parseBody(c1);
-    repo.getRevWalk().parseBody(c2);
 
-    JsonElement result = buildJson("/repo/+log/master", "&name-status=1");
-    JsonArray log = result.getAsJsonObject().get("log").getAsJsonArray();
+    Log response = buildJson("/repo/+log/master", LOG.getType(), "&name-status=1");
+    assertThat(response.log).hasSize(2);
 
+    Commit jc2 = response.log.get(0);
+    verifyJsonCommit(jc2, c2);
+    assertThat(jc2.treeDiff).hasSize(1);
+    assertThat(jc2.treeDiff.get(0).type).isEqualTo("modify");
+    assertThat(jc2.treeDiff.get(0).oldPath).isEqualTo("foo");
+    assertThat(jc2.treeDiff.get(0).newPath).isEqualTo("foo");
+
+    Commit jc1 = response.log.get(1);
+    verifyJsonCommit(jc1, c1);
+    assertThat(jc1.treeDiff).hasSize(1);
+    assertThat(jc1.treeDiff.get(0).type).isEqualTo("add");
+    assertThat(jc1.treeDiff.get(0).oldPath).isEqualTo("/dev/null");
+    assertThat(jc1.treeDiff.get(0).newPath).isEqualTo("foo");
+  }
+
+  private void verifyJsonCommit(Commit jsonCommit, RevCommit commit) throws Exception {
+    repo.getRevWalk().parseBody(commit);
     GitilesAccess access = new TestGitilesAccess(repo.getRepository()).forRequest(null);
     DateFormatter df = new DateFormatter(access, Format.DEFAULT);
-
-    assertThat(log).hasSize(2);
-
-    CommitJsonData.Commit jsonCommit2 = getJsonCommit(log.get(0));
-    verifyJsonCommit(jsonCommit2, c2, df);
-    assertThat(jsonCommit2.treeDiff).hasSize(1);
-    assertThat(jsonCommit2.treeDiff.get(0).type).isEqualTo("modify");
-    assertThat(jsonCommit2.treeDiff.get(0).oldPath).isEqualTo("foo");
-    assertThat(jsonCommit2.treeDiff.get(0).newPath).isEqualTo("foo");
-
-    CommitJsonData.Commit jsonCommit1 = getJsonCommit(log.get(1));
-    verifyJsonCommit(jsonCommit1, c1, df);
-    assertThat(jsonCommit1.treeDiff.get(0).type).isEqualTo("add");
-    assertThat(jsonCommit1.treeDiff.get(0).oldPath).isEqualTo("/dev/null");
-    assertThat(jsonCommit1.treeDiff.get(0).newPath).isEqualTo("foo");
-  }
-
-  private CommitJsonData.Commit getJsonCommit(JsonElement element) {
-    GsonBuilder builder = new GsonBuilder();
-    builder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
-    return builder.create().fromJson(element, CommitJsonData.Commit.class);
-  }
-
-  private void verifyJsonCommit(
-      CommitJsonData.Commit jsonCommit, RevCommit commit, DateFormatter df)
-      throws Exception {
     assertThat(jsonCommit.commit).isEqualTo(commit.name());
     assertThat(jsonCommit.tree).isEqualTo(commit.getTree().name());
 

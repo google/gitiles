@@ -37,6 +37,12 @@ public class CommitJsonData {
   static final ImmutableSet<Field> DEFAULT_FIELDS = Sets.immutableEnumSet(
       Field.SHA, Field.TREE, Field.PARENTS, Field.AUTHOR, Field.COMMITTER, Field.MESSAGE);
 
+  public static class Log {
+    public List<Commit> log;
+    public String previous;
+    public String next;
+  }
+
   public static class Ident {
     public String name;
     public String email;

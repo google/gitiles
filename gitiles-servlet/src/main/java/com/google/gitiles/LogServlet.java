@@ -156,21 +156,21 @@ public class LogServlet extends BaseServlet {
 
     try {
       DateFormatter df = new DateFormatter(getAccess(req), Format.DEFAULT);
-      Map<String, Object> result = Maps.newLinkedHashMap();
+      CommitJsonData.Log result = new CommitJsonData.Log();
       List<CommitJsonData.Commit> entries = Lists.newArrayListWithCapacity(paginator.getLimit());
       for (RevCommit c : paginator) {
         paginator.getWalk().parseBody(c);
         entries.add(new CommitJsonData().setRevWalk(paginator.getWalk())
             .toJsonData(req, c, fs, df));
       }
-      result.put("log", entries);
+      result.log = entries;
       if (paginator.getPreviousStart() != null) {
-        result.put("previous", paginator.getPreviousStart().name());
+        result.previous = paginator.getPreviousStart().name();
       }
       if (paginator.getNextStart() != null) {
-        result.put("next", paginator.getNextStart().name());
+        result.next = paginator.getNextStart().name();
       }
-      renderJson(req, res, result, new TypeToken<Map<String, Object>>() {}.getType());
+      renderJson(req, res, result, new TypeToken<CommitJsonData.Log>() {}.getType());
     } finally {
       paginator.getWalk().close();
     }

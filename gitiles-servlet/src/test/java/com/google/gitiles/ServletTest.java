@@ -20,9 +20,9 @@ import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 
 import com.google.common.net.HttpHeaders;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
+import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
@@ -101,16 +101,28 @@ public class ServletTest {
     return body.substring(magic.length());
   }
 
-  protected JsonElement buildJson(String path, String additionalQueryString) throws Exception {
-    return new JsonParser().parse(buildJsonRaw(path, additionalQueryString));
+  protected <T> T buildJson(String path, Class<T> classOfT, String additionalQueryString)
+      throws Exception {
+    return newGson().fromJson(buildJsonRaw(path, additionalQueryString), classOfT);
   }
 
   protected <T> T buildJson(String path, Class<T> classOfT) throws Exception {
-    return new Gson().fromJson(buildJsonRaw(path, ""), classOfT);
+    return buildJson(path, classOfT, "");
+  }
+
+  protected <T> T buildJson(String path, Type typeOfT, String additionalQueryString)
+      throws Exception {
+    return newGson().fromJson(buildJsonRaw(path, additionalQueryString), typeOfT);
   }
 
   protected <T> T buildJson(String path, Type typeOfT) throws Exception {
-    return new Gson().<T>fromJson(buildJsonRaw(path, ""), typeOfT);
+    return buildJson(path, typeOfT, "");
+  }
+
+  private static Gson newGson() {
+    return new GsonBuilder()
+        .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+        .create();
   }
 
   protected void assertNotFound(String path, String queryString) throws Exception {
