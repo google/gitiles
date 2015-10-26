@@ -71,6 +71,6 @@ public class BlameServletTest extends ServletTest {
   }
 
   private Map<String, List<RegionJsonData>> getBlameJson(String path) throws Exception {
-    return buildJson(path, new TypeToken<Map<String, List<RegionJsonData>>>() {}.getType());
+    return buildJson(path, new TypeToken<Map<String, List<RegionJsonData>>>() {});
   }
 }

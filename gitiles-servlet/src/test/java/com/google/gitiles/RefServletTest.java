@@ -200,9 +200,7 @@ public class RefServletTest extends ServletTest {
   }
 
   private Map<String, RefJsonData> buildRefJson(String path) throws Exception {
-    return buildJson(
-        path,
-        new TypeToken<Map<String, RefJsonData>>() {}.getType());
+    return buildJson(path, new TypeToken<Map<String, RefJsonData>>() {});
   }
 
   @Test

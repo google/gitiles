@@ -23,6 +23,7 @@ import com.google.common.net.HttpHeaders;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
 import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
@@ -30,7 +31,6 @@ import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
 import org.eclipse.jgit.junit.TestRepository;
 import org.junit.Before;
 
-import java.lang.reflect.Type;
 import java.util.Map;
 
 /** Base class for servlet tests. */
@@ -110,12 +110,12 @@ public class ServletTest {
     return buildJson(path, classOfT, "");
   }
 
-  protected <T> T buildJson(String path, Type typeOfT, String additionalQueryString)
+  protected <T> T buildJson(String path, TypeToken<T> typeOfT, String additionalQueryString)
       throws Exception {
-    return newGson().fromJson(buildJsonRaw(path, additionalQueryString), typeOfT);
+    return newGson().fromJson(buildJsonRaw(path, additionalQueryString), typeOfT.getType());
   }
 
-  protected <T> T buildJson(String path, Type typeOfT) throws Exception {
+  protected <T> T buildJson(String path, TypeToken<T> typeOfT) throws Exception {
     return buildJson(path, typeOfT, "");
   }
 

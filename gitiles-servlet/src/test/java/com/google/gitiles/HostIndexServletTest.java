@@ -38,6 +38,8 @@ import java.util.Map;
 @RunWith(JUnit4.class)
 public class HostIndexServletTest extends ServletTest {
   private static final String NAME = "foo/bar/repo";
+  private static final TypeToken<Map<String, RepositoryDescription>> REPOS =
+      new TypeToken<Map<String, RepositoryDescription>>() {};
 
   @Override
   @Before
@@ -118,9 +120,7 @@ public class HostIndexServletTest extends ServletTest {
   @Test
   public void rootJson() throws Exception {
     String name = repo.getRepository().getDescription().getRepositoryName();
-    Map<String, RepositoryDescription> res = buildJson(
-        "/",
-        new TypeToken<Map<String, RepositoryDescription>>() {}.getType());
+    Map<String, RepositoryDescription> res = buildJson("/", REPOS);
 
     assertThat(res).hasSize(1);
     assertThat(res).containsKey(name);
@@ -130,9 +130,7 @@ public class HostIndexServletTest extends ServletTest {
 
   @Test
   public void fooSubdirJson() throws Exception {
-    Map<String, RepositoryDescription> res = buildJson(
-        "/foo/",
-        new TypeToken<Map<String, RepositoryDescription>>() {}.getType());
+    Map<String, RepositoryDescription> res = buildJson("/foo/", REPOS);
 
     assertThat(res).hasSize(1);
     assertThat(res).containsKey("bar/repo");
@@ -142,9 +140,7 @@ public class HostIndexServletTest extends ServletTest {
 
   @Test
   public void fooBarSubdirJson() throws Exception {
-    Map<String, RepositoryDescription> res = buildJson(
-        "/foo/bar/",
-        new TypeToken<Map<String, RepositoryDescription>>() {}.getType());
+    Map<String, RepositoryDescription> res = buildJson("/foo/bar/", REPOS);
 
     assertThat(res).hasSize(1);
     assertThat(res).containsKey("repo");
