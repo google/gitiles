@@ -18,17 +18,23 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
+import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.errors.RevWalkException;
 import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.revwalk.FollowFilter;
+import org.eclipse.jgit.revwalk.RenameCallback;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.treewalk.filter.TreeFilter;
 
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.annotation.Nullable;
 
@@ -45,19 +51,36 @@ import javax.annotation.Nullable;
  * "c0ffee".
  */
 class Paginator implements Iterable<RevCommit> {
+  private static class RenameWatcher extends RenameCallback {
+    private DiffEntry entry;
+
+    @Override
+    public void renamed(DiffEntry entry) {
+      this.entry = entry;
+    }
+
+    private DiffEntry getAndClear() {
+      DiffEntry e = entry;
+      entry = null;
+      return e;
+    }
+  }
+
   private final RevWalk walk;
   private final int limit;
   private final ObjectId prevStart;
+  private final RenameWatcher renameWatcher;
 
   private RevCommit first;
   private boolean done;
   private int n;
   private ObjectId nextStart;
+  private Map<ObjectId, DiffEntry> renamed;
 
   /**
    * Construct a paginator and walk eagerly to the first returned commit.
    *
-   * @param walk revision walk.
+   * @param walk revision walk; must be fully initialized before calling.
    * @param limit page size.
    * @param start commit at which to start the walk, or null to start at the
    *     beginning.
@@ -68,10 +91,17 @@ class Paginator implements Iterable<RevCommit> {
     checkArgument(limit > 0, "limit must be positive: %s", limit);
     this.limit = limit;
 
+    TreeFilter filter = walk.getTreeFilter();
+    if (filter instanceof FollowFilter) {
+      renameWatcher = new RenameWatcher();
+      ((FollowFilter) filter).setRenameCallback(renameWatcher);
+    } else {
+      renameWatcher = null;
+    }
 
     Deque<ObjectId> prevBuffer = new ArrayDeque<>(start != null ? limit : 0);
     while (true) {
-      RevCommit commit = walk.next();
+      RevCommit commit = nextWithRename();
       if (commit == null) {
         done = true;
         break;
@@ -107,15 +137,33 @@ class Paginator implements Iterable<RevCommit> {
       commit = first;
       first = null;
     } else {
-      commit = walk.next();
+      commit = nextWithRename();
     }
     if (++n == limit) {
-      nextStart = walk.next();
+      nextStart = nextWithRename();
       done = true;
     } else if (commit == null) {
       done = true;
     }
     return commit;
+  }
+
+  private RevCommit nextWithRename() throws IOException {
+    RevCommit next = walk.next();
+    if (renameWatcher != null) {
+      // The commit that triggered the rename isn't available to RenameWatcher,
+      // so we can't populate the map from the callback directly. Instead, we
+      // need to check after each call to walk.next() whether a rename occurred
+      // due to this commit.
+      DiffEntry entry = renameWatcher.getAndClear();
+      if (entry != null) {
+        if (renamed == null) {
+          renamed = new HashMap<>();
+        }
+        renamed.put(next.copy(), entry);
+      }
+    }
+    return next;
   }
 
   /**
@@ -133,6 +181,13 @@ class Paginator implements Iterable<RevCommit> {
   public ObjectId getNextStart() {
     checkState(done, "getNextStart() invalid before walk done");
     return nextStart;
+  }
+
+  /**
+   * @return entry corresponding to a rename or copy at the given commit.
+   */
+  public DiffEntry getRename(ObjectId commitId) {
+    return renamed != null ? renamed.get(commitId) : null;
   }
 
   /**

@@ -24,6 +24,8 @@ import com.google.common.collect.Sets;
 import com.google.gitiles.CommitData.Field;
 import com.google.template.soy.tofu.SoyTofu;
 
+import org.eclipse.jgit.diff.DiffEntry;
+import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -101,9 +103,28 @@ public class LogSoyData {
     }
 
     Map<String, Object> entry = csd.setRevWalk(paginator.getWalk()).toSoyData(req, c, fields, df);
+    DiffEntry rename = paginator.getRename(c);
+    if (rename != null) {
+      entry.put("rename", toRenameSoyData(rename));
+    }
     return ImmutableMap.of(
         "variant", variant,
         "entry", entry);
+  }
+
+  private Map<String, Object> toRenameSoyData(DiffEntry entry) {
+    if (entry == null) {
+      return null;
+    }
+    ChangeType type = entry.getChangeType();
+    if (type != ChangeType.RENAME && type != ChangeType.COPY) {
+      return null;
+    }
+    return ImmutableMap.<String, Object> of(
+        "changeType", type.toString(),
+        "oldPath", entry.getOldPath(),
+        "newPath", entry.getNewPath(),
+        "score", entry.getScore());
   }
 
   private Map<String, Object> toFooterSoyData(Paginator paginator, @Nullable String revision) {
