@@ -120,7 +120,7 @@ public class HostIndexServletTest extends ServletTest {
   @Test
   public void rootJson() throws Exception {
     String name = repo.getRepository().getDescription().getRepositoryName();
-    Map<String, RepositoryDescription> res = buildJson("/", REPOS);
+    Map<String, RepositoryDescription> res = buildJson(REPOS, "/");
 
     assertThat(res).hasSize(1);
     assertThat(res).containsKey(name);
@@ -130,7 +130,7 @@ public class HostIndexServletTest extends ServletTest {
 
   @Test
   public void fooSubdirJson() throws Exception {
-    Map<String, RepositoryDescription> res = buildJson("/foo/", REPOS);
+    Map<String, RepositoryDescription> res = buildJson(REPOS, "/foo/");
 
     assertThat(res).hasSize(1);
     assertThat(res).containsKey("bar/repo");
@@ -140,7 +140,7 @@ public class HostIndexServletTest extends ServletTest {
 
   @Test
   public void fooBarSubdirJson() throws Exception {
-    Map<String, RepositoryDescription> res = buildJson("/foo/bar/", REPOS);
+    Map<String, RepositoryDescription> res = buildJson(REPOS, "/foo/bar/");
 
     assertThat(res).hasSize(1);
     assertThat(res).containsKey("repo");

@@ -37,7 +37,7 @@ public class LogServletTest extends ServletTest {
   public void basicLog() throws Exception {
     RevCommit commit = repo.branch("HEAD").commit().create();
 
-    Log response = buildJson("/repo/+log", LOG, "");
+    Log response = buildJson(LOG, "/repo/+log");
     assertThat(response.log).hasSize(1);
     verifyJsonCommit(response.log.get(0), commit);
     assertThat(response.log.get(0).treeDiff).isNull();
@@ -50,7 +50,7 @@ public class LogServletTest extends ServletTest {
     RevCommit c1 = repo.update("master", repo.commit().add("foo", contents1));
     RevCommit c2 = repo.update("master", repo.commit().parent(c1).add("foo", contents2));
 
-    Log response = buildJson("/repo/+log/master", LOG, "&name-status=1");
+    Log response = buildJson(LOG, "/repo/+log/master", "name-status=1");
     assertThat(response.log).hasSize(2);
 
     Commit jc2 = response.log.get(0);

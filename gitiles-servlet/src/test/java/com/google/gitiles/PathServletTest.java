@@ -213,7 +213,7 @@ public class PathServletTest extends ServletTest {
         .add("baz", "baz contents")
         .create());
 
-    Tree tree = buildJson("/repo/+/master/", Tree.class);
+    Tree tree = buildJson(Tree.class, "/repo/+/master/");
     assertThat(tree.id).isEqualTo(c.getTree().name());
     assertThat(tree.entries).hasSize(2);
     assertThat(tree.entries.get(0).mode).isEqualTo(0100644);
@@ -225,7 +225,7 @@ public class PathServletTest extends ServletTest {
     assertThat(tree.entries.get(1).id).isEqualTo(repo.get(c.getTree(), "foo").name());
     assertThat(tree.entries.get(1).name).isEqualTo("foo");
 
-    tree = buildJson("/repo/+/master/foo", Tree.class);
+    tree = buildJson(Tree.class, "/repo/+/master/foo");
     assertThat(tree.id).isEqualTo(repo.get(c.getTree(), "foo").name());
     assertThat(tree.entries).hasSize(1);
     assertThat(tree.entries.get(0).mode).isEqualTo(0100644);
@@ -233,7 +233,7 @@ public class PathServletTest extends ServletTest {
     assertThat(tree.entries.get(0).id).isEqualTo(repo.get(c.getTree(), "foo/bar").name());
     assertThat(tree.entries.get(0).name).isEqualTo("bar");
 
-    tree = buildJson("/repo/+/master/foo/", Tree.class);
+    tree = buildJson(Tree.class, "/repo/+/master/foo/");
     assertThat(tree.id).isEqualTo(repo.get(c.getTree(), "foo").name());
     assertThat(tree.entries).hasSize(1);
     assertThat(tree.entries.get(0).mode).isEqualTo(0100644);

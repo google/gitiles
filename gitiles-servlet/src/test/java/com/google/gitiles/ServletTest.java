@@ -19,6 +19,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 
+import com.google.common.base.Strings;
 import com.google.common.net.HttpHeaders;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
@@ -92,8 +93,10 @@ public class ServletTest {
     return res;
   }
 
-  private String buildJsonRaw(String path, String additionalQueryString) throws Exception {
-    FakeHttpServletResponse res = buildResponse(path, "format=json" + additionalQueryString, SC_OK);
+  private String buildJsonRaw(String path, String queryString) throws Exception {
+    String fmt = "format=JSON";
+    queryString = Strings.isNullOrEmpty(queryString) ? fmt : fmt + "&" + queryString;
+    FakeHttpServletResponse res = buildResponse(path, queryString, SC_OK);
     assertThat(res.getHeader(HttpHeaders.CONTENT_TYPE)).isEqualTo("application/json");
     String body = res.getActualBodyString();
     String magic = ")]}'\n";
@@ -101,22 +104,22 @@ public class ServletTest {
     return body.substring(magic.length());
   }
 
-  protected <T> T buildJson(String path, Class<T> classOfT, String additionalQueryString)
+  protected <T> T buildJson(Class<T> classOfT, String path, String queryString)
       throws Exception {
-    return newGson().fromJson(buildJsonRaw(path, additionalQueryString), classOfT);
+    return newGson().fromJson(buildJsonRaw(path, queryString), classOfT);
   }
 
-  protected <T> T buildJson(String path, Class<T> classOfT) throws Exception {
-    return buildJson(path, classOfT, "");
+  protected <T> T buildJson(Class<T> classOfT, String path) throws Exception {
+    return buildJson(classOfT, path, null);
   }
 
-  protected <T> T buildJson(String path, TypeToken<T> typeOfT, String additionalQueryString)
+  protected <T> T buildJson(TypeToken<T> typeOfT, String path, String queryString)
       throws Exception {
-    return newGson().fromJson(buildJsonRaw(path, additionalQueryString), typeOfT.getType());
+    return newGson().fromJson(buildJsonRaw(path, queryString), typeOfT.getType());
   }
 
-  protected <T> T buildJson(String path, TypeToken<T> typeOfT) throws Exception {
-    return buildJson(path, typeOfT, "");
+  protected <T> T buildJson(TypeToken<T> typeOfT, String path) throws Exception {
+    return buildJson(typeOfT, path, null);
   }
 
   private static Gson newGson() {
