@@ -102,6 +102,8 @@ will render into HTML as:
 
 The second level items (above Orange, Pear) must be indented with more
 spaces than the item they are nested under. Above 2 spaces were used.
+Additionally, the entire list must be preceded and followed by a blank
+line.
 
 A numbered list:
 
