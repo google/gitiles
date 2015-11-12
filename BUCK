@@ -39,11 +39,9 @@ def b():
       out = out,
     )
 
-  genrule(
+  zip_file(
     name = 'all',
-    cmd = 'echo done >$OUT',
-    deps = [':' + e for e in a],
-    out = '__fake.gitiles__',
+    srcs = [':%s' % e for e in a],
   )
 
 b()
