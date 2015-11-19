@@ -24,7 +24,6 @@
  * @param? headerVariant variant name for custom header.
  * @param breadcrumbs navigation breadcrumbs for this page.
  * @param? css optional list of CSS URLs to include.
- * @param? js optional list of Javascript URLs to include.
  * @param? containerClass optional class to append to the main container.
  */
 {template .header}
@@ -44,12 +43,6 @@
   {if $css and length($css)}
     {foreach $url in $css}
       <link rel="stylesheet" type="text/css" href="{$url}">
-    {/foreach}
-  {/if}
-
-  {if $js and length($js)}
-    {foreach $url in $js}
-      <script src="{$url}"></script>
     {/foreach}
   {/if}
 </head>
