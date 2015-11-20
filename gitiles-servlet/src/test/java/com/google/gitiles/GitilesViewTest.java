@@ -114,7 +114,7 @@ public class GitilesViewTest {
     assertThat(view.getRepositoryName()).isEqualTo("repo");
     assertThat(view.getRevision()).isEqualTo(Revision.named("master"));
     assertThat(view.getPathPart()).isNull();
-    assertThat(view.getParameters()).containsExactly(
+    assertThat(view.getParameters()).containsExactlyEntriesIn(
         ImmutableListMultimap.of(
             "foo", "foovalue",
             "bar", "barvalue"));
