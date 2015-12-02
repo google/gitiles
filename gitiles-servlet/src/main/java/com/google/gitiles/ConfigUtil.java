@@ -33,7 +33,7 @@ public class ConfigUtil {
   /**
    * Read a duration value from the configuration.
    * <p>
-   * Durations can be written as expressions, for example {@code "1 s"} or
+   * Durations can be written with unit suffixes, for example {@code "1 s"} or
    * {@code "5 days"}. If units are not specified, milliseconds are assumed.
    *
    * @param config JGit config object.
@@ -49,16 +49,39 @@ public class ConfigUtil {
     if (valStr == null) {
         return defaultValue;
     }
-
     valStr = valStr.trim();
-    if (valStr.length() == 0) {
+    if (valStr.isEmpty()) {
         return defaultValue;
     }
-
-    Matcher m = matcher("^([1-9][0-9]*(?:\\.[0-9]*)?)\\s*(.*)$", valStr);
-    if (!m.matches()) {
+    Duration val = parseDuration(valStr);
+    if (val == null) {
       String key = section + (subsection != null ? "." + subsection : "") + "." + name;
       throw new IllegalStateException("Not time unit: " + key + " = " + valStr);
+    }
+    return val;
+  }
+
+  /**
+   * Parse a duration value from a string.
+   * <p>
+   * Durations can be written with unit suffixes, for example {@code "1 s"} or
+   * {@code "5 days"}. If units are not specified, milliseconds are assumed.
+   *
+   * @param valStr the value to parse.
+   * @return a standard duration representing the time parsed, or null if not a
+   *     valid duration.
+   */
+  public static Duration parseDuration(String valStr) {
+    if (valStr == null) {
+      return null;
+    }
+    valStr = valStr.trim();
+    if (valStr.isEmpty()) {
+      return null;
+    }
+    Matcher m = matcher("^([1-9][0-9]*(?:\\.[0-9]*)?)\\s*(.*)$", valStr);
+    if (!m.matches()) {
+      return null;
     }
 
     String digits = m.group(1);
@@ -78,8 +101,7 @@ public class ConfigUtil {
     } else if (anyOf(unitName, "d", "day", "days")) {
       unit = TimeUnit.DAYS;
     } else {
-      String key = section + (subsection != null ? "." + subsection : "") + "." + name;
-      throw new IllegalStateException("Not time unit: " + key + " = " + valStr);
+      return null;
     }
 
     try {
@@ -91,8 +113,7 @@ public class ConfigUtil {
         return new Duration((long) (val * TimeUnit.MILLISECONDS.convert(1, unit)));
       }
     } catch (NumberFormatException nfe) {
-      String key = section + (subsection != null ? "." + subsection : "") + "." + name;
-      throw new IllegalStateException("Not time unit: " + key + " = " + valStr, nfe);
+      return null;
     }
   }
 

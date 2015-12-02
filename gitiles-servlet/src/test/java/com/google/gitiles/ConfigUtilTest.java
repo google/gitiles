@@ -14,8 +14,10 @@
 
 package com.google.gitiles;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.gitiles.ConfigUtil.getDuration;
+import static com.google.gitiles.ConfigUtil.parseDuration;
 
 import org.eclipse.jgit.lib.Config;
 import org.joda.time.Duration;
@@ -43,5 +45,27 @@ public class ConfigUtilTest {
     config.setString("core", "dht", "timeout", "1 min");
     t = getDuration(config, "core", "dht", "timeout", def);
     assertThat(t.getMillis()).isEqualTo(60000);
+  }
+
+  @Test
+  public void parseDurationReturnsDuration() throws Exception {
+    assertDoesNotParse(null);
+    assertDoesNotParse("");
+    assertDoesNotParse(" ");
+    assertParses(500, "500 ms");
+    assertParses(500, "500ms");
+    assertParses(500, " 500 ms ");
+    assertParses(5200, "5.2 sec");
+    assertParses(60000, "1 min");
+  }
+
+  private static void assertDoesNotParse(String val) {
+    assertThat(parseDuration(val)).named(String.valueOf(val)).isNull();
+  }
+
+  private static void assertParses(long expectedMillis, String val) {
+    Duration actual = parseDuration(checkNotNull(val));
+    assertThat(actual).named(val).isNotNull();
+    assertThat(actual.getMillis()).named(val).isEqualTo(expectedMillis);
   }
 }
