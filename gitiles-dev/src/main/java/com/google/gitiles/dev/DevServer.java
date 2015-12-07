@@ -25,18 +25,14 @@ import com.google.gitiles.PathServlet;
 import com.google.gitiles.RepositoryDescription;
 import com.google.gitiles.RootedDocServlet;
 
-import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.bio.SocketConnector;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.resource.FileResource;
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
-import org.eclipse.jetty.util.thread.ThreadPool;
 import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.Config;
@@ -158,32 +154,13 @@ class DevServer {
     }
     this.cfg = cfg;
 
-    httpd = new Server();
-    httpd.setConnectors(connectors());
-    httpd.setThreadPool(threadPool());
+    httpd = new Server(cfg.getInt("gitiles", null, "port", 8080));
     httpd.setHandler(handler());
   }
 
   void start() throws Exception {
     httpd.start();
     httpd.join();
-  }
-
-  private Connector[] connectors() {
-    Connector c = new SocketConnector();
-    c.setHost(null);
-    c.setPort(cfg.getInt("gitiles", null, "port", 8080));
-    c.setStatsOn(false);
-    return new Connector[]{c};
-  }
-
-  private ThreadPool threadPool() {
-    QueuedThreadPool pool = new QueuedThreadPool();
-    pool.setName("HTTP");
-    pool.setMinThreads(2);
-    pool.setMaxThreads(10);
-    pool.setMaxQueued(50);
-    return pool;
   }
 
   private Handler handler() throws IOException {

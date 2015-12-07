@@ -1,13 +1,13 @@
-VERS = '8.1.7.v20120910'
+VERS = '9.2.13.v20150730'
 EXCLUDE = ['about.html']
 
 maven_jar(
   name = 'servlet',
   id = 'org.eclipse.jetty:jetty-servlet:' + VERS,
-  sha1 = '93da01e3ea26e70449e9a1a0affa5c31436be5a0',
+  sha1 = '5ad6e38015a97ae9a60b6c2ad744ccfa9cf93a50',
   deps = [
     ':security',
-    '//lib:servlet-api_3_0',  # Different from the rest of gitlies-server.
+    '//lib:servlet-api_3_0',  # Different from the rest of gitiles-server.
   ],
   exclude = EXCLUDE,
 )
@@ -15,7 +15,7 @@ maven_jar(
 maven_jar(
   name = 'security',
   id = 'org.eclipse.jetty:jetty-security:' + VERS,
-  sha1 = '8d78beb7a07f4cccee05a3f16a264f1025946258',
+  sha1 = 'cc7c7f27ec4cc279253be1675d9e47e58b995943',
   deps = [':server'],
   exclude = EXCLUDE,
   visibility = [],
@@ -24,7 +24,7 @@ maven_jar(
 maven_jar(
   name = 'server',
   id = 'org.eclipse.jetty:jetty-server:' + VERS,
-  sha1 = '6c81f733f28713919e99c2f8952e6ca5178033cd',
+  sha1 = '5be7d1da0a7abffd142de3091d160717c120b6ab',
   exported_deps = [
     ':continuation',
     ':http',
@@ -35,14 +35,14 @@ maven_jar(
 maven_jar(
   name = 'continuation',
   id = 'org.eclipse.jetty:jetty-continuation:' + VERS,
-  sha1 = 'f60cfe6267038000b459508529c88737601081e4',
+  sha1 = 'f6bd4e6871ecd0a5e7a5e5addcea160cd73f81bb',
   exclude = EXCLUDE,
 )
 
 maven_jar(
   name = 'http',
   id = 'org.eclipse.jetty:jetty-http:' + VERS,
-  sha1 = '10126433876cd74534695f7f99c4362596555493',
+  sha1 = '23a745d9177ef67ef53cc46b9b70c5870082efc2',
   exported_deps = [':io'],
   exclude = EXCLUDE,
 )
@@ -50,7 +50,7 @@ maven_jar(
 maven_jar(
   name = 'io',
   id = 'org.eclipse.jetty:jetty-io:' + VERS,
-  sha1 = 'a81f746ae1b10c37e1bb0a01d1374c202c0bd549',
+  sha1 = '7a351e6a1b63dfd56b6632623f7ca2793ffb67ad',
   exported_deps = [':util'],
   exclude = EXCLUDE,
   visibility = [],
@@ -59,7 +59,7 @@ maven_jar(
 maven_jar(
   name = 'util',
   id = 'org.eclipse.jetty:jetty-util:' + VERS,
-  sha1 = '7eb2004ab2c22fd3b00095bd9ba0f32a9e88f6a5',
+  sha1 = 'c101476360a7cdd0670462de04053507d5e70c97',
   exclude = EXCLUDE,
   visibility = [],
 )
