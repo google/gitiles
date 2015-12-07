@@ -51,12 +51,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
@@ -86,17 +89,17 @@ class DevServer {
     return cfg;
   }
 
-  private static FileNotFoundException badSourceRoot(URI u) {
-    return new FileNotFoundException("Cannot find source root from " + u);
+  private static NoSuchFileException badSourceRoot(URI u) {
+    return new NoSuchFileException("Cannot find source root from " + u);
   }
 
-  private static FileNotFoundException badSourceRoot(URI u, Throwable cause) {
-    FileNotFoundException notFound = badSourceRoot(u);
+  private static NoSuchFileException badSourceRoot(URI u, Throwable cause) {
+    NoSuchFileException notFound = badSourceRoot(u);
     notFound.initCause(cause);
     return notFound;
   }
 
-  private static File findSourceRoot() throws IOException {
+  private static Path findSourceRoot() throws IOException {
     URI u;
     try {
       u = DevServer.class.getResource(DevServer.class.getSimpleName() + ".class").toURI();
@@ -104,7 +107,7 @@ class DevServer {
       u = null;
     }
     if (u == null) {
-      throw new FileNotFoundException("Cannot find Gitiles source directory");
+      throw new NoSuchFileException("Cannot find Gitiles source directory");
     }
     if ("jar".equals(u.getScheme())) {
       String path = u.getSchemeSpecificPart();
@@ -122,29 +125,20 @@ class DevServer {
     }
   }
 
-  private static File findSourceRoot(URI targetUri) throws IOException {
+  private static Path findSourceRoot(URI targetUri) throws IOException {
     if (!"file".equals(targetUri.getScheme())) {
       throw badSourceRoot(targetUri);
     }
-    String targetPath = targetUri.getPath();
-    // targetPath is an arbitrary path under buck-out/ in our Buck package
-    // layout.
-    int targetIndex = targetPath.lastIndexOf("buck-out/");
-    if (targetIndex < 0) {
-      throw badSourceRoot(targetUri);
+
+    Path dir = Paths.get(targetUri.getPath());
+    while (!Files.isRegularFile(dir.resolve(".buckconfig"))) {
+      Path parent = dir.getParent();
+      if (parent == null) {
+        throw badSourceRoot(targetUri);
+      }
+      dir = parent;
     }
-    String path = targetPath.substring(0, targetIndex);
-    URI u;
-    try {
-      u = new URI("file", path, null).normalize();
-    } catch (URISyntaxException e) {
-      throw new IOException(e);
-    }
-    File root = new File(u);
-    if (!root.exists() || !root.isDirectory()) {
-      throw badSourceRoot(targetUri);
-    }
-    return root;
+    return dir;
   }
 
   private final File sourceRoot;
@@ -152,7 +146,7 @@ class DevServer {
   private final Server httpd;
 
   DevServer(File cfgFile) throws IOException, ConfigInvalidException {
-    sourceRoot = findSourceRoot();
+    sourceRoot = findSourceRoot().toFile();
 
     Config cfg = defaultConfig();
     if (cfgFile.exists() && cfgFile.isFile()) {
