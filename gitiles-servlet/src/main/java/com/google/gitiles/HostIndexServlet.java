@@ -114,7 +114,9 @@ public class HostIndexServlet extends BaseServlet {
 
     SoyListData repos = new SoyListData();
     for (RepositoryDescription desc : descs.values()) {
-      repos.add(toSoyMapData(desc, prefix, view));
+      if (prefix == null || desc.name.startsWith(prefix)) {
+        repos.add(toSoyMapData(desc, prefix, view));
+      }
     }
 
     String hostName = urls.getHostName(req);
@@ -175,7 +177,10 @@ public class HostIndexServlet extends BaseServlet {
   }
 
   private static String stripPrefix(@Nullable String prefix, String name) {
-    return prefix != null ? name.substring(prefix.length() + 1) : name;
+    if (prefix != null && name.startsWith(prefix)) {
+      return name.substring(prefix.length() + 1);
+    }
+    return name;
   }
 
   private static Set<String> parseShowBranch(HttpServletRequest req) {
