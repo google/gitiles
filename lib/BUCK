@@ -87,10 +87,8 @@ maven_jar(
 
 maven_jar(
   name = 'truth',
-  id = 'com.google.truth:truth:1.0-20151120.141336-28',
-  sha1 = 'c40c13431eedde9ed168ee908af8891bf1a09245',
-  repository = GERRIT,
-  attach_source = False, # Remove when using non-snapshot version.
+  id = 'com.google.truth:truth:0.28',
+  sha1 = '0a388c7877c845ff4b8e19689dda5ac9d34622c4',
   license = 'DO_NOT_DISTRIBUTE',
   exported_deps = [
     ':guava',
