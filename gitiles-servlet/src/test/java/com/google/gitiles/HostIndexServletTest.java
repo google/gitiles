@@ -34,6 +34,8 @@ import org.junit.runners.JUnit4;
 
 import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
+
 /** Tests for {@link HostIndexServlet}. */
 @RunWith(JUnit4.class)
 public class HostIndexServletTest extends ServletTest {
@@ -151,5 +153,35 @@ public class HostIndexServletTest extends ServletTest {
   @Test
   public void emptySubdirectoryList() throws Exception {
     assertNotFound("/no.repos/", null);
+  }
+
+  @Test
+  public void headOnRoot() throws Exception {
+    FakeHttpServletRequest req = FakeHttpServletRequest.newRequest();
+    req.setMethod("HEAD");
+    req.setPathInfo("/");
+    FakeHttpServletResponse res = new FakeHttpServletResponse();
+    servlet.service(req, res);
+    assertThat(res.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
+  }
+
+  @Test
+  public void headOnMissingSubdir() throws Exception {
+    FakeHttpServletRequest req = FakeHttpServletRequest.newRequest();
+    req.setMethod("HEAD");
+    req.setPathInfo("/no.repos/");
+    FakeHttpServletResponse res = new FakeHttpServletResponse();
+    servlet.service(req, res);
+    assertThat(res.getStatus()).isEqualTo(HttpServletResponse.SC_NOT_FOUND);
+  }
+
+  @Test
+  public void headOnPopulatedSubdir() throws Exception {
+    FakeHttpServletRequest req = FakeHttpServletRequest.newRequest();
+    req.setMethod("HEAD");
+    req.setPathInfo("/foo/");
+    FakeHttpServletResponse res = new FakeHttpServletResponse();
+    servlet.service(req, res);
+    assertThat(res.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
   }
 }

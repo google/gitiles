@@ -15,11 +15,13 @@
 package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
@@ -101,6 +103,37 @@ public class HostIndexServlet extends BaseServlet {
             .copyFrom(view)
             .setRepositoryName(desc.name)
             .toUrl());
+  }
+
+  @Override
+  protected void doHead(HttpServletRequest req, HttpServletResponse res)
+      throws IOException {
+    Optional<FormatType> format = getFormat(req);
+    if (!format.isPresent()) {
+      res.sendError(SC_BAD_REQUEST);
+      return;
+    }
+
+    GitilesView view = ViewFilter.getView(req);
+    String prefix = view.getRepositoryPrefix();
+    if (prefix != null) {
+      Map<String, RepositoryDescription> descs =
+          list(req, res, prefix, Collections.<String> emptySet());
+      if (descs == null) {
+        return;
+      }
+    }
+    switch (format.get()) {
+      case HTML:
+      case JSON:
+      case TEXT:
+        res.setStatus(HttpServletResponse.SC_OK);
+        res.setContentType(format.get().getMimeType());
+        break;
+      default:
+        res.sendError(SC_BAD_REQUEST);
+        break;
+    }
   }
 
   @Override

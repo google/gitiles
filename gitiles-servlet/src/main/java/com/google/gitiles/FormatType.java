@@ -14,6 +14,8 @@
 
 package com.google.gitiles;
 
+import com.google.common.base.Enums;
+import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.net.HttpHeaders;
 
@@ -28,38 +30,36 @@ public enum FormatType {
 
   private static final String FORMAT_TYPE_ATTRIBUTE = FormatType.class.getName();
 
-  public static FormatType getFormatType(HttpServletRequest req) {
-    FormatType result = (FormatType) req.getAttribute(FORMAT_TYPE_ATTRIBUTE);
+  public static Optional<FormatType> getFormatType(HttpServletRequest req) {
+    @SuppressWarnings("unchecked")
+    Optional<FormatType> result =
+        (Optional<FormatType>) req.getAttribute(FORMAT_TYPE_ATTRIBUTE);
     if (result != null) {
       return result;
     }
 
-    String format = req.getParameter("format");
-    if (format != null) {
-      for (FormatType type : FormatType.values()) {
-        if (format.equalsIgnoreCase(type.name())) {
-          return set(req, type);
-        }
-      }
-      throw new IllegalArgumentException("Invalid format " + format);
+    String fmt = req.getParameter("format");
+    if (!Strings.isNullOrEmpty(fmt)) {
+      return set(req, Enums.getIfPresent(FormatType.class, fmt.toUpperCase()));
     }
 
     String accept = req.getHeader(HttpHeaders.ACCEPT);
     if (Strings.isNullOrEmpty(accept)) {
-      return set(req, DEFAULT);
+      return set(req, Optional.of(DEFAULT));
     }
 
     for (String p : accept.split("[ ,;][ ,;]*")) {
       for (FormatType type : FormatType.values()) {
         if (p.equals(type.mimeType)) {
-          return set(req, type != HTML ? type : DEFAULT);
+          return set(req, Optional.of(type != HTML ? type : DEFAULT));
         }
       }
     }
-    return set(req, DEFAULT);
+    return set(req, Optional.of(DEFAULT));
   }
 
-  private static FormatType set(HttpServletRequest req, FormatType format) {
+  private static Optional<FormatType> set(HttpServletRequest req,
+      Optional<FormatType> format) {
     req.setAttribute(FORMAT_TYPE_ATTRIBUTE, format);
     return format;
   }

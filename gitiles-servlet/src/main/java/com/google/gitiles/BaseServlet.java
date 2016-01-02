@@ -25,6 +25,7 @@ import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.eclipse.jgit.util.HttpSupport.ENCODING_GZIP;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -102,17 +103,12 @@ public abstract class BaseServlet extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse res)
       throws IOException, ServletException {
-    FormatType format;
-    try {
-      format = FormatType.getFormatType(req);
-    } catch (IllegalArgumentException err) {
+    Optional<FormatType> format = getFormat(req);
+    if (!format.isPresent()) {
       res.sendError(SC_BAD_REQUEST);
       return;
     }
-    if (format == DEFAULT) {
-      format = getDefaultFormat(req);
-    }
-    switch (format) {
+    switch (format.get()) {
       case HTML:
         doGetHtml(req, res);
         break;
@@ -126,6 +122,14 @@ public abstract class BaseServlet extends HttpServlet {
         res.sendError(SC_BAD_REQUEST);
         break;
     }
+  }
+
+  protected Optional<FormatType> getFormat(HttpServletRequest req) {
+    Optional<FormatType> format = FormatType.getFormatType(req);
+    if (format.isPresent() && format.get() == DEFAULT) {
+      return Optional.of(getDefaultFormat(req));
+    }
+    return format;
   }
 
   /**

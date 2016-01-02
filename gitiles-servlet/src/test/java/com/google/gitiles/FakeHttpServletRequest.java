@@ -70,6 +70,7 @@ public class FakeHttpServletRequest implements HttpServletRequest {
   private ListMultimap<String, String> parameters;
   private String hostName;
   private int port;
+  private String method;
   private String contextPath;
   private String servletPath;
   private String path;
@@ -79,6 +80,7 @@ public class FakeHttpServletRequest implements HttpServletRequest {
     this.hostName = checkNotNull(hostName, "hostName");
     checkArgument(port > 0);
     this.port = port;
+    this.method = "GET";
     this.contextPath = checkNotNull(contextPath, "contextPath");
     this.servletPath = checkNotNull(servletPath, "servletPath");
     attributes = Maps.newConcurrentMap();
@@ -297,7 +299,11 @@ public class FakeHttpServletRequest implements HttpServletRequest {
 
   @Override
   public String getMethod() {
-    return "GET";
+    return method;
+  }
+
+  public void setMethod(String m) {
+    method = m;
   }
 
   @Override
