@@ -679,9 +679,9 @@ the repository.
 
 ### Site title
 
-A site wide banner is displayed on all Markdown pages if `navbar.md`
-includes a H1 header.  The text of the header is display on the left
-side of the banner.
+A site-wide banner is displayed on all Markdown pages if `navbar.md`
+includes an H1 header.  The text of the header is displayed on the
+left side of the banner.
 
 ```
 # Gitiles
