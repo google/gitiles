@@ -12,16 +12,16 @@ Building
 Gitiles requires [Buck](http://facebook.github.io/buck/) to build.
 
 ```
-  sudo apt-get install ant
-  cd ${HOME}
-  git clone https://github.com/facebook/buck.git
-  cd buck
-  ant
-  sudo ln -s ${PWD}/bin/buck /usr/bin/buck
-  cd /path/to/gitiles
-  git submodule update --init
-  buck build all
-  buck test
+sudo apt-get install ant
+cd ${HOME}
+git clone https://github.com/facebook/buck.git
+cd buck
+ant
+sudo ln -s ${PWD}/bin/buck /usr/bin/buck
+cd /path/to/gitiles
+git submodule update --init
+buck build all
+buck test
 ```
 
 
@@ -29,8 +29,8 @@ Testing
 -------
 
 ```
-  cd /path/to/repositories  # Don't run from the gitiles repo.
-  /path/to/gitiles/tools/run_dev.sh
+cd /path/to/repositories  # Don't run from the gitiles repo.
+/path/to/gitiles/tools/run_dev.sh
 ```
 
 This will recompile and start a development server.  Open
@@ -46,13 +46,13 @@ Eclipse IDE
 If you'd like to use Eclipse to edit Gitiles, first generate a project file:
 
 ```
-  ./bucklets/tools/eclipse.py --src
+./bucklets/tools/eclipse.py --src
 ```
 
 Import the project in Eclipse:
 
 ```
-  File -> Import -> Existing Projects into Workpace
+File -> Import -> Existing Projects into Workpace
 ```
 
 The project only needs to be rebuilt if the source roots or third-party
