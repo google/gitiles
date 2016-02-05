@@ -55,7 +55,7 @@
           <td class="Blame-time">{$region.author.time}</span>
           <td class="Blame-regionLink">
             [<a href="{$region.diffUrl}">{msg desc="text for diff URL"}diff{/msg}</a>]
-            [<a href="{$region.blameUrl}">{msg desc="text for blame URL"}blame{/msg}</a>]
+            [<a href="{$region.blameUrl}">{msg desc="text for blame URL"}{$region.blameText}{/msg}</a>]
           </td>
         {else}
           <td colspan="4"></td>

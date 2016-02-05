@@ -219,10 +219,17 @@ public class BlameServlet extends BaseServlet {
         }
         Map<String, Object> e = Maps.newHashMapWithExpectedSize(6);
         e.put("abbrevSha", abbrevSha);
+        String blameParent = "";
+        String blameText = "blame";
+        if (view.getRevision().getName().equals(r.getSourceCommit().name())) {
+          blameParent = "^";
+          blameText = "blame^";
+        }
         e.put("blameUrl", GitilesView.blame().copyFrom(view)
-            .setRevision(r.getSourceCommit().name())
+            .setRevision(r.getSourceCommit().name() + blameParent)
             .setPathPart(r.getSourcePath())
             .toUrl());
+        e.put("blameText", blameText);
         e.put("commitUrl", GitilesView.revision().copyFrom(view)
             .setRevision(r.getSourceCommit().name())
             .toUrl());
