@@ -17,6 +17,7 @@ package com.google.gitiles.doc;
 import com.google.common.base.Throwables;
 import com.google.gitiles.GitilesView;
 
+import org.joda.time.Duration;
 import org.parboiled.Rule;
 import org.parboiled.common.Factory;
 import org.parboiled.errors.ParserRuntimeException;
@@ -50,20 +51,22 @@ public class GitilesMarkdown extends Parser
   // this impacting the rendered formatting.
   private static final int MD_OPTIONS = (ALL | SUPPRESS_ALL_HTML) & ~(HARDWRAPS);
 
-  public static RootNode parseFile(GitilesView view, String path, String md) {
+  public static RootNode parseFile(Duration parseTimeout, GitilesView view,
+      String path, String md) {
     if (md == null) {
       return null;
     }
 
     try {
       try {
-        return newParser().parseMarkdown(md.toCharArray());
+        return newParser(parseTimeout).parseMarkdown(md.toCharArray());
       } catch (ParserRuntimeException e) {
         Throwables.propagateIfInstanceOf(e.getCause(), ParsingTimeoutException.class);
         throw e;
       }
     } catch (ParsingTimeoutException e) {
-      log.error("timeout rendering {}/{} at {}",
+      log.error("timeout {} ms rendering {}/{} at {}",
+          parseTimeout.getMillis(),
           view.getRepositoryName(),
           path,
           view.getRevision().getName());
@@ -71,17 +74,19 @@ public class GitilesMarkdown extends Parser
     }
   }
 
-  private static PegDownProcessor newParser() {
+  private static PegDownProcessor newParser(Duration parseDeadline) {
     PegDownPlugins plugins = new PegDownPlugins.Builder()
-        .withPlugin(GitilesMarkdown.class)
+        .withPlugin(GitilesMarkdown.class, parseDeadline)
         .build();
-    return new PegDownProcessor(MD_OPTIONS, plugins);
+    return new PegDownProcessor(MD_OPTIONS, parseDeadline.getMillis(), plugins);
   }
 
+  private final Duration parseTimeout;
   private PegDownProcessor parser;
 
-  GitilesMarkdown() {
-    super(MD_OPTIONS, 2000L, DefaultParseRunnerProvider);
+  GitilesMarkdown(Duration parseTimeout) {
+    super(MD_OPTIONS, parseTimeout.getMillis(), DefaultParseRunnerProvider);
+    this.parseTimeout = parseTimeout;
   }
 
   @Override
@@ -235,7 +240,7 @@ public class GitilesMarkdown extends Parser
     // use its existing parsing rules. Recurse manually for inner text
     // parsing within a block.
     if (parser == null) {
-      parser = newParser();
+      parser = newParser(parseTimeout);
     }
     return parser.parseMarkdown(body.getChars()).getChildren();
   }

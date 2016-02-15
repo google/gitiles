@@ -29,6 +29,7 @@ import com.google.common.hash.Hasher;
 import com.google.common.hash.Hashing;
 import com.google.common.net.HttpHeaders;
 import com.google.gitiles.BaseServlet;
+import com.google.gitiles.ConfigUtil;
 import com.google.gitiles.FormatType;
 import com.google.gitiles.GitilesAccess;
 import com.google.gitiles.GitilesView;
@@ -47,6 +48,7 @@ import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.util.RawParseUtils;
+import org.joda.time.Duration;
 import org.pegdown.ast.RootNode;
 
 import java.io.IOException;
@@ -108,10 +110,12 @@ public class DocServlet extends BaseServlet {
         return;
       }
 
+      Duration parseTimeout = ConfigUtil.getDuration(cfg, "markdown", null,
+          "parseTimeout", Duration.standardSeconds(2));
       view = view.toBuilder().setPathPart(srcmd.path).build();
       int inputLimit = cfg.getInt("markdown", "inputLimit", 5 << 20);
       RootNode doc = GitilesMarkdown.parseFile(
-          view, srcmd.path,
+          parseTimeout, view, srcmd.path,
           srcmd.read(rw.getObjectReader(), inputLimit));
       if (doc == null) {
         res.sendRedirect(GitilesView.show().copyFrom(view).toUrl());
@@ -121,7 +125,7 @@ public class DocServlet extends BaseServlet {
       RootNode nav = null;
       if (navmd != null) {
         nav = GitilesMarkdown.parseFile(
-            view, navmd.path,
+            parseTimeout, view, navmd.path,
             navmd.read(rw.getObjectReader(), inputLimit));
         if (nav == null) {
           res.setStatus(SC_INTERNAL_SERVER_ERROR);

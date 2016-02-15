@@ -31,6 +31,7 @@ import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.util.RawParseUtils;
+import org.joda.time.Duration;
 import org.pegdown.ast.RootNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,10 +90,13 @@ class ReadmeHelper {
 
   SanitizedContent render() {
     try {
+      Duration parseTimeout = ConfigUtil.getDuration(cfg, "markdown", null,
+          "parseTimeout", Duration.standardSeconds(2));
       int inputLimit = cfg.getInt("markdown", "inputLimit", 5 << 20);
       byte[] raw = reader.open(readmeId, Constants.OBJ_BLOB).getCachedBytes(inputLimit);
       String md = RawParseUtils.decode(raw);
-      RootNode root = GitilesMarkdown.parseFile(view, readmePath, md);
+      RootNode root =
+          GitilesMarkdown.parseFile(parseTimeout, view, readmePath, md);
       if (root == null) {
         return null;
       }

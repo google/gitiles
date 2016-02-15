@@ -768,6 +768,17 @@ The image limit places an upper bound on the byte size of input.
   imageLimit = 256K
 ```
 
+### Parsing timeout
+
+Parsing Markdown can be expensive so this implementation places
+a default upper bound of 2 seconds on running time per document.
+This is measured in wall clock time from the start of the request.
+
+```
+[markdown]
+  parseTimeout = 2s
+```
+
 ### Google Analytics
 
 [Google Analytics](https://www.google.com/analytics/) can be
