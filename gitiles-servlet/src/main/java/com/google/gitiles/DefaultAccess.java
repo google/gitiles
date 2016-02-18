@@ -161,6 +161,9 @@ public class DefaultAccess implements GitilesAccess {
 
   private String getRelativePath(String path) {
     String base = basePath.getPath();
+    if (path.equals(base)) {
+      return "";
+    }
     if (path.startsWith(base)) {
       return path.substring(base.length() + 1);
     }
