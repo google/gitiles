@@ -185,7 +185,7 @@ public class DefaultAccess implements GitilesAccess {
       File descFile = new File(repo.getDirectory(), "description");
       if (descFile.exists()) {
         desc = new String(IO.readFully(descFile));
-        if (DEFAULT_DESCRIPTION.equals(CharMatcher.WHITESPACE.trimFrom(desc))) {
+        if (DEFAULT_DESCRIPTION.equals(CharMatcher.whitespace().trimFrom(desc))) {
           desc = null;
         }
       } else if (configError != null) {
