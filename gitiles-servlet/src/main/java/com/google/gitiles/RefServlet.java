@@ -168,15 +168,18 @@ public class RefServlet extends BaseServlet {
 
     for (Ref ref : refs) {
       String name = ref.getName().substring(prefix.length());
-      boolean needPrefix = !ref.getName().equals(refdb.getRef(name).getName());
-      Map<String, Object> value = Maps.newHashMapWithExpectedSize(3);
-      value.put("url", GitilesView.revision().copyFrom(view).setRevision(
-        Revision.unpeeled(needPrefix ? ref.getName() : name, ref.getObjectId())).toUrl());
-      value.put("name", name);
-      if (headLeaf != null) {
-        value.put("isHead", headLeaf.equals(ref));
+      Ref refForName = refdb.getRef(name);
+      if (refForName != null) {
+        boolean needPrefix = !ref.getName().equals(refForName.getName());
+        Map<String, Object> value = Maps.newHashMapWithExpectedSize(3);
+        value.put("url", GitilesView.revision().copyFrom(view).setRevision(
+          Revision.unpeeled(needPrefix ? ref.getName() : name, ref.getObjectId())).toUrl());
+        value.put("name", name);
+        if (headLeaf != null) {
+          value.put("isHead", headLeaf.equals(ref));
+        }
+        result.add(value);
       }
-      result.add(value);
     }
     return result;
   }
