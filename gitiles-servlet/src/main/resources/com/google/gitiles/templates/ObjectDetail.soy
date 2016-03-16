@@ -261,8 +261,7 @@
           <tr class="u-pre u-monospace FileContents-line">
             <td class="u-lineNum u-noSelect FileContents-lineNum"
                 data-line-number="{$n}" onclick="window.location.hash='#{$n}'"></td>
-            <td class="FileContents-lineContents">
-              <a name="{$n}"></a>
+            <td class="FileContents-lineContents" id="{$n}">
               {foreach $span in $line}
                 <span class="{$span.classes}">{$span.text}</span>
               {/foreach}

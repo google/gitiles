@@ -459,6 +459,9 @@ ul, ol {
   min-height: 1em;
   padding-left: 10px;
 }
+.FileContents-lineContents:target {
+  background: #cfd8dc;
+}
 .InlineReadme {
   border-top: 1px solid #ddd;
   margin: 10px 0;
