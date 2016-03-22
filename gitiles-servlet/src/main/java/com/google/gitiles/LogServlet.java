@@ -256,11 +256,16 @@ public class LogServlet extends BaseServlet {
     }
     walk.setRewriteParents(false);
     String path = view.getPathPart();
-    if (isTrue(Iterables.getFirst(view.getParameters().get(FOLLOW_PARAM), null))) {
+
+    List<String> followParams = view.getParameters().get(FOLLOW_PARAM);
+    boolean follow = !followParams.isEmpty()
+        ? isTrue(followParams.get(0))
+        : access.getConfig().getBoolean("log", null, "follow", true);
+    if (follow) {
       walk.setTreeFilter(FollowFilter.create(path, access.getConfig().get(DiffConfig.KEY)));
     } else {
       walk.setTreeFilter(AndTreeFilter.create(
-          PathFilterGroup.createFromStrings(view.getPathPart()),
+          PathFilterGroup.createFromStrings(path),
           TreeFilter.ANY_DIFF));
     }
   }

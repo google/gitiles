@@ -83,11 +83,11 @@ public class LogServletTest extends ServletTest {
     repo.getRevWalk().parseBody(c1);
     repo.getRevWalk().parseBody(c2);
 
-    Log response = buildJson(LOG, "/repo/+log/master/bar");
+    Log response = buildJson(LOG, "/repo/+log/master/bar", "follow=0");
     assertThat(response.log).hasSize(1);
     verifyJsonCommit(response.log.get(0), c2);
 
-    response = buildJson(LOG, "/repo/+log/master/bar", "follow=1");
+    response = buildJson(LOG, "/repo/+log/master/bar");
     assertThat(response.log).hasSize(2);
     verifyJsonCommit(response.log.get(0), c2);
     verifyJsonCommit(response.log.get(1), c1);
