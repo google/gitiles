@@ -30,8 +30,12 @@ import com.google.gson.reflect.TypeToken;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
 import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
+import org.eclipse.jgit.junit.MockSystemReader;
 import org.eclipse.jgit.junit.TestRepository;
 import org.eclipse.jgit.lib.PersonIdent;
+import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.util.SystemReader;
+import org.junit.After;
 import org.junit.Before;
 
 import java.util.Map;
@@ -44,9 +48,16 @@ public class ServletTest {
 
   @Before
   public void setUp() throws Exception {
-    repo = new TestRepository<DfsRepository>(
-        new InMemoryRepository(new DfsRepositoryDescription("repo")));
+    MockSystemReader mockSystemReader = new MockSystemReader();
+    SystemReader.setInstance(mockSystemReader);
+    DfsRepository r = new InMemoryRepository(new DfsRepositoryDescription("repo"));
+    repo = new TestRepository<>(r, new RevWalk(r), mockSystemReader);
     servlet = TestGitilesServlet.create(repo);
+  }
+
+  @After
+  public void tearDown() {
+      SystemReader.setInstance(null);
   }
 
   protected FakeHttpServletResponse buildResponse(

@@ -21,7 +21,6 @@ import com.google.gitiles.CommitJsonData.Ident;
 import com.google.gitiles.ServletTest;
 import com.google.gson.reflect.TypeToken;
 
-import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,8 +31,8 @@ import java.util.Map;
 
 @RunWith(JUnit4.class)
 public class BlameServletTest extends ServletTest {
-  private static final String NAME = "Y. Author";
-  private static final String EMAIL = "yauthor@example.com";
+  private static final String NAME = "J. Author";
+  private static final String EMAIL = "jauthor@example.com";
   private static class RegionJsonData {
     int start;
     int count;
@@ -46,11 +45,10 @@ public class BlameServletTest extends ServletTest {
   public void blameJson() throws Exception {
     String contents1 = "foo\n";
     String contents2 = "foo\ncontents\n";
-    PersonIdent author = new PersonIdent(NAME, EMAIL);
-    RevCommit c1 = repo.update("master", repo.commit().add("foo", contents1).author(author));
+    RevCommit c1 = repo.update("master", repo.commit().add("foo", contents1));
     String c1Time = currentTimeFormatted();
     RevCommit c2 = repo.update("master",
-        repo.commit().tick(10).parent(c1).add("foo", contents2).author(author));
+        repo.commit().tick(10).parent(c1).add("foo", contents2));
     String c2Time = currentTimeFormatted();
 
     Map<String, List<RegionJsonData>> result = getBlameJson("/repo/+blame/" + c2.name() + "/foo");
