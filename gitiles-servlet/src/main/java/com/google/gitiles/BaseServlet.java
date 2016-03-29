@@ -239,7 +239,10 @@ public abstract class BaseServlet extends HttpServlet {
 
     Map<String, Object> allData = getData(req);
 
-    GitilesConfig.putVariant(getAccess(req).getConfig(), "customHeader", "headerVariant", allData);
+    // for backwards compatibility, first try to access the old customHeader config var,
+    // then read the new customVariant variable.
+    GitilesConfig.putVariant(getAccess(req).getConfig(), "customHeader", "customVariant", allData);
+    GitilesConfig.putVariant(getAccess(req).getConfig(), "customVariant", "customVariant", allData);
     allData.putAll(soyData);
     GitilesView view = ViewFilter.getView(req);
     if (!allData.containsKey("repositoryName") && view.getRepositoryName() != null) {

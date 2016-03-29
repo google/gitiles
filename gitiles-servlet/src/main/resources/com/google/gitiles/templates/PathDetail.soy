@@ -19,7 +19,7 @@
  * @param title human-readable name of this path.
  * @param repositoryName name of this repository.
  * @param? menuEntries menu entries.
- * @param? headerVariant variant name for custom header.
+ * @param? customVariant variant name for custom styling.
  * @param breadcrumbs breadcrumbs for this page.
  * @param type path type, matching one of the constant names defined in
  *         org.eclipse.jgit.lib.FileMode.
@@ -51,7 +51,9 @@
     </div>
 {/switch}
 
-{call .footer /}
+{call .footer}
+  {param customVariant: $customVariant /}
+{/call}
 {/template}
 
 /**

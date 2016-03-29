@@ -19,7 +19,7 @@
  * @param title human-readable revision name.
  * @param repositoryName name of this repository.
  * @param? menuEntries menu entries.
- * @param? headerVariant variant name for custom header.
+ * @param? customVariant variant name for custom styling.
  * @param breadcrumbs breadcrumbs for this page.
  * @param data blob data, matching the params for .blobBox.
  * @param? regions for non-binary files, list of regions, one per line, with the
@@ -82,5 +82,7 @@
   </div>
 {/if}
 
-{call .footer /}
+{call .footer}
+  {param customVariant: $customVariant /}
+{/call}
 {/template}
