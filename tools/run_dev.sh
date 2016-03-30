@@ -16,11 +16,13 @@
 
 set -e
 
-ROOT="$(dirname "$0")/.."
+ROOT="$(cd $(dirname "$0")/..; pwd)"
 PROPERTIES=
 if [ "x$1" != "x" ]; then
   PROPERTIES="-Dcom.google.gitiles.configPath=$1"
 fi
+
+PROPERTIES="$PROPERTIES -Dcom.google.gitiles.sourcePath=$ROOT"
 
 (
   cd "$ROOT"

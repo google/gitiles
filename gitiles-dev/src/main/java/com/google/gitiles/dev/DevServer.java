@@ -96,45 +96,13 @@ class DevServer {
   }
 
   private static Path findSourceRoot() throws IOException {
-    URI u;
-    try {
-      u = DevServer.class.getResource(DevServer.class.getSimpleName() + ".class").toURI();
-    } catch (URISyntaxException e) {
-      u = null;
+    String prop = "com.google.gitiles.sourcePath";
+    String sourceRoot = System.getProperty(prop);
+    if (sourceRoot == null) {
+      throw new NoSuchFileException(
+        String.format("Must set system property %s to top of source directory", prop));
     }
-    if (u == null) {
-      throw new NoSuchFileException("Cannot find Gitiles source directory");
-    }
-    if ("jar".equals(u.getScheme())) {
-      String path = u.getSchemeSpecificPart();
-      int jarEntry = path.indexOf("!/");
-      if (jarEntry < 0) {
-        throw badSourceRoot(u);
-      }
-      try {
-        return findSourceRoot(new URI(path.substring(0, jarEntry)));
-      } catch (URISyntaxException e) {
-        throw badSourceRoot(u, e);
-      }
-    } else {
-      return findSourceRoot(u);
-    }
-  }
-
-  private static Path findSourceRoot(URI targetUri) throws IOException {
-    if (!"file".equals(targetUri.getScheme())) {
-      throw badSourceRoot(targetUri);
-    }
-
-    Path dir = Paths.get(targetUri.getPath());
-    while (!Files.isRegularFile(dir.resolve(".buckconfig"))) {
-      Path parent = dir.getParent();
-      if (parent == null) {
-        throw badSourceRoot(targetUri);
-      }
-      dir = parent;
-    }
-    return dir;
+    return Paths.get(sourceRoot);
   }
 
   private final Path sourceRoot;
@@ -142,7 +110,8 @@ class DevServer {
   private final Server httpd;
 
   DevServer(File cfgFile) throws IOException, ConfigInvalidException {
-    sourceRoot = findSourceRoot();
+    // Jetty doesn't doesn't allow symlinks, so canonicalize.
+    sourceRoot = findSourceRoot().toRealPath();
 
     Config cfg = defaultConfig();
     if (cfgFile.exists() && cfgFile.isFile()) {
