@@ -137,12 +137,12 @@ class DevServer {
     return dir;
   }
 
-  private final File sourceRoot;
+  private final Path sourceRoot;
   private final Config cfg;
   private final Server httpd;
 
   DevServer(File cfgFile) throws IOException, ConfigInvalidException {
-    sourceRoot = findSourceRoot().toFile();
+    sourceRoot = findSourceRoot();
 
     Config cfg = defaultConfig();
     if (cfgFile.exists() && cfgFile.isFile()) {
@@ -174,8 +174,8 @@ class DevServer {
     DebugRenderer renderer = new DebugRenderer(
         STATIC_PREFIX,
         Arrays.asList(cfg.getStringList("gitiles", null, "customTemplates")),
-        new File(sourceRoot, "gitiles-servlet/src/main/resources/com/google/gitiles/templates")
-            .getPath(),
+        sourceRoot.resolve("gitiles-servlet/src/main/resources/com/google/gitiles/templates")
+            .toString(),
         firstNonNull(cfg.getString("gitiles", null, "siteTitle"), "Gitiles"));
 
     String docRoot = cfg.getString("gitiles", null, "docroot");
@@ -196,11 +196,11 @@ class DevServer {
   }
 
   private Handler staticHandler() throws IOException {
-    File staticRoot = new File(sourceRoot,
+    Path staticRoot = sourceRoot.resolve(
         "gitiles-servlet/src/main/resources/com/google/gitiles/static");
     ResourceHandler rh = new ResourceHandler();
     try {
-      rh.setBaseResource(new FileResource(staticRoot.toURI().toURL()));
+      rh.setBaseResource(new FileResource(staticRoot.toUri().toURL()));
     } catch (URISyntaxException e) {
       throw new IOException(e);
     }
