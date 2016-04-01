@@ -7,3 +7,9 @@
 /.buckd
 /.idea
 *.iml
+*~
+/bazel-bin
+/bazel-genfiles
+/bazel-gitiles
+/bazel-out
+/bazel-testlogs
