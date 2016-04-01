@@ -96,53 +96,22 @@ class DevServer {
   }
 
   private static Path findSourceRoot() throws IOException {
-    URI u;
-    try {
-      u = DevServer.class.getResource(DevServer.class.getSimpleName() + ".class").toURI();
-    } catch (URISyntaxException e) {
-      u = null;
+    String prop = "com.google.gitiles.sourcePath";
+    String sourceRoot = System.getProperty(prop);
+    if (sourceRoot == null) {
+      throw new NoSuchFileException(
+        String.format("Must set system property %s to top of source directory", prop));
     }
-    if (u == null) {
-      throw new NoSuchFileException("Cannot find Gitiles source directory");
-    }
-    if ("jar".equals(u.getScheme())) {
-      String path = u.getSchemeSpecificPart();
-      int jarEntry = path.indexOf("!/");
-      if (jarEntry < 0) {
-        throw badSourceRoot(u);
-      }
-      try {
-        return findSourceRoot(new URI(path.substring(0, jarEntry)));
-      } catch (URISyntaxException e) {
-        throw badSourceRoot(u, e);
-      }
-    } else {
-      return findSourceRoot(u);
-    }
+    return Paths.get(sourceRoot);
   }
 
-  private static Path findSourceRoot(URI targetUri) throws IOException {
-    if (!"file".equals(targetUri.getScheme())) {
-      throw badSourceRoot(targetUri);
-    }
-
-    Path dir = Paths.get(targetUri.getPath());
-    while (!Files.isRegularFile(dir.resolve(".buckconfig"))) {
-      Path parent = dir.getParent();
-      if (parent == null) {
-        throw badSourceRoot(targetUri);
-      }
-      dir = parent;
-    }
-    return dir;
-  }
-
-  private final File sourceRoot;
+  private final Path sourceRoot;
   private final Config cfg;
   private final Server httpd;
 
   DevServer(File cfgFile) throws IOException, ConfigInvalidException {
-    sourceRoot = findSourceRoot().toFile();
+    // Jetty doesn't doesn't allow symlinks, so canonicalize.
+    sourceRoot = findSourceRoot().toRealPath();
 
     Config cfg = defaultConfig();
     if (cfgFile.exists() && cfgFile.isFile()) {
@@ -174,8 +143,8 @@ class DevServer {
     DebugRenderer renderer = new DebugRenderer(
         STATIC_PREFIX,
         Arrays.asList(cfg.getStringList("gitiles", null, "customTemplates")),
-        new File(sourceRoot, "gitiles-servlet/src/main/resources/com/google/gitiles/templates")
-            .getPath(),
+        sourceRoot.resolve("gitiles-servlet/src/main/resources/com/google/gitiles/templates")
+            .toString(),
         firstNonNull(cfg.getString("gitiles", null, "siteTitle"), "Gitiles"));
 
     String docRoot = cfg.getString("gitiles", null, "docroot");
@@ -196,11 +165,11 @@ class DevServer {
   }
 
   private Handler staticHandler() throws IOException {
-    File staticRoot = new File(sourceRoot,
+    Path staticRoot = sourceRoot.resolve(
         "gitiles-servlet/src/main/resources/com/google/gitiles/static");
     ResourceHandler rh = new ResourceHandler();
     try {
-      rh.setBaseResource(new FileResource(staticRoot.toURI().toURL()));
+      rh.setBaseResource(new FileResource(staticRoot.toUri().toURL()));
     } catch (URISyntaxException e) {
       throw new IOException(e);
     }
