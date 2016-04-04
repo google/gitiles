@@ -5,7 +5,6 @@ DEPS = [
   '//gitiles-servlet:servlet',
   '//gitiles-servlet:src',
   '//gitiles-servlet:javadoc',
-  '//gitiles-war:gitiles',
 ]
 
 java_library(
@@ -32,7 +31,7 @@ def b():
   for d in DEPS:
     n,t = d.split(':')
     a.add(t)
-    out = "%s.%s" % (t, 'war' if 'war' in n else 'jar')
+    out = "%s.jar" % t
     genrule(
       name = t,
       cmd = 'ln -s $(location %s) $OUT' % d,

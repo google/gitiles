@@ -16,7 +16,6 @@ bucklets = [
   'java_sources.bucklet',
   'maven_jar.bucklet',
   'maven_package.bucklet',
-  'war.bucklet',
 ]
 
 for bucklet in bucklets:
