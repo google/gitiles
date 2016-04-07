@@ -65,7 +65,7 @@
 <div class="CloneRepo">
   <div class="CloneRepo-title">Clone this repo:</div>
   <input type="text" class="u-monospace CloneRepo-command"
-         onclick="this.focus();this.select();"
+         onclick="{literal}this.focus();if(this.selectionStart==this.selectionEnd){this.select()}{/literal}"
          readonly="readonly" value="git clone {$cloneUrl}">
 </div>
 
