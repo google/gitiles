@@ -1,6 +1,7 @@
 SRCS = glob(['src/main/java/**/*.java'])
 RSRC = glob(['src/main/resources/**/*'])
 DEPS = [
+  '//blame-cache:lib',
   '//lib:commons-lang',
   '//lib:grappa',
   '//lib:gson',

@@ -1,6 +1,9 @@
 include_defs('//VERSION')
 
 DEPS = [
+  '//blame-cache:lib',
+  '//blame-cache:src',
+  '//blame-cache:javadoc',
   '//gitiles-dev:dev',
   '//gitiles-servlet:servlet',
   '//gitiles-servlet:src',
@@ -21,9 +24,18 @@ maven_package(
   url = 'gs://gerrit-maven',
   version = GITILES_VERSION,
   group = 'com.google.gitiles',
-  jar = {'gitiles-servlet': '//gitiles-servlet:servlet'},
-  src = {'gitiles-servlet': '//gitiles-servlet:src'},
-  doc = {'gitiles-servlet': '//gitiles-servlet:javadoc'},
+  jar = {
+    'blame-cache': '//blame-cache:lib',
+    'gitiles-servlet': '//gitiles-servlet:servlet',
+  },
+  src = {
+    'blame-cache': '//blame-cache:src',
+    'gitiles-servlet': '//gitiles-servlet:src',
+  },
+  doc = {
+    'blame-cache': '//blame-cache:javadoc',
+    'gitiles-servlet': '//gitiles-servlet:javadoc',
+  },
 )
 
 def b():

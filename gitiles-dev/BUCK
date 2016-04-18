@@ -2,6 +2,7 @@ java_library(
   name = 'lib',
   srcs = glob(['src/main/java/**/*.java']),
   deps = [
+    '//blame-cache:lib',
     '//gitiles-servlet:servlet',
     '//lib:guava',
     '//lib:servlet-api_3_0',

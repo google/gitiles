@@ -1,5 +1,6 @@
 [alias]
   all = //:all
+  blame-cache = //blame-cache:lib
   in = //:install
   mvn_install = //:install
   mvn_deploy = //:deploy
