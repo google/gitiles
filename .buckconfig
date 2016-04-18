@@ -1,5 +1,4 @@
 [alias]
-  gitiles = //:gitiles
   all = //:all
   in = //:install
   mvn_install = //:install
