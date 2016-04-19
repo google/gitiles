@@ -30,10 +30,11 @@ def b():
   a = set()
   for d in DEPS:
     n,t = d.split(':')
-    a.add(t)
-    out = "%s.jar" % t
+    q = "%s-%s" % (n[2:], t)
+    a.add(q)
+    out = "%s.jar" % q
     genrule(
-      name = t,
+      name = q,
       cmd = 'ln -s $(location %s) $OUT' % d,
       out = out,
     )
