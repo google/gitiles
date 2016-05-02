@@ -33,6 +33,7 @@ import java.util.Map;
 public class BlameServletTest extends ServletTest {
   private static final String NAME = "J. Author";
   private static final String EMAIL = "jauthor@example.com";
+
   private static class RegionJsonData {
     int start;
     int count;
@@ -47,8 +48,7 @@ public class BlameServletTest extends ServletTest {
     String contents2 = "foo\ncontents\n";
     RevCommit c1 = repo.update("master", repo.commit().add("foo", contents1));
     String c1Time = currentTimeFormatted();
-    RevCommit c2 = repo.update("master",
-        repo.commit().tick(10).parent(c1).add("foo", contents2));
+    RevCommit c2 = repo.update("master", repo.commit().tick(10).parent(c1).add("foo", contents2));
     String c2Time = currentTimeFormatted();
 
     Map<String, List<RegionJsonData>> result = getBlameJson("/repo/+blame/" + c2.name() + "/foo");

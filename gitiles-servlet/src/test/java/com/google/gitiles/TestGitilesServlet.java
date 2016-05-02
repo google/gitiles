@@ -53,14 +53,17 @@ public class TestGitilesServlet {
    * @param gitwebRedirect optional redirect filter for gitweb URLs.
    * @return a servlet.
    */
-  public static GitilesServlet create(final TestRepository<DfsRepository> repo,
-      GitwebRedirectFilter gitwebRedirect) throws ServletException {
-    final String repoName =
-        repo.getRepository().getDescription().getRepositoryName();
+  public static GitilesServlet create(
+      final TestRepository<DfsRepository> repo, GitwebRedirectFilter gitwebRedirect)
+      throws ServletException {
+    final String repoName = repo.getRepository().getDescription().getRepositoryName();
     GitilesServlet servlet =
-        new GitilesServlet(new Config(), new DefaultRenderer(GitilesServlet.STATIC_PREFIX,
-              ImmutableList.<URL> of(), repoName + " test site"),
-            TestGitilesUrls.URLS, new TestGitilesAccess(repo.getRepository()),
+        new GitilesServlet(
+            new Config(),
+            new DefaultRenderer(
+                GitilesServlet.STATIC_PREFIX, ImmutableList.<URL>of(), repoName + " test site"),
+            TestGitilesUrls.URLS,
+            new TestGitilesAccess(repo.getRepository()),
             new RepositoryResolver<HttpServletRequest>() {
               @Override
               public Repository open(HttpServletRequest req, String name)
@@ -70,32 +73,36 @@ public class TestGitilesServlet {
                 }
                 return repo.getRepository();
               }
-            }, null, null, null, gitwebRedirect);
+            },
+            null,
+            null,
+            null,
+            gitwebRedirect);
 
-    servlet.init(new ServletConfig() {
-      @Override
-      public String getInitParameter(String name) {
-        return null;
-      }
+    servlet.init(
+        new ServletConfig() {
+          @Override
+          public String getInitParameter(String name) {
+            return null;
+          }
 
-      @Override
-      public Enumeration<String> getInitParameterNames() {
-        return Collections.enumeration(ImmutableList.<String> of());
-      }
+          @Override
+          public Enumeration<String> getInitParameterNames() {
+            return Collections.enumeration(ImmutableList.<String>of());
+          }
 
-      @Override
-      public ServletContext getServletContext() {
-        return null;
-      }
+          @Override
+          public ServletContext getServletContext() {
+            return null;
+          }
 
-      @Override
-      public String getServletName() {
-        return TestGitilesServlet.class.getName();
-      }
-    });
+          @Override
+          public String getServletName() {
+            return TestGitilesServlet.class.getName();
+          }
+        });
     return servlet;
   }
 
-  private TestGitilesServlet() {
-  }
+  private TestGitilesServlet() {}
 }

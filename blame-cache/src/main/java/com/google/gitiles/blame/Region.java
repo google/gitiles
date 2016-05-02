@@ -32,9 +32,13 @@ public class Region implements Serializable, Comparable<Region> {
   private transient int start;
 
   public Region(String path, ObjectId commit, PersonIdent author, int start, int end) {
-    checkArgument((path != null && commit != null && author != null)
-        || (path == null && commit == null && author == null),
-        "expected all null or none: %s, %s, %s", path, commit, author);
+    checkArgument(
+        (path != null && commit != null && author != null)
+            || (path == null && commit == null && author == null),
+        "expected all null or none: %s, %s, %s",
+        path,
+        commit,
+        author);
     this.sourcePath = path;
     this.sourceCommit = commit;
     this.sourceAuthor = author;
@@ -82,13 +86,13 @@ public class Region implements Serializable, Comparable<Region> {
       sb.append(sourceCommit.name(), 0, 7)
           .append(' ')
           .append(sourceAuthor.toExternalString())
-          .append(" (").append(sourcePath).append(')');
+          .append(" (")
+          .append(sourcePath)
+          .append(')');
     } else {
       sb.append("<unblamed region>");
     }
-    sb.append(' ')
-        .append("start=").append(start)
-        .append(", count=").append(count);
+    sb.append(' ').append("start=").append(start).append(", count=").append(count);
     return sb.toString();
   }
 }

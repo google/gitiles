@@ -71,15 +71,8 @@ public class LogServletTest extends ServletTest {
   @Test
   public void follow() throws Exception {
     String contents = "contents";
-    RevCommit c1 = repo.branch("master")
-        .commit()
-        .add("foo", contents)
-        .create();
-    RevCommit c2 = repo.branch("master")
-        .commit()
-        .rm("foo")
-        .add("bar", contents)
-        .create();
+    RevCommit c1 = repo.branch("master").commit().add("foo", contents).create();
+    RevCommit c2 = repo.branch("master").commit().rm("foo").add("bar", contents).create();
     repo.getRevWalk().parseBody(c1);
     repo.getRevWalk().parseBody(c2);
 

@@ -40,8 +40,8 @@ public class TestGitilesAccess implements GitilesAccess.Factory {
   public GitilesAccess forRequest(final HttpServletRequest req) {
     return new GitilesAccess() {
       @Override
-      public Map<String, RepositoryDescription> listRepositories(String prefix,
-          Set<String> branches) {
+      public Map<String, RepositoryDescription> listRepositories(
+          String prefix, Set<String> branches) {
         String name = repo.getDescription().getRepositoryName();
         if (prefix != null) {
           String pattern = CharMatcher.is('/').trimFrom(prefix) + '/';

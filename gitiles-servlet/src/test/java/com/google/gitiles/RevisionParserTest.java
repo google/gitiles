@@ -42,19 +42,20 @@ public class RevisionParserTest {
 
   @Before
   public void setUp() throws Exception {
-    repo = new TestRepository<DfsRepository>(
-        new InMemoryRepository(new DfsRepositoryDescription("test")));
-    parser = new RevisionParser(
-        repo.getRepository(),
-        new TestGitilesAccess(repo.getRepository()).forRequest(null),
-        new VisibilityCache(false, CacheBuilder.newBuilder().maximumSize(0)));
+    repo =
+        new TestRepository<DfsRepository>(
+            new InMemoryRepository(new DfsRepositoryDescription("test")));
+    parser =
+        new RevisionParser(
+            repo.getRepository(),
+            new TestGitilesAccess(repo.getRepository()).forRequest(null),
+            new VisibilityCache(false, CacheBuilder.newBuilder().maximumSize(0)));
   }
 
   @Test
   public void parseRef() throws Exception {
     RevCommit master = repo.branch("refs/heads/master").commit().create();
-    assertThat(parser.parse("master"))
-        .isEqualTo(new Result(Revision.peeled("master", master)));
+    assertThat(parser.parse("master")).isEqualTo(new Result(Revision.peeled("master", master)));
     assertThat(parser.parse("refs/heads/master"))
         .isEqualTo(new Result(Revision.peeled("refs/heads/master", master)));
     assertThat(parser.parse("refs//heads//master")).isNull();
@@ -66,10 +67,7 @@ public class RevisionParserTest {
     RevCommit root = repo.commit().create();
     RevCommit parent1 = repo.commit().parent(root).create();
     RevCommit parent2 = repo.commit().parent(root).create();
-    RevCommit merge = repo.branch("master").commit()
-        .parent(parent1)
-        .parent(parent2)
-        .create();
+    RevCommit merge = repo.branch("master").commit().parent(parent1).parent(parent2).create();
     assertThat(parser.parse("master")).isEqualTo(new Result(Revision.peeled("master", merge)));
     assertThat(parser.parse("master^")).isEqualTo(new Result(Revision.peeled("master^", parent1)));
     assertThat(parser.parse("master~1"))
@@ -151,44 +149,39 @@ public class RevisionParserTest {
     RevCommit commit = repo.branch("master").commit().parent(parent).create();
     RevCommit other = repo.branch("other").commit().create();
 
-    assertThat(parser.parse("master^..master")).isEqualTo(
-        new Result(
-            Revision.peeled("master", commit),
-            Revision.peeled("master^", parent),
-            ""));
-    assertThat(parser.parse("master^..master/")).isEqualTo(
-        new Result(
-            Revision.peeled("master", commit),
-            Revision.peeled("master^", parent),
-            "/"));
-    assertThat(parser.parse("master^..master/path/to/a/file")).isEqualTo(
-        new Result(
-            Revision.peeled("master", commit),
-            Revision.peeled("master^", parent),
-            "/path/to/a/file"));
-    assertThat(parser.parse("master^..master/path/to/a/..file")).isEqualTo(
-        new Result(
-            Revision.peeled("master", commit),
-            Revision.peeled("master^", parent),
-            "/path/to/a/..file"));
-    assertThat(parser.parse("refs/heads/master^..refs/heads/master")).isEqualTo(
-        new Result(
-            Revision.peeled("refs/heads/master", commit),
-            Revision.peeled("refs/heads/master^", parent),
-            ""));
-    assertThat(parser.parse("master~1..master")).isEqualTo(
-        new Result(
-            Revision.peeled("master", commit),
-            Revision.peeled("master~1", parent),
-            ""));
+    assertThat(parser.parse("master^..master"))
+        .isEqualTo(
+            new Result(Revision.peeled("master", commit), Revision.peeled("master^", parent), ""));
+    assertThat(parser.parse("master^..master/"))
+        .isEqualTo(
+            new Result(Revision.peeled("master", commit), Revision.peeled("master^", parent), "/"));
+    assertThat(parser.parse("master^..master/path/to/a/file"))
+        .isEqualTo(
+            new Result(
+                Revision.peeled("master", commit),
+                Revision.peeled("master^", parent),
+                "/path/to/a/file"));
+    assertThat(parser.parse("master^..master/path/to/a/..file"))
+        .isEqualTo(
+            new Result(
+                Revision.peeled("master", commit),
+                Revision.peeled("master^", parent),
+                "/path/to/a/..file"));
+    assertThat(parser.parse("refs/heads/master^..refs/heads/master"))
+        .isEqualTo(
+            new Result(
+                Revision.peeled("refs/heads/master", commit),
+                Revision.peeled("refs/heads/master^", parent),
+                ""));
+    assertThat(parser.parse("master~1..master"))
+        .isEqualTo(
+            new Result(Revision.peeled("master", commit), Revision.peeled("master~1", parent), ""));
     // TODO(dborowitz): 2a2362fbb in JGit causes master~2 to resolve to master
     // rather than null. Uncomment when upstream regression is fixed.
     //assertThat(parser.parse("master~2..master")).isNull();
-    assertThat(parser.parse("other..master")).isEqualTo(
-        new Result(
-            Revision.peeled("master", commit),
-            Revision.peeled("other", other),
-            ""));
+    assertThat(parser.parse("other..master"))
+        .isEqualTo(
+            new Result(Revision.peeled("master", commit), Revision.peeled("other", other), ""));
   }
 
   @Test
@@ -196,33 +189,19 @@ public class RevisionParserTest {
     RevCommit parent = repo.commit().create();
     RevCommit commit = repo.branch("master").commit().parent(parent).create();
 
-    assertThat(parser.parse("master^!")).isEqualTo(
-        new Result(
-            Revision.peeled("master", commit),
-            Revision.peeled("master^", parent),
-            ""));
-    assertThat(parser.parse("master^^!")).isEqualTo(
-        new Result(
-            Revision.peeled("master^", parent),
-            Revision.NULL,
-            ""));
-    assertThat(parser.parse(parent.name() + "^!")).isEqualTo(
-        new Result(
-            Revision.peeled(parent.name(), parent),
-            Revision.NULL,
-            ""));
+    assertThat(parser.parse("master^!"))
+        .isEqualTo(
+            new Result(Revision.peeled("master", commit), Revision.peeled("master^", parent), ""));
+    assertThat(parser.parse("master^^!"))
+        .isEqualTo(new Result(Revision.peeled("master^", parent), Revision.NULL, ""));
+    assertThat(parser.parse(parent.name() + "^!"))
+        .isEqualTo(new Result(Revision.peeled(parent.name(), parent), Revision.NULL, ""));
 
     repo.update("refs/tags/tag", repo.tag("tag", commit));
-    assertThat(parser.parse("tag^!")).isEqualTo(
-        new Result(
-            Revision.peeled("tag", commit),
-            Revision.peeled("tag^", parent),
-            ""));
-    assertThat(parser.parse("tag^^!")).isEqualTo(
-        new Result(
-            Revision.peeled("tag^", parent),
-            Revision.NULL,
-            ""));
+    assertThat(parser.parse("tag^!"))
+        .isEqualTo(new Result(Revision.peeled("tag", commit), Revision.peeled("tag^", parent), ""));
+    assertThat(parser.parse("tag^^!"))
+        .isEqualTo(new Result(Revision.peeled("tag^", parent), Revision.NULL, ""));
   }
 
   @Test
@@ -233,29 +212,26 @@ public class RevisionParserTest {
     assertThat(parser.parse("master..other")).isNull();
 
     repo.branch("other").update(other);
-    assertThat(parser.parse("other..master")).isEqualTo(
-        new Result(
-            Revision.peeled("master", master),
-            Revision.peeled("other", other),
-            ""));
-    assertThat(parser.parse("master..other")).isEqualTo(
-        new Result(
-            Revision.peeled("other", other),
-            Revision.peeled("master", master),
-            ""));
+    assertThat(parser.parse("other..master"))
+        .isEqualTo(
+            new Result(Revision.peeled("master", master), Revision.peeled("other", other), ""));
+    assertThat(parser.parse("master..other"))
+        .isEqualTo(
+            new Result(Revision.peeled("other", other), Revision.peeled("master", master), ""));
   }
 
   @Test
   public void parseTag() throws Exception {
     RevCommit master = repo.branch("master").commit().create();
     RevTag masterTag = repo.update("refs/tags/master-tag", repo.tag("master-tag", master));
-    RevTag masterTagTag = repo.update("refs/tags/master-tag-tag",
-        repo.tag("master-tag-tag", master));
+    RevTag masterTagTag =
+        repo.update("refs/tags/master-tag-tag", repo.tag("master-tag-tag", master));
 
-    assertThat(parser.parse("master-tag")).isEqualTo(
-        new Result(new Revision("master-tag", masterTag, OBJ_TAG, master, OBJ_COMMIT)));
-    assertThat(parser.parse("master-tag-tag")).isEqualTo(
-        new Result(new Revision("master-tag-tag", masterTagTag, OBJ_TAG, master, OBJ_COMMIT)));
+    assertThat(parser.parse("master-tag"))
+        .isEqualTo(new Result(new Revision("master-tag", masterTag, OBJ_TAG, master, OBJ_COMMIT)));
+    assertThat(parser.parse("master-tag-tag"))
+        .isEqualTo(
+            new Result(new Revision("master-tag-tag", masterTagTag, OBJ_TAG, master, OBJ_COMMIT)));
 
     RevBlob blob = repo.update("refs/tags/blob", repo.blob("blob"));
     RevTag blobTag = repo.update("refs/tags/blob-tag", repo.tag("blob-tag", blob));

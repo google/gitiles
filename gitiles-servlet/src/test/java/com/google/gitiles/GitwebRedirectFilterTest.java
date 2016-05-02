@@ -43,8 +43,9 @@ public class GitwebRedirectFilterTest {
 
   @Before
   public void setUp() throws Exception {
-    repo = new TestRepository<DfsRepository>(
-        new InMemoryRepository(new DfsRepositoryDescription("test")));
+    repo =
+        new TestRepository<DfsRepository>(
+            new InMemoryRepository(new DfsRepositoryDescription("test")));
     servlet = TestGitilesServlet.create(repo);
   }
 
@@ -71,10 +72,7 @@ public class GitwebRedirectFilterTest {
   @Test
   public void hostIndex() throws Exception {
     assertRedirectsTo(
-        GitilesView.hostIndex()
-            .setHostName(HOST_NAME)
-            .setServletPath(SERVLET_PATH)
-            .toUrl(),
+        GitilesView.hostIndex().setHostName(HOST_NAME).setServletPath(SERVLET_PATH).toUrl(),
         newRequest("a=project_index"));
   }
 

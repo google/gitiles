@@ -79,8 +79,8 @@ class DevServer {
     } catch (UnknownHostException e) {
       networkHostName = "127.0.0.1";
     }
-    cfg.setString("gitiles", null, "siteTitle",
-        String.format("Gitiles - %s:%s", networkHostName, cwd));
+    cfg.setString(
+        "gitiles", null, "siteTitle", String.format("Gitiles - %s:%s", networkHostName, cwd));
     cfg.setString("gitiles", null, "canonicalHostName", new File(cwd).getName());
     return cfg;
   }
@@ -100,7 +100,7 @@ class DevServer {
     String sourceRoot = System.getProperty(prop);
     if (sourceRoot == null) {
       throw new NoSuchFileException(
-        String.format("Must set system property %s to top of source directory", prop));
+          String.format("Must set system property %s to top of source directory", prop));
     }
     return Paths.get(sourceRoot);
   }
@@ -140,22 +140,21 @@ class DevServer {
   }
 
   private Handler appHandler() {
-    DebugRenderer renderer = new DebugRenderer(
-        STATIC_PREFIX,
-        Arrays.asList(cfg.getStringList("gitiles", null, "customTemplates")),
-        sourceRoot.resolve("gitiles-servlet/src/main/resources/com/google/gitiles/templates")
-            .toString(),
-        firstNonNull(cfg.getString("gitiles", null, "siteTitle"), "Gitiles"));
+    DebugRenderer renderer =
+        new DebugRenderer(
+            STATIC_PREFIX,
+            Arrays.asList(cfg.getStringList("gitiles", null, "customTemplates")),
+            sourceRoot
+                .resolve("gitiles-servlet/src/main/resources/com/google/gitiles/templates")
+                .toString(),
+            firstNonNull(cfg.getString("gitiles", null, "siteTitle"), "Gitiles"));
 
     String docRoot = cfg.getString("gitiles", null, "docroot");
     Servlet servlet;
     if (!Strings.isNullOrEmpty(docRoot)) {
       servlet = createRootedDocServlet(renderer, docRoot);
     } else {
-      servlet = new GitilesServlet(
-          cfg,
-          renderer,
-          null, null, null, null, null, null, null);
+      servlet = new GitilesServlet(cfg, renderer, null, null, null, null, null, null, null);
     }
 
     ServletContextHandler handler = new ServletContextHandler();
@@ -165,15 +164,15 @@ class DevServer {
   }
 
   private Handler staticHandler() throws IOException {
-    Path staticRoot = sourceRoot.resolve(
-        "gitiles-servlet/src/main/resources/com/google/gitiles/static");
+    Path staticRoot =
+        sourceRoot.resolve("gitiles-servlet/src/main/resources/com/google/gitiles/static");
     ResourceHandler rh = new ResourceHandler();
     try {
       rh.setBaseResource(new FileResource(staticRoot.toUri().toURL()));
     } catch (URISyntaxException e) {
       throw new IOException(e);
     }
-    rh.setWelcomeFiles(new String[]{});
+    rh.setWelcomeFiles(new String[] {});
     rh.setDirectoriesListed(false);
     ContextHandler handler = new ContextHandler("/+static");
     handler.setHandler(rh);
@@ -184,22 +183,20 @@ class DevServer {
     File docRepo = new File(docRoot);
     final FileKey repoKey = FileKey.exact(docRepo, FS.DETECTED);
 
-    RepositoryResolver<HttpServletRequest> resolver = new RepositoryResolver<HttpServletRequest>() {
-      @Override
-      public Repository open(HttpServletRequest req, String name)
-          throws RepositoryNotFoundException {
-        try {
-          return RepositoryCache.open(repoKey, true);
-        } catch (IOException e) {
-          throw new RepositoryNotFoundException(repoKey.getFile(), e);
-        }
-      }
-    };
+    RepositoryResolver<HttpServletRequest> resolver =
+        new RepositoryResolver<HttpServletRequest>() {
+          @Override
+          public Repository open(HttpServletRequest req, String name)
+              throws RepositoryNotFoundException {
+            try {
+              return RepositoryCache.open(repoKey, true);
+            } catch (IOException e) {
+              throw new RepositoryNotFoundException(repoKey.getFile(), e);
+            }
+          }
+        };
 
-    return new RootedDocServlet(
-        resolver,
-        new RootedDocAccess(docRepo),
-        renderer);
+    return new RootedDocServlet(resolver, new RootedDocAccess(docRepo), renderer);
   }
 
   private class RootedDocAccess implements GitilesAccess.Factory {
@@ -246,5 +243,4 @@ class DevServer {
       };
     }
   }
-
 }

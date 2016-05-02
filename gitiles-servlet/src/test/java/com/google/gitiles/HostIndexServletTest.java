@@ -46,8 +46,9 @@ public class HostIndexServletTest extends ServletTest {
   @Override
   @Before
   public void setUp() throws Exception {
-    repo = new TestRepository<DfsRepository>(
-        new InMemoryRepository(new DfsRepositoryDescription(NAME)));
+    repo =
+        new TestRepository<DfsRepository>(
+            new InMemoryRepository(new DfsRepositoryDescription(NAME)));
     servlet = TestGitilesServlet.create(repo);
   }
 

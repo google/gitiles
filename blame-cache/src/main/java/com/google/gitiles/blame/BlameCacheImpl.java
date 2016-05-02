@@ -52,12 +52,13 @@ public class BlameCacheImpl implements BlameCache {
 
   public static CacheBuilder<Key, List<Region>> weigher(
       CacheBuilder<? super Key, ? super List<Region>> builder) {
-    return builder.weigher(new Weigher<Key, List<Region>>() {
-      @Override
-      public int weigh(Key key, List<Region> value) {
-        return value.size();
-      }
-    });
+    return builder.weigher(
+        new Weigher<Key, List<Region>>() {
+          @Override
+          public int weigh(Key key, List<Region> value) {
+            return value.size();
+          }
+        });
   }
 
   public static class Key {
@@ -81,8 +82,7 @@ public class BlameCacheImpl implements BlameCache {
     public boolean equals(Object o) {
       if (o instanceof Key) {
         Key k = (Key) o;
-        return Objects.equals(commitId, k.commitId)
-            && Objects.equals(path, k.path);
+        return Objects.equals(commitId, k.commitId) && Objects.equals(path, k.path);
       }
       return false;
     }
@@ -122,8 +122,7 @@ public class BlameCacheImpl implements BlameCache {
   }
 
   @Override
-  public List<Region> get(Repository repo, ObjectId commitId, String path)
-      throws IOException {
+  public List<Region> get(Repository repo, ObjectId commitId, String path) throws IOException {
     try {
       Key key = new Key(commitId, path);
       return cache.get(key, newLoader(key, repo));
@@ -142,9 +141,8 @@ public class BlameCacheImpl implements BlameCache {
       // Don't use rename detection, even though BlameGenerator does. It is not
       // possible for a commit to modify a path when not doing rename detection
       // but to not modify the same path when taking renames into account.
-      rw.setTreeFilter(AndTreeFilter.create(
-          PathFilterGroup.createFromStrings(path),
-          TreeFilter.ANY_DIFF));
+      rw.setTreeFilter(
+          AndTreeFilter.create(PathFilterGroup.createFromStrings(path), TreeFilter.ANY_DIFF));
       return rw.next();
     }
   }
@@ -180,12 +178,14 @@ public class BlameCacheImpl implements BlameCache {
 
       PooledCommit pc = commits.get(commit);
       if (pc == null) {
-        pc = new PooledCommit(commit.copy(),
-            new PersonIdent(
-              strings.intern(author.getName()),
-              strings.intern(author.getEmailAddress()),
-              author.getWhen(),
-              author.getTimeZone()));
+        pc =
+            new PooledCommit(
+                commit.copy(),
+                new PersonIdent(
+                    strings.intern(author.getName()),
+                    strings.intern(author.getEmailAddress()),
+                    author.getWhen(),
+                    author.getTimeZone()));
         commits.put(pc.commit, pc);
       }
       path = strings.intern(path);

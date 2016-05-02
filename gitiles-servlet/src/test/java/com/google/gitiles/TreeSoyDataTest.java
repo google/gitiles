@@ -32,26 +32,28 @@ public class TreeSoyDataTest {
   public void getTargetDisplayNameReturnsDisplayName() throws Exception {
     assertThat(getTargetDisplayName("foo")).isEqualTo("foo");
     assertThat(getTargetDisplayName("foo/bar")).isEqualTo("foo/bar");
-    assertThat(getTargetDisplayName(Strings.repeat("a/", 10) + "bar")).isEqualTo(
-        "a/a/a/a/a/a/a/a/a/a/bar");
-    assertThat(getTargetDisplayName(Strings.repeat("a/", 34) + "bar")).isEqualTo(
-        "a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/bar");
+    assertThat(getTargetDisplayName(Strings.repeat("a/", 10) + "bar"))
+        .isEqualTo("a/a/a/a/a/a/a/a/a/a/bar");
+    assertThat(getTargetDisplayName(Strings.repeat("a/", 34) + "bar"))
+        .isEqualTo("a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/bar");
     assertThat(getTargetDisplayName(Strings.repeat("a/", 35) + "bar")).isEqualTo(".../bar");
     assertThat(getTargetDisplayName(Strings.repeat("a/", 100) + "bar")).isEqualTo(".../bar");
-    assertThat(getTargetDisplayName(Strings.repeat("a", 80))).isEqualTo(
-        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+    assertThat(getTargetDisplayName(Strings.repeat("a", 80)))
+        .isEqualTo(
+            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
   }
 
   @Test
   public void resolveTargetUrlReturnsUrl() throws Exception {
     ObjectId id = ObjectId.fromString("abcd1234abcd1234abcd1234abcd1234abcd1234");
-    GitilesView view = GitilesView.path()
-        .setServletPath("/x")
-        .setHostName("host")
-        .setRepositoryName("repo")
-        .setRevision(Revision.unpeeled("m", id))
-        .setPathPart("a/b/c")
-        .build();
+    GitilesView view =
+        GitilesView.path()
+            .setServletPath("/x")
+            .setHostName("host")
+            .setRepositoryName("repo")
+            .setRevision(Revision.unpeeled("m", id))
+            .setPathPart("a/b/c")
+            .build();
     assertThat(resolveTargetUrl(view, "/foo")).isNull();
     assertThat(resolveTargetUrl(view, "../../")).isEqualTo("/x/repo/+/m/a");
     assertThat(resolveTargetUrl(view, ".././../")).isEqualTo("/x/repo/+/m/a");

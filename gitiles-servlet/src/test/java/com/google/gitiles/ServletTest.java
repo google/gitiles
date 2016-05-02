@@ -57,12 +57,11 @@ public class ServletTest {
 
   @After
   public void tearDown() {
-      SystemReader.setInstance(null);
+    SystemReader.setInstance(null);
   }
 
   protected FakeHttpServletResponse buildResponse(
-      String path, String queryString, int expectedStatus)
-      throws Exception {
+      String path, String queryString, int expectedStatus) throws Exception {
     FakeHttpServletRequest req = FakeHttpServletRequest.newRequest();
     req.setPathInfo(path);
     if (queryString != null) {
@@ -118,8 +117,7 @@ public class ServletTest {
     return body.substring(magic.length());
   }
 
-  protected <T> T buildJson(Class<T> classOfT, String path, String queryString)
-      throws Exception {
+  protected <T> T buildJson(Class<T> classOfT, String path, String queryString) throws Exception {
     return newGson().fromJson(buildJsonRaw(path, queryString), classOfT);
   }
 

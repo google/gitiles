@@ -41,8 +41,9 @@ public class PaginatorTest {
 
   @Before
   public void setUp() throws Exception {
-    repo = new TestRepository<DfsRepository>(
-        new InMemoryRepository(new DfsRepositoryDescription("test")));
+    repo =
+        new TestRepository<DfsRepository>(
+            new InMemoryRepository(new DfsRepositoryDescription("test")));
     walk = new RevWalk(repo.getRepository());
   }
 
@@ -66,12 +67,7 @@ public class PaginatorTest {
     List<RevCommit> commits = linearCommits(3);
     walk.markStart(commits.get(2));
     Paginator p = new Paginator(walk, 10, null);
-    assertThat(p)
-        .containsExactly(
-            commits.get(2),
-            commits.get(1),
-            commits.get(0))
-        .inOrder();
+    assertThat(p).containsExactly(commits.get(2), commits.get(1), commits.get(0)).inOrder();
     assertThat(p.getPreviousStart()).isNull();
     assertThat(p.getNextStart()).isNull();
   }
@@ -81,12 +77,7 @@ public class PaginatorTest {
     List<RevCommit> commits = linearCommits(3);
     walk.markStart(commits.get(2));
     Paginator p = new Paginator(walk, 3, null);
-    assertThat(p)
-        .containsExactly(
-            commits.get(2),
-            commits.get(1),
-            commits.get(0))
-        .inOrder();
+    assertThat(p).containsExactly(commits.get(2), commits.get(1), commits.get(0)).inOrder();
     assertThat(p.getPreviousStart()).isNull();
     assertThat(p.getNextStart()).isNull();
   }
@@ -96,12 +87,7 @@ public class PaginatorTest {
     List<RevCommit> commits = linearCommits(5);
     walk.markStart(commits.get(4));
     Paginator p = new Paginator(walk, 3, null);
-    assertThat(p)
-        .containsExactly(
-            commits.get(4),
-            commits.get(3),
-            commits.get(2))
-        .inOrder();
+    assertThat(p).containsExactly(commits.get(4), commits.get(3), commits.get(2)).inOrder();
     assertThat(p.getPreviousStart()).isNull();
     assertThat(p.getNextStart()).isEqualTo(commits.get(1));
   }
@@ -111,12 +97,7 @@ public class PaginatorTest {
     List<RevCommit> commits = linearCommits(10);
     walk.markStart(commits.get(9));
     Paginator p = new Paginator(walk, 3, commits.get(9));
-    assertThat(p)
-        .containsExactly(
-              commits.get(9),
-              commits.get(8),
-              commits.get(7))
-        .inOrder();
+    assertThat(p).containsExactly(commits.get(9), commits.get(8), commits.get(7)).inOrder();
     assertThat(p.getPreviousStart()).isNull();
     assertThat(p.getNextStart()).isEqualTo(commits.get(6));
   }
@@ -126,12 +107,7 @@ public class PaginatorTest {
     List<RevCommit> commits = linearCommits(10);
     walk.markStart(commits.get(9));
     Paginator p = new Paginator(walk, 3, null);
-    assertThat(p)
-        .containsExactly(
-              commits.get(9),
-              commits.get(8),
-              commits.get(7))
-        .inOrder();
+    assertThat(p).containsExactly(commits.get(9), commits.get(8), commits.get(7)).inOrder();
     assertThat(p.getPreviousStart()).isNull();
     assertThat(p.getNextStart()).isEqualTo(commits.get(6));
   }
@@ -141,12 +117,7 @@ public class PaginatorTest {
     List<RevCommit> commits = linearCommits(10);
     walk.markStart(commits.get(9));
     Paginator p = new Paginator(walk, 3, commits.get(8));
-    assertThat(p)
-        .containsExactly(
-              commits.get(8),
-              commits.get(7),
-              commits.get(6))
-        .inOrder();
+    assertThat(p).containsExactly(commits.get(8), commits.get(7), commits.get(6)).inOrder();
     assertThat(p.getPreviousStart()).isEqualTo(commits.get(9));
     assertThat(p.getNextStart()).isEqualTo(commits.get(5));
   }
@@ -156,12 +127,7 @@ public class PaginatorTest {
     List<RevCommit> commits = linearCommits(10);
     walk.markStart(commits.get(9));
     Paginator p = new Paginator(walk, 3, commits.get(7));
-    assertThat(p)
-        .containsExactly(
-              commits.get(7),
-              commits.get(6),
-              commits.get(5))
-        .inOrder();
+    assertThat(p).containsExactly(commits.get(7), commits.get(6), commits.get(5)).inOrder();
     assertThat(p.getPreviousStart()).isEqualTo(commits.get(9));
     assertThat(p.getNextStart()).isEqualTo(commits.get(4));
   }
@@ -171,12 +137,7 @@ public class PaginatorTest {
     List<RevCommit> commits = linearCommits(10);
     walk.markStart(commits.get(9));
     Paginator p = new Paginator(walk, 3, commits.get(2));
-    assertThat(p)
-        .containsExactly(
-              commits.get(2),
-              commits.get(1),
-              commits.get(0))
-        .inOrder();
+    assertThat(p).containsExactly(commits.get(2), commits.get(1), commits.get(0)).inOrder();
     assertThat(p.getPreviousStart()).isEqualTo(commits.get(5));
     assertThat(p.getNextStart()).isNull();
   }
@@ -186,11 +147,7 @@ public class PaginatorTest {
     List<RevCommit> commits = linearCommits(10);
     walk.markStart(commits.get(9));
     Paginator p = new Paginator(walk, 3, commits.get(1));
-    assertThat(p)
-        .containsExactly(
-              commits.get(1),
-              commits.get(0))
-        .inOrder();
+    assertThat(p).containsExactly(commits.get(1), commits.get(0)).inOrder();
     assertThat(p.getPreviousStart()).isEqualTo(commits.get(4));
     assertThat(p.getNextStart()).isNull();
   }
@@ -200,11 +157,7 @@ public class PaginatorTest {
     List<RevCommit> commits = linearCommits(10);
     walk.markStart(commits.get(9));
     Paginator p = new Paginator(walk, 5, commits.get(1));
-    assertThat(p)
-        .containsExactly(
-              commits.get(1),
-              commits.get(0))
-        .inOrder();
+    assertThat(p).containsExactly(commits.get(1), commits.get(0)).inOrder();
     assertThat(p.getPreviousStart()).isEqualTo(commits.get(6));
     assertThat(p.getNextStart()).isNull();
   }

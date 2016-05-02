@@ -64,16 +64,15 @@ public class TestViewFilter {
   public static Result service(TestRepository<? extends DfsRepository> repo, String pathAndQuery)
       throws IOException, ServletException {
     TestServlet servlet = new TestServlet();
-    ViewFilter vf = new ViewFilter(
-        new TestGitilesAccess(repo.getRepository()),
-        TestGitilesUrls.URLS,
-        new VisibilityCache(false));
+    ViewFilter vf =
+        new ViewFilter(
+            new TestGitilesAccess(repo.getRepository()),
+            TestGitilesUrls.URLS,
+            new VisibilityCache(false));
     MetaFilter mf = new MetaFilter();
 
     for (Pattern p : ImmutableList.of(ROOT_REGEX, REPO_REGEX, REPO_PATH_REGEX)) {
-      mf.serveRegex(p)
-          .through(vf)
-          .with(servlet);
+      mf.serveRegex(p).through(vf).with(servlet);
     }
 
     FakeHttpServletRequest req = newRequest(repo, pathAndQuery);
@@ -101,8 +100,8 @@ public class TestViewFilter {
     }
   }
 
-  private static FakeHttpServletRequest newRequest(TestRepository<? extends DfsRepository> repo,
-      String pathAndQuery) {
+  private static FakeHttpServletRequest newRequest(
+      TestRepository<? extends DfsRepository> repo, String pathAndQuery) {
     FakeHttpServletRequest req = FakeHttpServletRequest.newRequest(repo.getRepository());
     int q = pathAndQuery.indexOf('?');
     if (q > 0) {
@@ -120,6 +119,5 @@ public class TestViewFilter {
     };
   }
 
-  private TestViewFilter() {
-  }
+  private TestViewFilter() {}
 }

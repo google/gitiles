@@ -46,8 +46,7 @@ public class FakeHttpServletResponse implements HttpServletResponse {
   private ServletOutputStream outputStream;
   private PrintWriter writer;
 
-  public FakeHttpServletResponse() {
-  }
+  public FakeHttpServletResponse() {}
 
   @Override
   public synchronized void flushBuffer() throws IOException {
@@ -84,13 +83,14 @@ public class FakeHttpServletResponse implements HttpServletResponse {
     checkState(writer == null, "getWriter() already called");
     if (outputStream == null) {
       final PrintWriter osWriter = new PrintWriter(actualBody);
-      outputStream = new ServletOutputStream() {
-        @Override
-        public void write(int c) throws IOException {
-          osWriter.write(c);
-          osWriter.flush();
-        }
-      };
+      outputStream =
+          new ServletOutputStream() {
+            @Override
+            public void write(int c) throws IOException {
+              osWriter.write(c);
+              osWriter.flush();
+            }
+          };
     }
     return outputStream;
   }
@@ -126,8 +126,7 @@ public class FakeHttpServletResponse implements HttpServletResponse {
 
   @Override
   public void setCharacterEncoding(String name) {
-    checkArgument(UTF_8.equals(Charset.forName(name)),
-        "unsupported charset: %s", name);
+    checkArgument(UTF_8.equals(Charset.forName(name)), "unsupported charset: %s", name);
   }
 
   @Override

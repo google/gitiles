@@ -45,9 +45,11 @@ public class DiffServletTest extends ServletTest {
 
     String actual = buildHtml("/repo/+diff/" + c2.name() + "^!/foo", false);
 
-    String diffHeader = String.format(
-        "diff --git <a href=\"/b/repo/+/%s/foo\">a/foo</a> <a href=\"/b/repo/+/%s/foo\">b/foo</a>",
-        c1.name(), c2.name());
+    String diffHeader =
+        String.format(
+            "diff --git <a href=\"/b/repo/+/%s/foo\">a/foo</a> <a href=\"/b/repo/+/%s/foo\">b/foo</a>",
+            c1.name(),
+            c2.name());
     assertThat(actual).contains(diffHeader);
   }
 
@@ -94,10 +96,10 @@ public class DiffServletTest extends ServletTest {
   @Test
   public void diffDirectoryText() throws Exception {
     String contents = "contents\n";
-    RevCommit c = repo.update("master", repo.commit()
-        .add("dir/foo", contents)
-        .add("dir/bar", contents)
-        .add("baz", contents));
+    RevCommit c =
+        repo.update(
+            "master",
+            repo.commit().add("dir/foo", contents).add("dir/bar", contents).add("baz", contents));
 
     FakeHttpServletResponse res = buildText("/repo/+diff/" + c.name() + "^!/dir");
 

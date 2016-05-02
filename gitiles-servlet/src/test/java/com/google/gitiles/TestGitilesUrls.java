@@ -36,6 +36,5 @@ public class TestGitilesUrls implements GitilesUrls {
     return "http://" + HOST_NAME + "-review/foo/";
   }
 
-  private TestGitilesUrls() {
-  }
+  private TestGitilesUrls() {}
 }

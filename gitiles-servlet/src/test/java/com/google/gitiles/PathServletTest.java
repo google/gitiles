@@ -53,7 +53,8 @@ public class PathServletTest extends ServletTest {
 
   @Test
   public void subTreeHtml() throws Exception {
-    repo.branch("master").commit()
+    repo.branch("master")
+        .commit()
         .add("foo/bar", "bar contents")
         .add("baz", "baz contents")
         .create();
@@ -102,14 +103,18 @@ public class PathServletTest extends ServletTest {
   @Test
   public void symlinkHtml() throws Exception {
     final RevBlob link = repo.blob("foo");
-    repo.branch("master").commit().add("foo", "contents")
-      .edit(new PathEdit("bar") {
-        @Override
-        public void apply(DirCacheEntry ent) {
-          ent.setFileMode(FileMode.SYMLINK);
-          ent.setObjectId(link);
-        }
-      }).create();
+    repo.branch("master")
+        .commit()
+        .add("foo", "contents")
+        .edit(
+            new PathEdit("bar") {
+              @Override
+              public void apply(DirCacheEntry ent) {
+                ent.setFileMode(FileMode.SYMLINK);
+                ent.setObjectId(link);
+              }
+            })
+        .create();
 
     Map<String, ?> data = buildData("/repo/+/master/bar");
     assertThat(data).containsEntry("type", "SYMLINK");
@@ -118,18 +123,23 @@ public class PathServletTest extends ServletTest {
 
   @Test
   public void gitlinkHtml() throws Exception {
-    String gitmodules = "[submodule \"gitiles\"]\n"
-      + "  path = gitiles\n"
-      + "  url = https://gerrit.googlesource.com/gitiles\n";
+    String gitmodules =
+        "[submodule \"gitiles\"]\n"
+            + "  path = gitiles\n"
+            + "  url = https://gerrit.googlesource.com/gitiles\n";
     final String gitilesSha = "2b2f34bba3c2be7e2506ce6b1f040949da350cf9";
-    repo.branch("master").commit().add(".gitmodules", gitmodules)
-        .edit(new PathEdit("gitiles") {
-          @Override
-          public void apply(DirCacheEntry ent) {
-            ent.setFileMode(FileMode.GITLINK);
-            ent.setObjectId(ObjectId.fromString(gitilesSha));
-          }
-        }).create();
+    repo.branch("master")
+        .commit()
+        .add(".gitmodules", gitmodules)
+        .edit(
+            new PathEdit("gitiles") {
+              @Override
+              public void apply(DirCacheEntry ent) {
+                ent.setFileMode(FileMode.GITLINK);
+                ent.setObjectId(ObjectId.fromString(gitilesSha));
+              }
+            })
+        .create();
 
     Map<String, ?> data = buildData("/repo/+/master/gitiles");
     assertThat(data).containsEntry("type", "GITLINK");
@@ -150,14 +160,17 @@ public class PathServletTest extends ServletTest {
   @Test
   public void symlinkText() throws Exception {
     final RevBlob link = repo.blob("foo");
-    repo.branch("master").commit()
-        .edit(new PathEdit("baz") {
-          @Override
-          public void apply(DirCacheEntry ent) {
-            ent.setFileMode(FileMode.SYMLINK);
-            ent.setObjectId(link);
-          }
-        }).create();
+    repo.branch("master")
+        .commit()
+        .edit(
+            new PathEdit("baz") {
+              @Override
+              public void apply(DirCacheEntry ent) {
+                ent.setFileMode(FileMode.SYMLINK);
+                ent.setObjectId(link);
+              }
+            })
+        .create();
     String text = buildBlob("/repo/+/master/baz", "120000");
     assertThat(text).isEqualTo("foo");
   }
@@ -187,20 +200,24 @@ public class PathServletTest extends ServletTest {
 
   @Test
   public void nonBlobText() throws Exception {
-    String gitmodules = "[submodule \"gitiles\"]\n"
-      + "  path = gitiles\n"
-      + "  url = https://gerrit.googlesource.com/gitiles\n";
+    String gitmodules =
+        "[submodule \"gitiles\"]\n"
+            + "  path = gitiles\n"
+            + "  url = https://gerrit.googlesource.com/gitiles\n";
     final String gitilesSha = "2b2f34bba3c2be7e2506ce6b1f040949da350cf9";
-    repo.branch("master").commit()
+    repo.branch("master")
+        .commit()
         .add("foo/bar", "contents")
         .add(".gitmodules", gitmodules)
-        .edit(new PathEdit("gitiles") {
-          @Override
-          public void apply(DirCacheEntry ent) {
-            ent.setFileMode(FileMode.GITLINK);
-            ent.setObjectId(ObjectId.fromString(gitilesSha));
-          }
-        }).create();
+        .edit(
+            new PathEdit("gitiles") {
+              @Override
+              public void apply(DirCacheEntry ent) {
+                ent.setFileMode(FileMode.GITLINK);
+                ent.setObjectId(ObjectId.fromString(gitilesSha));
+              }
+            })
+        .create();
 
     assertNotFound("/repo/+/master/nonexistent", "format=text");
     assertNotFound("/repo/+/master/gitiles", "format=text");
@@ -208,10 +225,13 @@ public class PathServletTest extends ServletTest {
 
   @Test
   public void treeJson() throws Exception {
-    RevCommit c = repo.parseBody(repo.branch("master").commit()
-        .add("foo/bar", "bar contents")
-        .add("baz", "baz contents")
-        .create());
+    RevCommit c =
+        repo.parseBody(
+            repo.branch("master")
+                .commit()
+                .add("foo/bar", "bar contents")
+                .add("baz", "baz contents")
+                .create());
 
     Tree tree = buildJson(Tree.class, "/repo/+/master/");
     assertThat(tree.id).isEqualTo(c.getTree().name());

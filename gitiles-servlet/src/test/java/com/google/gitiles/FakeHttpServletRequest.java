@@ -51,11 +51,7 @@ public class FakeHttpServletRequest implements HttpServletRequest {
   public static final String SERVLET_PATH = "/b";
 
   public static FakeHttpServletRequest newRequest() {
-    return new FakeHttpServletRequest(
-        URLS.getHostName(null),
-        80,
-        "",
-        SERVLET_PATH);
+    return new FakeHttpServletRequest(URLS.getHostName(null), 80, "", SERVLET_PATH);
   }
 
   public static FakeHttpServletRequest newRequest(DfsRepository repo) {
@@ -75,8 +71,8 @@ public class FakeHttpServletRequest implements HttpServletRequest {
   private String servletPath;
   private String path;
 
-  private FakeHttpServletRequest(String hostName, int port, String contextPath,
-      String servletPath) {
+  private FakeHttpServletRequest(
+      String hostName, int port, String contextPath, String servletPath) {
     this.hostName = checkNotNull(hostName, "hostName");
     checkArgument(port > 0);
     this.port = port;
@@ -177,7 +173,8 @@ public class FakeHttpServletRequest implements HttpServletRequest {
     for (String entry : Splitter.on('&').split(qs)) {
       List<String> kv = Splitter.on('=').limit(2).splitToList(entry);
       try {
-        params.put(URLDecoder.decode(kv.get(0), UTF_8.name()),
+        params.put(
+            URLDecoder.decode(kv.get(0), UTF_8.name()),
             kv.size() == 2 ? URLDecoder.decode(kv.get(1), UTF_8.name()) : "");
       } catch (UnsupportedEncodingException e) {
         throw new IllegalArgumentException(e);

@@ -41,8 +41,9 @@ public class ViewFilterTest {
 
   @Before
   public void setUp() throws Exception {
-    repo = new TestRepository<DfsRepository>(
-        new InMemoryRepository(new DfsRepositoryDescription("repo")));
+    repo =
+        new TestRepository<DfsRepository>(
+            new InMemoryRepository(new DfsRepositoryDescription("repo")));
   }
 
   @Test
@@ -510,7 +511,8 @@ public class ViewFilterTest {
     TestViewFilter.Result result = TestViewFilter.service(repo, pathAndQuery);
     FakeHttpServletResponse resp = result.getResponse();
     assertWithMessage("expected non-redirect status, got " + resp.getStatus())
-        .that(resp.getStatus() < 300 || resp.getStatus() >= 400).isTrue();
+        .that(resp.getStatus() < 300 || resp.getStatus() >= 400)
+        .isTrue();
     return result.getView();
   }
 }

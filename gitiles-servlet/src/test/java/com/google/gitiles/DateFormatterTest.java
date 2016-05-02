@@ -36,7 +36,7 @@ public class DateFormatterTest {
   @Test
   public void defaultIncludingTimeZone() throws Exception {
     PersonIdent ident = newIdent("Mon Jan 2 15:04:05 2006", "-0700");
-    DateFormatter df = new DateFormatter(Optional.<TimeZone> absent(), DEFAULT);
+    DateFormatter df = new DateFormatter(Optional.<TimeZone>absent(), DEFAULT);
     assertThat(df.format(ident)).isEqualTo("Mon Jan 02 15:04:05 2006 -0700");
   }
 
@@ -57,7 +57,7 @@ public class DateFormatterTest {
   @Test
   public void isoIncludingTimeZone() throws Exception {
     PersonIdent ident = newIdent("Mon Jan 2 15:04:05 2006", "-0700");
-    DateFormatter df = new DateFormatter(Optional.<TimeZone> absent(), ISO);
+    DateFormatter df = new DateFormatter(Optional.<TimeZone>absent(), ISO);
     assertThat(df.format(ident)).isEqualTo("2006-01-02 15:04:05 -0700");
   }
 
