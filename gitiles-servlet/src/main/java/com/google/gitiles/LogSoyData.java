@@ -39,9 +39,17 @@ import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 
 public class LogSoyData {
-  private static final ImmutableSet<Field> FIELDS = Sets.immutableEnumSet(Field.ABBREV_SHA,
-      Field.SHA, Field.URL, Field.SHORT_MESSAGE, Field.MESSAGE, Field.AUTHOR, Field.COMMITTER,
-      Field.BRANCHES, Field.TAGS);
+  private static final ImmutableSet<Field> FIELDS =
+      Sets.immutableEnumSet(
+          Field.ABBREV_SHA,
+          Field.SHA,
+          Field.URL,
+          Field.SHORT_MESSAGE,
+          Field.MESSAGE,
+          Field.AUTHOR,
+          Field.COMMITTER,
+          Field.BRANCHES,
+          Field.TAGS);
   private static final ImmutableSet<Field> VERBOSE_FIELDS = Field.setOf(FIELDS, Field.DIFF_TREE);
 
   private final HttpServletRequest req;
@@ -60,9 +68,15 @@ public class LogSoyData {
     variant = firstNonNull(config.getString("logFormat", pretty, "variant"), pretty);
   }
 
-  public void renderStreaming(Paginator paginator, @Nullable String revision, Renderer renderer,
-      Writer out, DateFormatter df) throws IOException {
-    renderer.newRenderer("gitiles.logEntriesHeader")
+  public void renderStreaming(
+      Paginator paginator,
+      @Nullable String revision,
+      Renderer renderer,
+      Writer out,
+      DateFormatter df)
+      throws IOException {
+    renderer
+        .newRenderer("gitiles.logEntriesHeader")
         .setData(toHeaderSoyData(paginator, revision))
         .render(out);
     out.flush();
@@ -78,7 +92,8 @@ public class LogSoyData {
       renderer.newRenderer("gitiles.emptyLog").render(out);
     }
 
-    renderer.newRenderer("gitiles.logEntriesFooter")
+    renderer
+        .newRenderer("gitiles.logEntriesFooter")
         .setData(toFooterSoyData(paginator, revision))
         .render(out);
   }
@@ -120,7 +135,7 @@ public class LogSoyData {
     if (type != ChangeType.RENAME && type != ChangeType.COPY) {
       return null;
     }
-    return ImmutableMap.<String, Object> of(
+    return ImmutableMap.<String, Object>of(
         "changeType", type.toString(),
         "oldPath", entry.getOldPath(),
         "newPath", entry.getNewPath(),
@@ -131,9 +146,11 @@ public class LogSoyData {
     Map<String, Object> data = Maps.newHashMapWithExpectedSize(1);
     ObjectId next = paginator.getNextStart();
     if (next != null) {
-      data.put("nextUrl", copyAndCanonicalizeView(revision)
-          .replaceParam(LogServlet.START_PARAM, next.name())
-          .toUrl());
+      data.put(
+          "nextUrl",
+          copyAndCanonicalizeView(revision)
+              .replaceParam(LogServlet.START_PARAM, next.name())
+              .toUrl());
     }
     return data;
   }

@@ -28,11 +28,15 @@ import java.net.URL;
 
 /** Renderer that reloads Soy templates from the filesystem on every request. */
 public class DebugRenderer extends Renderer {
-  public DebugRenderer(String staticPrefix, Iterable<String> customTemplatesFilenames,
-      final String soyTemplatesRoot, String siteTitle) {
+  public DebugRenderer(
+      String staticPrefix,
+      Iterable<String> customTemplatesFilenames,
+      final String soyTemplatesRoot,
+      String siteTitle) {
     super(
         new FileUrlMapper(soyTemplatesRoot + File.separator),
-        ImmutableMap.<String, String> of(), staticPrefix,
+        ImmutableMap.<String, String>of(),
+        staticPrefix,
         FluentIterable.from(customTemplatesFilenames).transform(new FileUrlMapper()),
         siteTitle);
   }
@@ -44,8 +48,7 @@ public class DebugRenderer extends Renderer {
 
   @Override
   protected SoyTofu getTofu() {
-    SoyFileSet.Builder builder = SoyFileSet.builder()
-        .setCompileTimeGlobals(globals);
+    SoyFileSet.Builder builder = SoyFileSet.builder().setCompileTimeGlobals(globals);
     for (URL template : templates.values()) {
       try {
         checkState(new File(template.toURI()).exists(), "Missing Soy template %s", template);

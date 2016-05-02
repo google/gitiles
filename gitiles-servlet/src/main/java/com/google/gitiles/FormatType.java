@@ -32,8 +32,7 @@ public enum FormatType {
 
   public static Optional<FormatType> getFormatType(HttpServletRequest req) {
     @SuppressWarnings("unchecked")
-    Optional<FormatType> result =
-        (Optional<FormatType>) req.getAttribute(FORMAT_TYPE_ATTRIBUTE);
+    Optional<FormatType> result = (Optional<FormatType>) req.getAttribute(FORMAT_TYPE_ATTRIBUTE);
     if (result != null) {
       return result;
     }
@@ -58,8 +57,7 @@ public enum FormatType {
     return set(req, Optional.of(DEFAULT));
   }
 
-  private static Optional<FormatType> set(HttpServletRequest req,
-      Optional<FormatType> format) {
+  private static Optional<FormatType> set(HttpServletRequest req, Optional<FormatType> format) {
     req.setAttribute(FORMAT_TYPE_ATTRIBUTE, format);
     return format;
   }

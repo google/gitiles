@@ -188,7 +188,8 @@ public class MarkdownToHtml implements Visitor {
           .attribute("class", "h")
           .attribute("name", id)
           .attribute("href", "#" + id)
-          .open("span").close("span")
+          .open("span")
+          .close("span")
           .close("a");
     }
     visitChildren(node);
@@ -322,33 +323,25 @@ public class MarkdownToHtml implements Visitor {
   @Override
   public void visit(AutoLinkNode node) {
     String url = node.getText();
-    html.open("a").attribute("href", href(url))
-        .appendAndEscape(url)
-        .close("a");
+    html.open("a").attribute("href", href(url)).appendAndEscape(url).close("a");
   }
 
   @Override
   public void visit(MailLinkNode node) {
     String addr = node.getText();
-    html.open("a").attribute("href", "mailto:" + addr)
-        .appendAndEscape(addr)
-        .close("a");
+    html.open("a").attribute("href", "mailto:" + addr).appendAndEscape(addr).close("a");
   }
 
   @Override
   public void visit(WikiLinkNode node) {
     String text = node.getText();
     String path = text.replace(' ', '-') + ".md";
-    html.open("a").attribute("href", href(path))
-        .appendAndEscape(text)
-        .close("a");
+    html.open("a").attribute("href", href(path)).appendAndEscape(text).close("a");
   }
 
   @Override
   public void visit(ExpLinkNode node) {
-    html.open("a")
-        .attribute("href", href(node.url))
-        .attribute("title", node.title);
+    html.open("a").attribute("href", href(node.url)).attribute("title", node.title);
     visitChildren(node);
     html.close("a");
   }
@@ -357,9 +350,7 @@ public class MarkdownToHtml implements Visitor {
   public void visit(RefLinkNode node) {
     ReferenceNode ref = references.get(node.referenceKey, getInnerText(node));
     if (ref != null) {
-      html.open("a")
-          .attribute("href", href(ref.getUrl()))
-          .attribute("title", ref.getTitle());
+      html.open("a").attribute("href", href(ref.getUrl())).attribute("title", ref.getTitle());
       visitChildren(node);
       html.close("a");
     } else {
@@ -411,9 +402,7 @@ public class MarkdownToHtml implements Visitor {
       return FilterNormalizeUri.INSTANCE.getInnocuousOutput();
     }
 
-    GitilesView.Builder dest = url.endsWith(".md")
-        ? GitilesView.doc()
-        : GitilesView.show();
+    GitilesView.Builder dest = url.endsWith(".md") ? GitilesView.doc() : GitilesView.show();
     return dest.copyFrom(view).setPathPart(dir + url).build().toUrl();
   }
 
@@ -437,15 +426,13 @@ public class MarkdownToHtml implements Visitor {
       // If reference is missing, insert a broken image.
       url = FilterImageDataUri.INSTANCE.getInnocuousOutput();
     }
-    html.open("img")
-        .attribute("src", url)
-        .attribute("title", title)
-        .attribute("alt", alt);
+    html.open("img").attribute("src", url).attribute("title", title).attribute("alt", alt);
   }
 
   private String resolveImageUrl(String url) {
     if (imageLoader == null
-        || url.startsWith("https://") || url.startsWith("http://")
+        || url.startsWith("https://")
+        || url.startsWith("http://")
         || url.startsWith("data:")) {
       return url;
     }
@@ -492,8 +479,7 @@ public class MarkdownToHtml implements Visitor {
   public void visit(TableCellNode node) {
     mustBeInsideTable(node);
     String tag = table.inHeader ? "th" : "td";
-    html.open(tag)
-        .attribute("align", table.getAlign());
+    html.open(tag).attribute("align", table.getAlign());
     if (node.getColSpan() > 1) {
       html.attribute("colspan", Integer.toString(node.getColSpan()));
     }

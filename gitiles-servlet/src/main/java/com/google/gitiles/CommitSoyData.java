@@ -47,12 +47,21 @@ import javax.servlet.http.HttpServletRequest;
 
 /** Soy data converter for git commits. */
 public class CommitSoyData {
-  static final ImmutableSet<Field> DEFAULT_FIELDS = Sets.immutableEnumSet(Field.AUTHOR,
-      Field.COMMITTER, Field.SHA, Field.TREE, Field.TREE_URL, Field.PARENTS, Field.MESSAGE,
-      Field.LOG_URL, Field.ARCHIVE_URL, Field.ARCHIVE_TYPE);
+  static final ImmutableSet<Field> DEFAULT_FIELDS =
+      Sets.immutableEnumSet(
+          Field.AUTHOR,
+          Field.COMMITTER,
+          Field.SHA,
+          Field.TREE,
+          Field.TREE_URL,
+          Field.PARENTS,
+          Field.MESSAGE,
+          Field.LOG_URL,
+          Field.ARCHIVE_URL,
+          Field.ARCHIVE_TYPE);
 
-  private static final ImmutableSet<Field> NESTED_FIELDS = Sets.immutableEnumSet(
-      Field.PARENT_BLAME_URL);
+  private static final ImmutableSet<Field> NESTED_FIELDS =
+      Sets.immutableEnumSet(Field.PARENT_BLAME_URL);
 
   private Linkifier linkifier;
   private RevWalk walk;
@@ -74,17 +83,14 @@ public class CommitSoyData {
     return this;
   }
 
-  Map<String, Object> toSoyData(HttpServletRequest req, RevCommit c, Set<Field> fs,
-      DateFormatter df) throws IOException {
+  Map<String, Object> toSoyData(
+      HttpServletRequest req, RevCommit c, Set<Field> fs, DateFormatter df) throws IOException {
     GitilesView view = ViewFilter.getView(req);
     if (cdb == null) {
       cdb = new CommitData.Builder();
     }
 
-    CommitData cd = cdb
-        .setRevWalk(walk)
-        .setArchiveFormat(archiveFormat)
-        .build(req, c, fs);
+    CommitData cd = cdb.setRevWalk(walk).setArchiveFormat(archiveFormat).build(req, c, fs);
 
     Map<String, Object> data = Maps.newHashMapWithExpectedSize(fs.size());
     if (cd.author != null) {
@@ -139,13 +145,16 @@ public class CommitSoyData {
     if (cd.diffEntries != null) {
       data.put("diffTree", toSoyData(view, cd.diffEntries));
     }
-    checkState(Sets.difference(fs, NESTED_FIELDS).size() == data.size(),
-        "bad commit data fields: %s != %s", fs, data.keySet());
+    checkState(
+        Sets.difference(fs, NESTED_FIELDS).size() == data.size(),
+        "bad commit data fields: %s != %s",
+        fs,
+        data.keySet());
     return data;
   }
 
-  Map<String, Object> toSoyData(HttpServletRequest req, RevCommit commit,
-      DateFormatter df) throws IOException {
+  Map<String, Object> toSoyData(HttpServletRequest req, RevCommit commit, DateFormatter df)
+      throws IOException {
     return toSoyData(req, commit, DEFAULT_FIELDS, df);
   }
 
@@ -159,8 +168,8 @@ public class CommitSoyData {
         "relativeTime", RelativeDateFormatter.format(ident.getWhen()));
   }
 
-  private List<Map<String, String>> toSoyData(GitilesView view, Set<Field> fs,
-      List<RevCommit> parents) {
+  private List<Map<String, String>> toSoyData(
+      GitilesView view, Set<Field> fs, List<RevCommit> parents) {
     List<Map<String, String>> result = Lists.newArrayListWithCapacity(parents.size());
     int i = 1;
     // TODO(dborowitz): Render something slightly different when we're actively
@@ -180,17 +189,16 @@ public class CommitSoyData {
 
       Map<String, String> e = Maps.newHashMapWithExpectedSize(4);
       e.put("sha", name);
-      e.put("url", GitilesView.revision()
-          .copyFrom(view)
-          .setRevision(parentName, parent)
-          .toUrl());
+      e.put("url", GitilesView.revision().copyFrom(view).setRevision(parentName, parent).toUrl());
       e.put("diffUrl", diff.toUrl());
       if (fs.contains(Field.PARENT_BLAME_URL)) {
         // Assumes caller has ensured path is a file.
-        e.put("blameUrl", GitilesView.blame()
-            .copyFrom(view)
-            .setRevision(Revision.peeled(parentName, parent))
-            .toUrl());
+        e.put(
+            "blameUrl",
+            GitilesView.blame()
+                .copyFrom(view)
+                .setRevision(Revision.peeled(parentName, parent))
+                .toUrl());
       }
       result.add(e);
     }
@@ -201,11 +209,12 @@ public class CommitSoyData {
     if (dl.oldRevision == null) {
       return NullData.INSTANCE;
     }
-    GitilesView.Builder diffUrl = GitilesView.diff()
-        .copyFrom(view)
-        .setOldRevision(dl.oldRevision)
-        .setRevision(dl.revision)
-        .setPathPart("");
+    GitilesView.Builder diffUrl =
+        GitilesView.diff()
+            .copyFrom(view)
+            .setOldRevision(dl.oldRevision)
+            .setRevision(dl.revision)
+            .setPathPart("");
 
     List<Object> result = Lists.newArrayListWithCapacity(dl.entries.size());
     for (DiffEntry e : dl.entries) {
@@ -213,18 +222,22 @@ public class CommitSoyData {
       ChangeType type = e.getChangeType();
       if (type != DELETE) {
         entry.put("path", e.getNewPath());
-        entry.put("url", GitilesView.path()
-            .copyFrom(view)
-            .setRevision(dl.revision)
-            .setPathPart(e.getNewPath())
-            .toUrl());
+        entry.put(
+            "url",
+            GitilesView.path()
+                .copyFrom(view)
+                .setRevision(dl.revision)
+                .setPathPart(e.getNewPath())
+                .toUrl());
       } else {
         entry.put("path", e.getOldPath());
-        entry.put("url", GitilesView.path()
-            .copyFrom(view)
-            .setRevision(dl.oldRevision)
-            .setPathPart(e.getOldPath())
-            .toUrl());
+        entry.put(
+            "url",
+            GitilesView.path()
+                .copyFrom(view)
+                .setRevision(dl.oldRevision)
+                .setPathPart(e.getOldPath())
+                .toUrl());
       }
       entry.put("diffUrl", diffUrl.setAnchor("F" + result.size()).toUrl());
       entry.put("changeType", e.getChangeType().toString());
@@ -236,17 +249,19 @@ public class CommitSoyData {
     return result;
   }
 
-  private static List<Map<String, String>> toSoyData(GitilesView view, List<Ref> refs,
-      String prefix) {
+  private static List<Map<String, String>> toSoyData(
+      GitilesView view, List<Ref> refs, String prefix) {
     List<Map<String, String>> result = Lists.newArrayListWithCapacity(refs.size());
     for (Ref ref : refs) {
       if (ref.getName().startsWith(prefix)) {
-        result.add(ImmutableMap.of(
-          "name", ref.getName().substring(prefix.length()),
-          "url", GitilesView.revision()
-              .copyFrom(view)
-              .setRevision(Revision.unpeeled(ref.getName(), ref.getObjectId()))
-              .toUrl()));
+        result.add(
+            ImmutableMap.of(
+                "name", ref.getName().substring(prefix.length()),
+                "url",
+                    GitilesView.revision()
+                        .copyFrom(view)
+                        .setRevision(Revision.unpeeled(ref.getName(), ref.getObjectId()))
+                        .toUrl()));
       }
     }
     return result;

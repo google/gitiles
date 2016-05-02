@@ -167,8 +167,9 @@ class RevisionParser {
             } else {
               oldRevision = Revision.NULL;
             }
-            Result result = new Result(Revision.peeled(name, c), oldRevision,
-                path.substring(name.length() + 2));
+            Result result =
+                new Result(
+                    Revision.peeled(name, c), oldRevision, path.substring(name.length() + 2));
             return isVisible(walk, result) ? result : null;
           }
         }
@@ -212,9 +213,7 @@ class RevisionParser {
   private static boolean isValidRevision(String revision) {
     // Disallow some uncommon but valid revision expressions that either we
     // don't support or we represent differently in our URLs.
-    return !revision.contains(":")
-        && !revision.contains("^{")
-        && !revision.contains("@");
+    return !revision.contains(":") && !revision.contains("^{") && !revision.contains("@");
   }
 
   private boolean isVisible(RevWalk walk, Result result) throws IOException {

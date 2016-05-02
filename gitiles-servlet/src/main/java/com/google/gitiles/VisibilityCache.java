@@ -81,10 +81,10 @@ public class VisibilityCache {
     @Override
     public String toString() {
       return toStringHelper(this)
-        .add("user", user)
-        .add("repositoryName", repositoryName)
-        .add("objectId", objectId)
-        .toString();
+          .add("user", user)
+          .add("repositoryName", repositoryName)
+          .add("objectId", objectId)
+          .toString();
     }
   }
 
@@ -92,9 +92,7 @@ public class VisibilityCache {
   private final boolean topoSort;
 
   public static CacheBuilder<Object, Object> defaultBuilder() {
-    return CacheBuilder.newBuilder()
-        .maximumSize(1 << 10)
-        .expireAfterWrite(30, TimeUnit.MINUTES);
+    return CacheBuilder.newBuilder().maximumSize(1 << 10).expireAfterWrite(30, TimeUnit.MINUTES);
   }
 
   public VisibilityCache(boolean topoSort) {
@@ -110,8 +108,13 @@ public class VisibilityCache {
     return cache;
   }
 
-  boolean isVisible(final Repository repo, final RevWalk walk, GitilesAccess access,
-      final ObjectId id, final ObjectId... knownReachable) throws IOException {
+  boolean isVisible(
+      final Repository repo,
+      final RevWalk walk,
+      GitilesAccess access,
+      final ObjectId id,
+      final ObjectId... knownReachable)
+      throws IOException {
     try {
       return cache.get(
           new Key(access.getUserKey(), access.getRepositoryName(), id),
@@ -135,8 +138,9 @@ public class VisibilityCache {
     }
   }
 
-  private boolean isVisible(Repository repo, RevWalk walk, ObjectId id,
-      Collection<ObjectId> knownReachable) throws IOException {
+  private boolean isVisible(
+      Repository repo, RevWalk walk, ObjectId id, Collection<ObjectId> knownReachable)
+      throws IOException {
     RevCommit commit;
     try {
       commit = walk.parseCommit(id);
@@ -175,23 +179,28 @@ public class VisibilityCache {
 
   @SuppressWarnings("unchecked")
   private static Predicate<Ref> otherRefs() {
-    return not(Predicates.<Ref> or(
-        refStartsWith(R_HEADS), refStartsWith(R_TAGS), refStartsWith("refs/changes/")));
+    return not(
+        Predicates.<Ref>or(
+            refStartsWith(R_HEADS), refStartsWith(R_TAGS), refStartsWith("refs/changes/")));
   }
 
-  private boolean isReachableFromRefs(RevWalk walk, RevCommit commit,
-      Collection<Ref> refs) throws IOException {
-    return isReachableFrom(walk, commit,
-        Collections2.transform(refs, new Function<Ref, ObjectId>() {
-          @Override
-          public ObjectId apply(Ref ref) {
-            if (ref.getPeeledObjectId() != null) {
-              return ref.getPeeledObjectId();
-            } else {
-              return ref.getObjectId();
-            }
-          }
-        }));
+  private boolean isReachableFromRefs(RevWalk walk, RevCommit commit, Collection<Ref> refs)
+      throws IOException {
+    return isReachableFrom(
+        walk,
+        commit,
+        Collections2.transform(
+            refs,
+            new Function<Ref, ObjectId>() {
+              @Override
+              public ObjectId apply(Ref ref) {
+                if (ref.getPeeledObjectId() != null) {
+                  return ref.getPeeledObjectId();
+                } else {
+                  return ref.getObjectId();
+                }
+              }
+            }));
   }
 
   private boolean isReachableFrom(RevWalk walk, RevCommit commit, Collection<ObjectId> ids)

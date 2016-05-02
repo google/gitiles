@@ -23,9 +23,7 @@ import org.pegdown.ast.TextNode;
 class MarkdownUtil {
   /** Check if anchor URL is like {@code /top.md}. */
   static boolean isAbsolutePathToMarkdown(String url) {
-    return url.length() >= 5
-        && url.charAt(0) == '/' && url.charAt(1) != '/'
-        && url.endsWith(".md");
+    return url.length() >= 5 && url.charAt(0) == '/' && url.charAt(1) != '/' && url.endsWith(".md");
   }
 
   /** Combine child nodes as string; this must be escaped for HTML. */
@@ -66,6 +64,5 @@ class MarkdownUtil {
     return null;
   }
 
-  private MarkdownUtil() {
-  }
+  private MarkdownUtil() {}
 }

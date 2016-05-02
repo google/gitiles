@@ -57,8 +57,8 @@ public class ArchiveServlet extends BaseServlet {
       return;
     }
 
-    Optional<ArchiveFormat> format = ArchiveFormat.byExtension(
-        view.getExtension(), getAccess(req).getConfig());
+    Optional<ArchiveFormat> format =
+        ArchiveFormat.byExtension(view.getExtension(), getAccess(req).getConfig());
     if (!format.isPresent()) {
       res.setStatus(SC_NOT_FOUND);
       return;
@@ -95,15 +95,14 @@ public class ArchiveServlet extends BaseServlet {
   }
 
   private String getFilename(GitilesView view, Revision rev, String ext) {
-    StringBuilder sb = new StringBuilder()
-        .append(PathUtil.basename(view.getRepositoryName()))
-        .append('-')
-        .append(rev.getName());
+    StringBuilder sb =
+        new StringBuilder()
+            .append(PathUtil.basename(view.getRepositoryName()))
+            .append('-')
+            .append(rev.getName());
     if (view.getPathPart() != null) {
-      sb.append('-')
-          .append(view.getPathPart().replace('/', '-'));
+      sb.append('-').append(view.getPathPart().replace('/', '-'));
     }
-    return sb.append(ext)
-        .toString();
+    return sb.append(ext).toString();
   }
 }

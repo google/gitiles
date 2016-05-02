@@ -52,15 +52,14 @@ public class RefServlet extends BaseServlet {
 
   private final TimeCache timeCache;
 
-  protected RefServlet(GitilesAccess.Factory accessFactory, Renderer renderer,
-      TimeCache timeCache) {
+  protected RefServlet(
+      GitilesAccess.Factory accessFactory, Renderer renderer, TimeCache timeCache) {
     super(renderer, accessFactory);
     this.timeCache = checkNotNull(timeCache, "timeCache");
   }
 
   @Override
-  protected void doGetHtml(HttpServletRequest req, HttpServletResponse res)
-      throws IOException {
+  protected void doGetHtml(HttpServletRequest req, HttpServletResponse res) throws IOException {
     if (!ViewFilter.getView(req).getPathPart().isEmpty()) {
       res.setStatus(SC_NOT_FOUND);
       return;
@@ -69,16 +68,18 @@ public class RefServlet extends BaseServlet {
     try (RevWalk walk = new RevWalk(ServletUtils.getRepository(req))) {
       tags = getTagsSoyData(req, timeCache, walk, 0);
     }
-    renderHtml(req, res, "gitiles.refsDetail",
+    renderHtml(
+        req,
+        res,
+        "gitiles.refsDetail",
         ImmutableMap.of("branches", getBranchesSoyData(req, 0), "tags", tags));
   }
 
   @Override
-  protected void doGetText(HttpServletRequest req, HttpServletResponse res)
-      throws IOException {
+  protected void doGetText(HttpServletRequest req, HttpServletResponse res) throws IOException {
     GitilesView view = ViewFilter.getView(req);
-    Map<String, Ref> refs = getRefs(ServletUtils.getRepository(req).getRefDatabase(),
-        view.getPathPart());
+    Map<String, Ref> refs =
+        getRefs(ServletUtils.getRepository(req).getRefDatabase(), view.getPathPart());
     TextRefAdvertiser adv = new TextRefAdvertiser(startRenderText(req, res));
     adv.setDerefTags(true);
     adv.send(refs);
@@ -86,11 +87,10 @@ public class RefServlet extends BaseServlet {
   }
 
   @Override
-  protected void doGetJson(HttpServletRequest req, HttpServletResponse res)
-      throws IOException {
+  protected void doGetJson(HttpServletRequest req, HttpServletResponse res) throws IOException {
     GitilesView view = ViewFilter.getView(req);
-    Map<String, Ref> refs = getRefs(ServletUtils.getRepository(req).getRefDatabase(),
-        view.getPathPart());
+    Map<String, Ref> refs =
+        getRefs(ServletUtils.getRepository(req).getRefDatabase(), view.getPathPart());
     Map<String, RefJsonData> jsonRefs = new LinkedHashMap<>();
     for (Map.Entry<String, Ref> ref : refs.entrySet()) {
       jsonRefs.put(ref.getKey(), new RefJsonData(ref.getValue()));
@@ -131,8 +131,8 @@ public class RefServlet extends BaseServlet {
     }.compound(RefComparator.INSTANCE);
   }
 
-  static List<Map<String, Object>> getTagsSoyData(HttpServletRequest req,
-      TimeCache timeCache, RevWalk walk, int limit) throws IOException {
+  static List<Map<String, Object>> getTagsSoyData(
+      HttpServletRequest req, TimeCache timeCache, RevWalk walk, int limit) throws IOException {
     return getRefsSoyData(
         ServletUtils.getRepository(req).getRefDatabase(),
         ViewFilter.getView(req),
@@ -143,16 +143,20 @@ public class RefServlet extends BaseServlet {
   }
 
   private static Ordering<Ref> tagComparator(final TimeCache timeCache, final RevWalk walk) {
-    return Ordering.natural().onResultOf(new Function<Ref, Long>() {
-      @Override
-      public Long apply(Ref ref) {
-        try {
-          return timeCache.getTime(walk, ref.getObjectId());
-        } catch (IOException e) {
-          throw new UncheckedExecutionException(e);
-        }
-      }
-    }).reverse().compound(RefComparator.INSTANCE);
+    return Ordering.natural()
+        .onResultOf(
+            new Function<Ref, Long>() {
+              @Override
+              public Long apply(Ref ref) {
+                try {
+                  return timeCache.getTime(walk, ref.getObjectId());
+                } catch (IOException e) {
+                  throw new UncheckedExecutionException(e);
+                }
+              }
+            })
+        .reverse()
+        .compound(RefComparator.INSTANCE);
   }
 
   private static List<Map<String, Object>> getRefsSoyData(
@@ -161,7 +165,8 @@ public class RefServlet extends BaseServlet {
       String prefix,
       Ordering<Ref> ordering,
       @Nullable Ref headLeaf,
-      int limit) throws IOException {
+      int limit)
+      throws IOException {
     Collection<Ref> refs = refdb.getRefs(prefix).values();
     refs = ordering.leastOf(refs, limit > 0 ? Ints.saturatedCast(limit + 1L) : refs.size());
     List<Map<String, Object>> result = Lists.newArrayListWithCapacity(refs.size());
@@ -172,8 +177,13 @@ public class RefServlet extends BaseServlet {
       if (refForName != null) {
         boolean needPrefix = !ref.getName().equals(refForName.getName());
         Map<String, Object> value = Maps.newHashMapWithExpectedSize(3);
-        value.put("url", GitilesView.revision().copyFrom(view).setRevision(
-          Revision.unpeeled(needPrefix ? ref.getName() : name, ref.getObjectId())).toUrl());
+        value.put(
+            "url",
+            GitilesView.revision()
+                .copyFrom(view)
+                .setRevision(
+                    Revision.unpeeled(needPrefix ? ref.getName() : name, ref.getObjectId()))
+                .toUrl());
         value.put("name", name);
         if (headLeaf != null) {
           value.put("isHead", headLeaf.equals(ref));
@@ -185,9 +195,7 @@ public class RefServlet extends BaseServlet {
   }
 
   static String sanitizeRefForText(String refName) {
-    return refName.replace("&", "&amp;")
-        .replace("<", "&lt;")
-        .replace(">", "&gt;");
+    return refName.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
   }
 
   private static Map<String, Ref> getRefs(RefDatabase refdb, String path) throws IOException {
@@ -229,7 +237,7 @@ public class RefServlet extends BaseServlet {
   static class RefJsonData {
     RefJsonData(Ref ref) {
       value = ref.getObjectId().getName();
-      if(ref.getPeeledObjectId() != null) {
+      if (ref.getPeeledObjectId() != null) {
         peeled = ref.getPeeledObjectId().getName();
       }
       if (ref.isSymbolic()) {

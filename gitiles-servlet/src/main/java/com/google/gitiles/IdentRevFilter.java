@@ -43,8 +43,8 @@ public abstract class IdentRevFilter extends RevFilter {
   }
 
   @Override
-  public boolean include(RevWalk walker, RevCommit commit) throws StopWalkException,
-      MissingObjectException, IncorrectObjectTypeException, IOException {
+  public boolean include(RevWalk walker, RevCommit commit)
+      throws StopWalkException, MissingObjectException, IncorrectObjectTypeException, IOException {
     return matchesPerson(getIdent(commit));
   }
 
@@ -59,8 +59,7 @@ public abstract class IdentRevFilter extends RevFilter {
     // Equivalent to --fixed-strings, to avoid pathological performance of Java
     // regex matching.
     // TODO(kalman): Find/use a port of re2.
-    return person.getName().contains(pattern)
-        || person.getEmailAddress().contains(pattern);
+    return person.getName().contains(pattern) || person.getEmailAddress().contains(pattern);
   }
 
   protected abstract PersonIdent getIdent(RevCommit commit);

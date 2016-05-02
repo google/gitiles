@@ -56,15 +56,15 @@ public class HostIndexServlet extends BaseServlet {
 
   protected final GitilesUrls urls;
 
-  public HostIndexServlet(GitilesAccess.Factory accessFactory, Renderer renderer,
-      GitilesUrls urls) {
+  public HostIndexServlet(
+      GitilesAccess.Factory accessFactory, Renderer renderer, GitilesUrls urls) {
     super(renderer, accessFactory);
     this.urls = checkNotNull(urls, "urls");
   }
 
   private Map<String, RepositoryDescription> list(
-      HttpServletRequest req, HttpServletResponse res, String prefix,
-      Set<String> branches) throws IOException {
+      HttpServletRequest req, HttpServletResponse res, String prefix, Set<String> branches)
+      throws IOException {
     Map<String, RepositoryDescription> descs;
     try {
       descs = getAccess(req).listRepositories(prefix, branches);
@@ -94,20 +94,16 @@ public class HostIndexServlet extends BaseServlet {
     return descs;
   }
 
-  private SoyMapData toSoyMapData(RepositoryDescription desc,
-      @Nullable String prefix, GitilesView view) {
+  private SoyMapData toSoyMapData(
+      RepositoryDescription desc, @Nullable String prefix, GitilesView view) {
     return new SoyMapData(
         "name", stripPrefix(prefix, desc.name),
         "description", Strings.nullToEmpty(desc.description),
-        "url", GitilesView.repositoryIndex()
-            .copyFrom(view)
-            .setRepositoryName(desc.name)
-            .toUrl());
+        "url", GitilesView.repositoryIndex().copyFrom(view).setRepositoryName(desc.name).toUrl());
   }
 
   @Override
-  protected void doHead(HttpServletRequest req, HttpServletResponse res)
-      throws IOException {
+  protected void doHead(HttpServletRequest req, HttpServletResponse res) throws IOException {
     Optional<FormatType> format = getFormat(req);
     if (!format.isPresent()) {
       res.sendError(SC_BAD_REQUEST);
@@ -118,7 +114,7 @@ public class HostIndexServlet extends BaseServlet {
     String prefix = view.getRepositoryPrefix();
     if (prefix != null) {
       Map<String, RepositoryDescription> descs =
-          list(req, res, prefix, Collections.<String> emptySet());
+          list(req, res, prefix, Collections.<String>emptySet());
       if (descs == null) {
         return;
       }
@@ -158,11 +154,19 @@ public class HostIndexServlet extends BaseServlet {
       hostName = hostName + '/' + prefix;
       breadcrumbs = view.getBreadcrumbs();
     }
-    renderHtml(req, res, "gitiles.hostIndex", ImmutableMap.of(
-        "hostName", hostName,
-        "breadcrumbs", SoyData.createFromExistingData(breadcrumbs),
-        "prefix", prefix != null ? prefix + '/' : "",
-        "repositories", repos));
+    renderHtml(
+        req,
+        res,
+        "gitiles.hostIndex",
+        ImmutableMap.of(
+            "hostName",
+            hostName,
+            "breadcrumbs",
+            SoyData.createFromExistingData(breadcrumbs),
+            "prefix",
+            prefix != null ? prefix + '/' : "",
+            "repositories",
+            repos));
   }
 
   @Override

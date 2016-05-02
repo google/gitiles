@@ -35,6 +35,7 @@ public enum ArchiveFormat {
   // valid JAR file, whose code would have access to cookies on the domain.
 
   private static final ImmutableMap<String, ArchiveFormat> BY_EXT;
+
   static {
     ImmutableMap.Builder<String, ArchiveFormat> byExt = ImmutableMap.builder();
     for (ArchiveFormat format : ArchiveFormat.values()) {

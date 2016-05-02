@@ -35,21 +35,22 @@ public interface GitilesUrls {
    * should not be encoded, while almost any other non-alpha, non-numeric
    * character will be encoded using URL style encoding.
    */
-  public static final Function<String, String> NAME_ESCAPER = new Function<String, String>() {
-    @Override
-    public String apply(String s) {
-      try {
-        return URLEncoder.encode(s, UTF_8.name())
-            .replace("%2F", "/")
-            .replace("%2f", "/")
-            .replace("+", "%20")
-            .replace("%2B", "+")
-            .replace("%2b", "+");
-      } catch (UnsupportedEncodingException e) {
-        throw new IllegalStateException(e);
-      }
-    }
-  };
+  public static final Function<String, String> NAME_ESCAPER =
+      new Function<String, String>() {
+        @Override
+        public String apply(String s) {
+          try {
+            return URLEncoder.encode(s, UTF_8.name())
+                .replace("%2F", "/")
+                .replace("%2f", "/")
+                .replace("+", "%20")
+                .replace("%2B", "+")
+                .replace("%2b", "+");
+          } catch (UnsupportedEncodingException e) {
+            throw new IllegalStateException(e);
+          }
+        }
+      };
 
   /**
    * Return the name of the host from the request.

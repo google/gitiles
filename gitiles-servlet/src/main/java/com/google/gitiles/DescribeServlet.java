@@ -49,8 +49,7 @@ public class DescribeServlet extends BaseServlet {
 
   private static boolean getBooleanParam(GitilesView view, String name) {
     List<String> values = view.getParameters().get(name);
-    return !values.isEmpty()
-        && (values.get(0).isEmpty() || values.get(0).equals("1"));
+    return !values.isEmpty() && (values.get(0).isEmpty() || values.get(0).equals("1"));
   }
 
   protected DescribeServlet(GitilesAccess.Factory accessFactory) {
@@ -58,8 +57,7 @@ public class DescribeServlet extends BaseServlet {
   }
 
   @Override
-  protected void doGetText(HttpServletRequest req, HttpServletResponse res)
-      throws IOException {
+  protected void doGetText(HttpServletRequest req, HttpServletResponse res) throws IOException {
     String name = describe(ServletUtils.getRepository(req), ViewFilter.getView(req), req, res);
     if (name == null) {
       return;
@@ -70,36 +68,47 @@ public class DescribeServlet extends BaseServlet {
   }
 
   @Override
-  protected void doGetJson(HttpServletRequest req, HttpServletResponse res)
-      throws IOException {
+  protected void doGetJson(HttpServletRequest req, HttpServletResponse res) throws IOException {
     String name = describe(ServletUtils.getRepository(req), ViewFilter.getView(req), req, res);
     if (name == null) {
       return;
     }
-    renderJson(req, res,
+    renderJson(
+        req,
+        res,
         ImmutableMap.of(ViewFilter.getView(req).getPathPart(), name),
         new TypeToken<Map<String, String>>() {}.getType());
   }
 
-  private ObjectId resolve(Repository repo, GitilesView view, HttpServletRequest req,
-      HttpServletResponse res) throws IOException {
+  private ObjectId resolve(
+      Repository repo, GitilesView view, HttpServletRequest req, HttpServletResponse res)
+      throws IOException {
     String rev = view.getPathPart();
     try {
       return repo.resolve(rev);
     } catch (RevisionSyntaxException e) {
-      renderTextError(req, res, SC_BAD_REQUEST,
+      renderTextError(
+          req,
+          res,
+          SC_BAD_REQUEST,
           "Invalid revision syntax: " + RefServlet.sanitizeRefForText(rev));
       return null;
     } catch (AmbiguousObjectException e) {
-      renderTextError(req, res, SC_BAD_REQUEST, String.format(
-            "Ambiguous short SHA-1 %s (%s)",
-            e.getAbbreviatedObjectId(), Joiner.on(", ").join(e.getCandidates())));
+      renderTextError(
+          req,
+          res,
+          SC_BAD_REQUEST,
+          String.format(
+              "Ambiguous short SHA-1 %s (%s)",
+              e.getAbbreviatedObjectId(),
+              Joiner.on(", ").join(e.getCandidates())));
       return null;
     }
   }
 
-  private String describe(Repository repo, GitilesView view, HttpServletRequest req,
-      HttpServletResponse res) throws IOException {
+  private String describe(
+      Repository repo, GitilesView view, HttpServletRequest req, HttpServletResponse res)
+      throws IOException {
     if (!getBooleanParam(view, CONTAINS_PARAM)) {
       res.setStatus(SC_BAD_REQUEST);
       return null;
@@ -125,8 +134,8 @@ public class DescribeServlet extends BaseServlet {
     return name;
   }
 
-  private NameRevCommand nameRevCommand(Git git, ObjectId id,
-      HttpServletRequest req, HttpServletResponse res) throws IOException {
+  private NameRevCommand nameRevCommand(
+      Git git, ObjectId id, HttpServletRequest req, HttpServletResponse res) throws IOException {
     GitilesView view = ViewFilter.getView(req);
     NameRevCommand cmd = git.nameRev();
     boolean all = getBooleanParam(view, ALL_PARAM);

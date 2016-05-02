@@ -97,29 +97,26 @@ public class GitwebRedirectFilter extends AbstractHttpFilter {
     } else if ("log".equals(action) || "shortlog".equals(action)) {
       view = GitilesView.log().setRevision(firstNonNull(hash, Revision.HEAD));
     } else if ("tree".equals(action)) {
-      view = GitilesView.path()
-          .setRevision(firstNonNull(hashBase, Revision.HEAD))
-          .setPathPart(path);
+      view =
+          GitilesView.path().setRevision(firstNonNull(hashBase, Revision.HEAD)).setPathPart(path);
     } else if (("blob".equals(action) || "blob_plain".equals(action))
-        && hashBase != null && !path.isEmpty()) {
-      view = GitilesView.path()
-          .setRevision(hashBase)
-          .setPathPart(path);
+        && hashBase != null
+        && !path.isEmpty()) {
+      view = GitilesView.path().setRevision(hashBase).setPathPart(path);
     } else if ("commitdiff".equals(action) && hash != null) {
-      view = GitilesView.diff()
-          .setOldRevision(firstNonNull(hashParent, Revision.NULL))
-          .setRevision(hash)
-          .setPathPart("");
-    } else if ("blobdiff".equals(action) && !path.isEmpty()
-        && hashParentBase != null && hashBase != null) {
-      view = GitilesView.diff()
-          .setOldRevision(hashParentBase)
-          .setRevision(hashBase)
-          .setPathPart(path);
+      view =
+          GitilesView.diff()
+              .setOldRevision(firstNonNull(hashParent, Revision.NULL))
+              .setRevision(hash)
+              .setPathPart("");
+    } else if ("blobdiff".equals(action)
+        && !path.isEmpty()
+        && hashParentBase != null
+        && hashBase != null) {
+      view =
+          GitilesView.diff().setOldRevision(hashParentBase).setRevision(hashBase).setPathPart(path);
     } else if ("history".equals(action) && !path.isEmpty()) {
-      view = GitilesView.log()
-          .setRevision(firstNonNull(hashBase, Revision.HEAD))
-          .setPathPart(path);
+      view = GitilesView.log().setRevision(firstNonNull(hashBase, Revision.HEAD)).setPathPart(path);
     } else {
       // Gitiles does not provide an RSS feed (a=rss,atom,opml)
       // Any other URL is out of date and not valid anymore.
@@ -133,9 +130,10 @@ public class GitwebRedirectFilter extends AbstractHttpFilter {
 
     String url;
     try {
-      url = view.setHostName(gitwebView.getHostName())
-          .setServletPath(gitwebView.getServletPath())
-          .toUrl();
+      url =
+          view.setHostName(gitwebView.getHostName())
+              .setServletPath(gitwebView.getServletPath())
+              .toUrl();
     } catch (InvalidViewException e) {
       res.setStatus(SC_GONE);
       return;

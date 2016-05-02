@@ -54,10 +54,7 @@ public class TreeSoyData {
     if (resolved == null) {
       return null;
     }
-    return GitilesView.path()
-        .copyFrom(view)
-        .setPathPart(resolved)
-        .toUrl();
+    return GitilesView.path().copyFrom(view).setPathPart(resolved).toUrl();
   }
 
   @VisibleForTesting
@@ -77,8 +74,7 @@ public class TreeSoyData {
   private final RevTree rootTree;
   private ArchiveFormat archiveFormat;
 
-  public TreeSoyData(ObjectReader reader, GitilesView view, Config cfg,
-      RevTree rootTree) {
+  public TreeSoyData(ObjectReader reader, GitilesView view, Config cfg, RevTree rootTree) {
     this.reader = reader;
     this.view = view;
     this.cfg = cfg;
@@ -90,8 +86,8 @@ public class TreeSoyData {
     return this;
   }
 
-  public Map<String, Object> toSoyData(ObjectId treeId, TreeWalk tw) throws MissingObjectException,
-         IOException {
+  public Map<String, Object> toSoyData(ObjectId treeId, TreeWalk tw)
+      throws MissingObjectException, IOException {
     ReadmeHelper readme = new ReadmeHelper(reader, view, cfg, rootTree);
     List<Object> entries = Lists.newArrayList();
     GitilesView.Builder urlBuilder = GitilesView.path().copyFrom(view);
@@ -108,8 +104,8 @@ public class TreeSoyData {
           urlBuilder.setPathPart(name);
           break;
         default:
-          throw new IllegalStateException(String.format(
-              "Cannot render TreeSoyData from %s view", view.getType()));
+          throw new IllegalStateException(
+              String.format("Cannot render TreeSoyData from %s view", view.getType()));
       }
 
       String url = urlBuilder.toUrl();
@@ -122,9 +118,7 @@ public class TreeSoyData {
       entry.put("name", name);
       entry.put("url", url);
       if (type == FileType.SYMLINK) {
-        String target = new String(
-            reader.open(tw.getObjectId(0)).getCachedBytes(),
-            UTF_8);
+        String target = new String(reader.open(tw.getObjectId(0)).getCachedBytes(), UTF_8);
         entry.put("targetName", getTargetDisplayName(target));
         String targetUrl = resolveTargetUrl(view, target);
         if (targetUrl != null) {
@@ -143,11 +137,13 @@ public class TreeSoyData {
     if (view.getType() == GitilesView.Type.PATH
         && view.getRevision().getPeeledType() == OBJ_COMMIT) {
       data.put("logUrl", GitilesView.log().copyFrom(view).toUrl());
-      data.put("archiveUrl", GitilesView.archive()
-          .copyFrom(view)
-          .setPathPart(Strings.emptyToNull(view.getPathPart()))
-          .setExtension(archiveFormat.getDefaultSuffix())
-          .toUrl());
+      data.put(
+          "archiveUrl",
+          GitilesView.archive()
+              .copyFrom(view)
+              .setPathPart(Strings.emptyToNull(view.getPathPart()))
+              .setExtension(archiveFormat.getDefaultSuffix())
+              .toUrl());
       data.put("archiveType", archiveFormat.getShortName());
     }
 

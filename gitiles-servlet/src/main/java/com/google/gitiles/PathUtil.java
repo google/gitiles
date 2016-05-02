@@ -59,6 +59,5 @@ class PathUtil {
     return path.substring(slash + 1);
   }
 
-  private PathUtil() {
-  }
+  private PathUtil() {}
 }

@@ -20,15 +20,15 @@ import prettify.PrettifyParser;
 import prettify.parser.Prettify;
 
 public class ThreadSafePrettifyParser extends PrettifyParser {
-  public static final ThreadSafePrettifyParser INSTANCE =
-      new ThreadSafePrettifyParser();
+  public static final ThreadSafePrettifyParser INSTANCE = new ThreadSafePrettifyParser();
 
   private ThreadSafePrettifyParser() {
     // Prettify is not thread safe ... unless we do this.
-    prettify = new Prettify() {
-      {
-        langHandlerRegistry = Collections.synchronizedMap(langHandlerRegistry);
-      }
-    };
+    prettify =
+        new Prettify() {
+          {
+            langHandlerRegistry = Collections.synchronizedMap(langHandlerRegistry);
+          }
+        };
   }
 }

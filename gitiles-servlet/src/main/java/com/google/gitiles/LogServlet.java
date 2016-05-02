@@ -131,8 +131,7 @@ public class LogServlet extends BaseServlet {
 
       try (OutputStream out = startRenderStreamingHtml(req, res, "gitiles.logDetail", data)) {
         Writer w = newWriter(out, res);
-        new LogSoyData(req, access, pretty)
-            .renderStreaming(paginator, null, renderer, w, df);
+        new LogSoyData(req, access, pretty).renderStreaming(paginator, null, renderer, w, df);
         w.flush();
       }
     } catch (RevWalkException e) {
@@ -169,8 +168,8 @@ public class LogServlet extends BaseServlet {
       List<CommitJsonData.Commit> entries = Lists.newArrayListWithCapacity(paginator.getLimit());
       for (RevCommit c : paginator) {
         paginator.getWalk().parseBody(c);
-        entries.add(new CommitJsonData().setRevWalk(paginator.getWalk())
-            .toJsonData(req, c, fs, df));
+        entries.add(
+            new CommitJsonData().setRevWalk(paginator.getWalk()).toJsonData(req, c, fs, df));
       }
       result.log = entries;
       if (paginator.getPreviousStart() != null) {
@@ -198,14 +197,14 @@ public class LogServlet extends BaseServlet {
     }
     try (RevWalk walk = new RevWalk(repo)) {
       return GitilesView.log()
-        .copyFrom(view)
-        .setRevision(Revision.peel(Constants.HEAD, walk.parseAny(headRef.getObjectId()), walk))
-        .build();
+          .copyFrom(view)
+          .setRevision(Revision.peel(Constants.HEAD, walk.parseAny(headRef.getObjectId()), walk))
+          .build();
     }
   }
 
-  private static Optional<ObjectId> getStart(ListMultimap<String, String> params,
-      ObjectReader reader) throws IOException {
+  private static Optional<ObjectId> getStart(
+      ListMultimap<String, String> params, ObjectReader reader) throws IOException {
     List<String> values = params.get(START_PARAM);
     switch (values.size()) {
       case 0:
@@ -258,15 +257,15 @@ public class LogServlet extends BaseServlet {
     String path = view.getPathPart();
 
     List<String> followParams = view.getParameters().get(FOLLOW_PARAM);
-    boolean follow = !followParams.isEmpty()
-        ? isTrue(followParams.get(0))
-        : access.getConfig().getBoolean("log", null, "follow", true);
+    boolean follow =
+        !followParams.isEmpty()
+            ? isTrue(followParams.get(0))
+            : access.getConfig().getBoolean("log", null, "follow", true);
     if (follow) {
       walk.setTreeFilter(FollowFilter.create(path, access.getConfig().get(DiffConfig.KEY)));
     } else {
-      walk.setTreeFilter(AndTreeFilter.create(
-          PathFilterGroup.createFromStrings(path),
-          TreeFilter.ANY_DIFF));
+      walk.setTreeFilter(
+          AndTreeFilter.create(PathFilterGroup.createFromStrings(path), TreeFilter.ANY_DIFF));
     }
   }
 

@@ -100,8 +100,7 @@ class CommitData {
       return this;
     }
 
-    CommitData build(HttpServletRequest req, RevCommit c, Set<Field> fs)
-        throws IOException {
+    CommitData build(HttpServletRequest req, RevCommit c, Set<Field> fs) throws IOException {
       checkFields(fs);
       checkNotNull(req, "request");
       Repository repo = ServletUtils.getRepository(req);
@@ -124,17 +123,15 @@ class CommitData {
         }
       }
       if (fs.contains(Field.URL)) {
-        result.url = GitilesView.revision()
-            .copyFrom(view)
-            .setRevision(c)
-            .toUrl();
+        result.url = GitilesView.revision().copyFrom(view).setRevision(c).toUrl();
       }
       if (fs.contains(Field.LOG_URL)) {
         result.logUrl = urlFromView(view, c, GitilesView.log());
       }
       if (fs.contains(Field.ARCHIVE_URL)) {
-        result.archiveUrl = urlFromView(view, c,
-            GitilesView.archive().setExtension(archiveFormat.getDefaultSuffix()));
+        result.archiveUrl =
+            urlFromView(
+                view, c, GitilesView.archive().setExtension(archiveFormat.getDefaultSuffix()));
       }
       if (fs.contains(Field.ARCHIVE_TYPE)) {
         result.archiveType = archiveFormat;
@@ -186,10 +183,11 @@ class CommitData {
       }
     }
 
-    private static String urlFromView(GitilesView view, RevCommit commit,
-        GitilesView.Builder builder) {
+    private static String urlFromView(
+        GitilesView view, RevCommit commit, GitilesView.Builder builder) {
       Revision rev = view.getRevision();
-      return builder.copyFrom(view)
+      return builder
+          .copyFrom(view)
           .setOldRevision(Revision.NULL)
           .setRevision(rev.getId().equals(commit) ? rev.getName() : commit.name(), commit)
           .setPathPart(view.getPathPart())
@@ -200,18 +198,23 @@ class CommitData {
       if (refsById == null) {
         refsById = repo.getAllRefsByPeeledObjectId();
       }
-      return FluentIterable.from(firstNonNull(refsById.get(id), ImmutableSet.<Ref> of()))
-        .filter(new Predicate<Ref>() {
-          @Override
-          public boolean apply(Ref ref) {
-            return ref.getName().startsWith(prefix);
-          }
-        }).toSortedList(Ordering.natural().onResultOf(new Function<Ref, String>() {
-          @Override
-          public String apply(Ref ref) {
-            return ref.getName();
-          }
-        }));
+      return FluentIterable.from(firstNonNull(refsById.get(id), ImmutableSet.<Ref>of()))
+          .filter(
+              new Predicate<Ref>() {
+                @Override
+                public boolean apply(Ref ref) {
+                  return ref.getName().startsWith(prefix);
+                }
+              })
+          .toSortedList(
+              Ordering.natural()
+                  .onResultOf(
+                      new Function<Ref, String>() {
+                        @Override
+                        public String apply(Ref ref) {
+                          return ref.getName();
+                        }
+                      }));
     }
 
     private AbstractTreeIterator getTreeIterator(RevCommit commit) throws IOException {
@@ -223,9 +226,10 @@ class CommitData {
     private DiffList computeDiffEntries(Repository repo, GitilesView view, RevCommit commit)
         throws IOException {
       DiffList result = new DiffList();
-      result.revision = view.getRevision().matches(commit)
-          ? view.getRevision()
-          : Revision.peeled(commit.name(), commit);
+      result.revision =
+          view.getRevision().matches(commit)
+              ? view.getRevision()
+              : Revision.peeled(commit.name(), commit);
 
       AbstractTreeIterator oldTree;
       switch (commit.getParentCount()) {

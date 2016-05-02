@@ -41,20 +41,46 @@ import java.util.regex.Pattern;
  * {@code https://}, and for image src {@code data:image/*;base64,...}.
  */
 public final class HtmlBuilder {
-  private static final ImmutableSet<String> ALLOWED_TAGS = ImmutableSet.of(
-      "h1", "h2", "h3", "h4", "h5", "h6",
-      "a", "div", "img", "p", "blockquote", "pre",
-      "ol", "ul", "li", "dl", "dd", "dt",
-      "del", "em", "strong", "code", "br", "hr",
-      "table", "thead", "tbody", "caption", "tr", "th", "td",
-      "iframe", "span"
-  );
+  private static final ImmutableSet<String> ALLOWED_TAGS =
+      ImmutableSet.of(
+          "h1",
+          "h2",
+          "h3",
+          "h4",
+          "h5",
+          "h6",
+          "a",
+          "div",
+          "img",
+          "p",
+          "blockquote",
+          "pre",
+          "ol",
+          "ul",
+          "li",
+          "dl",
+          "dd",
+          "dt",
+          "del",
+          "em",
+          "strong",
+          "code",
+          "br",
+          "hr",
+          "table",
+          "thead",
+          "tbody",
+          "caption",
+          "tr",
+          "th",
+          "td",
+          "iframe",
+          "span");
 
-  private static final ImmutableSet<String> ALLOWED_ATTRIBUTES = ImmutableSet.of(
-      "id", "class", "role");
+  private static final ImmutableSet<String> ALLOWED_ATTRIBUTES =
+      ImmutableSet.of("id", "class", "role");
 
-  private static final ImmutableSet<String> SELF_CLOSING_TAGS = ImmutableSet.of(
-      "img", "br", "hr");
+  private static final ImmutableSet<String> SELF_CLOSING_TAGS = ImmutableSet.of("img", "br", "hr");
 
   private static final FilterNormalizeUri URI = FilterNormalizeUri.INSTANCE;
   private static final FilterImageDataUri IMAGE_DATA = FilterImageDataUri.INSTANCE;
@@ -64,9 +90,7 @@ public final class HtmlBuilder {
   }
 
   public static boolean isValidHttpUri(String val) {
-    return (val.startsWith("https://")
-        || val.startsWith("http://")
-        || val.startsWith("//"))
+    return (val.startsWith("https://") || val.startsWith("http://") || val.startsWith("//"))
         && URI.getValueFilter().matcher(val).find();
   }
 
@@ -163,8 +187,7 @@ public final class HtmlBuilder {
   /** Close an open tag with {@code </tag>} */
   public HtmlBuilder close(String tag) {
     checkArgument(
-        ALLOWED_TAGS.contains(tag) && !SELF_CLOSING_TAGS.contains(tag),
-        "invalid HTML tag %s", tag);
+        ALLOWED_TAGS.contains(tag) && !SELF_CLOSING_TAGS.contains(tag), "invalid HTML tag %s", tag);
 
     finishActiveTag();
     htmlBuf.append("</").append(tag).append('>');
@@ -194,8 +217,6 @@ public final class HtmlBuilder {
   /** Bless the current content as HTML. */
   public SanitizedContent toSoy() {
     finishActiveTag();
-    return UnsafeSanitizedContentOrdainer.ordainAsSafe(
-        htmlBuf.toString(),
-        ContentKind.HTML);
+    return UnsafeSanitizedContentOrdainer.ordainAsSafe(htmlBuf.toString(), ContentKind.HTML);
   }
 }

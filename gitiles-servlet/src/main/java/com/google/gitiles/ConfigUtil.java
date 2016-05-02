@@ -43,15 +43,15 @@ public class ConfigUtil {
    * @param defaultValue value to use when the value is not assigned.
    * @return a standard duration representing the time read, or defaultValue.
    */
-  public static Duration getDuration(Config config, String section, String subsection, String name,
-      Duration defaultValue) {
+  public static Duration getDuration(
+      Config config, String section, String subsection, String name, Duration defaultValue) {
     String valStr = config.getString(section, subsection, name);
     if (valStr == null) {
-        return defaultValue;
+      return defaultValue;
     }
     valStr = valStr.trim();
     if (valStr.isEmpty()) {
-        return defaultValue;
+      return defaultValue;
     }
     Duration val = parseDuration(valStr);
     if (val == null) {
@@ -162,21 +162,19 @@ public class ConfigUtil {
    *     {@link TimeZone#getTimeZone(String)}, unknown time zones are treated as
    *     GMT.
    */
-  public static Optional<TimeZone> getTimeZone(Config config, String section, String subsection,
-      String name) {
+  public static Optional<TimeZone> getTimeZone(
+      Config config, String section, String subsection, String name) {
     String id = config.getString(section, subsection, name);
-    return id != null ? Optional.of(TimeZone.getTimeZone(id)) : Optional.<TimeZone> absent();
+    return id != null ? Optional.of(TimeZone.getTimeZone(id)) : Optional.<TimeZone>absent();
   }
 
   private static Matcher matcher(String pattern, String valStr) {
-      return Pattern.compile(pattern).matcher(valStr);
+    return Pattern.compile(pattern).matcher(valStr);
   }
 
   private static boolean anyOf(String a, String... cases) {
-    return Iterables.any(ImmutableList.copyOf(cases),
-        Predicates.equalTo(a.toLowerCase()));
+    return Iterables.any(ImmutableList.copyOf(cases), Predicates.equalTo(a.toLowerCase()));
   }
 
-  private ConfigUtil() {
-  }
+  private ConfigUtil() {}
 }

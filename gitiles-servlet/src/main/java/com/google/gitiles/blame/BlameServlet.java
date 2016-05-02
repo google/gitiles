@@ -69,8 +69,7 @@ public class BlameServlet extends BaseServlet {
   }
 
   @Override
-  protected void doGetHtml(HttpServletRequest req, HttpServletResponse res)
-      throws IOException {
+  protected void doGetHtml(HttpServletRequest req, HttpServletResponse res) throws IOException {
     GitilesView view = ViewFilter.getView(req);
     Repository repo = ServletUtils.getRepository(req);
 
@@ -82,20 +81,32 @@ public class BlameServlet extends BaseServlet {
       }
 
       String title = "Blame - " + view.getPathPart();
-      Map<String, ?> blobData = new BlobSoyData(rw.getObjectReader(), view)
-          .toSoyData(view.getPathPart(), result.blobId);
+      Map<String, ?> blobData =
+          new BlobSoyData(rw.getObjectReader(), view).toSoyData(view.getPathPart(), result.blobId);
       if (blobData.get("lines") != null) {
         DateFormatter df = new DateFormatter(access, Format.ISO);
-        renderHtml(req, res, "gitiles.blameDetail", ImmutableMap.of(
-            "title", title,
-            "breadcrumbs", view.getBreadcrumbs(),
-            "data", blobData,
-            "regions", toSoyData(view, rw.getObjectReader(), result.regions, df)));
+        renderHtml(
+            req,
+            res,
+            "gitiles.blameDetail",
+            ImmutableMap.of(
+                "title",
+                title,
+                "breadcrumbs",
+                view.getBreadcrumbs(),
+                "data",
+                blobData,
+                "regions",
+                toSoyData(view, rw.getObjectReader(), result.regions, df)));
       } else {
-        renderHtml(req, res, "gitiles.blameDetail", ImmutableMap.of(
-            "title", title,
-            "breadcrumbs", view.getBreadcrumbs(),
-            "data", blobData));
+        renderHtml(
+            req,
+            res,
+            "gitiles.blameDetail",
+            ImmutableMap.of(
+                "title", title,
+                "breadcrumbs", view.getBreadcrumbs(),
+                "data", blobData));
       }
     }
   }
@@ -118,15 +129,19 @@ public class BlameServlet extends BaseServlet {
         r.setStart(start);
         start += r.getCount();
       }
-      renderJson(req, res, ImmutableMap.of("regions", result.regions),
+      renderJson(
+          req,
+          res,
+          ImmutableMap.of("regions", result.regions),
           new TypeToken<Map<String, List<Region>>>() {}.getType());
     }
   }
 
   @Override
   protected GsonBuilder newGsonBuilder(HttpServletRequest req) throws IOException {
-    return super.newGsonBuilder(req).registerTypeAdapter(Region.class,
-        new RegionAdapter(new DateFormatter(getAccess(req), Format.ISO)));
+    return super.newGsonBuilder(req)
+        .registerTypeAdapter(
+            Region.class, new RegionAdapter(new DateFormatter(getAccess(req), Format.ISO)));
   }
 
   private static class RegionResult {
@@ -139,8 +154,9 @@ public class BlameServlet extends BaseServlet {
     }
   }
 
-  private RegionResult getRegions(GitilesView view, GitilesAccess access, Repository repo,
-      RevWalk rw, HttpServletResponse res) throws IOException {
+  private RegionResult getRegions(
+      GitilesView view, GitilesAccess access, Repository repo, RevWalk rw, HttpServletResponse res)
+      throws IOException {
     RevCommit currCommit = rw.parseCommit(view.getRevision().getId());
     ObjectId currCommitBlobId = resolveBlob(view, rw, currCommit);
     if (currCommitBlobId == null) {
@@ -152,13 +168,15 @@ public class BlameServlet extends BaseServlet {
     ObjectId lastCommitBlobId = resolveBlob(view, rw, lastCommit);
 
     if (!Objects.equals(currCommitBlobId, lastCommitBlobId)) {
-      log.warn(String.format("Blob %s in last modified commit %s for repo %s starting from %s"
-          + " does not match original blob %s",
-          ObjectId.toString(lastCommitBlobId),
-          ObjectId.toString(lastCommit),
-          access.getRepositoryName(),
-          ObjectId.toString(currCommit),
-          ObjectId.toString(currCommitBlobId)));
+      log.warn(
+          String.format(
+              "Blob %s in last modified commit %s for repo %s starting from %s"
+                  + " does not match original blob %s",
+              ObjectId.toString(lastCommitBlobId),
+              ObjectId.toString(lastCommit),
+              access.getRepositoryName(),
+              ObjectId.toString(currCommit),
+              ObjectId.toString(currCommitBlobId)));
       lastCommitBlobId = currCommitBlobId;
       lastCommit = currCommit;
     }
@@ -191,6 +209,7 @@ public class BlameServlet extends BaseServlet {
   private static final ImmutableList<String> CLASSES =
       ImmutableList.of("Blame-region--bg1", "Blame-region--bg2");
   private static final ImmutableList<SoyMapData> NULLS;
+
   static {
     ImmutableList.Builder<SoyMapData> nulls = ImmutableList.builder();
     for (String clazz : CLASSES) {
@@ -199,8 +218,9 @@ public class BlameServlet extends BaseServlet {
     NULLS = nulls.build();
   }
 
-  private static SoyListData toSoyData(GitilesView view, ObjectReader reader,
-      List<Region> regions, DateFormatter df) throws IOException {
+  private static SoyListData toSoyData(
+      GitilesView view, ObjectReader reader, List<Region> regions, DateFormatter df)
+      throws IOException {
     Map<ObjectId, String> abbrevShas = Maps.newHashMap();
     SoyListData result = new SoyListData();
 
@@ -225,18 +245,24 @@ public class BlameServlet extends BaseServlet {
           blameParent = "^";
           blameText = "blame^";
         }
-        e.put("blameUrl", GitilesView.blame().copyFrom(view)
-            .setRevision(r.getSourceCommit().name() + blameParent)
-            .setPathPart(r.getSourcePath())
-            .toUrl());
+        e.put(
+            "blameUrl",
+            GitilesView.blame()
+                .copyFrom(view)
+                .setRevision(r.getSourceCommit().name() + blameParent)
+                .setPathPart(r.getSourcePath())
+                .toUrl());
         e.put("blameText", blameText);
-        e.put("commitUrl", GitilesView.revision().copyFrom(view)
-            .setRevision(r.getSourceCommit().name())
-            .toUrl());
-        e.put("diffUrl", GitilesView.diff().copyFrom(view)
-            .setRevision(r.getSourceCommit().name())
-            .setPathPart(r.getSourcePath())
-            .toUrl());
+        e.put(
+            "commitUrl",
+            GitilesView.revision().copyFrom(view).setRevision(r.getSourceCommit().name()).toUrl());
+        e.put(
+            "diffUrl",
+            GitilesView.diff()
+                .copyFrom(view)
+                .setRevision(r.getSourceCommit().name())
+                .setPathPart(r.getSourcePath())
+                .toUrl());
         e.put("author", CommitSoyData.toSoyData(r.getSourceAuthor(), df));
         e.put("class", CLASSES.get(c));
         result.add(e);

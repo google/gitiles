@@ -45,14 +45,8 @@ public class Linkifier {
 
   static {
     // HTTP URL regex adapted from com.google.gwtexpui.safehtml.client.SafeHtml.
-    String part = "(?:" +
-        "[a-zA-Z0-9$_.+!*',%;:@=?#/~<>-]" +
-        "|&(?!lt;|gt;)" +
-        ")";
-    String httpUrl = "https?://" +
-        part + "{2,}" +
-        "(?:[(]" + part + "*" + "[)])*" +
-        part + "*";
+    String part = "(?:" + "[a-zA-Z0-9$_.+!*',%;:@=?#/~<>-]" + "|&(?!lt;|gt;)" + ")";
+    String httpUrl = "https?://" + part + "{2,}" + "(?:[(]" + part + "*" + "[)])*" + part + "*";
     HTTP_URL_PATTERN = Pattern.compile(httpUrl);
     CHANGE_ID_PATTERN = Pattern.compile("(\\bI[0-9a-f]{8,40}\\b)");
   }
@@ -76,8 +70,9 @@ public class Linkifier {
       String link = config.getString("commentlink", subsection, "link");
       String html = config.getString("commentlink", subsection, "html");
       if (html != null) {
-        log.warn("Beware: html in commentlinks is unsupported in gitiles; "
-               + "Did you copy it from a gerrit config?");
+        log.warn(
+            "Beware: html in commentlinks is unsupported in gitiles; "
+                + "Did you copy it from a gerrit config?");
       }
       if (Strings.isNullOrEmpty(match)) {
         log.warn("invalid commentlink.%s.match", subsection);
@@ -86,7 +81,7 @@ public class Linkifier {
       Pattern pattern;
       try {
         pattern = Pattern.compile(match);
-      } catch(PatternSyntaxException ex) {
+      } catch (PatternSyntaxException ex) {
         log.warn("invalid commentlink." + subsection + ".match", ex);
         continue;
       }

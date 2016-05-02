@@ -50,8 +50,7 @@ class ReadmeHelper {
   private String readmePath;
   private ObjectId readmeId;
 
-  ReadmeHelper(ObjectReader reader, GitilesView view, Config cfg,
-      RevTree rootTree) {
+  ReadmeHelper(ObjectReader reader, GitilesView view, Config cfg, RevTree rootTree) {
     this.reader = reader;
     this.view = view;
     this.cfg = cfg;
@@ -59,8 +58,9 @@ class ReadmeHelper {
     render = cfg.getBoolean("markdown", "render", true);
   }
 
-  void scanTree(RevTree tree) throws MissingObjectException,
-      IncorrectObjectTypeException, CorruptObjectException, IOException {
+  void scanTree(RevTree tree)
+      throws MissingObjectException, IncorrectObjectTypeException, CorruptObjectException,
+          IOException {
     if (render) {
       TreeWalk tw = new TreeWalk(reader);
       tw.setRecursive(false);
@@ -90,13 +90,13 @@ class ReadmeHelper {
 
   SanitizedContent render() {
     try {
-      Duration parseTimeout = ConfigUtil.getDuration(cfg, "markdown", null,
-          "parseTimeout", Duration.standardSeconds(2));
+      Duration parseTimeout =
+          ConfigUtil.getDuration(
+              cfg, "markdown", null, "parseTimeout", Duration.standardSeconds(2));
       int inputLimit = cfg.getInt("markdown", "inputLimit", 5 << 20);
       byte[] raw = reader.open(readmeId, Constants.OBJ_BLOB).getCachedBytes(inputLimit);
       String md = RawParseUtils.decode(raw);
-      RootNode root =
-          GitilesMarkdown.parseFile(parseTimeout, view, readmePath, md);
+      RootNode root = GitilesMarkdown.parseFile(parseTimeout, view, readmePath, md);
       if (root == null) {
         return null;
       }
@@ -107,13 +107,9 @@ class ReadmeHelper {
         img = new ImageLoader(reader, view, rootTree, readmePath, imageLimit);
       }
 
-      return new MarkdownToHtml(view, cfg)
-        .setImageLoader(img)
-        .setReadme(true)
-        .toSoyHtml(root);
+      return new MarkdownToHtml(view, cfg).setImageLoader(img).setReadme(true).toSoyHtml(root);
     } catch (LargeObjectException | IOException e) {
-      log.error(String.format("error rendering %s/%s",
-          view.getRepositoryName(), readmePath), e);
+      log.error(String.format("error rendering %s/%s", view.getRepositoryName(), readmePath), e);
       return null;
     }
   }

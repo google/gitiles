@@ -57,7 +57,7 @@ public class DefaultAccess implements GitilesAccess {
   private static final String ANONYMOUS_USER_KEY = "anonymous user";
 
   private static final String DEFAULT_DESCRIPTION =
-    "Unnamed repository; edit this file 'description' to name the repository.";
+      "Unnamed repository; edit this file 'description' to name the repository.";
 
   private static final Collator US_COLLATOR = Collator.getInstance(Locale.US);
 
@@ -68,8 +68,12 @@ public class DefaultAccess implements GitilesAccess {
     private final Config baseConfig;
     private final FileResolver<HttpServletRequest> resolver;
 
-    Factory(File basePath, String baseGitUrl, Config baseConfig,
-        FileResolver<HttpServletRequest> resolver) throws IOException {
+    Factory(
+        File basePath,
+        String baseGitUrl,
+        Config baseConfig,
+        FileResolver<HttpServletRequest> resolver)
+        throws IOException {
       this.basePath = checkNotNull(basePath, "basePath");
       this.baseGitUrl = checkNotNull(baseGitUrl, "baseGitUrl");
       this.baseConfig = checkNotNull(baseConfig, "baseConfig");
@@ -82,8 +86,12 @@ public class DefaultAccess implements GitilesAccess {
       return newAccess(basePath, canonicalBasePath, baseGitUrl, resolver, req);
     }
 
-    protected DefaultAccess newAccess(File basePath, String canonicalBasePath, String baseGitUrl,
-        FileResolver<HttpServletRequest> resolver, HttpServletRequest req) {
+    protected DefaultAccess newAccess(
+        File basePath,
+        String canonicalBasePath,
+        String baseGitUrl,
+        FileResolver<HttpServletRequest> resolver,
+        HttpServletRequest req) {
       return new DefaultAccess(basePath, canonicalBasePath, baseGitUrl, baseConfig, resolver, req);
     }
   }
@@ -95,8 +103,13 @@ public class DefaultAccess implements GitilesAccess {
   protected final FileResolver<HttpServletRequest> resolver;
   protected final HttpServletRequest req;
 
-  protected DefaultAccess(File basePath, String canonicalBasePath, String baseGitUrl,
-      Config baseConfig, FileResolver<HttpServletRequest> resolver, HttpServletRequest req) {
+  protected DefaultAccess(
+      File basePath,
+      String canonicalBasePath,
+      String baseGitUrl,
+      Config baseConfig,
+      FileResolver<HttpServletRequest> resolver,
+      HttpServletRequest req) {
     this.basePath = checkNotNull(basePath, "basePath");
     this.canonicalBasePath = checkNotNull(canonicalBasePath, "canonicalBasePath");
     this.baseGitUrl = checkNotNull(baseGitUrl, "baseGitUrl");
@@ -106,8 +119,8 @@ public class DefaultAccess implements GitilesAccess {
   }
 
   @Override
-  public Map<String, RepositoryDescription> listRepositories(String prefix,
-      Set<String> branches) throws IOException {
+  public Map<String, RepositoryDescription> listRepositories(String prefix, Set<String> branches)
+      throws IOException {
     Map<String, RepositoryDescription> repos = Maps.newTreeMap(US_COLLATOR);
     for (Repository repo : scanRepositories(basePath, prefix, req)) {
       repos.put(getRepositoryName(repo), buildDescription(repo, branches));
@@ -130,7 +143,7 @@ public class DefaultAccess implements GitilesAccess {
 
   @Override
   public RepositoryDescription getRepositoryDescription() throws IOException {
-    return buildDescription(ServletUtils.getRepository(req), Collections.<String> emptySet());
+    return buildDescription(ServletUtils.getRepository(req), Collections.<String>emptySet());
   }
 
   @Override
@@ -170,8 +183,8 @@ public class DefaultAccess implements GitilesAccess {
     if (path.startsWith(canonicalBasePath)) {
       return path.substring(canonicalBasePath.length() + 1);
     }
-    throw new IllegalStateException(String.format(
-          "Repository path %s is outside base path %s", path, base));
+    throw new IllegalStateException(
+        String.format("Repository path %s is outside base path %s", path, base));
   }
 
   private String loadDescriptionText(Repository repo) throws IOException {
@@ -223,8 +236,8 @@ public class DefaultAccess implements GitilesAccess {
     return "refs/heads/" + name;
   }
 
-  private Collection<Repository> scanRepositories(File basePath, String prefix,
-      HttpServletRequest req) throws IOException {
+  private Collection<Repository> scanRepositories(
+      File basePath, String prefix, HttpServletRequest req) throws IOException {
     List<Repository> repos = Lists.newArrayList();
     Queue<File> todo = initScan(basePath, prefix);
     while (!todo.isEmpty()) {
@@ -243,8 +256,7 @@ public class DefaultAccess implements GitilesAccess {
     return repos;
   }
 
-  private Queue<File> initScan(File basePath, String prefix)
-      throws IOException {
+  private Queue<File> initScan(File basePath, String prefix) throws IOException {
     Queue<File> todo = Queues.newArrayDeque();
     File[] entries;
     if (isValidPrefix(prefix)) {
@@ -262,7 +274,8 @@ public class DefaultAccess implements GitilesAccess {
 
   private static boolean isValidPrefix(String prefix) {
     return !Strings.isNullOrEmpty(prefix)
-        && !prefix.equals(".") && !prefix.equals("..")
+        && !prefix.equals(".")
+        && !prefix.equals("..")
         && !prefix.contains("../")
         && !prefix.endsWith("/..");
   }

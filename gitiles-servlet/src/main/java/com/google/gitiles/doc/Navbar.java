@@ -29,9 +29,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 class Navbar {
-  static Map<String, Object> bannerSoyData(
-      GitilesView view, ImageLoader img,
-      RootNode nav) {
+  static Map<String, Object> bannerSoyData(GitilesView view, ImageLoader img, RootNode nav) {
     Map<String, Object> data = new HashMap<>();
     data.put("siteTitle", null);
     data.put("logoUrl", null);
@@ -41,7 +39,7 @@ class Navbar {
       return data;
     }
 
-    for (Iterator<Node> i = nav.getChildren().iterator(); i.hasNext();) {
+    for (Iterator<Node> i = nav.getChildren().iterator(); i.hasNext(); ) {
       Node n = i.next();
       if (n instanceof HeaderNode) {
         HeaderNode h = (HeaderNode) n;
@@ -78,6 +76,5 @@ class Navbar {
     return data;
   }
 
-  private Navbar() {
-  }
+  private Navbar() {}
 }

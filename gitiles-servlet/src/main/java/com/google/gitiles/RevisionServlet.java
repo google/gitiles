@@ -67,8 +67,8 @@ public class RevisionServlet extends BaseServlet {
 
   private final Linkifier linkifier;
 
-  public RevisionServlet(GitilesAccess.Factory accessFactory, Renderer renderer,
-      Linkifier linkifier) {
+  public RevisionServlet(
+      GitilesAccess.Factory accessFactory, Renderer renderer, Linkifier linkifier) {
     super(renderer, accessFactory);
     this.linkifier = checkNotNull(linkifier, "linkifier");
   }
@@ -92,33 +92,39 @@ public class RevisionServlet extends BaseServlet {
         try {
           switch (obj.getType()) {
             case OBJ_COMMIT:
-              soyObjects.add(ImmutableMap.of(
-                  "type", Constants.TYPE_COMMIT,
-                  "data", new CommitSoyData()
-                      .setLinkifier(linkifier)
-                      .setRevWalk(walk)
-                      .setArchiveFormat(getArchiveFormat(access))
-                      .toSoyData(req, (RevCommit) obj, COMMIT_SOY_FIELDS, df)));
+              soyObjects.add(
+                  ImmutableMap.of(
+                      "type",
+                      Constants.TYPE_COMMIT,
+                      "data",
+                      new CommitSoyData()
+                          .setLinkifier(linkifier)
+                          .setRevWalk(walk)
+                          .setArchiveFormat(getArchiveFormat(access))
+                          .toSoyData(req, (RevCommit) obj, COMMIT_SOY_FIELDS, df)));
               break;
             case OBJ_TREE:
               Map<String, Object> tree =
-                  new TreeSoyData(walk.getObjectReader(), view, cfg, (RevTree) obj)
-                      .toSoyData(obj);
-              soyObjects.add(ImmutableMap.of(
-                  "type", Constants.TYPE_TREE,
-                  "data", tree));
+                  new TreeSoyData(walk.getObjectReader(), view, cfg, (RevTree) obj).toSoyData(obj);
+              soyObjects.add(ImmutableMap.of("type", Constants.TYPE_TREE, "data", tree));
               hasReadme = tree.containsKey("readmeHtml");
               break;
             case OBJ_BLOB:
-              soyObjects.add(ImmutableMap.of(
-                  "type", Constants.TYPE_BLOB,
-                  "data", new BlobSoyData(walk.getObjectReader(), view).toSoyData(obj)));
+              soyObjects.add(
+                  ImmutableMap.of(
+                      "type",
+                      Constants.TYPE_BLOB,
+                      "data",
+                      new BlobSoyData(walk.getObjectReader(), view).toSoyData(obj)));
               hasBlob = true;
               break;
             case OBJ_TAG:
-              soyObjects.add(ImmutableMap.of(
-                  "type", Constants.TYPE_TAG,
-                  "data", new TagSoyData(linkifier, req).toSoyData((RevTag) obj, df)));
+              soyObjects.add(
+                  ImmutableMap.of(
+                      "type",
+                      Constants.TYPE_TAG,
+                      "data",
+                      new TagSoyData(linkifier, req).toSoyData((RevTag) obj, df)));
               break;
             default:
               log.warn("Bad object type for {}: {}", ObjectId.toString(obj.getId()), obj.getType());
@@ -136,11 +142,15 @@ public class RevisionServlet extends BaseServlet {
         }
       }
 
-      renderHtml(req, res, "gitiles.revisionDetail", ImmutableMap.of(
-          "title", view.getRevision().getName(),
-          "objects", soyObjects,
-          "hasBlob", hasBlob,
-          "hasReadme", hasReadme));
+      renderHtml(
+          req,
+          res,
+          "gitiles.revisionDetail",
+          ImmutableMap.of(
+              "title", view.getRevision().getName(),
+              "objects", soyObjects,
+              "hasBlob", hasBlob,
+              "hasReadme", hasReadme));
     }
   }
 
@@ -149,16 +159,16 @@ public class RevisionServlet extends BaseServlet {
     GitilesView view = ViewFilter.getView(req);
     Repository repo = ServletUtils.getRepository(req);
     try (ObjectReader reader = repo.newObjectReader()) {
-        ObjectLoader loader = reader.open(view.getRevision().getId());
-        if (loader.getType() != OBJ_COMMIT) {
-          res.setStatus(SC_NOT_FOUND);
-        } else {
-          PathServlet.setTypeHeader(res, loader.getType());
-          try (Writer writer = startRenderText(req, res);
-              OutputStream out = BaseEncoding.base64().encodingStream(writer)) {
-            loader.copyTo(out);
-          }
+      ObjectLoader loader = reader.open(view.getRevision().getId());
+      if (loader.getType() != OBJ_COMMIT) {
+        res.setStatus(SC_NOT_FOUND);
+      } else {
+        PathServlet.setTypeHeader(res, loader.getType());
+        try (Writer writer = startRenderText(req, res);
+            OutputStream out = BaseEncoding.base64().encodingStream(writer)) {
+          loader.copyTo(out);
         }
+      }
     }
   }
 
@@ -172,9 +182,12 @@ public class RevisionServlet extends BaseServlet {
       RevObject obj = walk.parseAny(view.getRevision().getId());
       switch (obj.getType()) {
         case OBJ_COMMIT:
-          renderJson(req, res, new CommitJsonData()
-                .setRevWalk(walk)
-                .toJsonData(req, (RevCommit) obj, COMMIT_JSON_FIELDS, df),
+          renderJson(
+              req,
+              res,
+              new CommitJsonData()
+                  .setRevWalk(walk)
+                  .toJsonData(req, (RevCommit) obj, COMMIT_JSON_FIELDS, df),
               Commit.class);
           break;
         default:

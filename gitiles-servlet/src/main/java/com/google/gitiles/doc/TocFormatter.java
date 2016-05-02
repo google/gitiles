@@ -73,9 +73,12 @@ class TocFormatter {
     html.open("div")
         .attribute("class", "toc")
         .attribute("role", "navigation")
-      .open("h2").appendAndEscape("Contents").close("h2")
-      .open("div").attribute("class", "toc-aux")
-      .open("ul");
+        .open("h2")
+        .appendAndEscape("Contents")
+        .close("h2")
+        .open("div")
+        .attribute("class", "toc-aux")
+        .open("ul");
     for (HeaderNode header : outline) {
       outline(header);
     }
@@ -106,15 +109,14 @@ class TocFormatter {
     }
 
     html.open("li")
-      .open("a").attribute("href", "#" + id)
-      .appendAndEscape(MarkdownUtil.getInnerText(h))
-      .close("a")
-      .close("li");
+        .open("a")
+        .attribute("href", "#" + id)
+        .appendAndEscape(MarkdownUtil.getInnerText(h))
+        .close("a")
+        .close("li");
   }
 
-  private void scan(Node node,
-      Multimap<String, TocEntry> entries,
-      Deque<HeaderNode> stack) {
+  private void scan(Node node, Multimap<String, TocEntry> entries, Deque<HeaderNode> stack) {
     if (node instanceof HeaderNode) {
       scan((HeaderNode) node, entries, stack);
     } else {
@@ -124,9 +126,8 @@ class TocFormatter {
     }
   }
 
-  private void scan(HeaderNode header,
-      Multimap<String, TocEntry> entries,
-      Deque<HeaderNode> stack) {
+  private void scan(
+      HeaderNode header, Multimap<String, TocEntry> entries, Deque<HeaderNode> stack) {
     if (header.getLevel() == 1) {
       countH1++;
     }
@@ -227,14 +228,10 @@ class TocFormatter {
   private static String idFromTitle(String title) {
     StringBuilder b = new StringBuilder(title.length());
     for (char c : StringUtils.stripAccents(title).toCharArray()) {
-      if (('a' <= c && c <= 'z')
-          || ('A' <= c && c <= 'Z')
-          || ('0' <= c && c <= '9')) {
+      if (('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || ('0' <= c && c <= '9')) {
         b.append(c);
       } else if (c == ' ') {
-        if (b.length() > 0
-            && b.charAt(b.length() - 1) != '-'
-            && b.charAt(b.length() - 1) != '_') {
+        if (b.length() > 0 && b.charAt(b.length() - 1) != '-' && b.charAt(b.length() - 1) != '_') {
           b.append('-');
         }
       } else if (b.length() > 0

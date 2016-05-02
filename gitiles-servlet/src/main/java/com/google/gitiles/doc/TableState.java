@@ -47,9 +47,8 @@ class TableState {
       case Center:
         return "center";
       default:
-        throw new IllegalStateException(String.format(
-            "unsupported alignment %s on column %d",
-            c.getAlignment(), pos));
+        throw new IllegalStateException(
+            String.format("unsupported alignment %s on column %d", c.getAlignment(), pos));
     }
   }
 

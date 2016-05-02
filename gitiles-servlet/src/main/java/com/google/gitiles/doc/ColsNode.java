@@ -57,10 +57,8 @@ public class ColsNode extends SuperNode {
     int idx = 0;
     Column col = null;
     for (Node n : children) {
-      if (col == null
-          || n instanceof HeaderNode
-          || n instanceof DivNode) {
-        for (;;) {
+      if (col == null || n instanceof HeaderNode || n instanceof DivNode) {
+        for (; ; ) {
           if (idx < columns.size()) {
             col = columns.get(idx);
           } else {
@@ -78,9 +76,7 @@ public class ColsNode extends SuperNode {
   }
 
   private static <T> ArrayList<T> copyOf(List<T> in) {
-    return in != null && !in.isEmpty()
-        ? new ArrayList<>(in)
-        : new ArrayList<T>();
+    return in != null && !in.isEmpty() ? new ArrayList<>(in) : new ArrayList<T>();
   }
 
   @SuppressWarnings("unchecked")

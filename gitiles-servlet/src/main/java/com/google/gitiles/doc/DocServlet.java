@@ -76,8 +76,7 @@ public class DocServlet extends BaseServlet {
   }
 
   @Override
-  protected void doGetHtml(HttpServletRequest req, HttpServletResponse res)
-      throws IOException {
+  protected void doGetHtml(HttpServletRequest req, HttpServletResponse res) throws IOException {
     Config cfg = getAccess(req).getConfig();
     if (!cfg.getBoolean("markdown", "render", true)) {
       res.setStatus(SC_NOT_FOUND);
@@ -110,13 +109,14 @@ public class DocServlet extends BaseServlet {
         return;
       }
 
-      Duration parseTimeout = ConfigUtil.getDuration(cfg, "markdown", null,
-          "parseTimeout", Duration.standardSeconds(2));
+      Duration parseTimeout =
+          ConfigUtil.getDuration(
+              cfg, "markdown", null, "parseTimeout", Duration.standardSeconds(2));
       view = view.toBuilder().setPathPart(srcmd.path).build();
       int inputLimit = cfg.getInt("markdown", "inputLimit", 5 << 20);
-      RootNode doc = GitilesMarkdown.parseFile(
-          parseTimeout, view, srcmd.path,
-          srcmd.read(rw.getObjectReader(), inputLimit));
+      RootNode doc =
+          GitilesMarkdown.parseFile(
+              parseTimeout, view, srcmd.path, srcmd.read(rw.getObjectReader(), inputLimit));
       if (doc == null) {
         res.sendRedirect(GitilesView.show().copyFrom(view).toUrl());
         return;
@@ -124,9 +124,9 @@ public class DocServlet extends BaseServlet {
 
       RootNode nav = null;
       if (navmd != null) {
-        nav = GitilesMarkdown.parseFile(
-            parseTimeout, view, navmd.path,
-            navmd.read(rw.getObjectReader(), inputLimit));
+        nav =
+            GitilesMarkdown.parseFile(
+                parseTimeout, view, navmd.path, navmd.read(rw.getObjectReader(), inputLimit));
         if (nav == null) {
           res.setStatus(SC_INTERNAL_SERVER_ERROR);
           return;
@@ -136,8 +136,7 @@ public class DocServlet extends BaseServlet {
       int imageLimit = cfg.getInt("markdown", "imageLimit", 256 << 10);
       ImageLoader img = null;
       if (imageLimit > 0) {
-        img = new ImageLoader(rw.getObjectReader(), view,
-            root, srcmd.path, imageLimit);
+        img = new ImageLoader(rw.getObjectReader(), view, root, srcmd.path, imageLimit);
       }
 
       res.setHeader(HttpHeaders.ETAG, curEtag);
@@ -171,23 +170,25 @@ public class DocServlet extends BaseServlet {
     res.setHeader(HttpHeaders.CACHE_CONTROL, "private, max-age=0, must-revalidate");
   }
 
-  private void showDoc(HttpServletRequest req, HttpServletResponse res,
-      GitilesView view, Config cfg, ImageLoader img,
-      RootNode nav, RootNode doc) throws IOException {
+  private void showDoc(
+      HttpServletRequest req,
+      HttpServletResponse res,
+      GitilesView view,
+      Config cfg,
+      ImageLoader img,
+      RootNode nav,
+      RootNode doc)
+      throws IOException {
     Map<String, Object> data = new HashMap<>();
     data.putAll(Navbar.bannerSoyData(view, img, nav));
-    data.put("pageTitle", MoreObjects.firstNonNull(
-        MarkdownUtil.getTitle(doc),
-        view.getPathPart()));
+    data.put("pageTitle", MoreObjects.firstNonNull(MarkdownUtil.getTitle(doc), view.getPathPart()));
     if (view.getType() != GitilesView.Type.ROOTED_DOC) {
       data.put("sourceUrl", GitilesView.show().copyFrom(view).toUrl());
       data.put("logUrl", GitilesView.log().copyFrom(view).toUrl());
       data.put("blameUrl", GitilesView.blame().copyFrom(view).toUrl());
     }
     data.put("navbarHtml", new MarkdownToHtml(view, cfg).toSoyHtml(nav));
-    data.put("bodyHtml", new MarkdownToHtml(view, cfg)
-        .setImageLoader(img)
-        .toSoyHtml(doc));
+    data.put("bodyHtml", new MarkdownToHtml(view, cfg).setImageLoader(img).toSoyHtml(doc));
 
     String analyticsId = cfg.getString("google", null, "analyticsId");
     if (!Strings.isNullOrEmpty(analyticsId)) {
@@ -237,8 +238,7 @@ public class DocServlet extends BaseServlet {
   private static boolean findIndexFile(TreeWalk tw) throws IOException {
     tw.enterSubtree();
     while (tw.next()) {
-      if ((tw.getRawMode(0) & TYPE_MASK) == TYPE_FILE
-          && INDEX_MD.equals(tw.getNameString())) {
+      if ((tw.getRawMode(0) & TYPE_MASK) == TYPE_FILE && INDEX_MD.equals(tw.getNameString())) {
         return true;
       }
     }

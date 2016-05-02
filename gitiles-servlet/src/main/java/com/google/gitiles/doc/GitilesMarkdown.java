@@ -39,8 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Parses Gitiles extensions to markdown. */
-public class GitilesMarkdown extends Parser
-    implements BlockPluginParser, InlinePluginParser {
+public class GitilesMarkdown extends Parser implements BlockPluginParser, InlinePluginParser {
   private static final Logger log = LoggerFactory.getLogger(MarkdownUtil.class);
 
   // SUPPRESS_ALL_HTML is enabled to permit hosting arbitrary user content
@@ -51,8 +50,8 @@ public class GitilesMarkdown extends Parser
   // this impacting the rendered formatting.
   private static final int MD_OPTIONS = (ALL | SUPPRESS_ALL_HTML) & ~(HARDWRAPS);
 
-  public static RootNode parseFile(Duration parseTimeout, GitilesView view,
-      String path, String md) {
+  public static RootNode parseFile(
+      Duration parseTimeout, GitilesView view, String path, String md) {
     if (md == null) {
       return null;
     }
@@ -65,7 +64,8 @@ public class GitilesMarkdown extends Parser
         throw e;
       }
     } catch (ParsingTimeoutException e) {
-      log.error("timeout {} ms rendering {}/{} at {}",
+      log.error(
+          "timeout {} ms rendering {}/{} at {}",
           parseTimeout.getMillis(),
           view.getRepositoryName(),
           path,
@@ -75,9 +75,8 @@ public class GitilesMarkdown extends Parser
   }
 
   private static PegDownProcessor newParser(Duration parseDeadline) {
-    PegDownPlugins plugins = new PegDownPlugins.Builder()
-        .withPlugin(GitilesMarkdown.class, parseDeadline)
-        .build();
+    PegDownPlugins plugins =
+        new PegDownPlugins.Builder().withPlugin(GitilesMarkdown.class, parseDeadline).build();
     return new PegDownProcessor(MD_OPTIONS, parseDeadline.getMillis(), plugins);
   }
 
@@ -92,32 +91,28 @@ public class GitilesMarkdown extends Parser
   @Override
   public Rule[] blockPluginRules() {
     return new Rule[] {
-        cols(),
-        hr(),
-        iframe(),
-        note(),
-        toc(),
+      cols(), hr(), iframe(), note(), toc(),
     };
   }
 
   @Override
   public Rule[] inlinePluginRules() {
-    return new Rule[]{
-        namedAnchorHtmlStyle(),
-        namedAnchorMarkdownExtensionStyle(),
+    return new Rule[] {
+      namedAnchorHtmlStyle(), namedAnchorMarkdownExtensionStyle(),
     };
   }
 
   public Rule toc() {
-    return NodeSequence(
-        string("[TOC]"),
-        push(new TocNode()));
+    return NodeSequence(string("[TOC]"), push(new TocNode()));
   }
 
   public Rule hr() {
     // GitHub flavor markdown recognizes "--" as a rule.
     return NodeSequence(
-        NonindentSpace(), string("--"), zeroOrMore('-'), Newline(),
+        NonindentSpace(),
+        string("--"),
+        zeroOrMore('-'),
+        Newline(),
         oneOrMore(BlankLine()),
         push(new SimpleNode(SimpleNode.Type.HRule)));
   }
@@ -125,19 +120,21 @@ public class GitilesMarkdown extends Parser
   public Rule namedAnchorHtmlStyle() {
     StringBuilderVar name = new StringBuilderVar();
     return NodeSequence(
-        Sp(), string("<a"),
+        Sp(),
+        string("<a"),
         Spn1(),
         sequence(string("name="), attribute(name)),
-        Spn1(), '>',
-        Spn1(), string("</a>"),
+        Spn1(),
+        '>',
+        Spn1(),
+        string("</a>"),
         push(new NamedAnchorNode(name.getString())));
   }
 
   public Rule namedAnchorMarkdownExtensionStyle() {
     StringBuilderVar name = new StringBuilderVar();
     return NodeSequence(
-        Sp(), string("{#"), anchorId(name), '}',
-        push(new NamedAnchorNode(name.getString())));
+        Sp(), string("{#"), anchorId(name), '}', push(new NamedAnchorNode(name.getString())));
   }
 
   public Rule anchorId(StringBuilderVar name) {
@@ -152,35 +149,36 @@ public class GitilesMarkdown extends Parser
     return NodeSequence(
         string("<iframe"),
         oneOrMore(
-          sequence(
-            Spn1(),
-            firstOf(
-              sequence(string("src="), attribute(src)),
-              sequence(string("height="), attribute(h)),
-              sequence(string("width="), attribute(w)),
-              sequence(string("frameborder="), attribute(b))
-            ))),
-        Spn1(), '>',
-        Spn1(), string("</iframe>"),
-        push(new IframeNode(src.getString(),
-            h.getString(), w.getString(),
-            b.getString())));
+            sequence(
+                Spn1(),
+                firstOf(
+                    sequence(string("src="), attribute(src)),
+                    sequence(string("height="), attribute(h)),
+                    sequence(string("width="), attribute(w)),
+                    sequence(string("frameborder="), attribute(b))))),
+        Spn1(),
+        '>',
+        Spn1(),
+        string("</iframe>"),
+        push(new IframeNode(src.getString(), h.getString(), w.getString(), b.getString())));
   }
 
   public Rule attribute(StringBuilderVar var) {
     return firstOf(
-      sequence('"', zeroOrMore(testNot('"'), ANY), var.append(match()), '"'),
-      sequence('\'', zeroOrMore(testNot('\''), ANY), var.append(match()), '\''));
+        sequence('"', zeroOrMore(testNot('"'), ANY), var.append(match()), '"'),
+        sequence('\'', zeroOrMore(testNot('\''), ANY), var.append(match()), '\''));
   }
 
   public Rule note() {
     StringBuilderVar body = new StringBuilderVar();
     return NodeSequence(
-        string("***"), Sp(), typeOfNote(), Newline(),
-        oneOrMore(
-          testNot(string("***"), Newline()),
-          Line(body)),
-        string("***"), Newline(),
+        string("***"),
+        Sp(),
+        typeOfNote(),
+        Newline(),
+        oneOrMore(testNot(string("***"), Newline()), Line(body)),
+        string("***"),
+        Newline(),
         push(new DivNode(popAsString(), parse(body))));
   }
 
@@ -195,11 +193,12 @@ public class GitilesMarkdown extends Parser
   public Rule cols() {
     StringBuilderVar body = new StringBuilderVar();
     return NodeSequence(
-        colsTag(), columnWidths(), Newline(),
-        oneOrMore(
-            testNot(colsTag(), Newline()),
-            Line(body)),
-        colsTag(), Newline(),
+        colsTag(),
+        columnWidths(),
+        Newline(),
+        oneOrMore(testNot(colsTag(), Newline()), Line(body)),
+        colsTag(),
+        Newline(),
         push(new ColsNode((List<ColsNode.Column>) pop(), parse(body))));
   }
 
@@ -210,19 +209,17 @@ public class GitilesMarkdown extends Parser
   public Rule columnWidths() {
     ListVar widths = new ListVar();
     return sequence(
-      zeroOrMore(
-        sequence(
-          Sp(), optional(ch(',')), Sp(),
-          columnWidth(widths))),
-      push(widths.get()));
+        zeroOrMore(sequence(Sp(), optional(ch(',')), Sp(), columnWidth(widths))),
+        push(widths.get()));
   }
 
   public Rule columnWidth(ListVar widths) {
     StringBuilderVar s = new StringBuilderVar();
     return sequence(
-      optional(sequence(ch(':'), s.append(':'))),
-      oneOrMore(digit()), s.append(match()),
-      widths.get().add(parse(s.get().toString())));
+        optional(sequence(ch(':'), s.append(':'))),
+        oneOrMore(digit()),
+        s.append(match()),
+        widths.get().add(parse(s.get().toString())));
   }
 
   static ColsNode.Column parse(String spec) {
@@ -248,12 +245,13 @@ public class GitilesMarkdown extends Parser
   public static class ListVar extends Var<List<Object>> {
     @SuppressWarnings({"rawtypes", "unchecked"})
     public ListVar() {
-      super(new Factory() {
-        @Override
-        public Object create() {
-          return new ArrayList<>();
-        }
-      });
+      super(
+          new Factory() {
+            @Override
+            public Object create() {
+              return new ArrayList<>();
+            }
+          });
     }
   }
 }

@@ -53,8 +53,8 @@ public class GitilesConfig {
     return config;
   }
 
-  public static void putVariant(Config config, String templateName, String keyName,
-      Map<String, ? super String> out) {
+  public static void putVariant(
+      Config config, String templateName, String keyName, Map<String, ? super String> out) {
     String variant = config.getString("template", null, templateName);
     if (variant != null) {
       out.put(keyName, variant);

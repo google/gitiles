@@ -41,8 +41,8 @@ public class ImageLoader {
   private final String path;
   private final int imageLimit;
 
-  public ImageLoader(ObjectReader reader, GitilesView view,
-      RevTree root, String path, int maxImageSize) {
+  public ImageLoader(
+      ObjectReader reader, GitilesView view, RevTree root, String path, int maxImageSize) {
     this.reader = reader;
     this.view = view;
     this.root = root;
@@ -97,17 +97,20 @@ public class ImageLoader {
     } catch (LargeObjectException.ExceedsLimit e) {
       return FilterImageDataUri.INSTANCE.getInnocuousOutput();
     } catch (IOException e) {
-      log.error(String.format("cannot read repo %s image %s from %s",
-          view.getRepositoryName(), path, root.name()), e);
+      log.error(
+          String.format(
+              "cannot read repo %s image %s from %s", view.getRepositoryName(), path, root.name()),
+          e);
       return FilterImageDataUri.INSTANCE.getInnocuousOutput();
     }
   }
 
-  private static final ImmutableMap<String, String> TYPES = ImmutableMap.of(
-      "png", "image/png",
-      "gif", "image/gif",
-      "jpg", "image/jpeg",
-      "jpeg", "image/jpeg");
+  private static final ImmutableMap<String, String> TYPES =
+      ImmutableMap.of(
+          "png", "image/png",
+          "gif", "image/gif",
+          "jpg", "image/jpeg",
+          "jpeg", "image/jpeg");
 
   private static String getMimeType(String path) {
     int d = path.lastIndexOf('.');

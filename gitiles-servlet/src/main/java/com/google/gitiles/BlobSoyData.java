@@ -61,8 +61,7 @@ public class BlobSoyData {
     this.view = view;
   }
 
-  public Map<String, Object> toSoyData(ObjectId blobId)
-      throws MissingObjectException, IOException {
+  public Map<String, Object> toSoyData(ObjectId blobId) throws MissingObjectException, IOException {
     return toSoyData(null, blobId);
   }
 
@@ -107,8 +106,11 @@ public class BlobSoyData {
 
     int last = 0;
     for (ParseResult r : results) {
-      checkState(r.getOffset() >= last,
-          "out-of-order ParseResult, expected %s >= %s", r.getOffset(), last);
+      checkState(
+          r.getOffset() >= last,
+          "out-of-order ParseResult, expected %s >= %s",
+          r.getOffset(),
+          last);
       line = writeResult(lines, null, content, last, r.getOffset());
       last = r.getOffset() + r.getLength();
       line = writeResult(lines, r.getStyleKeysString(), content, r.getOffset(), last);
@@ -132,8 +134,8 @@ public class BlobSoyData {
     }
   }
 
-  private static SoyListData writeResult(SoyListData lines, String classes,
-      String s, int start, int end) {
+  private static SoyListData writeResult(
+      SoyListData lines, String classes, String s, int start, int end) {
     SoyListData line = lines.getListData(lines.length() - 1);
     while (true) {
       int nl = nextLineBreak(s, start, end);

@@ -93,10 +93,12 @@ public class DiffServlet extends BaseServlet {
         }
         GitilesAccess access = getAccess(req);
         DateFormatter df = new DateFormatter(access, Format.DEFAULT);
-        data.put("commit", new CommitSoyData()
-            .setLinkifier(linkifier)
-            .setArchiveFormat(getArchiveFormat(access))
-            .toSoyData(req, walk.parseCommit(view.getRevision().getId()), fs, df));
+        data.put(
+            "commit",
+            new CommitSoyData()
+                .setLinkifier(linkifier)
+                .setArchiveFormat(getArchiveFormat(access))
+                .toSoyData(req, walk.parseCommit(view.getRevision().getId()), fs, df));
       }
       if (!data.containsKey("repositoryName") && (view.getRepositoryName() != null)) {
         data.put("repositoryName", view.getRepositoryName());
@@ -107,15 +109,14 @@ public class DiffServlet extends BaseServlet {
 
       setCacheHeaders(res);
       try (OutputStream out = startRenderStreamingHtml(req, res, "gitiles.diffDetail", data);
-        DiffFormatter diff = new HtmlDiffFormatter(renderer, view, out)) {
+          DiffFormatter diff = new HtmlDiffFormatter(renderer, view, out)) {
         formatDiff(repo, oldTree, newTree, view.getPathPart(), diff);
       }
     }
   }
 
   @Override
-  protected void doGetText(HttpServletRequest req, HttpServletResponse res)
-      throws IOException {
+  protected void doGetText(HttpServletRequest req, HttpServletResponse res) throws IOException {
     GitilesView view = ViewFilter.getView(req);
     Repository repo = ServletUtils.getRepository(req);
 
@@ -143,9 +144,7 @@ public class DiffServlet extends BaseServlet {
       return null;
     }
     return TreeWalk.forPath(
-        walk.getObjectReader(),
-        view.getPathPart(),
-        walk.parseTree(view.getRevision().getId()));
+        walk.getObjectReader(), view.getPathPart(), walk.parseTree(view.getRevision().getId()));
   }
 
   private static boolean isParentOf(RevWalk walk, Revision oldRevision, Revision newRevision)
@@ -162,8 +161,13 @@ public class DiffServlet extends BaseServlet {
     return (tw.getRawMode(0) & FileMode.TYPE_FILE) > 0;
   }
 
-  private static void formatDiff(Repository repo, AbstractTreeIterator oldTree,
-      AbstractTreeIterator newTree, String path, DiffFormatter diff) throws IOException {
+  private static void formatDiff(
+      Repository repo,
+      AbstractTreeIterator oldTree,
+      AbstractTreeIterator newTree,
+      String path,
+      DiffFormatter diff)
+      throws IOException {
     if (!path.isEmpty()) {
       diff.setPathFilter(PathFilter.create(path));
     }

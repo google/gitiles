@@ -54,8 +54,7 @@ public interface GitilesAccess {
    */
   public Map<String, RepositoryDescription> listRepositories(
       @Nullable String prefix, Set<String> branches)
-          throws ServiceNotEnabledException, ServiceNotAuthorizedException,
-          IOException;
+      throws ServiceNotEnabledException, ServiceNotAuthorizedException, IOException;
 
   /**
    * @return an opaque object that uniquely identifies the end-user making the

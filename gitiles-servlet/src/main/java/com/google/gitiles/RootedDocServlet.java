@@ -47,8 +47,10 @@ public class RootedDocServlet extends HttpServlet {
   private final RepositoryResolver<HttpServletRequest> resolver;
   private final DocServlet docServlet;
 
-  public RootedDocServlet(RepositoryResolver<HttpServletRequest> resolver,
-      GitilesAccess.Factory accessFactory, Renderer renderer) {
+  public RootedDocServlet(
+      RepositoryResolver<HttpServletRequest> resolver,
+      GitilesAccess.Factory accessFactory,
+      Renderer renderer) {
     this.resolver = resolver;
     docServlet = new DocServlet(accessFactory, renderer);
   }
@@ -77,15 +79,18 @@ public class RootedDocServlet extends HttpServlet {
       }
 
       req.setAttribute(ATTRIBUTE_REPOSITORY, repo);
-      ViewFilter.setView(req, GitilesView.rootedDoc()
-          .setHostName(req.getServerName())
-          .setServletPath(req.getContextPath() + req.getServletPath())
-          .setRevision(BRANCH, obj)
-          .setPathPart(req.getPathInfo())
-          .build());
+      ViewFilter.setView(
+          req,
+          GitilesView.rootedDoc()
+              .setHostName(req.getServerName())
+              .setServletPath(req.getContextPath() + req.getServletPath())
+              .setRevision(BRANCH, obj)
+              .setPathPart(req.getPathInfo())
+              .build());
 
       docServlet.service(req, res);
-    } catch (RepositoryNotFoundException | ServiceNotAuthorizedException
+    } catch (RepositoryNotFoundException
+        | ServiceNotAuthorizedException
         | ServiceNotEnabledException e) {
       log.error(String.format("cannot open repository for %s", req.getServerName()), e);
       res.sendError(HttpServletResponse.SC_NOT_FOUND);

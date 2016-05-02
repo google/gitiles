@@ -66,6 +66,7 @@ public abstract class BaseServlet extends HttpServlet {
   public static BaseServlet notFoundServlet() {
     return new BaseServlet(null, null) {
       private static final long serialVersionUID = 1L;
+
       @Override
       public void service(HttpServletRequest req, HttpServletResponse res) {
         res.setStatus(SC_NOT_FOUND);
@@ -147,8 +148,7 @@ public abstract class BaseServlet extends HttpServlet {
    * @param req in-progress request.
    * @param res in-progress response.
    */
-  protected void doGetHtml(HttpServletRequest req, HttpServletResponse res)
-      throws IOException {
+  protected void doGetHtml(HttpServletRequest req, HttpServletResponse res) throws IOException {
     res.sendError(SC_BAD_REQUEST);
   }
 
@@ -158,8 +158,7 @@ public abstract class BaseServlet extends HttpServlet {
    * @param req in-progress request.
    * @param res in-progress response.
    */
-  protected void doGetText(HttpServletRequest req, HttpServletResponse res)
-      throws IOException {
+  protected void doGetText(HttpServletRequest req, HttpServletResponse res) throws IOException {
     res.sendError(SC_BAD_REQUEST);
   }
 
@@ -169,8 +168,7 @@ public abstract class BaseServlet extends HttpServlet {
    * @param req in-progress request.
    * @param res in-progress response.
    */
-  protected void doGetJson(HttpServletRequest req, HttpServletResponse res)
-      throws IOException {
+  protected void doGetJson(HttpServletRequest req, HttpServletResponse res) throws IOException {
     res.sendError(SC_BAD_REQUEST);
   }
 
@@ -202,10 +200,10 @@ public abstract class BaseServlet extends HttpServlet {
    * @param soyData data for Soy.
    * @throws IOException an error occurred during rendering.
    */
-  protected void renderHtml(HttpServletRequest req, HttpServletResponse res, String templateName,
-      Map<String, ?> soyData) throws IOException {
-    renderer.render(req, res, templateName,
-        startHtmlResponse(req, res, soyData));
+  protected void renderHtml(
+      HttpServletRequest req, HttpServletResponse res, String templateName, Map<String, ?> soyData)
+      throws IOException {
+    renderer.render(req, res, templateName, startHtmlResponse(req, res, soyData));
   }
 
   /**
@@ -226,22 +224,22 @@ public abstract class BaseServlet extends HttpServlet {
    *     written only on calling {@code close()}.
    * @throws IOException an error occurred during rendering the header.
    */
-  protected OutputStream startRenderStreamingHtml(HttpServletRequest req,
-      HttpServletResponse res, String templateName, Map<String, ?> soyData) throws IOException {
+  protected OutputStream startRenderStreamingHtml(
+      HttpServletRequest req, HttpServletResponse res, String templateName, Map<String, ?> soyData)
+      throws IOException {
     req.setAttribute(STREAMING_ATTRIBUTE, true);
     return renderer.renderStreaming(res, templateName, startHtmlResponse(req, res, soyData));
   }
 
-  private Map<String, ?> startHtmlResponse(HttpServletRequest req, HttpServletResponse res,
-      Map<String, ?> soyData) throws IOException {
+  private Map<String, ?> startHtmlResponse(
+      HttpServletRequest req, HttpServletResponse res, Map<String, ?> soyData) throws IOException {
     res.setContentType(FormatType.HTML.getMimeType());
     res.setCharacterEncoding(UTF_8.name());
     setCacheHeaders(res);
 
     Map<String, Object> allData = getData(req);
 
-    GitilesConfig.putVariant(
-        getAccess(req).getConfig(), "customHeader", "headerVariant", allData);
+    GitilesConfig.putVariant(getAccess(req).getConfig(), "customHeader", "headerVariant", allData);
     allData.putAll(soyData);
     GitilesView view = ViewFilter.getView(req);
     if (!allData.containsKey("repositoryName") && view.getRepositoryName() != null) {
@@ -263,8 +261,9 @@ public abstract class BaseServlet extends HttpServlet {
    * @param src @see com.google.gson.Gson#toJson(Object, Type, Appendable)
    * @param typeOfSrc @see com.google.gson.Gson#toJson(Object, Type, Appendable)
    */
-  protected void renderJson(HttpServletRequest req, HttpServletResponse res, Object src,
-      Type typeOfSrc) throws IOException {
+  protected void renderJson(
+      HttpServletRequest req, HttpServletResponse res, Object src, Type typeOfSrc)
+      throws IOException {
     setApiHeaders(res, JSON);
     res.setStatus(SC_OK);
     try (Writer writer = newWriter(req, res)) {
@@ -276,9 +275,9 @@ public abstract class BaseServlet extends HttpServlet {
   @SuppressWarnings("unused") // Used in subclasses.
   protected GsonBuilder newGsonBuilder(HttpServletRequest req) throws IOException {
     return new GsonBuilder()
-      .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
-      .setPrettyPrinting()
-      .generateNonExecutableJson();
+        .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+        .setPrettyPrinting()
+        .generateNonExecutableJson();
   }
 
   /**
@@ -288,8 +287,8 @@ public abstract class BaseServlet extends HttpServlet {
    * @param contentType contentType to set.
    * @return the response's writer.
    */
-  protected Writer startRenderText(HttpServletRequest req, HttpServletResponse res,
-      String contentType) throws IOException {
+  protected Writer startRenderText(
+      HttpServletRequest req, HttpServletResponse res, String contentType) throws IOException {
     setApiHeaders(res, contentType);
     return newWriter(req, res);
   }
@@ -324,8 +323,9 @@ public abstract class BaseServlet extends HttpServlet {
    *
    * @throws IOException
    */
-  protected void renderTextError(HttpServletRequest req, HttpServletResponse res, int statusCode,
-      String message) throws IOException {
+  protected void renderTextError(
+      HttpServletRequest req, HttpServletResponse res, int statusCode, String message)
+      throws IOException {
     res.setStatus(statusCode);
     setApiHeaders(res, TEXT);
     setCacheHeaders(res);
@@ -371,8 +371,7 @@ public abstract class BaseServlet extends HttpServlet {
     return new OutputStreamWriter(os, res.getCharacterEncoding());
   }
 
-  private Writer newWriter(HttpServletRequest req, HttpServletResponse res)
-      throws IOException {
+  private Writer newWriter(HttpServletRequest req, HttpServletResponse res) throws IOException {
     OutputStream out;
     if (acceptsGzipEncoding(req)) {
       res.setHeader(HttpHeaders.CONTENT_ENCODING, "gzip");
@@ -388,7 +387,7 @@ public abstract class BaseServlet extends HttpServlet {
     if (accepts == null) {
       return false;
     }
-    for (int b = 0; b < accepts.length();) {
+    for (int b = 0; b < accepts.length(); ) {
       int comma = accepts.indexOf(',', b);
       int e = 0 <= comma ? comma : accepts.length();
       String term = accepts.substring(b, e).trim();

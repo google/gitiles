@@ -43,8 +43,8 @@ class RepositoryFilter extends AbstractHttpFilter {
   }
 
   @Override
-  public void doFilter(HttpServletRequest req, HttpServletResponse res,
-      FilterChain chain) throws IOException, ServletException {
+  public void doFilter(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
+      throws IOException, ServletException {
     try {
       String repo = ViewFilter.trimLeadingSlash(getRegexGroup(req, 1));
       try (Repository git = resolver.open(req, repo)) {

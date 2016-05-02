@@ -56,9 +56,17 @@ public class GitilesServlet extends MetaServlet {
       @Nullable TimeCache timeCache,
       @Nullable BlameCache blameCache,
       @Nullable GitwebRedirectFilter gitwebRedirect) {
-    super(new GitilesFilter(
-        config, renderer, urls, accessFactory, resolver, visibilityCache, timeCache, blameCache,
-        gitwebRedirect));
+    super(
+        new GitilesFilter(
+            config,
+            renderer,
+            urls,
+            accessFactory,
+            resolver,
+            visibilityCache,
+            timeCache,
+            blameCache,
+            gitwebRedirect));
   }
 
   public GitilesServlet() {
@@ -72,28 +80,30 @@ public class GitilesServlet extends MetaServlet {
 
   @Override
   public void init(final ServletConfig config) throws ServletException {
-    getDelegateFilter().init(new FilterConfig() {
-      @Override
-      public String getFilterName() {
-        return getDelegateFilter().getClass().getName();
-      }
+    getDelegateFilter()
+        .init(
+            new FilterConfig() {
+              @Override
+              public String getFilterName() {
+                return getDelegateFilter().getClass().getName();
+              }
 
-      @Override
-      public String getInitParameter(String name) {
-        return config.getInitParameter(name);
-      }
+              @Override
+              public String getInitParameter(String name) {
+                return config.getInitParameter(name);
+              }
 
-      @SuppressWarnings("rawtypes")
-      @Override
-      public Enumeration getInitParameterNames() {
-        return config.getInitParameterNames();
-      }
+              @SuppressWarnings("rawtypes")
+              @Override
+              public Enumeration getInitParameterNames() {
+                return config.getInitParameterNames();
+              }
 
-      @Override
-      public ServletContext getServletContext() {
-        return config.getServletContext();
-      }
-    });
+              @Override
+              public ServletContext getServletContext() {
+                return config.getServletContext();
+              }
+            });
   }
 
   /**

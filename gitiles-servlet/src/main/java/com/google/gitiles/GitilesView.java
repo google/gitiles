@@ -171,9 +171,8 @@ public class GitilesView {
     public Builder setRepositoryPrefix(String prefix) {
       switch (type) {
         case HOST_INDEX:
-          this.repositoryPrefix = prefix != null
-              ? Strings.emptyToNull(maybeTrimLeadingAndTrailingSlash(prefix))
-              : null;
+          this.repositoryPrefix =
+              prefix != null ? Strings.emptyToNull(maybeTrimLeadingAndTrailingSlash(prefix)) : null;
           return this;
         default:
           throw new IllegalStateException(
@@ -184,8 +183,8 @@ public class GitilesView {
     public Builder setRepositoryName(String repositoryName) {
       switch (type) {
         case HOST_INDEX:
-          throw new IllegalStateException(String.format(
-              "cannot set repository name on %s view", type));
+          throw new IllegalStateException(
+              String.format("cannot set repository name on %s view", type));
         default:
           this.repositoryName = checkNotNull(repositoryName);
           return this;
@@ -362,8 +361,17 @@ public class GitilesView {
           checkRootedDoc();
           break;
       }
-      return new GitilesView(type, hostName, servletPath, repositoryPrefix,
-          repositoryName, revision, oldRevision, path, extension, params,
+      return new GitilesView(
+          type,
+          hostName,
+          servletPath,
+          repositoryPrefix,
+          repositoryName,
+          revision,
+          oldRevision,
+          path,
+          extension,
+          params,
           anchor);
     }
 
@@ -500,7 +508,8 @@ public class GitilesView {
   private final ListMultimap<String, String> params;
   private final String anchor;
 
-  private GitilesView(Type type,
+  private GitilesView(
+      Type type,
       String hostName,
       String servletPath,
       String repositoryPrefix,
@@ -598,16 +607,17 @@ public class GitilesView {
 
   @Override
   public String toString() {
-    ToStringHelper b = toStringHelper(type.toString())
-        .omitNullValues()
-        .add("host", hostName)
-        .add("servlet", servletPath)
-        .add("prefix", repositoryPrefix)
-        .add("repo", repositoryName)
-        .add("rev", revision)
-        .add("old", oldRevision)
-        .add("path", path)
-        .add("extension", extension);
+    ToStringHelper b =
+        toStringHelper(type.toString())
+            .omitNullValues()
+            .add("host", hostName)
+            .add("servlet", servletPath)
+            .add("prefix", repositoryPrefix)
+            .add("repo", repositoryName)
+            .add("rev", revision)
+            .add("old", oldRevision)
+            .add("path", path)
+            .add("extension", extension);
     if (!params.isEmpty()) {
       b.add("params", params);
     }
@@ -650,12 +660,18 @@ public class GitilesView {
         url.append(firstNonNull(extension, DEFAULT_ARCHIVE_EXTENSION));
         break;
       case PATH:
-        url.append(repositoryName).append("/+/").append(revision.getName()).append('/')
+        url.append(repositoryName)
+            .append("/+/")
+            .append(revision.getName())
+            .append('/')
             .append(path);
         break;
       case SHOW:
-        url.append(repositoryName).append("/+show/").append(revision.getName())
-            .append('/').append(path);
+        url.append(repositoryName)
+            .append("/+show/")
+            .append(revision.getName())
+            .append('/')
+            .append(path);
         break;
       case DIFF:
         url.append(repositoryName).append("/+/");
@@ -680,7 +696,10 @@ public class GitilesView {
         }
         break;
       case BLAME:
-        url.append(repositoryName).append("/+blame/").append(revision.getName()).append('/')
+        url.append(repositoryName)
+            .append("/+blame/")
+            .append(revision.getName())
+            .append('/')
             .append(path);
         break;
       case DOC:
@@ -736,12 +755,12 @@ public class GitilesView {
    *     auto-diving into one-entry subtrees.
    */
   public List<Map<String, String>> getBreadcrumbs(List<Boolean> hasSingleTree) {
-    checkArgument(!NON_HTML_TYPES.contains(type),
-        "breadcrumbs for %s view not supported", type);
-    checkArgument(type != Type.REFS || Strings.isNullOrEmpty(path),
+    checkArgument(!NON_HTML_TYPES.contains(type), "breadcrumbs for %s view not supported", type);
+    checkArgument(
+        type != Type.REFS || Strings.isNullOrEmpty(path),
         "breadcrumbs for REFS view with path not supported");
-    checkArgument(hasSingleTree == null || type == Type.PATH,
-        "hasSingleTree must be null for %s view", type);
+    checkArgument(
+        hasSingleTree == null || type == Type.PATH, "hasSingleTree must be null for %s view", type);
     String path = this.path;
     ImmutableList.Builder<Map<String, String>> breadcrumbs = ImmutableList.builder();
     breadcrumbs.add(breadcrumb(hostName, hostIndex().copyFrom(this).setRepositoryPrefix(null)));
@@ -777,9 +796,10 @@ public class GitilesView {
       }
       StringBuilder cur = new StringBuilder();
       List<String> parts = PathUtil.SPLITTER.omitEmptyStrings().splitToList(path);
-      checkArgument(hasSingleTree == null
-          || (parts.isEmpty() && hasSingleTree.isEmpty())
-          || hasSingleTree.size() == parts.size() - 1,
+      checkArgument(
+          hasSingleTree == null
+              || (parts.isEmpty() && hasSingleTree.isEmpty())
+              || hasSingleTree.size() == parts.size() - 1,
           "hasSingleTree has wrong number of entries");
       for (int i = 0; i < parts.size(); i++) {
         String part = parts.get(i);
@@ -801,9 +821,7 @@ public class GitilesView {
     List<Map<String, String>> r = new ArrayList<>(parts.size());
     for (int i = 0; i < parts.size(); i++) {
       String prefix = Joiner.on('/').join(parts.subList(0, i + 1));
-      r.add(breadcrumb(
-          parts.get(i),
-          hostIndex().copyFrom(this).setRepositoryPrefix(prefix)));
+      r.add(breadcrumb(parts.get(i), hostIndex().copyFrom(this).setRepositoryPrefix(prefix)));
     }
     return r;
   }
@@ -840,21 +858,20 @@ public class GitilesView {
   @VisibleForTesting
   static String paramsToString(ListMultimap<String, String> params) {
     try {
-    StringBuilder sb = new StringBuilder();
-    boolean first = true;
-    for (Map.Entry<String, String> e : params.entries()) {
-      if (!first) {
-        sb.append('&');
-      } else {
-        first = false;
+      StringBuilder sb = new StringBuilder();
+      boolean first = true;
+      for (Map.Entry<String, String> e : params.entries()) {
+        if (!first) {
+          sb.append('&');
+        } else {
+          first = false;
+        }
+        sb.append(URLEncoder.encode(e.getKey(), UTF_8.name()));
+        if (!"".equals(e.getValue())) {
+          sb.append('=').append(URLEncoder.encode(e.getValue(), UTF_8.name()));
+        }
       }
-      sb.append(URLEncoder.encode(e.getKey(), UTF_8.name()));
-      if (!"".equals(e.getValue())) {
-        sb.append('=')
-            .append(URLEncoder.encode(e.getValue(), UTF_8.name()));
-      }
-    }
-    return sb.toString();
+      return sb.toString();
     } catch (UnsupportedEncodingException e) {
       throw new IllegalStateException(e);
     }

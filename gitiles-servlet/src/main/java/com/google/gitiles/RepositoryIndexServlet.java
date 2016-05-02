@@ -55,15 +55,14 @@ public class RepositoryIndexServlet extends BaseServlet {
 
   private final TimeCache timeCache;
 
-  public RepositoryIndexServlet(GitilesAccess.Factory accessFactory, Renderer renderer,
-      TimeCache timeCache) {
+  public RepositoryIndexServlet(
+      GitilesAccess.Factory accessFactory, Renderer renderer, TimeCache timeCache) {
     super(renderer, accessFactory);
     this.timeCache = checkNotNull(timeCache, "timeCache");
   }
 
   @Override
-  protected void doHead(HttpServletRequest req, HttpServletResponse res)
-      throws IOException {
+  protected void doHead(HttpServletRequest req, HttpServletResponse res) throws IOException {
     // If the repository didn't exist a prior filter would have 404 replied.
     Optional<FormatType> format = getFormat(req);
     if (!format.isPresent()) {
@@ -77,7 +76,7 @@ public class RepositoryIndexServlet extends BaseServlet {
         res.setContentType(format.get().getMimeType());
         break;
       case TEXT:
-        default:
+      default:
         res.sendError(SC_BAD_REQUEST);
         break;
     }
@@ -155,8 +154,8 @@ public class RepositoryIndexServlet extends BaseServlet {
     return list.size() > REF_LIMIT ? list.subList(0, REF_LIMIT) : list;
   }
 
-  private static Map<String, Object> renderReadme(RevWalk walk,
-      GitilesView view, Config cfg, RevObject head) throws IOException {
+  private static Map<String, Object> renderReadme(
+      RevWalk walk, GitilesView view, Config cfg, RevObject head) throws IOException {
     RevTree rootTree;
     try {
       rootTree = walk.parseTree(head);
@@ -164,13 +163,15 @@ public class RepositoryIndexServlet extends BaseServlet {
       return null;
     }
 
-    ReadmeHelper readme = new ReadmeHelper(
-        walk.getObjectReader(),
-        GitilesView.path().copyFrom(view).setRevision(Revision.HEAD).setPathPart("/").build(),
-        cfg, rootTree);
+    ReadmeHelper readme =
+        new ReadmeHelper(
+            walk.getObjectReader(),
+            GitilesView.path().copyFrom(view).setRevision(Revision.HEAD).setPathPart("/").build(),
+            cfg,
+            rootTree);
     readme.scanTree(rootTree);
     if (readme.isPresent()) {
-      return ImmutableMap.<String, Object> of("readmeHtml", readme.render());
+      return ImmutableMap.<String, Object>of("readmeHtml", readme.render());
     }
     return null;
   }

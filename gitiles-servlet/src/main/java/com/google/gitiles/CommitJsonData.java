@@ -34,8 +34,9 @@ import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 
 public class CommitJsonData {
-  static final ImmutableSet<Field> DEFAULT_FIELDS = Sets.immutableEnumSet(
-      Field.SHA, Field.TREE, Field.PARENTS, Field.AUTHOR, Field.COMMITTER, Field.MESSAGE);
+  static final ImmutableSet<Field> DEFAULT_FIELDS =
+      Sets.immutableEnumSet(
+          Field.SHA, Field.TREE, Field.PARENTS, Field.AUTHOR, Field.COMMITTER, Field.MESSAGE);
 
   public static class Log {
     public List<Commit> log;
@@ -85,9 +86,7 @@ public class CommitJsonData {
 
   Commit toJsonData(HttpServletRequest req, RevCommit c, Set<Field> fs, DateFormatter df)
       throws IOException {
-    CommitData cd = new CommitData.Builder()
-        .setRevWalk(walk)
-        .build(req, c, fs);
+    CommitData cd = new CommitData.Builder().setRevWalk(walk).build(req, c, fs);
 
     Commit result = new Commit();
     if (cd.sha != null) {

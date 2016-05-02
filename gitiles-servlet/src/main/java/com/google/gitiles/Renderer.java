@@ -55,23 +55,25 @@ public abstract class Renderer {
   // Must match .streamingPlaceholder.
   private static final String PLACEHOLDER = "id=\"STREAMED_OUTPUT_BLOCK\"";
 
-  private static final List<String> SOY_FILENAMES = ImmutableList.of(
-      "BlameDetail.soy",
-      "Common.soy",
-      "DiffDetail.soy",
-      "Doc.soy",
-      "HostIndex.soy",
-      "LogDetail.soy",
-      "ObjectDetail.soy",
-      "PathDetail.soy",
-      "RefList.soy",
-      "RevisionDetail.soy",
-      "RepositoryIndex.soy");
+  private static final List<String> SOY_FILENAMES =
+      ImmutableList.of(
+          "BlameDetail.soy",
+          "Common.soy",
+          "DiffDetail.soy",
+          "Doc.soy",
+          "HostIndex.soy",
+          "LogDetail.soy",
+          "ObjectDetail.soy",
+          "PathDetail.soy",
+          "RefList.soy",
+          "RevisionDetail.soy",
+          "RepositoryIndex.soy");
 
-  public static final Map<String, String> STATIC_URL_GLOBALS = ImmutableMap.of(
-      "gitiles.BASE_CSS_URL", "base.css",
-      "gitiles.DOC_CSS_URL", "doc.css",
-      "gitiles.PRETTIFY_CSS_URL", "prettify/prettify.css");
+  public static final Map<String, String> STATIC_URL_GLOBALS =
+      ImmutableMap.of(
+          "gitiles.BASE_CSS_URL", "base.css",
+          "gitiles.DOC_CSS_URL", "doc.css",
+          "gitiles.PRETTIFY_CSS_URL", "prettify/prettify.css");
 
   protected static class FileUrlMapper implements Function<String, URL> {
     private final String prefix;
@@ -99,13 +101,15 @@ public abstract class Renderer {
 
   protected ImmutableMap<String, URL> templates;
   protected ImmutableMap<String, String> globals;
-  private final ConcurrentMap<String, HashCode> hashes = new MapMaker()
-      .initialCapacity(SOY_FILENAMES.size())
-      .concurrencyLevel(1)
-      .makeMap();
+  private final ConcurrentMap<String, HashCode> hashes =
+      new MapMaker().initialCapacity(SOY_FILENAMES.size()).concurrencyLevel(1).makeMap();
 
-  protected Renderer(Function<String, URL> resourceMapper, Map<String, String> globals,
-      String staticPrefix, Iterable<URL> customTemplates, String siteTitle) {
+  protected Renderer(
+      Function<String, URL> resourceMapper,
+      Map<String, String> globals,
+      String staticPrefix,
+      Iterable<URL> customTemplates,
+      String siteTitle) {
     checkNotNull(staticPrefix, "staticPrefix");
 
     ImmutableMap.Builder<String, URL> b = ImmutableMap.builder();
@@ -153,8 +157,9 @@ public abstract class Renderer {
     return newRenderer(templateName).setData(soyData).render();
   }
 
-  void render(HttpServletRequest req, HttpServletResponse res,
-      String templateName, Map<String, ?> soyData) throws IOException {
+  void render(
+      HttpServletRequest req, HttpServletResponse res, String templateName, Map<String, ?> soyData)
+      throws IOException {
     res.setContentType("text/html");
     res.setCharacterEncoding("UTF-8");
     byte[] data = newRenderer(templateName).setData(soyData).render().getBytes(UTF_8);
@@ -168,9 +173,7 @@ public abstract class Renderer {
 
   OutputStream renderStreaming(HttpServletResponse res, String templateName, Map<String, ?> soyData)
       throws IOException {
-    final String html = newRenderer(templateName)
-        .setData(soyData)
-        .render();
+    final String html = newRenderer(templateName).setData(soyData).render();
     int id = html.indexOf(PLACEHOLDER);
     checkArgument(id >= 0, "Template must contain %s", PLACEHOLDER);
 

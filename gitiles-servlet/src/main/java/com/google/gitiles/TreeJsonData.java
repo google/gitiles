@@ -53,6 +53,5 @@ class TreeJsonData {
     return tree;
   }
 
-  private TreeJsonData() {
-  }
+  private TreeJsonData() {}
 }

@@ -25,9 +25,10 @@ public class DivNode extends SuperNode {
   private final String style;
 
   DivNode(String style, List<Node> list) {
-    super(list.size() == 1 && list.get(0) instanceof ParaNode
-        ? ((ParaNode) list.get(0)).getChildren()
-        : list);
+    super(
+        list.size() == 1 && list.get(0) instanceof ParaNode
+            ? ((ParaNode) list.get(0)).getChildren()
+            : list);
     this.style = style;
   }
 

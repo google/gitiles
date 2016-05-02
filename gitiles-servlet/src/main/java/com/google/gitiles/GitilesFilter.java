@@ -77,52 +77,65 @@ class GitilesFilter extends MetaFilter {
   private static final String CMD = "\\+[a-z0-9-]*";
 
   @VisibleForTesting
-  static final Pattern ROOT_REGEX = Pattern.compile(""
-      + "^(      " // 1. Everything
-      + "  /*    " // Excess slashes
-      + "  (/)   " // 2. Repo name (just slash)
-      + "  ()    " // 3. Command
-      + "  ()    " // 4. Path
-      + ")$      ",
-      Pattern.COMMENTS);
+  static final Pattern ROOT_REGEX =
+      Pattern.compile(
+          ""
+              + "^(      " // 1. Everything
+              + "  /*    " // Excess slashes
+              + "  (/)   " // 2. Repo name (just slash)
+              + "  ()    " // 3. Command
+              + "  ()    " // 4. Path
+              + ")$      ",
+          Pattern.COMMENTS);
 
   @VisibleForTesting
-  static final Pattern REPO_REGEX = Pattern.compile(""
-      + "^(                     " // 1. Everything
-      + "  /*                   " // Excess slashes
-      + "  (                    " // 2. Repo name
-      + "   /                   " // Leading slash
-      + "   (?:.(?!             " // Anything, as long as it's not followed by...
-      + "        /" + CMD + "/  " // the special "/<CMD>/" separator,
-      + "        |/" + CMD + "$ " // or "/<CMD>" at the end of the string
-      + "        ))*?           "
-      + "  )                    "
-      + "  /*                   " // Trailing slashes
-      + "  ()                   " // 3. Command
-      + "  ()                   " // 4. Path
-      + ")$                     ",
-      Pattern.COMMENTS);
+  static final Pattern REPO_REGEX =
+      Pattern.compile(
+          ""
+              + "^(                     " // 1. Everything
+              + "  /*                   " // Excess slashes
+              + "  (                    " // 2. Repo name
+              + "   /                   " // Leading slash
+              + "   (?:.(?!             " // Anything, as long as it's not followed by...
+              + "        /"
+              + CMD
+              + "/  " // the special "/<CMD>/" separator,
+              + "        |/"
+              + CMD
+              + "$ " // or "/<CMD>" at the end of the string
+              + "        ))*?           "
+              + "  )                    "
+              + "  /*                   " // Trailing slashes
+              + "  ()                   " // 3. Command
+              + "  ()                   " // 4. Path
+              + ")$                     ",
+          Pattern.COMMENTS);
 
   @VisibleForTesting
-  static final Pattern REPO_PATH_REGEX = Pattern.compile(""
-      + "^(              " // 1. Everything
-      + "  /*            " // Excess slashes
-      + "  (             " // 2. Repo name
-      + "   /            " // Leading slash
-      + "   .*?          " // Anything, non-greedy
-      + "  )             "
-      + "  /(" + CMD + ")" // 3. Command
-      + "  (             " // 4. Path
-      + "   (?:/.*)?     " // Slash path, or nothing.
-      + "  )             "
-      + ")$              ",
-      Pattern.COMMENTS);
+  static final Pattern REPO_PATH_REGEX =
+      Pattern.compile(
+          ""
+              + "^(              " // 1. Everything
+              + "  /*            " // Excess slashes
+              + "  (             " // 2. Repo name
+              + "   /            " // Leading slash
+              + "   .*?          " // Anything, non-greedy
+              + "  )             "
+              + "  /("
+              + CMD
+              + ")" // 3. Command
+              + "  (             " // 4. Path
+              + "   (?:/.*)?     " // Slash path, or nothing.
+              + "  )             "
+              + ")$              ",
+          Pattern.COMMENTS);
 
   private static class DispatchFilter extends AbstractHttpFilter {
     private final ListMultimap<GitilesView.Type, Filter> filters;
     private final Map<GitilesView.Type, HttpServlet> servlets;
 
-    private DispatchFilter(ListMultimap<GitilesView.Type, Filter> filters,
+    private DispatchFilter(
+        ListMultimap<GitilesView.Type, Filter> filters,
         Map<GitilesView.Type, HttpServlet> servlets) {
       this.filters = LinkedListMultimap.create(filters);
       this.servlets = ImmutableMap.copyOf(servlets);
@@ -166,8 +179,7 @@ class GitilesFilter extends MetaFilter {
   private GitwebRedirectFilter gitwebRedirect;
   private boolean initialized;
 
-  GitilesFilter() {
-  }
+  GitilesFilter() {}
 
   GitilesFilter(
       Config config,
@@ -213,10 +225,7 @@ class GitilesFilter extends MetaFilter {
     }
     root.through(dispatchFilter);
 
-    serveRegex(REPO_REGEX)
-        .through(repositoryFilter)
-        .through(viewFilter)
-        .through(dispatchFilter);
+    serveRegex(REPO_REGEX).through(repositoryFilter).through(viewFilter).through(dispatchFilter);
 
     serveRegex(REPO_PATH_REGEX)
         .through(repositoryFilter)
@@ -270,8 +279,7 @@ class GitilesFilter extends MetaFilter {
 
   synchronized void setHandler(GitilesView.Type view, HttpServlet handler) {
     checkNotInitialized();
-    servlets.put(checkNotNull(view, "view"),
-        checkNotNull(handler, "handler for %s", view));
+    servlets.put(checkNotNull(view, "view"), checkNotNull(handler, "handler for %s", view));
   }
 
   private synchronized void checkNotInitialized() {
@@ -309,22 +317,24 @@ class GitilesFilter extends MetaFilter {
 
   private void setDefaultRenderer(FilterConfig filterConfig) {
     if (renderer == null) {
-      renderer = new DefaultRenderer(
-          filterConfig.getServletContext().getContextPath() + STATIC_PREFIX,
-          FluentIterable.from(Arrays.asList(
-                config.getStringList("gitiles", null, "customTemplates")))
-              .transform(new FileUrlMapper()),
-          firstNonNull(config.getString("gitiles", null, "siteTitle"), "Gitiles"));
+      renderer =
+          new DefaultRenderer(
+              filterConfig.getServletContext().getContextPath() + STATIC_PREFIX,
+              FluentIterable.from(
+                      Arrays.asList(config.getStringList("gitiles", null, "customTemplates")))
+                  .transform(new FileUrlMapper()),
+              firstNonNull(config.getString("gitiles", null, "siteTitle"), "Gitiles"));
     }
   }
 
   private void setDefaultUrls() throws ServletException {
     if (urls == null) {
       try {
-        urls = new DefaultUrls(
-            config.getString("gitiles", null, "canonicalHostName"),
-            getBaseGitUrl(config),
-            config.getString("gitiles", null, "gerritUrl"));
+        urls =
+            new DefaultUrls(
+                config.getString("gitiles", null, "canonicalHostName"),
+                getBaseGitUrl(config),
+                config.getString("gitiles", null, "gerritUrl"));
       } catch (UnknownHostException e) {
         throw new ServletException(e);
       }
@@ -351,11 +361,9 @@ class GitilesFilter extends MetaFilter {
       if (accessFactory == null) {
         checkState(fileResolver != null, "need a FileResolver when GitilesAccess.Factory not set");
         try {
-        accessFactory = new DefaultAccess.Factory(
-            new File(basePath),
-            getBaseGitUrl(config),
-            config,
-            fileResolver);
+          accessFactory =
+              new DefaultAccess.Factory(
+                  new File(basePath), getBaseGitUrl(config), config, fileResolver);
         } catch (IOException e) {
           throw new ServletException(e);
         }

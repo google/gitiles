@@ -58,25 +58,27 @@ public class TimeCache {
 
   Long getTime(final RevWalk walk, final ObjectId id) throws IOException {
     try {
-      return cache.get(id, new Callable<Long>() {
-        @Override
-        public Long call() throws IOException {
-          RevObject o = walk.parseAny(id);
-          while (o instanceof RevTag) {
-            RevTag tag = (RevTag) o;
-            PersonIdent ident = tag.getTaggerIdent();
-            if (ident != null) {
-              return ident.getWhen().getTime() / 1000;
+      return cache.get(
+          id,
+          new Callable<Long>() {
+            @Override
+            public Long call() throws IOException {
+              RevObject o = walk.parseAny(id);
+              while (o instanceof RevTag) {
+                RevTag tag = (RevTag) o;
+                PersonIdent ident = tag.getTaggerIdent();
+                if (ident != null) {
+                  return ident.getWhen().getTime() / 1000;
+                }
+                o = tag.getObject();
+                walk.parseHeaders(o);
+              }
+              if (o.getType() == Constants.OBJ_COMMIT) {
+                return Long.valueOf(((RevCommit) o).getCommitTime());
+              }
+              return Long.MIN_VALUE;
             }
-            o = tag.getObject();
-            walk.parseHeaders(o);
-          }
-          if (o.getType() == Constants.OBJ_COMMIT) {
-            return Long.valueOf(((RevCommit) o).getCommitTime());
-          }
-          return Long.MIN_VALUE;
-        }
-      });
+          });
     } catch (ExecutionException e) {
       Throwables.propagateIfInstanceOf(e.getCause(), IOException.class);
       throw new IOException(e);

@@ -68,8 +68,7 @@ final class HtmlDiffFormatter extends DiffFormatter {
   }
 
   @Override
-  public void format(FileHeader hdr, RawText a, RawText b)
-      throws IOException {
+  public void format(FileHeader hdr, RawText a, RawText b) throws IOException {
     int start = hdr.getStartOffset();
     int end = hdr.getEndOffset();
     if (!hdr.getHunks().isEmpty()) {
@@ -84,35 +83,37 @@ final class HtmlDiffFormatter extends DiffFormatter {
     }
   }
 
-  private void renderHeader(String header)
-      throws IOException {
+  private void renderHeader(String header) throws IOException {
     int lf = header.indexOf('\n');
-    String rest = 0 <= lf ?  header.substring(lf + 1) : "";
+    String rest = 0 <= lf ? header.substring(lf + 1) : "";
 
     // Based on DiffFormatter.formatGitDiffFirstHeaderLine.
     List<Map<String, String>> parts = Lists.newArrayListWithCapacity(3);
     parts.add(ImmutableMap.of("text", "diff --git"));
     if (entry.getChangeType() != ChangeType.ADD) {
-      parts.add(ImmutableMap.of(
-          "text", GIT_PATH.quote(getOldPrefix() + entry.getOldPath()),
-          "url", revisionUrl(view.getOldRevision(), entry.getOldPath())));
+      parts.add(
+          ImmutableMap.of(
+              "text", GIT_PATH.quote(getOldPrefix() + entry.getOldPath()),
+              "url", revisionUrl(view.getOldRevision(), entry.getOldPath())));
     } else {
-      parts.add(ImmutableMap.of(
-          "text", GIT_PATH.quote(getOldPrefix() + entry.getNewPath())));
+      parts.add(ImmutableMap.of("text", GIT_PATH.quote(getOldPrefix() + entry.getNewPath())));
     }
     if (entry.getChangeType() != ChangeType.DELETE) {
-      parts.add(ImmutableMap.of(
-          "text", GIT_PATH.quote(getNewPrefix() + entry.getNewPath()),
-          "url", revisionUrl(view.getRevision(), entry.getNewPath())));
+      parts.add(
+          ImmutableMap.of(
+              "text", GIT_PATH.quote(getNewPrefix() + entry.getNewPath()),
+              "url", revisionUrl(view.getRevision(), entry.getNewPath())));
     } else {
-      parts.add(ImmutableMap.of(
-          "text", GIT_PATH.quote(getNewPrefix() + entry.getOldPath())));
+      parts.add(ImmutableMap.of("text", GIT_PATH.quote(getNewPrefix() + entry.getOldPath())));
     }
 
-    getOutputStream().write(renderer.newRenderer("gitiles.diffHeader")
-        .setData(ImmutableMap.of("firstParts", parts, "rest", rest, "fileIndex", fileIndex))
-        .render()
-        .getBytes(UTF_8));
+    getOutputStream()
+        .write(
+            renderer
+                .newRenderer("gitiles.diffHeader")
+                .setData(ImmutableMap.of("firstParts", parts, "rest", rest, "fileIndex", fileIndex))
+                .render()
+                .getBytes(UTF_8));
   }
 
   private String revisionUrl(Revision rev, String path) {
@@ -125,8 +126,8 @@ final class HtmlDiffFormatter extends DiffFormatter {
   }
 
   @Override
-  protected void writeHunkHeader(int aStartLine, int aEndLine,
-      int bStartLine, int bEndLine) throws IOException {
+  protected void writeHunkHeader(int aStartLine, int aEndLine, int bStartLine, int bEndLine)
+      throws IOException {
     getOutputStream().write(HUNK_BEGIN);
     // TODO(sop): If hunk header starts including method names, escape it.
     super.writeHunkHeader(aStartLine, aEndLine, bStartLine, bEndLine);
@@ -134,8 +135,7 @@ final class HtmlDiffFormatter extends DiffFormatter {
   }
 
   @Override
-  protected void writeLine(char prefix, RawText text, int cur)
-      throws IOException {
+  protected void writeLine(char prefix, RawText text, int cur) throws IOException {
     // Manually render each line, rather than invoke a Soy template. This method
     // can be called thousands of times in a single request. Avoid unnecessary
     // overheads by formatting as-is.
