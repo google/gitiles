@@ -66,6 +66,15 @@ Code Style
 Java code in Gitiles follows the [Google Java Style Guide]
 (https://google.github.io/styleguide/javaguide.html) with a 100-column limit.
 
+Code should be automatically formatted using [google-java-format]
+(https://github.com/google/google-java-format) prior to sending a code review.
+There is currently no Eclipse formatter, but the tool can be run from the
+command line:
+
+```
+java -jar /path/to/google-java-format-1.0-all-deps.jar -i path/to/java/File.java
+```
+
 CSS in Gitiles follows the [SUIT CSS naming conventions]
 (https://github.com/suitcss/suit/blob/master/doc/naming-conventions.md).
 
