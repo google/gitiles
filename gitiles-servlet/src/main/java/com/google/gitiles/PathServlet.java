@@ -133,7 +133,7 @@ public class PathServlet extends BaseServlet {
     Repository repo = ServletUtils.getRepository(req);
 
     try (RevWalk rw = new RevWalk(repo);
-        WalkResult wr = WalkResult.forPath(rw, view)) {
+        WalkResult wr = WalkResult.forPath(rw, view, false)) {
       if (wr == null) {
         res.setStatus(SC_NOT_FOUND);
         return;
@@ -168,7 +168,7 @@ public class PathServlet extends BaseServlet {
     Repository repo = ServletUtils.getRepository(req);
 
     try (RevWalk rw = new RevWalk(repo);
-        WalkResult wr = WalkResult.forPath(rw, view)) {
+        WalkResult wr = WalkResult.forPath(rw, view, false)) {
       if (wr == null) {
         res.setStatus(SC_NOT_FOUND);
         return;
@@ -246,8 +246,14 @@ public class PathServlet extends BaseServlet {
         (longStr != null)
             && (longStr.isEmpty() || Boolean.TRUE.equals(StringUtils.toBooleanOrNull(longStr)));
 
+    String recursiveStr = req.getParameter("recursive");
+    boolean recursive =
+        (recursiveStr != null)
+            && (recursiveStr.isEmpty()
+                || Boolean.TRUE.equals(StringUtils.toBooleanOrNull(recursiveStr)));
+
     try (RevWalk rw = new RevWalk(repo);
-        WalkResult wr = WalkResult.forPath(rw, view)) {
+        WalkResult wr = WalkResult.forPath(rw, view, recursive)) {
       if (wr == null) {
         res.setStatus(SC_NOT_FOUND);
         return;
@@ -257,7 +263,7 @@ public class PathServlet extends BaseServlet {
           renderJson(
               req,
               res,
-              TreeJsonData.toJsonData(wr.id, wr.tw, includeSizes),
+              TreeJsonData.toJsonData(wr.id, wr.tw, includeSizes, recursive),
               TreeJsonData.Tree.class);
           break;
         default:
@@ -297,6 +303,7 @@ public class PathServlet extends BaseServlet {
     @Override
     public boolean include(TreeWalk tw)
         throws MissingObjectException, IncorrectObjectTypeException, IOException {
+
       count++;
       int cmp = tw.isPathPrefix(pathRaw, pathRaw.length);
       if (cmp > 0) {
@@ -352,7 +359,42 @@ public class PathServlet extends BaseServlet {
    * Includes information to help the auto-dive routine as well.
    */
   private static class WalkResult implements AutoCloseable {
-    private static WalkResult forPath(RevWalk rw, GitilesView view) throws IOException {
+    private static WalkResult recursivePath(RevWalk rw, GitilesView view) throws IOException {
+      RevTree root = getRoot(view, rw);
+      String path = view.getPathPart();
+
+      TreeWalk tw;
+      if (!path.isEmpty()) {
+        try (TreeWalk toRoot = TreeWalk.forPath(rw.getObjectReader(), path, root)) {
+          if (toRoot == null) {
+            return null;
+          }
+
+          ObjectId treeSHA = toRoot.getObjectId(0);
+
+          ObjectLoader treeLoader = rw.getObjectReader().open(treeSHA);
+          if (treeLoader.getType() != Constants.OBJ_TREE) {
+            return null;
+          }
+
+          tw = new TreeWalk(rw.getObjectReader());
+          tw.addTree(treeSHA);
+        }
+      } else {
+        tw = new TreeWalk(rw.getObjectReader());
+        tw.addTree(root);
+      }
+
+      tw.setRecursive(true);
+      return new WalkResult(tw, path, root, root, FileType.TREE, ImmutableList.<Boolean>of());
+    }
+
+    private static WalkResult forPath(RevWalk rw, GitilesView view, boolean recursive)
+        throws IOException {
+      if (recursive) {
+        return recursivePath(rw, view);
+      }
+
       RevTree root = getRoot(view, rw);
       String path = view.getPathPart();
       TreeWalk tw = new TreeWalk(rw.getObjectReader());

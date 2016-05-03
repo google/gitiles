@@ -46,7 +46,8 @@ class TreeJsonData {
     @Nullable Long size;
   }
 
-  static Tree toJsonData(ObjectId id, TreeWalk tw, boolean includeSizes) throws IOException {
+  static Tree toJsonData(ObjectId id, TreeWalk tw, boolean includeSizes, boolean recursive)
+      throws IOException {
     Tree tree = new Tree();
     tree.id = id.name();
     tree.entries = Lists.newArrayList();
@@ -56,7 +57,7 @@ class TreeJsonData {
       e.mode = mode.getBits();
       e.type = Constants.typeString(mode.getObjectType());
       e.id = tw.getObjectId(0).name();
-      e.name = tw.getNameString();
+      e.name = recursive ? tw.getPathString() : tw.getNameString();
 
       if (includeSizes) {
         if ((mode.getBits() & FileMode.TYPE_MASK) == FileMode.TYPE_FILE) {

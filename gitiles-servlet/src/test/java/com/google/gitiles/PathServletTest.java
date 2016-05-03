@@ -268,6 +268,33 @@ public class PathServletTest extends ServletTest {
   }
 
   @Test
+  public void treeJsonRecursive() throws Exception {
+    RevCommit c =
+        repo.parseBody(
+            repo.branch("master")
+                .commit()
+                .add("foo/baz/bar/a", "bar contents")
+                .add("foo/baz/bar/b", "bar contents")
+                .add("baz", "baz contents")
+                .create());
+    Tree tree = buildJson(Tree.class, "/repo/+/master/", "recursive=1");
+
+    assertThat(tree.id).isEqualTo(c.getTree().name());
+    assertThat(tree.entries).hasSize(3);
+
+    assertThat(tree.entries.get(0).name).isEqualTo("baz");
+    assertThat(tree.entries.get(1).name).isEqualTo("foo/baz/bar/a");
+    assertThat(tree.entries.get(2).name).isEqualTo("foo/baz/bar/b");
+
+    tree = buildJson(Tree.class, "/repo/+/master/foo/baz", "recursive=1");
+
+    assertThat(tree.entries).hasSize(2);
+
+    assertThat(tree.entries.get(0).name).isEqualTo("bar/a");
+    assertThat(tree.entries.get(1).name).isEqualTo("bar/b");
+  }
+
+  @Test
   public void treeJson() throws Exception {
     RevCommit c =
         repo.parseBody(
