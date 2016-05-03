@@ -49,10 +49,8 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
-import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -83,16 +81,6 @@ class DevServer {
         "gitiles", null, "siteTitle", String.format("Gitiles - %s:%s", networkHostName, cwd));
     cfg.setString("gitiles", null, "canonicalHostName", new File(cwd).getName());
     return cfg;
-  }
-
-  private static NoSuchFileException badSourceRoot(URI u) {
-    return new NoSuchFileException("Cannot find source root from " + u);
-  }
-
-  private static NoSuchFileException badSourceRoot(URI u, Throwable cause) {
-    NoSuchFileException notFound = badSourceRoot(u);
-    notFound.initCause(cause);
-    return notFound;
   }
 
   private static Path findSourceRoot() throws IOException {
