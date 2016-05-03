@@ -23,6 +23,7 @@ import static org.eclipse.jgit.lib.Constants.OBJ_COMMIT;
 import static org.eclipse.jgit.lib.Constants.OBJ_TREE;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -53,6 +54,7 @@ import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.eclipse.jgit.util.QuotedString;
 import org.eclipse.jgit.util.RawParseUtils;
+import org.eclipse.jgit.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -239,6 +241,11 @@ public class PathServlet extends BaseServlet {
     GitilesView view = ViewFilter.getView(req);
     Repository repo = ServletUtils.getRepository(req);
 
+    String longStr = req.getParameter("long");
+    boolean includeSizes =
+        (longStr != null)
+            && (longStr.isEmpty() || Boolean.TRUE.equals(StringUtils.toBooleanOrNull(longStr)));
+
     try (RevWalk rw = new RevWalk(repo);
         WalkResult wr = WalkResult.forPath(rw, view)) {
       if (wr == null) {
@@ -247,7 +254,11 @@ public class PathServlet extends BaseServlet {
       }
       switch (wr.type) {
         case TREE:
-          renderJson(req, res, TreeJsonData.toJsonData(wr.id, wr.tw), TreeJsonData.Tree.class);
+          renderJson(
+              req,
+              res,
+              TreeJsonData.toJsonData(wr.id, wr.tw, includeSizes),
+              TreeJsonData.Tree.class);
           break;
         default:
           res.setStatus(SC_NOT_FOUND);

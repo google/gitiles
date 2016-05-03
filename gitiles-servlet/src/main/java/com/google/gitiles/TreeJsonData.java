@@ -14,11 +14,17 @@
 
 package com.google.gitiles;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.collect.Lists;
 
+import org.eclipse.jgit.annotations.Nullable;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.ObjectReader;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.treewalk.TreeWalk;
 
 import java.io.IOException;
@@ -35,9 +41,12 @@ class TreeJsonData {
     String type;
     String id;
     String name;
+
+    @Nullable String target;
+    @Nullable Long size;
   }
 
-  static Tree toJsonData(ObjectId id, TreeWalk tw) throws IOException {
+  static Tree toJsonData(ObjectId id, TreeWalk tw, boolean includeSizes) throws IOException {
     Tree tree = new Tree();
     tree.id = id.name();
     tree.entries = Lists.newArrayList();
@@ -48,6 +57,15 @@ class TreeJsonData {
       e.type = Constants.typeString(mode.getObjectType());
       e.id = tw.getObjectId(0).name();
       e.name = tw.getNameString();
+
+      if (includeSizes) {
+        if ((mode.getBits() & FileMode.TYPE_MASK) == FileMode.TYPE_FILE) {
+          e.size = tw.getObjectReader().getObjectSize(tw.getObjectId(0), Constants.OBJ_BLOB);
+        } else if ((mode.getBits() & FileMode.TYPE_MASK) == FileMode.TYPE_SYMLINK) {
+          e.target =
+              new String(tw.getObjectReader().open(tw.getObjectId(0)).getCachedBytes(), UTF_8);
+        }
+      }
       tree.entries.add(e);
     }
     return tree;
