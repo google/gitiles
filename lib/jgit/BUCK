@@ -1,10 +1,10 @@
 REPO = GERRIT # Leave here even if set to MAVEN_CENTRAL.
-VERS = '4.2.0.201601211800-r.136-g8efdaaf'
+VERS = '4.3.0.201604071810-r.23-gc9b0028'
 
 maven_jar(
   name = 'jgit',
   id = 'org.eclipse.jgit:org.eclipse.jgit:' + VERS,
-  sha1 = '32f50e3c0c4f53d8fdca147d3ff0b6ef0dc02eb0',
+  sha1 = 'dc4464c876cbf3815fd6cf6cb9d29d375566d6b1',
   repository = REPO,
   unsign = True,
   deps = [':ewah'],
@@ -18,7 +18,7 @@ maven_jar(
 maven_jar(
   name = 'jgit-servlet',
   id = 'org.eclipse.jgit:org.eclipse.jgit.http.server:' + VERS,
-  sha1 = 'b493401b9778cdc38f7c08f111c6385a434b2ac2',
+  sha1 = 'bb01841b74a48abe506c2e44f238e107188e6c8f',
   repository = REPO,
   deps = [':jgit'],
   unsign = True,
@@ -41,7 +41,7 @@ java_library(
 maven_jar(
   name = 'jgit-archive_library',
   id = 'org.eclipse.jgit:org.eclipse.jgit.archive:' + VERS,
-  sha1 = '1b3a0cb7b8c2629e33902b3daf1067accca62eaf',
+  sha1 = 'c612e5bd40ebf6226032cb32c14b396d7ebfe036',
   repository = REPO,
   deps = [':jgit'],
   unsign = True,
@@ -54,7 +54,7 @@ maven_jar(
 maven_jar(
   name = 'junit',
   id = 'org.eclipse.jgit:org.eclipse.jgit.junit:' + VERS,
-  sha1 = 'c68ddb3e2aaca05b1d2f8250dd107b5f484ed603',
+  sha1 = '62dddedccdcd67b622d0d35a4bfb15c7eab8e171',
   repository = REPO,
   unsign = True,
   deps = [':jgit'],
