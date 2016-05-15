@@ -41,34 +41,44 @@ maven_jar(
 )
 
 maven_jar(
-  name = 'pegdown',
-  id = 'org.pegdown:pegdown:1.4.2',
-  sha1 = 'd96db502ed832df867ff5d918f05b51ba3879ea7',
-  license = 'Apache2.0',
-  deps = [':grappa'],
+  name = 'commonmark',
+  id = 'com.atlassian.commonmark:commonmark:0.5.0',
+  sha1 = '16a2927ba798d41f6d569b22c2639b27cf0288ae',
+  license = 'commonmark',
 )
 
 maven_jar(
-  name = 'grappa',
-  id = 'com.github.parboiled1:grappa:1.0.4',
-  sha1 = 'ad4b44b9c305dad7aa1e680d4b5c8eec9c4fd6f5',
-  license = 'Apache2.0',
+  name = 'cm-autolink',
+  id = 'com.atlassian.commonmark:commonmark-ext-autolink:0.5.0',
+  sha1 = '7bd5e683b32a1ba7849a355472409a0cfaf86176',
+  license = 'commonmark',
   deps = [
-    ':guava',
-    ':jitescript',
-    '//lib/ow2:ow2-asm',
-    '//lib/ow2:ow2-asm-analysis',
-    '//lib/ow2:ow2-asm-tree',
-    '//lib/ow2:ow2-asm-util',
+    ':commonmark',
+    ':autolink',
   ],
 )
 
 maven_jar(
-  name = 'jitescript',
-  id = 'me.qmx.jitescript:jitescript:0.4.0',
-  sha1 = '2e35862b0435c1b027a21f3d6eecbe50e6e08d54',
-  license = 'Apache2.0',
-  visibility = ['//lib:grappa'],
+  name = 'autolink',
+  id = 'org.nibor.autolink:autolink:0.4.0',
+  sha1 = '764f7b0147a0675d971a34282dce9ec76b8307c9',
+  license = 'autolink',
+)
+
+maven_jar(
+  name = 'gfm-strikethrough',
+  id = 'com.atlassian.commonmark:commonmark-ext-gfm-strikethrough:0.5.0',
+  sha1 = 'dd5679fdaae45a9f60250feb075a5b062719625e',
+  license = 'commonmark',
+  deps = [':commonmark'],
+)
+
+maven_jar(
+  name = 'gfm-tables',
+  id = 'com.atlassian.commonmark:commonmark-ext-gfm-tables:0.5.0',
+  sha1 = '082b177b9c886f4cad2c60374783081b04135528',
+  license = 'commonmark',
+  deps = [':commonmark'],
 )
 
 maven_jar(

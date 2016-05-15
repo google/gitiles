@@ -14,26 +14,12 @@
 
 package com.google.gitiles.doc;
 
-import org.pegdown.ast.AbstractNode;
-import org.pegdown.ast.Node;
+import org.commonmark.node.CustomBlock;
 
-import java.util.Collections;
-import java.util.List;
-
-class NamedAnchorNode extends AbstractNode {
-  final String name;
-
-  NamedAnchorNode(String name) {
-    this.name = name;
-  }
-
-  @Override
-  public void accept(org.pegdown.ast.Visitor visitor) {
-    ((Visitor) visitor).visit(this);
-  }
-
-  @Override
-  public List<Node> getChildren() {
-    return Collections.emptyList();
-  }
+/** Parsed {@code <iframe>} tag. */
+public class IframeBlock extends CustomBlock {
+  String src;
+  String height;
+  String width;
+  boolean border;
 }

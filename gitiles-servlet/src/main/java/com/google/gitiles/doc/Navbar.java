@@ -14,22 +14,24 @@
 
 package com.google.gitiles.doc;
 
-import com.google.gitiles.GitilesView;
 import com.google.gitiles.doc.html.HtmlBuilder;
 import com.google.template.soy.shared.restricted.EscapingConventions.FilterImageDataUri;
 import com.google.template.soy.shared.restricted.Sanitizers;
 
-import org.pegdown.ast.HeaderNode;
-import org.pegdown.ast.Node;
-import org.pegdown.ast.ReferenceNode;
-import org.pegdown.ast.RootNode;
+import org.commonmark.node.Heading;
+import org.commonmark.node.Node;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 class Navbar {
-  static Map<String, Object> bannerSoyData(GitilesView view, ImageLoader img, RootNode nav) {
+  private static final Pattern REF_LINK =
+      Pattern.compile("^\\[(logo|home)\\]:\\s*(.+)$", Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
+
+  static Map<String, Object> bannerSoyData(
+      ImageLoader img, MarkdownToHtml toHtml, String navMarkdown, Node nav) {
     Map<String, Object> data = new HashMap<>();
     data.put("siteTitle", null);
     data.put("logoUrl", null);
@@ -39,41 +41,49 @@ class Navbar {
       return data;
     }
 
-    for (Iterator<Node> i = nav.getChildren().iterator(); i.hasNext(); ) {
-      Node n = i.next();
-      if (n instanceof HeaderNode) {
-        HeaderNode h = (HeaderNode) n;
+    for (Node c = nav.getFirstChild(); c != null; c = c.getNext()) {
+      if (c instanceof Heading) {
+        Heading h = (Heading) c;
         if (h.getLevel() == 1) {
           data.put("siteTitle", MarkdownUtil.getInnerText(h));
-          i.remove();
+          h.unlink();
           break;
         }
       }
     }
 
-    for (ReferenceNode r : nav.getReferences()) {
-      String key = MarkdownUtil.getInnerText(r);
-      String url = r.getUrl();
-      if ("logo".equalsIgnoreCase(key)) {
-        Object src;
-        if (HtmlBuilder.isValidHttpUri(url)) {
-          src = url;
-        } else if (HtmlBuilder.isImageDataUri(url)) {
-          src = Sanitizers.filterImageDataUri(url);
-        } else if (img != null) {
-          src = Sanitizers.filterImageDataUri(img.loadImage(url));
-        } else {
-          src = FilterImageDataUri.INSTANCE.getInnocuousOutput();
-        }
-        data.put("logoUrl", src);
-      } else if ("home".equalsIgnoreCase(key)) {
-        if (MarkdownUtil.isAbsolutePathToMarkdown(url)) {
-          url = GitilesView.doc().copyFrom(view).setPathPart(url).toUrl();
-        }
-        data.put("homeUrl", url);
+    Matcher m = REF_LINK.matcher(navMarkdown);
+    while (m.find()) {
+      String key = m.group(1).toLowerCase();
+      String url = m.group(2).trim();
+      switch (key) {
+        case "logo":
+          data.put("logoUrl", toImgSrc(img, url));
+          break;
+
+        case "home":
+          data.put("homeUrl", toHtml.href(url));
+          break;
       }
     }
+
     return data;
+  }
+
+  private static Object toImgSrc(ImageLoader img, String url) {
+    if (HtmlBuilder.isValidHttpUri(url)) {
+      return url;
+    }
+
+    if (HtmlBuilder.isImageDataUri(url)) {
+      return Sanitizers.filterImageDataUri(url);
+    }
+
+    if (img != null) {
+      return Sanitizers.filterImageDataUri(img.loadImage(url));
+    }
+
+    return FilterImageDataUri.INSTANCE.getInnocuousOutput();
   }
 
   private Navbar() {}

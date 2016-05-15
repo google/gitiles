@@ -14,30 +14,18 @@
 
 package com.google.gitiles.doc;
 
-import org.pegdown.ast.Node;
-import org.pegdown.ast.ParaNode;
-import org.pegdown.ast.SuperNode;
+import org.commonmark.node.CustomNode;
+import org.commonmark.node.Heading;
 
-import java.util.List;
+/** A {@code <a name="...">} tag, usually inside a {@link Heading}. */
+public class NamedAnchor extends CustomNode {
+  private String name;
 
-/** Block note to render as {@code &lt;div class="clazz"&gt;}. */
-public class DivNode extends SuperNode {
-  private final String style;
-
-  DivNode(String style, List<Node> list) {
-    super(
-        list.size() == 1 && list.get(0) instanceof ParaNode
-            ? ((ParaNode) list.get(0)).getChildren()
-            : list);
-    this.style = style;
+  public String getName() {
+    return name;
   }
 
-  public String getStyleName() {
-    return style;
-  }
-
-  @Override
-  public void accept(org.pegdown.ast.Visitor visitor) {
-    ((Visitor) visitor).visit(this);
+  public void setName(String name) {
+    this.name = name;
   }
 }

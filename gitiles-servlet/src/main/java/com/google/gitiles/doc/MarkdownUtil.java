@@ -14,21 +14,17 @@
 
 package com.google.gitiles.doc;
 
+import com.google.common.base.CharMatcher;
 import com.google.common.base.Strings;
 
-import org.pegdown.ast.HeaderNode;
-import org.pegdown.ast.Node;
-import org.pegdown.ast.TextNode;
+import org.commonmark.node.Heading;
+import org.commonmark.node.Node;
+import org.commonmark.node.Text;
 
 class MarkdownUtil {
-  /** Check if anchor URL is like {@code /top.md}. */
-  static boolean isAbsolutePathToMarkdown(String url) {
-    return url.length() >= 5 && url.charAt(0) == '/' && url.charAt(1) != '/' && url.endsWith(".md");
-  }
-
   /** Combine child nodes as string; this must be escaped for HTML. */
   static String getInnerText(Node node) {
-    if (node == null || node.getChildren().isEmpty()) {
+    if (node == null || node.getFirstChild() == null) {
       return null;
     }
 
@@ -38,30 +34,39 @@ class MarkdownUtil {
   }
 
   private static void appendTextFromChildren(StringBuilder b, Node node) {
-    for (Node child : node.getChildren()) {
-      if (child instanceof TextNode) {
-        b.append(((TextNode) child).getText());
+    for (Node c = node.getFirstChild(); c != null; c = c.getNext()) {
+      if (c instanceof Text) {
+        b.append(((Text) c).getLiteral());
       } else {
-        appendTextFromChildren(b, child);
+        appendTextFromChildren(b, c);
       }
     }
   }
 
   static String getTitle(Node node) {
-    if (node instanceof HeaderNode) {
-      if (((HeaderNode) node).getLevel() == 1) {
+    if (node instanceof Heading) {
+      if (((Heading) node).getLevel() == 1) {
         return getInnerText(node);
       }
       return null;
     }
 
-    for (Node child : node.getChildren()) {
-      String title = getTitle(child);
+    for (Node c = node.getFirstChild(); c != null; c = c.getNext()) {
+      String title = getTitle(c);
       if (title != null) {
         return title;
       }
     }
     return null;
+  }
+
+  static void trimPreviousWhitespace(Node node) {
+    Node prev = node.getPrevious();
+    if (prev instanceof Text) {
+      Text prevText = (Text) prev;
+      String s = prevText.getLiteral();
+      prevText.setLiteral(CharMatcher.whitespace().trimTrailingFrom(s));
+    }
   }
 
   private MarkdownUtil() {}

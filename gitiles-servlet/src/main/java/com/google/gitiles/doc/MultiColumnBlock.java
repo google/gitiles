@@ -14,16 +14,22 @@
 
 package com.google.gitiles.doc;
 
-public interface Visitor extends org.pegdown.ast.Visitor {
-  void visit(ColsNode node);
+import org.commonmark.node.CustomBlock;
+import org.commonmark.node.Heading;
 
-  void visit(ColsNode.Column node);
+/**
+ * Multi-column layout delineated by {@code |||---|||}.
+ * <p>
+ * Each {@link Heading} or {@link BlockNote} within the layout begins a new
+ * {@link Column} in the HTML.
+ */
+public class MultiColumnBlock extends CustomBlock {
+  /** Grid is 12 columns wide. */
+  public static final int GRID_WIDTH = 12;
 
-  void visit(DivNode node);
-
-  void visit(IframeNode node);
-
-  void visit(TocNode node);
-
-  void visit(NamedAnchorNode node);
+  /** Column within a {@link MultiColumnBlock}. */
+  public static class Column extends CustomBlock {
+    int span;
+    boolean empty;
+  }
 }
