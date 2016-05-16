@@ -387,7 +387,7 @@ public class GitilesView {
 
     private void checkHostIndex() {
       checkView(hostName != null, "missing hostName on %s view", type);
-      checkView(servletPath != null, "missing hostName on %s view", type);
+      checkView(servletPath != null, "missing servletPath on %s view", type);
     }
 
     private void checkRepositoryIndex() {
