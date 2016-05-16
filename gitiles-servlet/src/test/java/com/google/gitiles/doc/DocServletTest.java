@@ -52,8 +52,8 @@ public class DocServletTest extends ServletTest {
     assertThat(html).contains("<title>Site Title - page</title>");
 
     assertThat(html).contains("<span class=\"Header-anchorTitle\">Site Title</span>");
-    assertThat(html).contains("<li><a href=\"index.md\">Home</a></li>");
-    assertThat(html).contains("<li><a href=\"README.md\">README</a></li>");
+    assertThat(html).contains("<li><a href=\"/b/repo/+/master/index.md\">Home</a></li>");
+    assertThat(html).contains("<li><a href=\"/b/repo/+/master/README.md\">README</a></li>");
     assertThat(html)
         .contains(
             "<h1>" + "<a class=\"h\" name=\"page\" href=\"#page\"><span></span></a>" + "page</h1>");
@@ -108,7 +108,7 @@ public class DocServletTest extends ServletTest {
     repo.branch("master").commit().add("A/B/README.md", "[c](../../C)").create();
 
     String html = buildHtml("/repo/+doc/master/A/B/README.md");
-    assertThat(html).contains("<a href=\"/b/repo/+show/master/C\">c</a>");
+    assertThat(html).contains("<a href=\"/b/repo/+/master/C\">c</a>");
   }
 
   @Test
@@ -116,6 +116,6 @@ public class DocServletTest extends ServletTest {
     repo.branch("master").commit().add("README.md", "[c](/x)").create();
 
     String html = buildHtml("/repo/+doc/master/README.md");
-    assertThat(html).contains("<a href=\"/b/repo/+show/master/x\">c</a>");
+    assertThat(html).contains("<a href=\"/b/repo/+/master/x\">c</a>");
   }
 }
