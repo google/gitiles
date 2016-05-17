@@ -122,11 +122,13 @@ public class DocServlet extends BaseServlet {
         return;
       }
 
+      String navPath = null;
       RootNode nav = null;
       if (navmd != null) {
+        navPath = navmd.path;
         nav =
             GitilesMarkdown.parseFile(
-                parseTimeout, view, navmd.path, navmd.read(rw.getObjectReader(), inputLimit));
+                parseTimeout, view, navPath, navmd.read(rw.getObjectReader(), inputLimit));
         if (nav == null) {
           res.setStatus(SC_INTERNAL_SERVER_ERROR);
           return;
@@ -140,7 +142,7 @@ public class DocServlet extends BaseServlet {
       }
 
       res.setHeader(HttpHeaders.ETAG, curEtag);
-      showDoc(req, res, view, cfg, img, nav, doc);
+      showDoc(req, res, view, cfg, img, navPath, nav, srcmd.path, doc);
     }
   }
 
@@ -176,7 +178,9 @@ public class DocServlet extends BaseServlet {
       GitilesView view,
       Config cfg,
       ImageLoader img,
+      String navPath,
       RootNode nav,
+      String docPath,
       RootNode doc)
       throws IOException {
     Map<String, Object> data = new HashMap<>();
@@ -187,8 +191,8 @@ public class DocServlet extends BaseServlet {
       data.put("logUrl", GitilesView.log().copyFrom(view).toUrl());
       data.put("blameUrl", GitilesView.blame().copyFrom(view).toUrl());
     }
-    data.put("navbarHtml", new MarkdownToHtml(view, cfg).toSoyHtml(nav));
-    data.put("bodyHtml", new MarkdownToHtml(view, cfg).setImageLoader(img).toSoyHtml(doc));
+    data.put("navbarHtml", new MarkdownToHtml(view, cfg, navPath).toSoyHtml(nav));
+    data.put("bodyHtml", new MarkdownToHtml(view, cfg, docPath).setImageLoader(img).toSoyHtml(doc));
 
     String analyticsId = cfg.getString("google", null, "analyticsId");
     if (!Strings.isNullOrEmpty(analyticsId)) {

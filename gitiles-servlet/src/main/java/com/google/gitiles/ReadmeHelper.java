@@ -107,7 +107,7 @@ class ReadmeHelper {
         img = new ImageLoader(reader, view, rootTree, readmePath, imageLimit);
       }
 
-      return new MarkdownToHtml(view, cfg).setImageLoader(img).setReadme(true).toSoyHtml(root);
+      return new MarkdownToHtml(view, cfg, readmePath).setImageLoader(img).toSoyHtml(root);
     } catch (LargeObjectException | IOException e) {
       log.error(String.format("error rendering %s/%s", view.getRepositoryName(), readmePath), e);
       return null;

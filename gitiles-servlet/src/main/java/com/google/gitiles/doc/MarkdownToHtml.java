@@ -18,7 +18,6 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.gitiles.doc.MarkdownUtil.getInnerText;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.CharMatcher;
 import com.google.common.base.Strings;
 import com.google.gitiles.GitilesView;
 import com.google.gitiles.ThreadSafePrettifyParser;
@@ -84,23 +83,30 @@ public class MarkdownToHtml implements Visitor {
   private final TocFormatter toc = new TocFormatter(html, 3);
   private final GitilesView view;
   private final Config cfg;
+  private final String filePath;
   private ImageLoader imageLoader;
-  private boolean readme;
   private TableState table;
   private boolean outputNamedAnchor = true;
 
-  public MarkdownToHtml(GitilesView view, Config cfg) {
+  /**
+   * Initialize a Markdown to HTML converter.
+   *
+   * @param view view used to access this Markdown on the web. Some elements of
+   *        the view may be used to generate hyperlinks to other files, e.g.
+   *        repository name and revision.
+   * @param cfg
+   * @param filePath actual path of the Markdown file in the Git repository. This must
+   *        always be a file, e.g. {@code doc/README.md}. The path is used to
+   *        resolve relative links within the repository.
+   */
+  public MarkdownToHtml(GitilesView view, Config cfg, String filePath) {
     this.view = view;
     this.cfg = cfg;
+    this.filePath = filePath;
   }
 
   public MarkdownToHtml setImageLoader(ImageLoader img) {
     imageLoader = img;
-    return this;
-  }
-
-  public MarkdownToHtml setReadme(boolean readme) {
-    this.readme = readme;
     return this;
   }
 
@@ -373,17 +379,7 @@ public class MarkdownToHtml implements Visitor {
       return toPath(target);
     }
 
-    String viewPath = Strings.nullToEmpty(view.getPathPart());
-    String dir;
-    if (readme) {
-      dir = CharMatcher.is('/').trimTrailingFrom(viewPath);
-    } else {
-      // When readme is false this instance is rendering a file, whose name
-      // appears as the last component of viewPath. Other links are relative
-      // to the file's container directory, so trim the file.
-      dir = trimLastComponent(viewPath);
-    }
-
+    String dir = trimLastComponent(filePath);
     while (!target.isEmpty()) {
       if (target.startsWith("../") || target.equals("..")) {
         if (dir.isEmpty()) {
@@ -408,7 +404,13 @@ public class MarkdownToHtml implements Visitor {
   }
 
   private String toPath(String path) {
-    return GitilesView.path().copyFrom(view).setPathPart(path).build().toUrl();
+    GitilesView.Builder b;
+    if (view.getType() == GitilesView.Type.ROOTED_DOC) {
+      b = GitilesView.rootedDoc();
+    } else {
+      b = GitilesView.path();
+    }
+    return b.copyFrom(view).setPathPart(path).build().toUrl();
   }
 
   @Override

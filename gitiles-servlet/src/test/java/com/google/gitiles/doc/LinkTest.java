@@ -16,7 +16,9 @@ package com.google.gitiles.doc;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.common.base.CharMatcher;
 import com.google.gitiles.GitilesView;
+import com.google.gitiles.RootedDocServlet;
 
 import org.eclipse.jgit.lib.Config;
 import org.junit.Before;
@@ -42,7 +44,7 @@ public class LinkTest {
 
   @Test
   public void httpLink() {
-    MarkdownToHtml md = new MarkdownToHtml(view, config);
+    MarkdownToHtml md = new MarkdownToHtml(view, config, "index.md");
     String url;
 
     url = "http://example.com/foo.html";
@@ -57,7 +59,7 @@ public class LinkTest {
 
   @Test
   public void absolutePath() {
-    MarkdownToHtml md = new MarkdownToHtml(view, config);
+    MarkdownToHtml md = new MarkdownToHtml(view, config, "index.md");
 
     assertThat(md.href("/")).isEqualTo("/g/repo/+/HEAD/");
     assertThat(md.href("/index.md")).isEqualTo("/g/repo/+/HEAD/index.md");
@@ -125,22 +127,77 @@ public class LinkTest {
   private MarkdownToHtml file(String path) {
     return new MarkdownToHtml(
         GitilesView.doc().copyFrom(view).setPathPart(path).build(),
-        config);
+        config,
+        path);
   }
 
   private MarkdownToHtml repoIndexReadme() {
-    return readme(view);
+    return readme(view, "README.md");
   }
 
   private MarkdownToHtml revisionReadme() {
-    return readme(GitilesView.revision().copyFrom(view).build());
+    return readme(GitilesView.revision().copyFrom(view).build(), "README.md");
   }
 
   private MarkdownToHtml treeReadme(String path) {
-    return readme(GitilesView.path().copyFrom(view).setPathPart(path).build());
+    GitilesView v = GitilesView.path().copyFrom(view).setPathPart(path).build();
+    String file = CharMatcher.is('/').trimTrailingFrom(path) + "/README.md";
+    return readme(v, file);
   }
 
-  private MarkdownToHtml readme(GitilesView v) {
-    return new MarkdownToHtml(v, config).setReadme(true);
+  private MarkdownToHtml readme(GitilesView v, String path) {
+    return new MarkdownToHtml(v, config, path);
+  }
+
+  @Test
+  public void rootedDocInRoot() {
+    testRootedDocInRoot(rootedDoc("/", "/index.md"));
+    testRootedDocInRoot(rootedDoc("/index.md", "/index.md"));
+  }
+
+  private void testRootedDocInRoot(MarkdownToHtml md) {
+    assertThat(md.href("setup.md")).isEqualTo("/setup.md");
+    assertThat(md.href("./setup.md")).isEqualTo("/setup.md");
+    assertThat(md.href("./")).isEqualTo("/");
+    assertThat(md.href(".")).isEqualTo("/");
+
+    assertThat(md.href("../")).isEqualTo("#zSoyz");
+    assertThat(md.href("../../")).isEqualTo("#zSoyz");
+    assertThat(md.href("../..")).isEqualTo("#zSoyz");
+    assertThat(md.href("..")).isEqualTo("#zSoyz");
+  }
+
+  @Test
+  public void rootedDocInTree() {
+    testRootedDocInTree(rootedDoc("/doc", "/doc/index.md"));
+    testRootedDocInTree(rootedDoc("/doc/", "/doc/index.md"));
+    testRootedDocInTree(rootedDoc("/doc/index.md", "/doc/index.md"));
+  }
+
+  private void testRootedDocInTree(MarkdownToHtml md) {
+    assertThat(md.href("setup.md")).isEqualTo("/doc/setup.md");
+    assertThat(md.href("./setup.md")).isEqualTo("/doc/setup.md");
+    assertThat(md.href("../setup.md")).isEqualTo("/setup.md");
+    assertThat(md.href("../tech/setup.md")).isEqualTo("/tech/setup.md");
+
+    assertThat(md.href("./")).isEqualTo("/doc");
+    assertThat(md.href(".")).isEqualTo("/doc");
+    assertThat(md.href("../")).isEqualTo("/");
+    assertThat(md.href("..")).isEqualTo("/");
+
+    assertThat(md.href("../../")).isEqualTo("#zSoyz");
+    assertThat(md.href("../..")).isEqualTo("#zSoyz");
+    assertThat(md.href("../../../")).isEqualTo("#zSoyz");
+    assertThat(md.href("../../..")).isEqualTo("#zSoyz");
+  }
+
+  private MarkdownToHtml rootedDoc(String path, String file) {
+    GitilesView view = GitilesView.rootedDoc()
+        .setHostName("gerritcodereview.com")
+        .setServletPath("")
+        .setRevision(RootedDocServlet.BRANCH)
+        .setPathPart(path)
+        .build();
+    return new MarkdownToHtml(view, config, file);
   }
 }
