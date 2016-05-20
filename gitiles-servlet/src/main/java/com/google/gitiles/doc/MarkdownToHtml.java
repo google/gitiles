@@ -371,12 +371,19 @@ public class MarkdownToHtml implements Visitor {
 
   @VisibleForTesting
   String href(String target) {
-    if (HtmlBuilder.isValidHttpUri(target)) {
+    if (target.startsWith("#") || HtmlBuilder.isValidHttpUri(target)) {
       return target;
     }
 
+    String anchor = "";
+    int hash = target.indexOf('#');
+    if (hash >= 0) {
+      anchor = target.substring(hash);
+      target = target.substring(0, hash);
+    }
+
     if (target.startsWith("/")) {
-      return toPath(target);
+      return toPath(target) + anchor;
     }
 
     String dir = trimLastComponent(filePath);
@@ -395,7 +402,8 @@ public class MarkdownToHtml implements Visitor {
         break;
       }
     }
-    return toPath(dir + '/' + target);
+
+    return toPath(dir + '/' + target) + anchor;
   }
 
   private static String trimLastComponent(String path) {

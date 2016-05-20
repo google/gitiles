@@ -96,6 +96,10 @@ public class LinkTest {
   }
 
   private static void testMarkdownInRoot(MarkdownToHtml md) {
+    assertThat(md.href("#Help")).isEqualTo("#Help");
+    assertThat(md.href("setup.md#Help"))
+        .isEqualTo("/g/repo/+/HEAD/setup.md#Help");
+
     assertThat(md.href("setup.md")).isEqualTo("/g/repo/+/HEAD/setup.md");
     assertThat(md.href("./setup.md")).isEqualTo("/g/repo/+/HEAD/setup.md");
     assertThat(md.href("./")).isEqualTo("/g/repo/+/HEAD/");
@@ -108,6 +112,10 @@ public class LinkTest {
   }
 
   private static void testMarkdownInTree(MarkdownToHtml md) {
+    assertThat(md.href("#Help")).isEqualTo("#Help");
+    assertThat(md.href("setup.md#Help"))
+        .isEqualTo("/g/repo/+/HEAD/doc/setup.md#Help");
+
     assertThat(md.href("setup.md")).isEqualTo("/g/repo/+/HEAD/doc/setup.md");
     assertThat(md.href("./setup.md")).isEqualTo("/g/repo/+/HEAD/doc/setup.md");
     assertThat(md.href("../setup.md")).isEqualTo("/g/repo/+/HEAD/setup.md");
