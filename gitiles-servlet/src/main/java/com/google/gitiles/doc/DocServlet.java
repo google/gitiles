@@ -69,7 +69,7 @@ public class DocServlet extends BaseServlet {
   // Generation of ETag logic. Bump this only if DocServlet logic changes
   // significantly enough to impact cached pages. Soy template and source
   // files are automatically hashed as part of the ETag.
-  private static final int ETAG_GEN = 3;
+  private static final int ETAG_GEN = 4;
 
   public DocServlet(GitilesAccess.Factory accessFactory, Renderer renderer) {
     super(renderer, accessFactory);
