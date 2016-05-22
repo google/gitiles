@@ -147,6 +147,11 @@ iframe.noborder {
 .doc p {
   margin: 10px 0;
 }
+.doc blockquote {
+  background-color: #fffde7;
+  border-left: 2px solid #fab700;
+  padding: 2px 10px 2px 10px;
+}
 .doc pre {
   padding: 12px;
   font-size: 10pt;
