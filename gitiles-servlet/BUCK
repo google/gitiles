@@ -44,18 +44,6 @@ java_test(
   visibility = ['//:classpath'],
 )
 
-genrule(
-  name = 'static-resources',
-  cmd = 'mkdir $TMP/+static'
-    + ';cd $TMP/+static'
-    + ';cp -r $SRCDIR/src/main/resources/com/google/gitiles/static/* .'
-    + ';cd $TMP'
-    + ';zip -qr $OUT *',
-  srcs = glob(['src/main/resources/com/google/gitiles/static/**/*']),
-  out = 'static-resources.zip',
-  visibility = ['PUBLIC'],
-)
-
 java_sources(
   name = 'src',
   srcs = SRCS + RSRC,
