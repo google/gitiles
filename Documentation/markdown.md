@@ -140,7 +140,6 @@ the header row and subsequent lines are data rows:
 | Apple |    95    | Yes    |
 | Pear  |   102    | Yes    |
 | Hay   |   977    |        |
-[Food and its benefits]
 ```
 
 will render as:
@@ -150,34 +149,11 @@ will render as:
 | Apple |    95    | Yes    |
 | Pear  |   102    | Yes    |
 | Hay   |   977    |        |
-[Food and its benefits]
 
 Placing `:` in the separator line indicates how the column should be
 aligned.  A colon on the left side is a **left-aligned** column; a
 colon on the right-most side is **right-aligned**; a colon on both
 sides is **center-aligned**.
-
-An optional table title can be placed under the table in brackets
-(`[...]`).
-
-Cells may span multiple columns and include formatting accepted within
-paragraphs such as emphasis, images or links:
-
-|              | Grouping                    ||
-| First Header | Second Header | Third Header |
-| ------------ | :-----------: | -----------: |
-| Content      | *Long Cell*                 ||
-| Content      | **Cell 2**    | Cell 3       |
-
-the above table was created by:
-
-```
-|              | Grouping                    ||
-| First Header | Second Header | Third Header |
-| ------------ | :-----------: | -----------: |
-| Content      | *Long Cell*                 ||
-| Content      | **Cell 2**    | Cell 3       |
-```
 
 Empty table cells are indicated by whitespace between the column
 dividers (`| |`) while multiple column cells omit the whitespace.
@@ -213,13 +189,10 @@ section of text.
 
 ### Smart quotes
 
-'Single', "double" and <<double angle>> quotes in paragraph text are
+'Single' and "double" quotes in paragraph text are
 replaced with smart quotes.  Apostrophes (this doc's text), ellipses
 ("...") and dashes ("--" and "---") are also replaced with HTML
 entities to make the documentation appear typeset.
-
-To force use of the ASCII characters prefix with \, for example `\'`
-for a \' normal single quote.
 
 ### Blockquotes
 
@@ -253,20 +226,20 @@ Use `backticks` to markup inline code within a paragraph.
 Create a fenced code block using three backticks before and after a
 block of code, preceeded and followed by blank lines:
 
+````
+This is a simple hello world program in C:
+
+``` c
+#include <stdio.h>
+
+int main() {
+  printf("Hello, World.\n");
+  return 0;
+}
 ```
- This is a simple hello world program in C:
 
- ```c
- #include <stdio.h>
-
- int main() {
-   printf("Hello, World.\n");
-   return 0;
- }
- ```
-
- To compile it use `gcc hello.c`.
-```
+To compile it use `gcc hello.c`.
+````
 
 Text within a fenced code block is taken verbatim and is not
 processed for Markdown markup.
@@ -331,7 +304,7 @@ by blank lines.  Alternatively repeating `-` or `*` and space on a
 line will also create a horizontal rule:
 
 ```
---
+---
 
 - - - -
 
@@ -469,12 +442,13 @@ URLs like `/docs/+/master/index.md`.
 
 ### HTML
 
-HTML tags are not supported.  HTML will be dropped on the floor by the
-parser with no warnings, and no output from that section of the
+Most HTML tags are not supported.  HTML will be dropped on the floor
+by the parser with no warnings, and no output from that section of the
 document.
 
-There is a small exception for `<a name>` and `<iframe>` elements, see
-[named anchor](#Named-anchors) and [HTML IFrame](#HTML-IFrame).
+There are small exceptions for `<br>`, `<hr>`, `<a name>` and
+`<iframe>` elements, see [named anchor](#Named-anchors) and
+[HTML IFrame](#HTML-IFrame).
 
 ## Markdown extensions
 
@@ -766,17 +740,6 @@ The image limit places an upper bound on the byte size of input.
 ```
 [markdown]
   imageLimit = 256K
-```
-
-### Parsing timeout
-
-Parsing Markdown can be expensive so this implementation places
-a default upper bound of 2 seconds on running time per document.
-This is measured in wall clock time from the start of the request.
-
-```
-[markdown]
-  parseTimeout = 2s
 ```
 
 ### Google Analytics

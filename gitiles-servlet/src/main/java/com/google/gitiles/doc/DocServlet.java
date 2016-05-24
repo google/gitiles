@@ -29,13 +29,13 @@ import com.google.common.hash.Hasher;
 import com.google.common.hash.Hashing;
 import com.google.common.net.HttpHeaders;
 import com.google.gitiles.BaseServlet;
-import com.google.gitiles.ConfigUtil;
 import com.google.gitiles.FormatType;
 import com.google.gitiles.GitilesAccess;
 import com.google.gitiles.GitilesView;
 import com.google.gitiles.Renderer;
 import com.google.gitiles.ViewFilter;
 
+import org.commonmark.node.Node;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.http.server.ServletUtils;
 import org.eclipse.jgit.lib.Config;
@@ -48,8 +48,6 @@ import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.util.RawParseUtils;
-import org.joda.time.Duration;
-import org.pegdown.ast.RootNode;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -69,7 +67,7 @@ public class DocServlet extends BaseServlet {
   // Generation of ETag logic. Bump this only if DocServlet logic changes
   // significantly enough to impact cached pages. Soy template and source
   // files are automatically hashed as part of the ETag.
-  private static final int ETAG_GEN = 4;
+  private static final int ETAG_GEN = 5;
 
   public DocServlet(GitilesAccess.Factory accessFactory, Renderer renderer) {
     super(renderer, accessFactory);
@@ -109,26 +107,21 @@ public class DocServlet extends BaseServlet {
         return;
       }
 
-      Duration parseTimeout =
-          ConfigUtil.getDuration(
-              cfg, "markdown", null, "parseTimeout", Duration.standardSeconds(2));
       view = view.toBuilder().setPathPart(srcmd.path).build();
       int inputLimit = cfg.getInt("markdown", "inputLimit", 5 << 20);
-      RootNode doc =
-          GitilesMarkdown.parseFile(
-              parseTimeout, view, srcmd.path, srcmd.read(rw.getObjectReader(), inputLimit));
+      Node doc = GitilesMarkdown.parse(srcmd.read(rw.getObjectReader(), inputLimit));
       if (doc == null) {
         res.sendRedirect(GitilesView.show().copyFrom(view).toUrl());
         return;
       }
 
       String navPath = null;
-      RootNode nav = null;
+      String navMarkdown = null;
+      Node nav = null;
       if (navmd != null) {
         navPath = navmd.path;
-        nav =
-            GitilesMarkdown.parseFile(
-                parseTimeout, view, navPath, navmd.read(rw.getObjectReader(), inputLimit));
+        navMarkdown = navmd.read(rw.getObjectReader(), inputLimit);
+        nav = GitilesMarkdown.parse(navMarkdown);
         if (nav == null) {
           res.setStatus(SC_INTERNAL_SERVER_ERROR);
           return;
@@ -142,7 +135,7 @@ public class DocServlet extends BaseServlet {
       }
 
       res.setHeader(HttpHeaders.ETAG, curEtag);
-      showDoc(req, res, view, cfg, img, navPath, nav, srcmd.path, doc);
+      showDoc(req, res, view, cfg, img, navPath, navMarkdown, nav, srcmd.path, doc);
     }
   }
 
@@ -179,19 +172,23 @@ public class DocServlet extends BaseServlet {
       Config cfg,
       ImageLoader img,
       String navPath,
-      RootNode nav,
+      String navMarkdown,
+      Node nav,
       String docPath,
-      RootNode doc)
+      Node doc)
       throws IOException {
     Map<String, Object> data = new HashMap<>();
-    data.putAll(Navbar.bannerSoyData(view, img, nav));
+
+    MarkdownToHtml navHtml = new MarkdownToHtml(view, cfg, navPath);
+    data.putAll(Navbar.bannerSoyData(img, navHtml, navMarkdown, nav));
+    data.put("navbarHtml", navHtml.toSoyHtml(nav));
+
     data.put("pageTitle", MoreObjects.firstNonNull(MarkdownUtil.getTitle(doc), view.getPathPart()));
     if (view.getType() != GitilesView.Type.ROOTED_DOC) {
       data.put("sourceUrl", GitilesView.show().copyFrom(view).toUrl());
       data.put("logUrl", GitilesView.log().copyFrom(view).toUrl());
       data.put("blameUrl", GitilesView.blame().copyFrom(view).toUrl());
     }
-    data.put("navbarHtml", new MarkdownToHtml(view, cfg, navPath).toSoyHtml(nav));
     data.put("bodyHtml", new MarkdownToHtml(view, cfg, docPath).setImageLoader(img).toSoyHtml(doc));
 
     String analyticsId = cfg.getString("google", null, "analyticsId");

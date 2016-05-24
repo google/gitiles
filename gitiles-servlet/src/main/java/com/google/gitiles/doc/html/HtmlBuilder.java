@@ -138,6 +138,8 @@ public final class HtmlBuilder {
       // allow
     } else if ("name".equals(att) && "a".equals(tag)) {
       // allow
+    } else if ("start".equals(att) && "ol".equals(tag)) {
+      // allow
     } else if (("colspan".equals(att) || "align".equals(att))
         && ("td".equals(tag) || "th".equals(tag))) {
       // allow
@@ -203,6 +205,13 @@ public final class HtmlBuilder {
     } catch (IOException e) {
       throw new IllegalStateException(e);
     }
+  }
+
+  /** Append a space outside of an element. */
+  public HtmlBuilder space() {
+    finishActiveTag();
+    htmlBuf.append(' ');
+    return this;
   }
 
   private static final Pattern HTML_ENTITY = Pattern.compile("&[a-z]+;");

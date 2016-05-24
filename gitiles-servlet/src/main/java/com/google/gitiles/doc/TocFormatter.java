@@ -21,9 +21,8 @@ import com.google.common.collect.Multimap;
 import com.google.gitiles.doc.html.HtmlBuilder;
 
 import org.apache.commons.lang3.StringUtils;
-import org.pegdown.ast.HeaderNode;
-import org.pegdown.ast.Node;
-import org.pegdown.ast.RootNode;
+import org.commonmark.node.Heading;
+import org.commonmark.node.Node;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -38,8 +37,8 @@ class TocFormatter {
   private final int maxLevel;
 
   private int countH1;
-  private List<HeaderNode> outline;
-  private Map<HeaderNode, String> ids;
+  private List<Heading> outline;
+  private Map<Heading, String> ids;
 
   private int level;
 
@@ -48,21 +47,21 @@ class TocFormatter {
     this.maxLevel = maxLevel;
   }
 
-  void setRoot(RootNode doc) {
+  void setRoot(Node doc) {
     outline = new ArrayList<>();
     Multimap<String, TocEntry> entries = ArrayListMultimap.create(16, 4);
-    scan(doc, entries, new ArrayDeque<HeaderNode>());
+    scan(doc, entries, new ArrayDeque<Heading>());
     ids = generateIds(entries);
   }
 
-  private boolean include(HeaderNode h) {
+  private boolean include(Heading h) {
     if (h.getLevel() == 1) {
       return countH1 > 1;
     }
     return h.getLevel() <= maxLevel;
   }
 
-  String idFromHeader(HeaderNode header) {
+  String idFromHeader(Heading header) {
     return ids.get(header);
   }
 
@@ -79,7 +78,7 @@ class TocFormatter {
         .open("div")
         .attribute("class", "toc-aux")
         .open("ul");
-    for (HeaderNode header : outline) {
+    for (Heading header : outline) {
       outline(header);
     }
     while (level >= startLevel) {
@@ -89,7 +88,7 @@ class TocFormatter {
     html.close("div").close("div");
   }
 
-  private void outline(HeaderNode h) {
+  private void outline(Heading h) {
     if (!include(h)) {
       return;
     }
@@ -116,18 +115,17 @@ class TocFormatter {
         .close("li");
   }
 
-  private void scan(Node node, Multimap<String, TocEntry> entries, Deque<HeaderNode> stack) {
-    if (node instanceof HeaderNode) {
-      scan((HeaderNode) node, entries, stack);
+  private void scan(Node node, Multimap<String, TocEntry> entries, Deque<Heading> stack) {
+    if (node instanceof Heading) {
+      scan((Heading) node, entries, stack);
     } else {
-      for (Node child : node.getChildren()) {
-        scan(child, entries, stack);
+      for (Node c = node.getFirstChild(); c != null; c = c.getNext()) {
+        scan(c, entries, stack);
       }
     }
   }
 
-  private void scan(
-      HeaderNode header, Multimap<String, TocEntry> entries, Deque<HeaderNode> stack) {
+  private void scan(Heading header, Multimap<String, TocEntry> entries, Deque<Heading> stack) {
     if (header.getLevel() == 1) {
       countH1++;
     }
@@ -135,9 +133,9 @@ class TocFormatter {
       stack.removeLast();
     }
 
-    NamedAnchorNode node = findAnchor(header);
+    NamedAnchor node = findAnchor(header);
     if (node != null) {
-      entries.put(node.name, new TocEntry(stack, header, false, node.name));
+      entries.put(node.getName(), new TocEntry(stack, header, false, node.getName()));
       stack.add(header);
       outline.add(header);
       return;
@@ -152,12 +150,12 @@ class TocFormatter {
     }
   }
 
-  private static NamedAnchorNode findAnchor(Node node) {
-    for (Node child : node.getChildren()) {
-      if (child instanceof NamedAnchorNode) {
-        return (NamedAnchorNode) child;
+  private static NamedAnchor findAnchor(Node node) {
+    for (Node c = node.getFirstChild(); c != null; c = c.getNext()) {
+      if (c instanceof NamedAnchor) {
+        return (NamedAnchor) c;
       }
-      NamedAnchorNode anchor = findAnchor(child);
+      NamedAnchor anchor = findAnchor(c);
       if (anchor != null) {
         return anchor;
       }
@@ -165,7 +163,7 @@ class TocFormatter {
     return null;
   }
 
-  private Map<HeaderNode, String> generateIds(Multimap<String, TocEntry> entries) {
+  private Map<Heading, String> generateIds(Multimap<String, TocEntry> entries) {
     Multimap<String, TocEntry> tmp = ArrayListMultimap.create(entries.size(), 2);
     for (Collection<TocEntry> headers : entries.asMap().values()) {
       if (headers.size() == 1) {
@@ -182,7 +180,7 @@ class TocFormatter {
         }
 
         StringBuilder b = new StringBuilder();
-        for (HeaderNode p : entry.path) {
+        for (Heading p : entry.path) {
           if (p.getLevel() > 1 || countH1 > 1) {
             String text = MarkdownUtil.getInnerText(p);
             if (text != null) {
@@ -196,7 +194,7 @@ class TocFormatter {
       }
     }
 
-    Map<HeaderNode, String> ids = Maps.newHashMapWithExpectedSize(tmp.size());
+    Map<Heading, String> ids = Maps.newHashMapWithExpectedSize(tmp.size());
     for (Collection<TocEntry> headers : tmp.asMap().values()) {
       if (headers.size() == 1) {
         TocEntry entry = Iterables.getOnlyElement(headers);
@@ -212,13 +210,13 @@ class TocFormatter {
   }
 
   private static class TocEntry {
-    final HeaderNode[] path;
-    final HeaderNode header;
+    final Heading[] path;
+    final Heading header;
     final boolean generated;
     String id;
 
-    TocEntry(Deque<HeaderNode> stack, HeaderNode header, boolean generated, String id) {
-      this.path = stack.toArray(new HeaderNode[stack.size()]);
+    TocEntry(Deque<Heading> stack, Heading header, boolean generated, String id) {
+      this.path = stack.toArray(new Heading[stack.size()]);
       this.header = header;
       this.generated = generated;
       this.id = id;

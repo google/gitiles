@@ -1,10 +1,10 @@
-// Copyright 2015 Google Inc. All Rights Reserved.
+// Copyright (C) 2016 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,21 +14,22 @@
 
 package com.google.gitiles.doc;
 
-import org.pegdown.ast.AbstractNode;
-import org.pegdown.ast.Node;
+import org.commonmark.node.CustomNode;
 
-import java.util.Collections;
-import java.util.List;
-
-/** Block node {@code [TOC]} to display table of contents. */
-public class TocNode extends AbstractNode {
-  @Override
-  public void accept(org.pegdown.ast.Visitor visitor) {
-    ((Visitor) visitor).visit(this);
+/** SmartQuotes around text. */
+public class SmartQuoted extends CustomNode {
+  public enum Type {
+    DOUBLE,
+    SINGLE;
   }
 
-  @Override
-  public List<Node> getChildren() {
-    return Collections.emptyList();
+  private Type type;
+
+  public Type getType() {
+    return type;
+  }
+
+  public void setType(Type type) {
+    this.type = type;
   }
 }
