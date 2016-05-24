@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.gitiles.DateFormatter.Format;
 import com.google.gson.reflect.TypeToken;
+import com.google.template.soy.data.SanitizedContent;
 
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.http.server.ServletUtils;
@@ -171,7 +172,10 @@ public class RepositoryIndexServlet extends BaseServlet {
             rootTree);
     readme.scanTree(rootTree);
     if (readme.isPresent()) {
-      return ImmutableMap.<String, Object>of("readmeHtml", readme.render());
+      SanitizedContent html = readme.render();
+      if (html != null) {
+        return ImmutableMap.<String, Object>of("readmeHtml", html);
+      }
     }
     return null;
   }

@@ -22,7 +22,6 @@ import com.google.template.soy.data.SanitizedContent;
 import org.commonmark.node.Node;
 import org.eclipse.jgit.errors.CorruptObjectException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
-import org.eclipse.jgit.errors.LargeObjectException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.Constants;
@@ -104,8 +103,15 @@ class ReadmeHelper {
       }
 
       return new MarkdownToHtml(view, cfg, readmePath).setImageLoader(img).toSoyHtml(root);
-    } catch (LargeObjectException | IOException e) {
-      log.error(String.format("error rendering %s/%s", view.getRepositoryName(), readmePath), e);
+    } catch (RuntimeException | IOException err) {
+      log.error(
+          String.format(
+              "error rendering %s/%s %s:%s",
+              view.getHostName(),
+              view.getRepositoryName(),
+              view.getRevision(),
+              readmePath),
+          err);
       return null;
     }
   }
