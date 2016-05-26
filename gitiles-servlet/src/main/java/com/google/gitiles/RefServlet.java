@@ -101,7 +101,7 @@ public class RefServlet extends BaseServlet {
   static List<Map<String, Object>> getBranchesSoyData(HttpServletRequest req, int limit)
       throws IOException {
     RefDatabase refdb = ServletUtils.getRepository(req).getRefDatabase();
-    Ref head = refdb.getRef(Constants.HEAD);
+    Ref head = refdb.exactRef(Constants.HEAD);
     Ref headLeaf = head != null && head.isSymbolic() ? head.getLeaf() : null;
     return getRefsSoyData(
         refdb,
@@ -204,7 +204,7 @@ public class RefServlet extends BaseServlet {
       return refdb.getRefs(RefDatabase.ALL);
     }
     path = Constants.R_REFS + path;
-    Ref singleRef = refdb.getRef(path);
+    Ref singleRef = refdb.exactRef(path);
     if (singleRef != null) {
       return ImmutableMap.of(singleRef.getName(), singleRef);
     }
