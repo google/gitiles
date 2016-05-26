@@ -210,7 +210,11 @@ public class LogServlet extends BaseServlet {
       case 0:
         return Optional.absent();
       case 1:
-        Collection<ObjectId> ids = reader.resolve(AbbreviatedObjectId.fromString(values.get(0)));
+        String id = values.get(0);
+        if (!AbbreviatedObjectId.isId(id)) {
+          return null;
+        }
+        Collection<ObjectId> ids = reader.resolve(AbbreviatedObjectId.fromString(id));
         if (ids.size() != 1) {
           return null;
         }
