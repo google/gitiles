@@ -220,7 +220,7 @@ public class DefaultAccess implements GitilesAccess {
     if (!branches.isEmpty()) {
       desc.branches = Maps.newLinkedHashMap();
       for (String name : branches) {
-        Ref ref = repo.getRef(normalizeRefName(name));
+        Ref ref = repo.exactRef(normalizeRefName(name));
         if ((ref != null) && (ref.getObjectId() != null)) {
           desc.branches.put(name, ref.getObjectId().name());
         }

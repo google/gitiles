@@ -191,7 +191,7 @@ public class LogServlet extends BaseServlet {
     if (view.getRevision() != Revision.NULL) {
       return view;
     }
-    Ref headRef = repo.getRef(Constants.HEAD);
+    Ref headRef = repo.exactRef(Constants.HEAD);
     if (headRef == null) {
       return null;
     }

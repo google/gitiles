@@ -218,7 +218,7 @@ class RevisionParser {
 
   private boolean isVisible(RevWalk walk, Result result) throws IOException {
     String maybeRef = OPERATOR_SPLITTER.split(result.getRevision().getName()).iterator().next();
-    if (repo.getRef(maybeRef) != null) {
+    if (repo.findRef(maybeRef) != null) {
       // Name contains a visible ref; skip expensive reachability check.
       return true;
     }
