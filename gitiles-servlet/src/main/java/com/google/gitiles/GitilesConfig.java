@@ -14,6 +14,8 @@
 
 package com.google.gitiles;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.storage.file.FileBasedConfig;
@@ -39,6 +41,7 @@ public class GitilesConfig {
     if (configPath == null && filterConfig != null) {
       configPath = filterConfig.getInitParameter(FILTER_CONFIG_PARAM);
     }
+    checkNotNull(configPath);
     return new File(configPath);
   }
 
