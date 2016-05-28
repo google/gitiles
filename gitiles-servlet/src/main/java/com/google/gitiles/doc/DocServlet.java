@@ -37,26 +37,28 @@ import com.google.gitiles.ViewFilter;
 
 import org.commonmark.node.Node;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
+import org.eclipse.jgit.errors.LargeObjectException;
 import org.eclipse.jgit.http.server.ServletUtils;
-import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.ObjectLoader;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
-import org.eclipse.jgit.util.RawParseUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class DocServlet extends BaseServlet {
+  private static final Logger log = LoggerFactory.getLogger(DocServlet.class);
   private static final long serialVersionUID = 1L;
 
   private static final String INDEX_MD = "index.md";
@@ -75,8 +77,8 @@ public class DocServlet extends BaseServlet {
 
   @Override
   protected void doGetHtml(HttpServletRequest req, HttpServletResponse res) throws IOException {
-    Config cfg = getAccess(req).getConfig();
-    if (!cfg.getBoolean("markdown", "render", true)) {
+    MarkdownConfig cfg = MarkdownConfig.get(getAccess(req).getConfig());
+    if (!cfg.render) {
       res.setStatus(SC_NOT_FOUND);
       return;
     }
@@ -84,6 +86,7 @@ public class DocServlet extends BaseServlet {
     GitilesView view = ViewFilter.getView(req);
     Repository repo = ServletUtils.getRepository(req);
     try (RevWalk rw = new RevWalk(repo)) {
+      ObjectReader reader = rw.getObjectReader();
       String path = view.getPathPart();
       RevTree root;
       try {
@@ -93,53 +96,50 @@ public class DocServlet extends BaseServlet {
         return;
       }
 
-      SourceFile srcmd = findFile(rw, root, path);
+      MarkdownFile srcmd = findFile(rw, root, path);
       if (srcmd == null) {
         res.setStatus(SC_NOT_FOUND);
         return;
       }
 
-      SourceFile navmd = findFile(rw, root, NAVBAR_MD);
-      String reqEtag = req.getHeader(HttpHeaders.IF_NONE_MATCH);
+      MarkdownFile navmd = findFile(rw, root, NAVBAR_MD);
       String curEtag = etag(srcmd, navmd);
-      if (reqEtag != null && reqEtag.equals(curEtag)) {
+      if (etagMatch(req, curEtag)) {
         res.setStatus(SC_NOT_MODIFIED);
         return;
       }
 
       view = view.toBuilder().setPathPart(srcmd.path).build();
-      int inputLimit = cfg.getInt("markdown", "inputLimit", 5 << 20);
-      Node doc = GitilesMarkdown.parse(srcmd.read(rw.getObjectReader(), inputLimit));
-      if (doc == null) {
-        res.sendRedirect(GitilesView.show().copyFrom(view).toUrl());
+      try {
+        srcmd.read(reader, cfg);
+        if (navmd != null) {
+          navmd.read(reader, cfg);
+        }
+      } catch (LargeObjectException.ExceedsLimit errBig) {
+        fileTooBig(res, view, errBig);
+        return;
+      } catch (IOException err) {
+        readError(res, view, err);
         return;
       }
 
-      String navPath = null;
-      String navMarkdown = null;
-      Node nav = null;
-      if (navmd != null) {
-        navPath = navmd.path;
-        navMarkdown = navmd.read(rw.getObjectReader(), inputLimit);
-        nav = GitilesMarkdown.parse(navMarkdown);
-        if (nav == null) {
-          res.setStatus(SC_INTERNAL_SERVER_ERROR);
-          return;
-        }
-      }
-
-      int imageLimit = cfg.getInt("markdown", "imageLimit", 256 << 10);
-      ImageLoader img = null;
-      if (imageLimit > 0) {
-        img = new ImageLoader(rw.getObjectReader(), view, root, srcmd.path, imageLimit);
-      }
-
+      MarkdownToHtml.Builder fmt =
+          MarkdownToHtml.builder()
+              .setConfig(cfg)
+              .setGitilesView(view)
+              .setReader(reader)
+              .setRootTree(root);
       res.setHeader(HttpHeaders.ETAG, curEtag);
-      showDoc(req, res, view, cfg, img, navPath, navMarkdown, nav, srcmd.path, doc);
+      showDoc(req, res, view, cfg, fmt, navmd, srcmd);
     }
   }
 
-  private String etag(SourceFile srcmd, SourceFile navmd) {
+  private static boolean etagMatch(HttpServletRequest req, String etag) {
+    String reqEtag = req.getHeader(HttpHeaders.IF_NONE_MATCH);
+    return reqEtag != null && reqEtag.equals(etag);
+  }
+
+  private String etag(MarkdownFile srcmd, @Nullable MarkdownFile navmd) {
     byte[] b = new byte[Constants.OBJECT_ID_LENGTH];
     Hasher h = Hashing.sha1().newHasher();
     h.putInt(ETAG_GEN);
@@ -169,32 +169,30 @@ public class DocServlet extends BaseServlet {
       HttpServletRequest req,
       HttpServletResponse res,
       GitilesView view,
-      Config cfg,
-      ImageLoader img,
-      String navPath,
-      String navMarkdown,
-      Node nav,
-      String docPath,
-      Node doc)
+      MarkdownConfig cfg,
+      MarkdownToHtml.Builder fmt,
+      MarkdownFile navFile,
+      MarkdownFile srcFile)
       throws IOException {
     Map<String, Object> data = new HashMap<>();
+    Navbar navbar = new Navbar();
+    if (navFile != null) {
+      navbar.setFormatter(fmt.setFilePath(navFile.path).build());
+      navbar.setMarkdown(navFile.content);
+    }
+    data.putAll(navbar.toSoyData());
 
-    MarkdownToHtml navHtml = new MarkdownToHtml(view, cfg, navPath);
-    data.putAll(Navbar.bannerSoyData(img, navHtml, navMarkdown, nav));
-    data.put("navbarHtml", navHtml.toSoyHtml(nav));
-
-    data.put("pageTitle", MoreObjects.firstNonNull(MarkdownUtil.getTitle(doc), view.getPathPart()));
+    Node doc = GitilesMarkdown.parse(srcFile.content);
+    data.put("pageTitle", pageTitle(doc, srcFile));
     if (view.getType() != GitilesView.Type.ROOTED_DOC) {
       data.put("sourceUrl", GitilesView.show().copyFrom(view).toUrl());
       data.put("logUrl", GitilesView.log().copyFrom(view).toUrl());
       data.put("blameUrl", GitilesView.blame().copyFrom(view).toUrl());
     }
-    data.put("bodyHtml", new MarkdownToHtml(view, cfg, docPath).setImageLoader(img).toSoyHtml(doc));
-
-    String analyticsId = cfg.getString("google", null, "analyticsId");
-    if (!Strings.isNullOrEmpty(analyticsId)) {
-      data.put("analyticsId", analyticsId);
+    if (cfg.analyticsId != null) {
+      data.put("analyticsId", cfg.analyticsId);
     }
+    data.put("bodyHtml", fmt.setFilePath(srcFile.path).build().toSoyHtml(doc));
 
     String page = renderer.render(SOY_TEMPLATE, data);
     byte[] raw = page.getBytes(UTF_8);
@@ -210,7 +208,13 @@ public class DocServlet extends BaseServlet {
     res.getOutputStream().write(raw);
   }
 
-  private static SourceFile findFile(RevWalk rw, RevTree root, String path) throws IOException {
+  private static String pageTitle(Node doc, MarkdownFile srcFile) {
+    String title = MarkdownUtil.getTitle(doc);
+    return MoreObjects.firstNonNull(title, srcFile.path);
+  }
+
+  @Nullable
+  private static MarkdownFile findFile(RevWalk rw, RevTree root, String path) throws IOException {
     if (Strings.isNullOrEmpty(path)) {
       path = INDEX_MD;
     }
@@ -231,7 +235,7 @@ public class DocServlet extends BaseServlet {
       if (!path.endsWith(".md")) {
         return null;
       }
-      return new SourceFile(path, tw.getObjectId(0));
+      return new MarkdownFile(path, tw.getObjectId(0));
     }
     return null;
   }
@@ -246,19 +250,48 @@ public class DocServlet extends BaseServlet {
     return false;
   }
 
-  private static class SourceFile {
+  private static void fileTooBig(
+      HttpServletResponse res, GitilesView view, LargeObjectException.ExceedsLimit errBig)
+      throws IOException {
+    if (view.getType() == GitilesView.Type.ROOTED_DOC) {
+      log.error(
+          String.format(
+              "markdown too large: %s/%s %s %s: %s",
+              view.getHostName(),
+              view.getRepositoryName(),
+              view.getRevision(),
+              view.getPathPart(),
+              errBig.getMessage()));
+      res.setStatus(SC_INTERNAL_SERVER_ERROR);
+    } else {
+      res.sendRedirect(GitilesView.show().copyFrom(view).toUrl());
+    }
+  }
+
+  private static void readError(HttpServletResponse res, GitilesView view, IOException err) {
+    log.error(
+        String.format(
+            "cannot load markdown %s/%s %s %s",
+            view.getHostName(),
+            view.getRepositoryName(),
+            view.getRevision(),
+            view.getPathPart()),
+        err);
+    res.setStatus(SC_INTERNAL_SERVER_ERROR);
+  }
+
+  private static class MarkdownFile {
     final String path;
     final ObjectId id;
+    byte[] content;
 
-    SourceFile(String path, ObjectId id) {
+    MarkdownFile(String path, ObjectId id) {
       this.path = path;
       this.id = id;
     }
 
-    String read(ObjectReader reader, int inputLimit) throws IOException {
-      ObjectLoader obj = reader.open(id, OBJ_BLOB);
-      byte[] raw = obj.getCachedBytes(inputLimit);
-      return RawParseUtils.decode(raw);
+    void read(ObjectReader reader, MarkdownConfig cfg) throws IOException {
+      content = reader.open(id, OBJ_BLOB).getCachedBytes(cfg.inputLimit);
     }
   }
 }

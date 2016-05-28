@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.gitiles.DateFormatter.Format;
+import com.google.gitiles.doc.MarkdownConfig;
 import com.google.gson.reflect.TypeToken;
 import com.google.template.soy.data.SanitizedContent;
 
@@ -168,7 +169,7 @@ public class RepositoryIndexServlet extends BaseServlet {
         new ReadmeHelper(
             walk.getObjectReader(),
             GitilesView.path().copyFrom(view).setRevision(Revision.HEAD).setPathPart("/").build(),
-            cfg,
+            MarkdownConfig.get(cfg),
             rootTree);
     readme.scanTree(rootTree);
     if (readme.isPresent()) {

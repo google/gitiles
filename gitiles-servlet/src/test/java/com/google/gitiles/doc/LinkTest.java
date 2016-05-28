@@ -44,7 +44,12 @@ public class LinkTest {
 
   @Test
   public void httpLink() {
-    MarkdownToHtml md = new MarkdownToHtml(view, config, "index.md");
+    MarkdownToHtml md =
+        MarkdownToHtml.builder()
+            .setGitilesView(view)
+            .setConfig(new MarkdownConfig(config))
+            .setFilePath("index.md")
+            .build();
     String url;
 
     url = "http://example.com/foo.html";
@@ -59,7 +64,12 @@ public class LinkTest {
 
   @Test
   public void absolutePath() {
-    MarkdownToHtml md = new MarkdownToHtml(view, config, "index.md");
+    MarkdownToHtml md =
+        MarkdownToHtml.builder()
+            .setGitilesView(view)
+            .setConfig(new MarkdownConfig(config))
+            .setFilePath("index.md")
+            .build();
 
     assertThat(md.href("/")).isEqualTo("/g/repo/+/HEAD/");
     assertThat(md.href("/index.md")).isEqualTo("/g/repo/+/HEAD/index.md");
@@ -133,10 +143,11 @@ public class LinkTest {
   }
 
   private MarkdownToHtml file(String path) {
-    return new MarkdownToHtml(
-        GitilesView.doc().copyFrom(view).setPathPart(path).build(),
-        config,
-        path);
+    return MarkdownToHtml.builder()
+        .setGitilesView(GitilesView.doc().copyFrom(view).setPathPart(path).build())
+        .setConfig(new MarkdownConfig(config))
+        .setFilePath(path)
+        .build();
   }
 
   private MarkdownToHtml repoIndexReadme() {
@@ -154,7 +165,11 @@ public class LinkTest {
   }
 
   private MarkdownToHtml readme(GitilesView v, String path) {
-    return new MarkdownToHtml(v, config, path);
+    return MarkdownToHtml.builder()
+        .setGitilesView(v)
+        .setConfig(new MarkdownConfig(config))
+        .setFilePath(path)
+        .build();
   }
 
   @Test
@@ -200,12 +215,16 @@ public class LinkTest {
   }
 
   private MarkdownToHtml rootedDoc(String path, String file) {
-    GitilesView view = GitilesView.rootedDoc()
-        .setHostName("gerritcodereview.com")
-        .setServletPath("")
-        .setRevision(RootedDocServlet.BRANCH)
-        .setPathPart(path)
+    return MarkdownToHtml.builder()
+        .setGitilesView(
+            GitilesView.rootedDoc()
+                .setHostName("gerritcodereview.com")
+                .setServletPath("")
+                .setRevision(RootedDocServlet.BRANCH)
+                .setPathPart(path)
+                .build())
+        .setConfig(new MarkdownConfig(config))
+        .setFilePath(file)
         .build();
-    return new MarkdownToHtml(view, config, file);
   }
 }

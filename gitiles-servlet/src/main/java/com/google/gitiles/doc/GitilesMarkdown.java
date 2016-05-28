@@ -21,6 +21,7 @@ import org.commonmark.ext.gfm.strikethrough.StrikethroughExtension;
 import org.commonmark.ext.gfm.tables.TablesExtension;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
+import org.eclipse.jgit.util.RawParseUtils;
 
 /** Parses Gitiles style CommonMark Markdown. */
 public class GitilesMarkdown {
@@ -40,8 +41,12 @@ public class GitilesMarkdown {
                   TocExtension.create()))
           .build();
 
+  public static Node parse(byte[] md) {
+    return parse(RawParseUtils.decode(md));
+  }
+
   public static Node parse(String md) {
-    return md != null ? PARSER.parse(md) : null;
+    return PARSER.parse(md);
   }
 
   private GitilesMarkdown() {}

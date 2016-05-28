@@ -13,24 +13,20 @@
 // limitations under the License.
 
 package com.google.gitiles;
-
 import com.google.gitiles.doc.GitilesMarkdown;
-import com.google.gitiles.doc.ImageLoader;
+import com.google.gitiles.doc.MarkdownConfig;
 import com.google.gitiles.doc.MarkdownToHtml;
 import com.google.template.soy.data.SanitizedContent;
 
-import org.commonmark.node.Node;
 import org.eclipse.jgit.errors.CorruptObjectException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
-import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.treewalk.TreeWalk;
-import org.eclipse.jgit.util.RawParseUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,25 +37,23 @@ class ReadmeHelper {
 
   private final ObjectReader reader;
   private final GitilesView view;
-  private final Config cfg;
+  private final MarkdownConfig config;
   private final RevTree rootTree;
-  private final boolean render;
 
   private String readmePath;
   private ObjectId readmeId;
 
-  ReadmeHelper(ObjectReader reader, GitilesView view, Config cfg, RevTree rootTree) {
+  ReadmeHelper(ObjectReader reader, GitilesView view, MarkdownConfig config, RevTree rootTree) {
     this.reader = reader;
     this.view = view;
-    this.cfg = cfg;
+    this.config = config;
     this.rootTree = rootTree;
-    render = cfg.getBoolean("markdown", "render", true);
   }
 
   void scanTree(RevTree tree)
       throws MissingObjectException, IncorrectObjectTypeException, CorruptObjectException,
           IOException {
-    if (render) {
+    if (config.render) {
       TreeWalk tw = new TreeWalk(reader);
       tw.setRecursive(false);
       tw.addTree(tree);
@@ -70,7 +64,7 @@ class ReadmeHelper {
   }
 
   void considerEntry(TreeWalk tw) {
-    if (render
+    if (config.render
         && FileMode.REGULAR_FILE.equals(tw.getRawMode(0))
         && isReadmeFile(tw.getNameString())) {
       readmePath = tw.getPathString();
@@ -88,21 +82,15 @@ class ReadmeHelper {
 
   SanitizedContent render() {
     try {
-      int inputLimit = cfg.getInt("markdown", "inputLimit", 5 << 20);
-      byte[] raw = reader.open(readmeId, Constants.OBJ_BLOB).getCachedBytes(inputLimit);
-      String md = RawParseUtils.decode(raw);
-      Node root = GitilesMarkdown.parse(md);
-      if (root == null) {
-        return null;
-      }
-
-      int imageLimit = cfg.getInt("markdown", "imageLimit", 256 << 10);
-      ImageLoader img = null;
-      if (imageLimit > 0) {
-        img = new ImageLoader(reader, view, rootTree, readmePath, imageLimit);
-      }
-
-      return new MarkdownToHtml(view, cfg, readmePath).setImageLoader(img).toSoyHtml(root);
+      byte[] raw = reader.open(readmeId, Constants.OBJ_BLOB).getCachedBytes(config.inputLimit);
+      return MarkdownToHtml.builder()
+          .setConfig(config)
+          .setGitilesView(view)
+          .setFilePath(readmePath)
+          .setReader(reader)
+          .setRootTree(rootTree)
+          .build()
+          .toSoyHtml(GitilesMarkdown.parse(raw));
     } catch (RuntimeException | IOException err) {
       log.error(
           String.format(
