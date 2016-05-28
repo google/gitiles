@@ -39,15 +39,22 @@ class ReadmeHelper {
   private final GitilesView view;
   private final MarkdownConfig config;
   private final RevTree rootTree;
+  private final String requestUri;
 
   private String readmePath;
   private ObjectId readmeId;
 
-  ReadmeHelper(ObjectReader reader, GitilesView view, MarkdownConfig config, RevTree rootTree) {
+  ReadmeHelper(
+      ObjectReader reader,
+      GitilesView view,
+      MarkdownConfig config,
+      RevTree rootTree,
+      String requestUri) {
     this.reader = reader;
     this.view = view;
     this.config = config;
     this.rootTree = rootTree;
+    this.requestUri = requestUri;
   }
 
   void scanTree(RevTree tree)
@@ -86,6 +93,7 @@ class ReadmeHelper {
       return MarkdownToHtml.builder()
           .setConfig(config)
           .setGitilesView(view)
+          .setRequestUri(requestUri)
           .setFilePath(readmePath)
           .setReader(reader)
           .setRootTree(rootTree)

@@ -227,4 +227,24 @@ public class LinkTest {
         .setFilePath(file)
         .build();
   }
+
+  @Test
+  public void automaticRelativePaths() {
+    MarkdownToHtml md =
+        MarkdownToHtml.builder()
+            .setGitilesView(GitilesView.doc().copyFrom(view).setPathPart("docs/index.md").build())
+            .setConfig(new MarkdownConfig(config))
+            .setFilePath("/docs/index.md")
+            .setRequestUri("/g/repo/+/HEAD/docs/index.md")
+            .build();
+
+    assertThat(md.href("help.md")).isEqualTo("help.md");
+    assertThat(md.href("/docs/help.md")).isEqualTo("help.md");
+    assertThat(md.href("technical/format.md")).isEqualTo("technical/format.md");
+    assertThat(md.href("/docs/technical/format.md")).isEqualTo("technical/format.md");
+
+    assertThat(md.href("../README.md")).isEqualTo("/g/repo/+/HEAD/README.md");
+    assertThat(md.href("../src/catalog.md")).isEqualTo("/g/repo/+/HEAD/src/catalog.md");
+    assertThat(md.href("/src/catalog.md")).isEqualTo("/g/repo/+/HEAD/src/catalog.md");
+  }
 }

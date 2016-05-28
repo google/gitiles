@@ -99,7 +99,7 @@ public class RepositoryIndexServlet extends BaseServlet {
       if (headId != null) {
         RevObject head = walk.parseAny(headId);
         int limit = LOG_LIMIT;
-        Map<String, Object> readme = renderReadme(walk, view, access.getConfig(), head);
+        Map<String, Object> readme = renderReadme(req, walk, view, access.getConfig(), head);
         if (readme != null) {
           data.putAll(readme);
           limit = LOG_WITH_README_LIMIT;
@@ -157,7 +157,8 @@ public class RepositoryIndexServlet extends BaseServlet {
   }
 
   private static Map<String, Object> renderReadme(
-      RevWalk walk, GitilesView view, Config cfg, RevObject head) throws IOException {
+      HttpServletRequest req, RevWalk walk, GitilesView view, Config cfg, RevObject head)
+      throws IOException {
     RevTree rootTree;
     try {
       rootTree = walk.parseTree(head);
@@ -170,7 +171,8 @@ public class RepositoryIndexServlet extends BaseServlet {
             walk.getObjectReader(),
             GitilesView.path().copyFrom(view).setRevision(Revision.HEAD).setPathPart("/").build(),
             MarkdownConfig.get(cfg),
-            rootTree);
+            rootTree,
+            req.getRequestURI());
     readme.scanTree(rootTree);
     if (readme.isPresent()) {
       SanitizedContent html = readme.render();

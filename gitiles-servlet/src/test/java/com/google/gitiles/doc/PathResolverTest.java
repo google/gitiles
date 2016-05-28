@@ -15,6 +15,7 @@
 package com.google.gitiles.doc;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.gitiles.doc.PathResolver.relative;
 import static com.google.gitiles.doc.PathResolver.resolve;
 
 import org.junit.Test;
@@ -37,5 +38,18 @@ public class PathResolverTest {
     assertThat(resolve("/doc/index.md", ".././foo.md")).isEqualTo("foo.md");
     assertThat(resolve("/a/b/c/index.md", "../../foo.md")).isEqualTo("a/foo.md");
     assertThat(resolve("/a/index.md", "../../../foo.md")).isNull();
+  }
+
+  @Test
+  public void relativeTests() {
+    assertThat(relative(null, "/g/foo.md")).isEqualTo("/g/foo.md");
+
+    assertThat(relative("/g", "/g/foo.md")).isEqualTo("g/foo.md");
+    assertThat(relative("/r", "/g/foo.md")).isEqualTo("g/foo.md");
+    assertThat(relative("/a/b/r", "/a/b/g/foo.md")).isEqualTo("g/foo.md");
+
+    assertThat(relative("/g/", "/g/foo.md")).isEqualTo("foo.md");
+    assertThat(relative("/g/bar.md", "/g/foo.md")).isEqualTo("foo.md");
+    assertThat(relative("/g/a/b.md", "/g/foo.md")).isEqualTo("/g/foo.md");
   }
 }

@@ -80,6 +80,7 @@ public class MarkdownToHtml implements Visitor {
   }
 
   public static class Builder {
+    private String requestUri;
     private GitilesView view;
     private MarkdownConfig config;
     private String filePath;
@@ -87,6 +88,11 @@ public class MarkdownToHtml implements Visitor {
     private RevTree root;
 
     Builder() {}
+
+    public Builder setRequestUri(@Nullable String uri) {
+      requestUri = uri;
+      return this;
+    }
 
     public Builder setGitilesView(@Nullable GitilesView view) {
       this.view = view;
@@ -120,6 +126,7 @@ public class MarkdownToHtml implements Visitor {
 
   private final HtmlBuilder html = new HtmlBuilder();
   private final TocFormatter toc = new TocFormatter(html, 3);
+  private final String requestUri;
   private final GitilesView view;
   private final MarkdownConfig config;
   private final String filePath;
@@ -127,6 +134,7 @@ public class MarkdownToHtml implements Visitor {
   private boolean outputNamedAnchor = true;
 
   private MarkdownToHtml(Builder b) {
+    requestUri = b.requestUri;
     view = b.view;
     config = b.config;
     filePath = b.filePath;
@@ -378,7 +386,9 @@ public class MarkdownToHtml implements Visitor {
     } else {
       b = GitilesView.path();
     }
-    return b.copyFrom(view).setPathPart(dest).build().toUrl() + anchor;
+    dest = b.copyFrom(view).setPathPart(dest).build().toUrl();
+
+    return PathResolver.relative(requestUri, dest) + anchor;
   }
 
   @Override

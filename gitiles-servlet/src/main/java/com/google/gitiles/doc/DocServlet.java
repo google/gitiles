@@ -127,6 +127,7 @@ public class DocServlet extends BaseServlet {
           MarkdownToHtml.builder()
               .setConfig(cfg)
               .setGitilesView(view)
+              .setRequestUri(req.getRequestURI())
               .setReader(reader)
               .setRootTree(root);
       res.setHeader(HttpHeaders.ETAG, curEtag);

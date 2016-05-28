@@ -67,5 +67,23 @@ class PathResolver {
     return slash < 0 ? "" : path.substring(0, slash);
   }
 
+  static String relative(@Nullable String requestUri, String dest) {
+    if (requestUri != null) {
+      // base is the path the browser will use for relative URLs.
+      String base = requestUri;
+      if (!base.endsWith("/")) {
+        int slash = base.lastIndexOf('/');
+        if (slash < 0) {
+          return dest;
+        }
+        base = base.substring(0, slash + 1);
+      }
+      if (dest.startsWith(base)) {
+        return dest.substring(base.length());
+      }
+    }
+    return dest;
+  }
+
   private PathResolver() {}
 }
