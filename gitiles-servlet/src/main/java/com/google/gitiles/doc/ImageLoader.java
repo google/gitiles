@@ -14,9 +14,10 @@
 
 package com.google.gitiles.doc;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.io.BaseEncoding;
 import com.google.gitiles.GitilesView;
+import com.google.gitiles.MimeTypes;
 import com.google.template.soy.shared.restricted.EscapingConventions.FilterImageDataUri;
 
 import org.eclipse.jgit.errors.LargeObjectException;
@@ -36,6 +37,8 @@ import javax.annotation.Nullable;
 /** Reads an image from Git and converts to {@code data:image/*;base64,...} */
 class ImageLoader {
   private static final Logger log = LoggerFactory.getLogger(ImageLoader.class);
+  private static final ImmutableSet<String> ALLOWED_TYPES =
+      ImmutableSet.of("image/gif", "image/jpeg", "image/png");
 
   private final ObjectReader reader;
   private final GitilesView view;
@@ -67,8 +70,8 @@ class ImageLoader {
       return null;
     }
 
-    String type = getMimeType(path);
-    if (type == null) {
+    String type = MimeTypes.getMimeType(path);
+    if (!ALLOWED_TYPES.contains(type)) {
       return null;
     }
 
@@ -92,21 +95,5 @@ class ImageLoader {
           String.format("cannot read repo %s image %s from %s", repo, path, root.name()), err);
       return null;
     }
-  }
-
-  private static final ImmutableMap<String, String> TYPES =
-      ImmutableMap.of(
-          "png", "image/png",
-          "gif", "image/gif",
-          "jpg", "image/jpeg",
-          "jpeg", "image/jpeg");
-
-  private static String getMimeType(String path) {
-    int d = path.lastIndexOf('.');
-    if (d == -1) {
-      return null;
-    }
-    String ext = path.substring(d + 1);
-    return TYPES.get(ext.toLowerCase());
   }
 }
