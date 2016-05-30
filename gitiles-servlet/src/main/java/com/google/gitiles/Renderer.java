@@ -164,6 +164,7 @@ public abstract class Renderer {
     res.setCharacterEncoding("UTF-8");
     byte[] data = newRenderer(templateName).setData(soyData).render().getBytes(UTF_8);
     if (BaseServlet.acceptsGzipEncoding(req)) {
+      res.addHeader(HttpHeaders.VARY, HttpHeaders.ACCEPT_ENCODING);
       res.setHeader(HttpHeaders.CONTENT_ENCODING, "gzip");
       data = BaseServlet.gzip(data);
     }

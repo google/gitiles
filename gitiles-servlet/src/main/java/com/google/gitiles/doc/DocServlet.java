@@ -202,6 +202,7 @@ public class DocServlet extends BaseServlet {
     res.setCharacterEncoding(UTF_8.name());
     setCacheHeaders(res);
     if (acceptsGzipEncoding(req)) {
+      res.addHeader(HttpHeaders.VARY, HttpHeaders.ACCEPT_ENCODING);
       res.setHeader(HttpHeaders.CONTENT_ENCODING, "gzip");
       raw = gzip(raw);
     }

@@ -374,6 +374,7 @@ public abstract class BaseServlet extends HttpServlet {
   private Writer newWriter(HttpServletRequest req, HttpServletResponse res) throws IOException {
     OutputStream out;
     if (acceptsGzipEncoding(req)) {
+      res.addHeader(HttpHeaders.VARY, HttpHeaders.ACCEPT_ENCODING);
       res.setHeader(HttpHeaders.CONTENT_ENCODING, "gzip");
       out = new GZIPOutputStream(res.getOutputStream());
     } else {
