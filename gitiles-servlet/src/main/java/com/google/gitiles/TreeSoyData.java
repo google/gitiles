@@ -22,6 +22,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gitiles.PathServlet.FileType;
+import com.google.gitiles.doc.MarkdownConfig;
 
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.Config;
@@ -72,13 +73,16 @@ public class TreeSoyData {
   private final GitilesView view;
   private final Config cfg;
   private final RevTree rootTree;
+  private final String requestUri;
   private ArchiveFormat archiveFormat;
 
-  public TreeSoyData(ObjectReader reader, GitilesView view, Config cfg, RevTree rootTree) {
+  public TreeSoyData(
+      ObjectReader reader, GitilesView view, Config cfg, RevTree rootTree, String requestUri) {
     this.reader = reader;
     this.view = view;
     this.cfg = cfg;
     this.rootTree = rootTree;
+    this.requestUri = requestUri;
   }
 
   public TreeSoyData setArchiveFormat(ArchiveFormat archiveFormat) {
@@ -88,7 +92,8 @@ public class TreeSoyData {
 
   public Map<String, Object> toSoyData(ObjectId treeId, TreeWalk tw)
       throws MissingObjectException, IOException {
-    ReadmeHelper readme = new ReadmeHelper(reader, view, cfg, rootTree);
+    ReadmeHelper readme =
+        new ReadmeHelper(reader, view, MarkdownConfig.get(cfg), rootTree, requestUri);
     List<Object> entries = Lists.newArrayList();
     GitilesView.Builder urlBuilder = GitilesView.path().copyFrom(view);
     while (tw.next()) {

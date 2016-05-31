@@ -15,11 +15,12 @@
 package com.google.gitiles.doc;
 
 import com.google.gitiles.doc.html.HtmlBuilder;
-import com.google.template.soy.shared.restricted.EscapingConventions.FilterImageDataUri;
 import com.google.template.soy.shared.restricted.Sanitizers;
+import com.google.template.soy.shared.restricted.EscapingConventions.FilterImageDataUri;
 
 import org.commonmark.node.Heading;
 import org.commonmark.node.Node;
+import org.eclipse.jgit.util.RawParseUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,61 +31,83 @@ class Navbar {
   private static final Pattern REF_LINK =
       Pattern.compile("^\\[(logo|home)\\]:\\s*(.+)$", Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
 
-  static Map<String, Object> bannerSoyData(
-      ImageLoader img, MarkdownToHtml toHtml, String navMarkdown, Node nav) {
-    Map<String, Object> data = new HashMap<>();
-    data.put("siteTitle", null);
-    data.put("logoUrl", null);
-    data.put("homeUrl", null);
+  private MarkdownToHtml fmt;
+  private Node node;
+  private String siteTitle;
+  private String logoUrl;
+  private String homeUrl;
 
-    if (nav == null) {
-      return data;
+  Navbar() {}
+
+  Navbar setFormatter(MarkdownToHtml html) {
+    this.fmt = html;
+    return this;
+  }
+
+  Navbar setMarkdown(byte[] md) {
+    if (md != null && md.length > 0) {
+      parse(RawParseUtils.decode(md));
+    }
+    return this;
+  }
+
+  Map<String, Object> toSoyData() {
+    Map<String, Object> data = new HashMap<>();
+    data.put("siteTitle", siteTitle);
+    data.put("logoUrl", logo());
+    data.put("homeUrl", homeUrl != null ? fmt.href(homeUrl) : null);
+    data.put("navbarHtml", node != null ? fmt.toSoyHtml(node) : null);
+    return data;
+  }
+
+  private Object logo() {
+    if (logoUrl == null) {
+      return null;
     }
 
-    for (Node c = nav.getFirstChild(); c != null; c = c.getNext()) {
+    String url = fmt.image(logoUrl);
+    if (HtmlBuilder.isValidHttpUri(url)) {
+      return url;
+    } else if (HtmlBuilder.isImageDataUri(url)) {
+      return Sanitizers.filterImageDataUri(url);
+    } else {
+      return FilterImageDataUri.INSTANCE.getInnocuousOutput();
+    }
+  }
+
+  private void parse(String markdown) {
+    node = GitilesMarkdown.parse(markdown);
+
+    extractSiteTitle();
+    extractRefLinks(markdown);
+  }
+
+  private void extractSiteTitle() {
+    for (Node c = node.getFirstChild(); c != null; c = c.getNext()) {
       if (c instanceof Heading) {
         Heading h = (Heading) c;
         if (h.getLevel() == 1) {
-          data.put("siteTitle", MarkdownUtil.getInnerText(h));
+          siteTitle = MarkdownUtil.getInnerText(h);
           h.unlink();
           break;
         }
       }
     }
+  }
 
-    Matcher m = REF_LINK.matcher(navMarkdown);
+  private void extractRefLinks(String markdown) {
+    Matcher m = REF_LINK.matcher(markdown);
     while (m.find()) {
       String key = m.group(1).toLowerCase();
       String url = m.group(2).trim();
       switch (key) {
         case "logo":
-          data.put("logoUrl", toImgSrc(img, url));
+          logoUrl = url;
           break;
-
         case "home":
-          data.put("homeUrl", toHtml.href(url));
+          homeUrl = url;
           break;
       }
     }
-
-    return data;
   }
-
-  private static Object toImgSrc(ImageLoader img, String url) {
-    if (HtmlBuilder.isValidHttpUri(url)) {
-      return url;
-    }
-
-    if (HtmlBuilder.isImageDataUri(url)) {
-      return Sanitizers.filterImageDataUri(url);
-    }
-
-    if (img != null) {
-      return Sanitizers.filterImageDataUri(img.loadImage(url));
-    }
-
-    return FilterImageDataUri.INSTANCE.getInnocuousOutput();
-  }
-
-  private Navbar() {}
 }

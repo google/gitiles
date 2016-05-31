@@ -105,7 +105,9 @@ public class RevisionServlet extends BaseServlet {
               break;
             case OBJ_TREE:
               Map<String, Object> tree =
-                  new TreeSoyData(walk.getObjectReader(), view, cfg, (RevTree) obj).toSoyData(obj);
+                  new TreeSoyData(
+                          walk.getObjectReader(), view, cfg, (RevTree) obj, req.getRequestURI())
+                      .toSoyData(obj);
               soyObjects.add(ImmutableMap.of("type", Constants.TYPE_TREE, "data", tree));
               hasReadme = tree.containsKey("readmeHtml");
               break;

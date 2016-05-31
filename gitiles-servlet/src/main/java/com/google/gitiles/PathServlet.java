@@ -495,7 +495,7 @@ public class PathServlet extends BaseServlet {
             "breadcrumbs", view.getBreadcrumbs(wr.hasSingleTree),
             "type", FileType.TREE.toString(),
             "data",
-                new TreeSoyData(wr.getObjectReader(), view, cfg, wr.root)
+                new TreeSoyData(wr.getObjectReader(), view, cfg, wr.root, req.getRequestURI())
                     .setArchiveFormat(getArchiveFormat(getAccess(req)))
                     .toSoyData(wr.id, wr.tw)));
   }

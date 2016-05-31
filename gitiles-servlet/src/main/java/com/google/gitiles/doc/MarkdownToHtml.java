@@ -22,6 +22,7 @@ import com.google.gitiles.GitilesView;
 import com.google.gitiles.ThreadSafePrettifyParser;
 import com.google.gitiles.doc.html.HtmlBuilder;
 import com.google.template.soy.data.SanitizedContent;
+import com.google.template.soy.shared.restricted.EscapingConventions.FilterImageDataUri;
 import com.google.template.soy.shared.restricted.EscapingConventions.FilterNormalizeUri;
 
 import org.commonmark.ext.gfm.strikethrough.Strikethrough;
@@ -56,12 +57,14 @@ import org.commonmark.node.StrongEmphasis;
 import org.commonmark.node.Text;
 import org.commonmark.node.ThematicBreak;
 import org.commonmark.node.Visitor;
-import org.eclipse.jgit.lib.Config;
-import org.eclipse.jgit.util.StringUtils;
+import org.eclipse.jgit.lib.ObjectReader;
+import org.eclipse.jgit.revwalk.RevTree;
 
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.annotation.Nullable;
 
 import prettify.parser.Prettify;
 import syntaxhighlight.ParseResult;
@@ -72,34 +75,77 @@ import syntaxhighlight.ParseResult;
  * Callers must create a new instance for each document.
  */
 public class MarkdownToHtml implements Visitor {
-  private final HtmlBuilder html = new HtmlBuilder();
-  private final TocFormatter toc = new TocFormatter(html, 3);
-  private final GitilesView view;
-  private final Config cfg;
-  private final String filePath;
-  private ImageLoader imageLoader;
-  private boolean outputNamedAnchor = true;
-
-  /**
-   * Initialize a Markdown to HTML converter.
-   *
-   * @param view view used to access this Markdown on the web. Some elements of
-   *        the view may be used to generate hyperlinks to other files, e.g.
-   *        repository name and revision.
-   * @param cfg
-   * @param filePath actual path of the Markdown file in the Git repository. This must
-   *        always be a file, e.g. {@code doc/README.md}. The path is used to
-   *        resolve relative links within the repository.
-   */
-  public MarkdownToHtml(GitilesView view, Config cfg, String filePath) {
-    this.view = view;
-    this.cfg = cfg;
-    this.filePath = filePath;
+  public static Builder builder() {
+    return new Builder();
   }
 
-  public MarkdownToHtml setImageLoader(ImageLoader img) {
-    imageLoader = img;
-    return this;
+  public static class Builder {
+    private String requestUri;
+    private GitilesView view;
+    private MarkdownConfig config;
+    private String filePath;
+    private ObjectReader reader;
+    private RevTree root;
+
+    Builder() {}
+
+    public Builder setRequestUri(@Nullable String uri) {
+      requestUri = uri;
+      return this;
+    }
+
+    public Builder setGitilesView(@Nullable GitilesView view) {
+      this.view = view;
+      return this;
+    }
+
+    public Builder setConfig(@Nullable MarkdownConfig config) {
+      this.config = config;
+      return this;
+    }
+
+    public Builder setFilePath(@Nullable String filePath) {
+      this.filePath = Strings.emptyToNull(filePath);
+      return this;
+    }
+
+    public Builder setReader(ObjectReader reader) {
+      this.reader = reader;
+      return this;
+    }
+
+    public Builder setRootTree(RevTree tree) {
+      this.root = tree;
+      return this;
+    }
+
+    public MarkdownToHtml build() {
+      return new MarkdownToHtml(this);
+    }
+  }
+
+  private final HtmlBuilder html = new HtmlBuilder();
+  private final TocFormatter toc = new TocFormatter(html, 3);
+  private final String requestUri;
+  private final GitilesView view;
+  private final MarkdownConfig config;
+  private final String filePath;
+  private final ImageLoader imageLoader;
+  private boolean outputNamedAnchor = true;
+
+  private MarkdownToHtml(Builder b) {
+    requestUri = b.requestUri;
+    view = b.view;
+    config = b.config;
+    filePath = b.filePath;
+    imageLoader = newImageLoader(b);
+  }
+
+  private static ImageLoader newImageLoader(Builder b) {
+    if (b.reader != null && b.view != null && b.config != null && b.root != null) {
+      return new ImageLoader(b.reader, b.view, b.config, b.root);
+    }
+    return null;
   }
 
   /** Render the document AST to sanitized HTML. */
@@ -148,7 +194,8 @@ public class MarkdownToHtml implements Visitor {
     if (HtmlBuilder.isValidHttpUri(node.src)
         && HtmlBuilder.isValidCssDimension(node.height)
         && HtmlBuilder.isValidCssDimension(node.width)
-        && canRender(node)) {
+        && config != null
+        && config.isIFrameAllowed(node.src)) {
       html.open("iframe")
           .attribute("src", node.src)
           .attribute("height", node.height)
@@ -158,19 +205,6 @@ public class MarkdownToHtml implements Visitor {
       }
       html.close("iframe");
     }
-  }
-
-  private boolean canRender(IframeBlock node) {
-    String[] ok = cfg.getStringList("markdown", null, "allowiframe");
-    if (ok.length == 1 && StringUtils.toBooleanOrNull(ok[0]) == Boolean.TRUE) {
-      return true;
-    }
-    for (String m : ok) {
-      if (m.equals(node.src) || (m.endsWith("/") && node.src.startsWith(m))) {
-        return true;
-      }
-    }
-    return false; // By default do not render iframe.
   }
 
   @Override
@@ -341,61 +375,37 @@ public class MarkdownToHtml implements Visitor {
       target = target.substring(0, hash);
     }
 
-    if (target.startsWith("/")) {
-      return toPath(target) + anchor;
+    String dest = PathResolver.resolve(filePath, target);
+    if (dest == null || view == null) {
+      return FilterNormalizeUri.INSTANCE.getInnocuousOutput();
     }
 
-    String dir = trimLastComponent(filePath);
-    while (!target.isEmpty()) {
-      if (target.startsWith("../") || target.equals("..")) {
-        if (dir.isEmpty()) {
-          return FilterNormalizeUri.INSTANCE.getInnocuousOutput();
-        }
-        dir = trimLastComponent(dir);
-        target = target.equals("..") ? "" : target.substring(3);
-      } else if (target.startsWith("./")) {
-        target = target.substring(2);
-      } else if (target.equals(".")) {
-        target = "";
-      } else {
-        break;
-      }
-    }
-
-    return toPath(dir + '/' + target) + anchor;
-  }
-
-  private static String trimLastComponent(String path) {
-    int slash = path.lastIndexOf('/');
-    return slash < 0 ? "" : path.substring(0, slash);
-  }
-
-  private String toPath(String path) {
     GitilesView.Builder b;
     if (view.getType() == GitilesView.Type.ROOTED_DOC) {
       b = GitilesView.rootedDoc();
     } else {
       b = GitilesView.path();
     }
-    return b.copyFrom(view).setPathPart(path).build().toUrl();
+    dest = b.copyFrom(view).setPathPart(dest).build().toUrl();
+
+    return PathResolver.relative(requestUri, dest) + anchor;
   }
 
   @Override
   public void visit(Image node) {
     html.open("img")
-        .attribute("src", resolveImageUrl(node.getDestination()))
+        .attribute("src", image(node.getDestination()))
         .attribute("title", node.getTitle())
         .attribute("alt", getInnerText(node));
   }
 
-  private String resolveImageUrl(String url) {
-    if (imageLoader == null
-        || url.startsWith("https://")
-        || url.startsWith("http://")
-        || url.startsWith("data:")) {
-      return url;
+  String image(String dest) {
+    if (HtmlBuilder.isValidHttpUri(dest) || HtmlBuilder.isImageDataUri(dest)) {
+      return dest;
+    } else if (imageLoader != null) {
+      return imageLoader.inline(filePath, dest);
     }
-    return imageLoader.loadImage(url);
+    return FilterImageDataUri.INSTANCE.getInnocuousOutput();
   }
 
   public void visit(TableBlock node) {

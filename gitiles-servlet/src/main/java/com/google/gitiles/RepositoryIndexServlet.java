@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.gitiles.DateFormatter.Format;
+import com.google.gitiles.doc.MarkdownConfig;
 import com.google.gson.reflect.TypeToken;
 import com.google.template.soy.data.SanitizedContent;
 
@@ -98,7 +99,7 @@ public class RepositoryIndexServlet extends BaseServlet {
       if (headId != null) {
         RevObject head = walk.parseAny(headId);
         int limit = LOG_LIMIT;
-        Map<String, Object> readme = renderReadme(walk, view, access.getConfig(), head);
+        Map<String, Object> readme = renderReadme(req, walk, view, access.getConfig(), head);
         if (readme != null) {
           data.putAll(readme);
           limit = LOG_WITH_README_LIMIT;
@@ -156,7 +157,8 @@ public class RepositoryIndexServlet extends BaseServlet {
   }
 
   private static Map<String, Object> renderReadme(
-      RevWalk walk, GitilesView view, Config cfg, RevObject head) throws IOException {
+      HttpServletRequest req, RevWalk walk, GitilesView view, Config cfg, RevObject head)
+      throws IOException {
     RevTree rootTree;
     try {
       rootTree = walk.parseTree(head);
@@ -168,8 +170,9 @@ public class RepositoryIndexServlet extends BaseServlet {
         new ReadmeHelper(
             walk.getObjectReader(),
             GitilesView.path().copyFrom(view).setRevision(Revision.HEAD).setPathPart("/").build(),
-            cfg,
-            rootTree);
+            MarkdownConfig.get(cfg),
+            rootTree,
+            req.getRequestURI());
     readme.scanTree(rootTree);
     if (readme.isPresent()) {
       SanitizedContent html = readme.render();
