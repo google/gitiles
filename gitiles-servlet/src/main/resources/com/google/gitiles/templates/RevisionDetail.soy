@@ -19,7 +19,7 @@
  * @param title human-readable revision name.
  * @param repositoryName name of this repository.
  * @param? menuEntries menu entries.
- * @param? headerVariant variant name for custom header.
+ * @param? customVariant variant name for styling.
  * @param breadcrumbs breadcrumbs for this page.
  * @param? hasBlob set to true if the revision or its peeled value is a blob.
  * @param? hasReadme set to true if the treeDetail has readmeHtml.
@@ -59,5 +59,7 @@
   {/switch}
 {/foreach}
 
-{call .footer /}
+{call .footer}
+  {param customVariant: $customVariant /}
+{/call}
 {/template}

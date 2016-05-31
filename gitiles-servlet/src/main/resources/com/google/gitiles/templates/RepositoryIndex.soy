@@ -18,7 +18,7 @@
  *
  * @param repositoryName name of this repository.
  * @param? menuEntries menu entries.
- * @param? headerVariant variant name for custom header.
+ * @param? customVariant variant name for custom styling.
  * @param breadcrumbs breadcrumbs for this page.
  * @param cloneUrl clone URL for this repository.
  * @param description description text of the repository.
@@ -36,7 +36,7 @@
     {param title: $repositoryName /}
     {param repositoryName: null /}
     {param menuEntries: $menuEntries /}
-    {param headerVariant: $headerVariant /}
+    {param customVariant: $customVariant /}
     {param breadcrumbs: $breadcrumbs /}
     {param css: [gitiles.DOC_CSS_URL] /}
   {/call}
@@ -45,7 +45,7 @@
     {param title: $repositoryName /}
     {param repositoryName: null /}
     {param menuEntries: $menuEntries /}
-    {param headerVariant: $headerVariant /}
+    {param customVariant: $customVariant /}
     {param breadcrumbs: $breadcrumbs /}
   {/call}
 {/if}
@@ -90,7 +90,9 @@
   {call .tags_ data="all" /}
 {/if}
 
-{call .footer /}
+{call .footer}
+  {param customVariant: $customVariant /}
+{/call}
 {/template}
 
 /**

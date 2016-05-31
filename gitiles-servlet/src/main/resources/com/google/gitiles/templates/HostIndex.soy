@@ -18,7 +18,7 @@
  *
  * @param hostName host name.
  * @param? menuEntries menu entries.
- * @param? headerVariant variant name for custom header.
+ * @param? customVariant variant name for custom styling.
  * @param? prefix prefix path for matching repositories.
  * @param? breadcrumbs map of breadcrumbs for header.
  * @param repositories list of repository description maps with name, cloneUrl,
@@ -29,7 +29,7 @@
   {param title: $prefix ? $prefix : $hostName ? $hostName + ' Git repositories' : 'Git repositories' /}
   {param menuEntries: $menuEntries /}
   {param breadcrumbs: $breadcrumbs /}
-  {param headerVariant: $headerVariant /}
+  {param customVariant: $customVariant /}
 {/call}
 
 {if length($repositories)}
@@ -62,5 +62,8 @@
     {/foreach}
   </div>
 {/if}
-{call .footer /}
+
+{call .footer}
+  {param customVariant: $customVariant /}
+{/call}
 {/template}

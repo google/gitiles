@@ -19,7 +19,7 @@
  * @param title human-readable revision name.
  * @param repositoryName name of this repository.
  * @param? menuEntries menu entries.
- * @param? headerVariant variant name for custom header.
+ * @param? customVariant variant name for custom styling.
  * @param breadcrumbs breadcrumbs for this page.
  * @param? commit optional commit for which diffs are displayed, with keys
  *     corresponding to the gitiles.commitDetail template (minus "diffTree").
@@ -32,7 +32,9 @@
 {/if}
 {call .streamingPlaceholder /}
 
-{call .footer /}
+{call .footer}
+  {param customVariant: $customVariant /}
+{/call}
 {/template}
 
 /**
