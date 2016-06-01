@@ -105,7 +105,7 @@ public class BlockNoteExtension implements ParserExtension {
         return BlockStart.none();
       }
 
-      String style = text.subSequence(4, line.length()).toString().trim();
+      String style = text.subSequence(4, text.length()).toString().trim();
       if (!VALID_STYLES.contains(style)) {
         return BlockStart.none();
       }
