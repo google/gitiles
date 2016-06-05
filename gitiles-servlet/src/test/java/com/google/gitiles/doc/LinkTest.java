@@ -63,6 +63,25 @@ public class LinkTest {
   }
 
   @Test
+  public void gitLink() {
+    MarkdownToHtml md =
+        MarkdownToHtml.builder()
+            .setGitilesView(view)
+            .setConfig(new MarkdownConfig(config))
+            .setFilePath("index.md")
+            .build();
+    String url;
+
+    url = "git://example.com/repo.git";
+    assertThat(md.href(url)).isEqualTo(url);
+
+    assertThat(md.href("git:example.com/repo.git")).isEqualTo("#zSoyz");
+    assertThat(md.href("git://")).isEqualTo("#zSoyz");
+    assertThat(md.href("git://example.com/../root")).isEqualTo("#zSoyz");
+    assertThat(md.href("git://example.com/root/..")).isEqualTo("#zSoyz");
+  }
+
+  @Test
   public void absolutePath() {
     MarkdownToHtml md =
         MarkdownToHtml.builder()

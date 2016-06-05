@@ -85,6 +85,17 @@ public final class HtmlBuilder {
   private static final FilterNormalizeUri URI = FilterNormalizeUri.INSTANCE;
   private static final FilterImageDataUri IMAGE_DATA = FilterImageDataUri.INSTANCE;
 
+  private static final Pattern GIT_URI =
+      Pattern.compile(
+          "^"
+              +
+              // Reject paths containing /../ or ending in /..
+              "(?![^#?]*/(?:\\.|%2E){2}(?:[/?#]|\\z))"
+              +
+              // Accept git://host/path
+              "git://[^/]+/.+",
+          Pattern.CASE_INSENSITIVE);
+
   public static boolean isValidCssDimension(String val) {
     return val != null && val.matches("(?:[1-9][0-9]*px|100%|[1-9][0-9]?%)");
   }
@@ -97,6 +108,10 @@ public final class HtmlBuilder {
   /** Check if URL is valid for {@code <img src="data:image/*;base64,...">}. */
   public static boolean isImageDataUri(String url) {
     return IMAGE_DATA.getValueFilter().matcher(url).find();
+  }
+
+  public static boolean isValidGitUri(String val) {
+    return GIT_URI.matcher(val).find();
   }
 
   private final StringBuilder htmlBuf;
@@ -159,7 +174,7 @@ public final class HtmlBuilder {
   }
 
   private String anchorHref(String val) {
-    if (URI.getValueFilter().matcher(val).find()) {
+    if (URI.getValueFilter().matcher(val).find() || isValidGitUri(val)) {
       return URI.escape(val);
     }
     return URI.getInnocuousOutput();

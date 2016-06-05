@@ -364,6 +364,11 @@ public class MarkdownToHtml implements Visitor {
   String href(String target) {
     if (target.startsWith("#") || HtmlBuilder.isValidHttpUri(target)) {
       return target;
+    } else if (target.startsWith("git:")) {
+      if (HtmlBuilder.isValidGitUri(target)) {
+        return target;
+      }
+      return FilterNormalizeUri.INSTANCE.getInnocuousOutput();
     }
 
     String anchor = "";
