@@ -161,12 +161,13 @@ public class MultiColumnExtension implements ParserExtension {
       int s = state.getNextNonSpaceIndex();
       CharSequence line = state.getLine();
       CharSequence text = line.subSequence(s, line.length());
-      if (text.length() >= MARKER.length()
-          && MARKER.contentEquals(text.subSequence(0, MARKER.length()))) {
-        String layout = text.subSequence(MARKER.length(), line.length()).toString().trim();
-        return BlockStart.of(new MultiColumnParser(layout)).atIndex(line.length());
+      if (text.length() < MARKER.length()
+          || !MARKER.contentEquals(text.subSequence(0, MARKER.length()))) {
+        return BlockStart.none();
       }
-      return BlockStart.none();
+
+      String layout = text.subSequence(MARKER.length(), text.length()).toString().trim();
+      return BlockStart.of(new MultiColumnParser(layout)).atIndex(text.length());
     }
   }
 }
