@@ -46,7 +46,7 @@ public class MultiColumnExtension implements ParserExtension {
 
   @Override
   public void extend(Parser.Builder builder) {
-    builder.customBlockParserFactory(new DivParserFactory());
+    builder.customBlockParserFactory(new MultiColumnParserFactory());
   }
 
   private static class MultiColumnParser extends AbstractBlockParser {
@@ -151,7 +151,7 @@ public class MultiColumnExtension implements ParserExtension {
     }
   }
 
-  private static class DivParserFactory extends AbstractBlockParserFactory {
+  private static class MultiColumnParserFactory extends AbstractBlockParserFactory {
     @Override
     public BlockStart tryStart(ParserState state, MatchedBlockParser matched) {
       if (state.getIndent() > 0) {
