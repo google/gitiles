@@ -51,10 +51,12 @@ public class BlockNoteExtension implements ParserExtension {
   }
 
   private static class NoteParser extends AbstractBlockParser {
+    private final int indent;
     private final BlockNote block;
     private boolean done;
 
-    NoteParser(String style) {
+    NoteParser(int indent, String style) {
+      this.indent = indent;
       block = new BlockNote();
       block.setClassName(style);
     }
@@ -69,7 +71,7 @@ public class BlockNoteExtension implements ParserExtension {
       if (done) {
         return BlockContinue.none();
       }
-      if (state.getIndent() == 0) {
+      if (state.getIndent() <= indent) {
         int s = state.getNextNonSpaceIndex();
         CharSequence line = state.getLine();
         if ("***".contentEquals(line.subSequence(s, line.length()))) {
@@ -94,23 +96,19 @@ public class BlockNoteExtension implements ParserExtension {
   private static class NoteParserFactory extends AbstractBlockParserFactory {
     @Override
     public BlockStart tryStart(ParserState state, MatchedBlockParser matched) {
-      if (state.getIndent() > 0) {
-        return BlockStart.none();
-      }
-
       int s = state.getNextNonSpaceIndex();
       CharSequence line = state.getLine();
       CharSequence text = line.subSequence(s, line.length());
-      if (text.length() < 4 || !"*** ".contentEquals(text.subSequence(0, 4))) {
+      if (text.length() < 3 || !"***".contentEquals(text.subSequence(0, 3))) {
         return BlockStart.none();
       }
 
-      String style = text.subSequence(4, text.length()).toString().trim();
+      String style = text.subSequence(3, text.length()).toString().trim();
       if (!VALID_STYLES.contains(style)) {
         return BlockStart.none();
       }
 
-      return BlockStart.of(new NoteParser(style)).atIndex(line.length());
+      return BlockStart.of(new NoteParser(state.getIndent(), style)).atIndex(line.length());
     }
   }
 }

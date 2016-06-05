@@ -104,6 +104,20 @@ public class DocServletTest extends ServletTest {
   }
 
   @Test
+  public void noteInList() throws Exception {
+    String markdown =
+        "+ one\n\n" + "    ***aside\n" + "    remember this\n" + "    ***\n" + "\n" + "+ two\n";
+    repo.branch("master").commit().add("index.md", markdown).create();
+
+    String html = buildHtml("/repo/+/master/index.md");
+    System.out.println(html);
+    assertThat(html)
+        .contains(
+            "<ul><li><p>one</p><div class=\"aside\">remember this</div>"
+                + "</li><li><p>two</p></li></ul>");
+  }
+
+  @Test
   public void relativeLink() throws Exception {
     repo.branch("master").commit().add("A/B/README.md", "[c](../../C)").create();
 
