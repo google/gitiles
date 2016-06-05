@@ -187,13 +187,6 @@ Text can be ~~struck out~~ within a paragraph.
 Note two tildes are required (`~~`) on either side of the struck out
 section of text.
 
-### Smart quotes
-
-'Single' and "double" quotes in paragraph text are
-replaced with smart quotes.  Apostrophes (this doc's text), ellipses
-("...") and dashes ("--" and "---") are also replaced with HTML
-entities to make the documentation appear typeset.
-
 ### Blockquotes
 
 Blockquoted text can be used to stand off text obtained from

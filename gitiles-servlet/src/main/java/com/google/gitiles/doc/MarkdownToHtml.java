@@ -61,8 +61,6 @@ import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.revwalk.RevTree;
 
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
 
@@ -457,37 +455,9 @@ public class MarkdownToHtml implements Visitor {
     }
   }
 
-  private static final Pattern PRETTY = Pattern.compile("('|[.]{3}|-{2,3})");
-
   @Override
   public void visit(Text node) {
-    String text = node.getLiteral();
-    Matcher pretty = PRETTY.matcher(text);
-    int i = 0;
-    while (pretty.find()) {
-      int s = pretty.start();
-      if (i < s) {
-        html.appendAndEscape(text.substring(i, s));
-      }
-      switch (pretty.group(0)) {
-        case "'":
-          html.entity("&rsquo;");
-          break;
-        case "...":
-          html.entity("&hellip;");
-          break;
-        case "--":
-          html.entity("&ndash;");
-          break;
-        case "---":
-          html.entity("&mdash;");
-          break;
-      }
-      i = pretty.end();
-    }
-    if (i < text.length()) {
-      html.appendAndEscape(text.substring(i));
-    }
+    html.appendAndEscape(node.getLiteral());
   }
 
   @Override
