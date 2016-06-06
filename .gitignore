@@ -5,3 +5,5 @@
 /eclipse-out
 /gitiles.config
 /.buckd
+/.idea
+*.iml
