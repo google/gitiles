@@ -64,7 +64,8 @@ public class DiffServlet extends BaseServlet {
 
     try (RevWalk walk = new RevWalk(repo);
         TreeWalk tw = newTreeWalk(walk, view)) {
-      boolean showCommit, isFile;
+      boolean showCommit;
+      boolean isFile;
       AbstractTreeIterator oldTree;
       AbstractTreeIterator newTree;
       try {
