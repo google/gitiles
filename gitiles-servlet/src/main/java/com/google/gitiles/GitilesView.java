@@ -116,7 +116,7 @@ public class GitilesView {
         case LOG:
         case DIFF:
           oldRevision = other.oldRevision;
-          // Fallthrough.
+          //$FALL-THROUGH$
         case PATH:
         case DOC:
         case ROOTED_DOC:
@@ -124,15 +124,15 @@ public class GitilesView {
         case BLAME:
         case SHOW:
           path = other.path;
-          // Fallthrough.
+          //$FALL-THROUGH$
         case REVISION:
           revision = other.revision;
-          // Fallthrough.
+          //$FALL-THROUGH$
         case DESCRIBE:
         case REFS:
         case REPOSITORY_INDEX:
           repositoryName = other.repositoryName;
-          // Fallthrough.
+          //$FALL-THROUGH$
         default:
           break;
       }
@@ -281,7 +281,7 @@ public class GitilesView {
       switch (type) {
         default:
           checkState(extension == null, "cannot set extension on %s view", type);
-          // Fallthrough;
+          //$FALL-THROUGH$
         case ARCHIVE:
           this.extension = extension;
           break;
