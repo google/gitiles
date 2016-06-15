@@ -308,12 +308,11 @@ public class ViewFilter extends AbstractHttpFilter {
     }
     if (result.getPath().isEmpty()) {
       return GitilesView.revision().setRepositoryName(repoName).setRevision(result.getRevision());
-    } else {
-      return GitilesView.path()
-          .setRepositoryName(repoName)
-          .setRevision(result.getRevision())
-          .setPathPart(result.getPath());
     }
+    return GitilesView.path()
+        .setRepositoryName(repoName)
+        .setRevision(result.getRevision())
+        .setPathPart(result.getPath());
   }
 
   private GitilesView.Builder parseDocCommand(HttpServletRequest req, String repoName, String path)

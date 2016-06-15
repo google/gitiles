@@ -196,9 +196,8 @@ public class VisibilityCache {
               public ObjectId apply(Ref ref) {
                 if (ref.getPeeledObjectId() != null) {
                   return ref.getPeeledObjectId();
-                } else {
-                  return ref.getObjectId();
                 }
+                return ref.getObjectId();
               }
             }));
   }

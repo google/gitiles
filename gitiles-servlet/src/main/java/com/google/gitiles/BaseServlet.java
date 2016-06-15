@@ -77,9 +77,8 @@ public abstract class BaseServlet extends HttpServlet {
   public static Map<String, String> menuEntry(String text, String url) {
     if (url != null) {
       return ImmutableMap.of("text", text, "url", url);
-    } else {
-      return ImmutableMap.of("text", text);
     }
+    return ImmutableMap.of("text", text);
   }
 
   public static boolean isStreamingResponse(HttpServletRequest req) {

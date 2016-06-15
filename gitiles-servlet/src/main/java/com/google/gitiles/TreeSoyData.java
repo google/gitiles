@@ -62,11 +62,10 @@ public class TreeSoyData {
   static String getTargetDisplayName(String target) {
     if (target.length() <= MAX_SYMLINK_TARGET_LENGTH) {
       return target;
-    } else {
-      int lastSlash = target.lastIndexOf('/');
-      // TODO(dborowitz): Doesn't abbreviate a long last path component.
-      return lastSlash >= 0 ? "..." + target.substring(lastSlash) : target;
     }
+    int lastSlash = target.lastIndexOf('/');
+    // TODO(dborowitz): Doesn't abbreviate a long last path component.
+    return lastSlash >= 0 ? "..." + target.substring(lastSlash) : target;
   }
 
   private final ObjectReader reader;

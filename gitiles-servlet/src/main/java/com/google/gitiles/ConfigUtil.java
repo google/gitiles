@@ -108,10 +108,9 @@ public class ConfigUtil {
       if (digits.indexOf('.') == -1) {
         long val = Long.parseLong(digits);
         return new Duration(val * TimeUnit.MILLISECONDS.convert(1, unit));
-      } else {
-        double val = Double.parseDouble(digits);
-        return new Duration((long) (val * TimeUnit.MILLISECONDS.convert(1, unit)));
       }
+      double val = Double.parseDouble(digits);
+      return new Duration((long) (val * TimeUnit.MILLISECONDS.convert(1, unit)));
     } catch (NumberFormatException nfe) {
       return null;
     }

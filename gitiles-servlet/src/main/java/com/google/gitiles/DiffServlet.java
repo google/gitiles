@@ -152,9 +152,8 @@ public class DiffServlet extends BaseServlet {
     RevCommit newCommit = walk.parseCommit(newRevision.getId());
     if (newCommit.getParentCount() > 0) {
       return Arrays.asList(newCommit.getParents()).contains(oldRevision.getId());
-    } else {
-      return oldRevision == Revision.NULL;
     }
+    return oldRevision == Revision.NULL;
   }
 
   private static boolean isFile(TreeWalk tw) {
@@ -182,8 +181,7 @@ public class DiffServlet extends BaseServlet {
       CanonicalTreeParser p = new CanonicalTreeParser();
       p.reset(walk.getObjectReader(), walk.parseTree(id));
       return p;
-    } else {
-      return new EmptyTreeIterator();
     }
+    return new EmptyTreeIterator();
   }
 }

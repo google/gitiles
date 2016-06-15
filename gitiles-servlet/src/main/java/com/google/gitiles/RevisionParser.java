@@ -132,13 +132,12 @@ class RevisionParser {
             String oldName = b.toString();
             if (!isValidRevision(oldName)) {
               return null;
-            } else {
-              RevObject old = resolve(oldName, walk);
-              if (old == null) {
-                return null;
-              }
-              oldRevision = Revision.peel(oldName, old, walk);
             }
+            RevObject old = resolve(oldName, walk);
+            if (old == null) {
+              return null;
+            }
+            oldRevision = Revision.peel(oldName, old, walk);
             part = part.substring(dots + 2);
             b = new StringBuilder();
           } else if (firstParent > 0) {
@@ -228,8 +227,7 @@ class RevisionParser {
     }
     if (result.getOldRevision() != null && result.getOldRevision() != Revision.NULL) {
       return cache.isVisible(repo, walk, access, result.getOldRevision().getId(), id);
-    } else {
-      return true;
     }
+    return true;
   }
 }
