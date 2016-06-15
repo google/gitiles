@@ -280,7 +280,7 @@ public class GitilesView {
     public Builder setExtension(String extension) {
       switch (type) {
         default:
-          checkState(extension == null, "cannot set path on %s view", type);
+          checkState(extension == null, "cannot set extension on %s view", type);
           // Fallthrough;
         case ARCHIVE:
           this.extension = extension;
