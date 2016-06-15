@@ -125,7 +125,7 @@ public class RefServlet extends BaseServlet {
         return r - l;
       }
 
-      private final boolean isHead(Ref ref) {
+      private boolean isHead(Ref ref) {
         return ref != null && ref.getName().equals(headLeafName);
       }
     }.compound(RefComparator.INSTANCE);

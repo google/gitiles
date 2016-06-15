@@ -55,7 +55,7 @@ import javax.servlet.http.HttpServletRequest;
 
 /** Format-independent data about a single commit. */
 class CommitData {
-  static enum Field {
+  enum Field {
     ABBREV_SHA,
     ARCHIVE_TYPE,
     ARCHIVE_URL,

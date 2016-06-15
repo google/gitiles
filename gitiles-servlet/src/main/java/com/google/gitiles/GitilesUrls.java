@@ -35,7 +35,7 @@ public interface GitilesUrls {
    * should not be encoded, while almost any other non-alpha, non-numeric
    * character will be encoded using URL style encoding.
    */
-  public static final Function<String, String> NAME_ESCAPER =
+  Function<String, String> NAME_ESCAPER =
       new Function<String, String>() {
         @Override
         public String apply(String s) {
@@ -60,7 +60,7 @@ public interface GitilesUrls {
    * @param req request.
    * @return host name; may be null.
    */
-  public String getHostName(HttpServletRequest req);
+  String getHostName(HttpServletRequest req);
 
   /**
    * Return the base URL for git repositories on this host.
@@ -68,7 +68,7 @@ public interface GitilesUrls {
    * @param req request.
    * @return base URL for git repositories.
    */
-  public String getBaseGitUrl(HttpServletRequest req);
+  String getBaseGitUrl(HttpServletRequest req);
 
   /**
    * Return the base URL for Gerrit projects on this host.
@@ -77,5 +77,5 @@ public interface GitilesUrls {
    * @return base URL for Gerrit Code Review, or null if Gerrit is not
    *     configured.
    */
-  public String getBaseGerritUrl(HttpServletRequest req);
+  String getBaseGerritUrl(HttpServletRequest req);
 }

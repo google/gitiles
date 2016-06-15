@@ -95,7 +95,7 @@ public class PathServlet extends BaseServlet {
   static final String AUTODIVE_PARAM = "autodive";
   static final String NO_AUTODIVE_VALUE = "0";
 
-  static enum FileType {
+  enum FileType {
     TREE(FileMode.TREE),
     SYMLINK(FileMode.SYMLINK),
     REGULAR_FILE(FileMode.REGULAR_FILE),
@@ -104,7 +104,7 @@ public class PathServlet extends BaseServlet {
 
     private final FileMode mode;
 
-    private FileType(FileMode mode) {
+    FileType(FileMode mode) {
       this.mode = mode;
     }
 

@@ -64,7 +64,7 @@ public enum FormatType {
 
   private final String mimeType;
 
-  private FormatType(String mimeType) {
+  FormatType(String mimeType) {
     this.mimeType = mimeType;
   }
 

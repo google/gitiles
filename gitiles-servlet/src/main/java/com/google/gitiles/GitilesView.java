@@ -58,7 +58,7 @@ public class GitilesView {
   private static final String DEFAULT_ARCHIVE_EXTENSION = ".tar.gz";
 
   /** All the possible view types supported in the application. */
-  public static enum Type {
+  public enum Type {
     HOST_INDEX,
     REPOSITORY_INDEX,
     REFS,

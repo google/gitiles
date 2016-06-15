@@ -26,7 +26,7 @@ import java.util.TimeZone;
 
 /** Date formatter similar in spirit to JGit's {@code GitDateFormatter}. */
 public class DateFormatter {
-  public static enum Format {
+  public enum Format {
     // Format strings should match org.eclipse.jgit.util.GitDateFormatter except
     // for the timezone suffix.
     DEFAULT("EEE MMM dd HH:mm:ss yyyy"),
@@ -36,7 +36,7 @@ public class DateFormatter {
     private final ThreadLocal<DateFormat> defaultFormat;
     private final ThreadLocal<DateFormat> fixedTzFormat;
 
-    private Format(String fmt) {
+    Format(String fmt) {
       this.fmt = fmt;
       this.defaultFormat = new ThreadLocal<>();
       this.fixedTzFormat = new ThreadLocal<>();

@@ -34,7 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 public interface GitilesAccess {
   /** Factory for per-request access. */
   public interface Factory {
-    public GitilesAccess forRequest(HttpServletRequest req);
+    GitilesAccess forRequest(HttpServletRequest req);
   }
 
   /**
@@ -52,7 +52,7 @@ public interface GitilesAccess {
    *         {@link org.eclipse.jgit.http.server.RepositoryFilter}).
    * @throws IOException if an error occurred.
    */
-  public Map<String, RepositoryDescription> listRepositories(
+  Map<String, RepositoryDescription> listRepositories(
       @Nullable String prefix, Set<String> branches)
       throws ServiceNotEnabledException, ServiceNotAuthorizedException, IOException;
 
@@ -61,21 +61,21 @@ public interface GitilesAccess {
    *     request, and supports {@link Object#equals(Object)} and
    *     {@link Object#hashCode()}. Never null.
    */
-  public Object getUserKey();
+  Object getUserKey();
 
   /** @return the repository name associated with the request. */
-  public String getRepositoryName();
+  String getRepositoryName();
 
   /**
    * @return the description attached to the repository of this request.
    * @throws IOException an error occurred reading the description string from
    *         the repository.
    */
-  public RepositoryDescription getRepositoryDescription() throws IOException;
+  RepositoryDescription getRepositoryDescription() throws IOException;
 
   /**
    * @return configuration to apply to the host/repository for this request.
    * @throws IOException an error occurred reading the configuration.
    */
-  public Config getConfig() throws IOException;
+  Config getConfig() throws IOException;
 }
