@@ -186,6 +186,7 @@ public class PathServlet extends BaseServlet {
         case TREE:
           writeTreeText(req, res, wr);
           break;
+        case GITLINK:
         default:
           renderTextError(req, res, SC_NOT_FOUND, "Not a file");
           break;
@@ -253,21 +254,14 @@ public class PathServlet extends BaseServlet {
 
     try (RevWalk rw = new RevWalk(repo);
         WalkResult wr = WalkResult.forPath(rw, view, recursive)) {
-      if (wr == null) {
+      if (wr == null || wr.type != FileType.TREE) {
         res.setStatus(SC_NOT_FOUND);
-        return;
-      }
-      switch (wr.type) {
-        case TREE:
-          renderJson(
-              req,
-              res,
-              TreeJsonData.toJsonData(wr.id, wr.tw, includeSizes, recursive),
-              TreeJsonData.Tree.class);
-          break;
-        default:
-          res.setStatus(SC_NOT_FOUND);
-          break;
+      } else {
+        renderJson(
+            req,
+            res,
+            TreeJsonData.toJsonData(wr.id, wr.tw, includeSizes, recursive),
+            TreeJsonData.Tree.class);
       }
     } catch (LargeObjectException e) {
       res.setStatus(SC_INTERNAL_SERVER_ERROR);

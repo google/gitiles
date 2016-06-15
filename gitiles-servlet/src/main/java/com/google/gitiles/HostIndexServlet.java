@@ -126,6 +126,7 @@ public class HostIndexServlet extends BaseServlet {
         res.setStatus(HttpServletResponse.SC_OK);
         res.setContentType(format.get().getMimeType());
         break;
+      case DEFAULT:
       default:
         res.sendError(SC_BAD_REQUEST);
         break;

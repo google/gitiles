@@ -99,17 +99,15 @@ public class TreeSoyData {
       FileType type = FileType.forEntry(tw);
       String name = tw.getNameString();
 
-      switch (view.getType()) {
-        case PATH:
-          urlBuilder.setPathPart(view.getPathPart() + "/" + name);
-          break;
-        case REVISION:
-          // Got here from a tag pointing at a tree.
-          urlBuilder.setPathPart(name);
-          break;
-        default:
-          throw new IllegalStateException(
-              String.format("Cannot render TreeSoyData from %s view", view.getType()));
+      GitilesView.Type viewType = view.getType();
+      if (viewType == GitilesView.Type.PATH) {
+        urlBuilder.setPathPart(view.getPathPart() + "/" + name);
+      } else if (viewType == GitilesView.Type.REVISION) {
+        // Got here from a tag pointing at a tree.
+        urlBuilder.setPathPart(name);
+      } else {
+        throw new IllegalStateException(
+            String.format("Cannot render TreeSoyData from %s view", viewType));
       }
 
       String url = urlBuilder.toUrl();

@@ -78,6 +78,7 @@ public class RepositoryIndexServlet extends BaseServlet {
         res.setContentType(format.get().getMimeType());
         break;
       case TEXT:
+      case DEFAULT:
       default:
         res.sendError(SC_BAD_REQUEST);
         break;

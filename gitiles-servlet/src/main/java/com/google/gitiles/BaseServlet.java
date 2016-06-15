@@ -118,6 +118,7 @@ public abstract class BaseServlet extends HttpServlet {
       case JSON:
         doGetJson(req, res);
         break;
+      case DEFAULT:
       default:
         res.sendError(SC_BAD_REQUEST);
         break;

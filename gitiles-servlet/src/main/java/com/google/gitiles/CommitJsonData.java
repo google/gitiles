@@ -144,6 +144,9 @@ public class CommitJsonData {
         case RENAME:
           d.score = de.getScore();
           break;
+        case ADD:
+        case DELETE:
+        case MODIFY:
         default:
           break;
       }
