@@ -222,24 +222,25 @@ public class DocServlet extends BaseServlet {
     }
 
     ObjectReader reader = rw.getObjectReader();
-    TreeWalk tw = TreeWalk.forPath(reader, path, root);
-    if (tw == null) {
+    try (TreeWalk tw = TreeWalk.forPath(reader, path, root)) {
+      if (tw == null) {
+        return null;
+      }
+      if ((tw.getRawMode(0) & TYPE_MASK) == TYPE_TREE) {
+        if (findIndexFile(tw)) {
+          path = tw.getPathString();
+        } else {
+          return null;
+        }
+      }
+      if ((tw.getRawMode(0) & TYPE_MASK) == TYPE_FILE) {
+        if (!path.endsWith(".md")) {
+          return null;
+        }
+        return new MarkdownFile(path, tw.getObjectId(0));
+      }
       return null;
     }
-    if ((tw.getRawMode(0) & TYPE_MASK) == TYPE_TREE) {
-      if (findIndexFile(tw)) {
-        path = tw.getPathString();
-      } else {
-        return null;
-      }
-    }
-    if ((tw.getRawMode(0) & TYPE_MASK) == TYPE_FILE) {
-      if (!path.endsWith(".md")) {
-        return null;
-      }
-      return new MarkdownFile(path, tw.getObjectId(0));
-    }
-    return null;
   }
 
   private static boolean findIndexFile(TreeWalk tw) throws IOException {

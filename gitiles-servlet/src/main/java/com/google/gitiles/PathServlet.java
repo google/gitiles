@@ -390,8 +390,7 @@ public class PathServlet extends BaseServlet {
 
       RevTree root = getRoot(view, rw);
       String path = view.getPathPart();
-      TreeWalk tw = new TreeWalk(rw.getObjectReader());
-      try {
+      try (TreeWalk tw = new TreeWalk(rw.getObjectReader())) {
         tw.addTree(root);
         tw.setRecursive(false);
         if (path.isEmpty()) {
@@ -415,7 +414,6 @@ public class PathServlet extends BaseServlet {
       } catch (IOException | RuntimeException e) {
         // Fallthrough.
       }
-      tw.close();
       return null;
     }
 

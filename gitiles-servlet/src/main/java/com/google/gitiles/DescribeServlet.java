@@ -62,9 +62,9 @@ public class DescribeServlet extends BaseServlet {
     if (name == null) {
       return;
     }
-    Writer out = startRenderText(req, res);
-    out.write(RefServlet.sanitizeRefForText(name));
-    out.close();
+    try (Writer out = startRenderText(req, res)) {
+      out.write(RefServlet.sanitizeRefForText(name));
+    }
   }
 
   @Override

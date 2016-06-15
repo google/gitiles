@@ -179,22 +179,21 @@ public class HostIndexServlet extends BaseServlet {
       return;
     }
 
-    Writer writer = startRenderText(req, res);
-    for (RepositoryDescription repo : descs.values()) {
-      for (String name : branches) {
-        String ref = repo.branches.get(name);
-        if (ref == null) {
-          // Print stub (forty '-' symbols)
-          ref = "----------------------------------------";
+    try (Writer writer = startRenderText(req, res)) {
+      for (RepositoryDescription repo : descs.values()) {
+        for (String name : branches) {
+          String ref = repo.branches.get(name);
+          if (ref == null) {
+            // Print stub (forty '-' symbols)
+            ref = "----------------------------------------";
+          }
+          writer.write(ref);
+          writer.write(' ');
         }
-        writer.write(ref);
-        writer.write(' ');
+        writer.write(GitilesUrls.NAME_ESCAPER.apply(stripPrefix(prefix, repo.name)));
+        writer.write('\n');
       }
-      writer.write(GitilesUrls.NAME_ESCAPER.apply(stripPrefix(prefix, repo.name)));
-      writer.write('\n');
     }
-    writer.flush();
-    writer.close();
   }
 
   @Override

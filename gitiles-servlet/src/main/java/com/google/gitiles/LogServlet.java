@@ -225,11 +225,15 @@ public class LogServlet extends BaseServlet {
   }
 
   private static RevWalk newWalk(Repository repo, GitilesView view, GitilesAccess access)
-      throws MissingObjectException, IncorrectObjectTypeException, IOException {
+      throws MissingObjectException, IOException {
     RevWalk walk = new RevWalk(repo);
-    walk.markStart(walk.parseCommit(view.getRevision().getId()));
-    if (view.getOldRevision() != Revision.NULL) {
-      walk.markUninteresting(walk.parseCommit(view.getOldRevision().getId()));
+    try {
+      walk.markStart(walk.parseCommit(view.getRevision().getId()));
+      if (view.getOldRevision() != Revision.NULL) {
+        walk.markUninteresting(walk.parseCommit(view.getOldRevision().getId()));
+      }
+    } catch (IncorrectObjectTypeException iote) {
+      return null;
     }
     setTreeFilter(walk, view, access);
     List<RevFilter> filters = new ArrayList<>(3);
@@ -288,25 +292,18 @@ public class LogServlet extends BaseServlet {
       return null;
     }
 
-    RevWalk walk = null;
-    try {
-      walk = newWalk(repo, view, access);
-    } catch (IncorrectObjectTypeException e) {
-      return null;
-    }
+    try (RevWalk walk = newWalk(repo, view, access)) {
+      if (walk == null) {
+        return null;
+      }
 
-    Optional<ObjectId> start;
-    try {
-      start = getStart(view.getParameters(), walk.getObjectReader());
-    } catch (IOException e) {
-      walk.close();
-      throw e;
-    }
-    if (start == null) {
-      return null;
-    }
+      Optional<ObjectId> start = getStart(view.getParameters(), walk.getObjectReader());
+      if (start == null) {
+        return null;
+      }
 
-    return new Paginator(walk, getLimit(view), start.orNull());
+      return new Paginator(walk, getLimit(view), start.orNull());
+    }
   }
 
   private static int getLimit(GitilesView view) {
