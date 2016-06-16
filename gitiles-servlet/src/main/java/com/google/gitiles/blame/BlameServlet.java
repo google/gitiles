@@ -197,7 +197,7 @@ public class BlameServlet extends BaseServlet {
       }
       RevTree tree = rw.parseTree(commitId);
       TreeWalk tw = TreeWalk.forPath(rw.getObjectReader(), view.getPathPart(), tree);
-      if (tw == null || (tw.getRawMode(0) & FileMode.TYPE_FILE) == 0) {
+      if (tw == null || (tw.getRawMode(0) & FileMode.TYPE_MASK) != FileMode.TYPE_FILE) {
         return null;
       }
       return tw.getObjectId(0);
