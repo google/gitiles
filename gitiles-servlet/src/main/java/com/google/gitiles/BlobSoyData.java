@@ -111,9 +111,9 @@ public class BlobSoyData {
           "out-of-order ParseResult, expected %s >= %s",
           r.getOffset(),
           last);
-      line = writeResult(lines, null, content, last, r.getOffset());
+      writeResult(lines, null, content, last, r.getOffset());
       last = r.getOffset() + r.getLength();
-      line = writeResult(lines, r.getStyleKeysString(), content, r.getOffset(), last);
+      writeResult(lines, r.getStyleKeysString(), content, r.getOffset(), last);
     }
     if (last < content.length()) {
       writeResult(lines, null, content, last, content.length());
@@ -134,7 +134,7 @@ public class BlobSoyData {
     }
   }
 
-  private static SoyListData writeResult(
+  private static void writeResult(
       SoyListData lines, String classes, String s, int start, int end) {
     SoyListData line = lines.getListData(lines.length() - 1);
     while (true) {
@@ -146,13 +146,12 @@ public class BlobSoyData {
 
       start = nl + (isCrNl(s, nl) ? 2 : 1);
       if (start == s.length()) {
-        return null;
+        return;
       }
       line = new SoyListData();
       lines.add(line);
     }
     addSpan(line, classes, s, start, end);
-    return line;
   }
 
   private static void addSpan(SoyListData line, String classes, String s, int start, int end) {

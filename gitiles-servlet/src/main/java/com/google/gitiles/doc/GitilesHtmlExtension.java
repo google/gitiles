@@ -115,7 +115,6 @@ public class GitilesHtmlExtension implements ParserExtension {
       // HtmlInline{<a name="id">}HtmlInline{</a>}
       if (isAnchorClose(next)) {
         next.unlink();
-        next = curr.getNext();
 
         NamedAnchor anchor = new NamedAnchor();
         anchor.setName(name);
