@@ -18,8 +18,8 @@ maven_jar(
 
 maven_jar(
   name = 'joda-time',
-  id = 'joda-time:joda-time:2.8',
-  sha1 = '9f2785d7184b97d005a44241ccaf980f43b9ccdb',
+  id = 'joda-time:joda-time:2.9.4',
+  sha1 = '1c295b462f16702ebe720bbb08f62e1ba80da41b',
   exclude = [
     'META-INF/LICENSE.txt',
     'META-INF/NOTICE.txt',
