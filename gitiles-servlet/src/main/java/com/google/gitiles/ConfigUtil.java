@@ -14,6 +14,8 @@
 
 package com.google.gitiles;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Predicates;
 import com.google.common.cache.CacheBuilder;
@@ -27,6 +29,8 @@ import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.annotation.Nullable;
 
 /** Utilities for working with {@link Config} objects. */
 public class ConfigUtil {
@@ -44,76 +48,10 @@ public class ConfigUtil {
    * @return a standard duration representing the time read, or defaultValue.
    */
   public static Duration getDuration(
-      Config config, String section, String subsection, String name, Duration defaultValue) {
-    String valStr = config.getString(section, subsection, name);
-    if (valStr == null) {
-      return defaultValue;
-    }
-    valStr = valStr.trim();
-    if (valStr.isEmpty()) {
-      return defaultValue;
-    }
-    Duration val = parseDuration(valStr);
-    if (val == null) {
-      String key = section + (subsection != null ? "." + subsection : "") + "." + name;
-      throw new IllegalStateException("Not time unit: " + key + " = " + valStr);
-    }
-    return val;
-  }
-
-  /**
-   * Parse a duration value from a string.
-   * <p>
-   * Durations can be written with unit suffixes, for example {@code "1 s"} or
-   * {@code "5 days"}. If units are not specified, milliseconds are assumed.
-   *
-   * @param valStr the value to parse.
-   * @return a standard duration representing the time parsed, or null if not a
-   *     valid duration.
-   */
-  public static Duration parseDuration(String valStr) {
-    if (valStr == null) {
-      return null;
-    }
-    valStr = valStr.trim();
-    if (valStr.isEmpty()) {
-      return null;
-    }
-    Matcher m = matcher("^([1-9][0-9]*(?:\\.[0-9]*)?)\\s*(.*)$", valStr);
-    if (!m.matches()) {
-      return null;
-    }
-
-    String digits = m.group(1);
-    String unitName = m.group(2).trim();
-
-    TimeUnit unit;
-    if ("".equals(unitName)) {
-      unit = TimeUnit.MILLISECONDS;
-    } else if (anyOf(unitName, "ms", "millis", "millisecond", "milliseconds")) {
-      unit = TimeUnit.MILLISECONDS;
-    } else if (anyOf(unitName, "s", "sec", "second", "seconds")) {
-      unit = TimeUnit.SECONDS;
-    } else if (anyOf(unitName, "m", "min", "minute", "minutes")) {
-      unit = TimeUnit.MINUTES;
-    } else if (anyOf(unitName, "h", "hr", "hour", "hours")) {
-      unit = TimeUnit.HOURS;
-    } else if (anyOf(unitName, "d", "day", "days")) {
-      unit = TimeUnit.DAYS;
-    } else {
-      return null;
-    }
-
-    try {
-      if (digits.indexOf('.') == -1) {
-        long val = Long.parseLong(digits);
-        return new Duration(val * TimeUnit.MILLISECONDS.convert(1, unit));
-      }
-      double val = Double.parseDouble(digits);
-      return new Duration((long) (val * TimeUnit.MILLISECONDS.convert(1, unit)));
-    } catch (NumberFormatException nfe) {
-      return null;
-    }
+      Config config, String section, String subsection, String name,
+      @Nullable Duration defaultValue) {
+    long m = config.getTimeUnit(section, subsection, name, -1, MILLISECONDS);
+    return m == -1 ? defaultValue : Duration.millis(m);
   }
 
   /**

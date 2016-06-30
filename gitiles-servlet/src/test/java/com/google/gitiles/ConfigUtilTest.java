@@ -17,7 +17,7 @@ package com.google.gitiles;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.gitiles.ConfigUtil.getDuration;
-import static com.google.gitiles.ConfigUtil.parseDuration;
+import static org.junit.Assert.fail;
 
 import org.eclipse.jgit.lib.Config;
 import org.joda.time.Duration;
@@ -39,8 +39,12 @@ public class ConfigUtilTest {
     assertThat(t.getMillis()).isEqualTo(500);
 
     config.setString("core", "dht", "timeout", "5.2 sec");
-    t = getDuration(config, "core", "dht", "timeout", def);
-    assertThat(t.getMillis()).isEqualTo(5200);
+    try {
+      getDuration(config, "core", "dht", "timeout", def);
+      fail("expected IllegalArgumentException");
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Invalid time unit value: core.dht.timeout=5.2 sec");
+    }
 
     config.setString("core", "dht", "timeout", "1 min");
     t = getDuration(config, "core", "dht", "timeout", def);
@@ -48,24 +52,37 @@ public class ConfigUtilTest {
   }
 
   @Test
-  public void parseDurationReturnsDuration() throws Exception {
-    assertDoesNotParse(null);
-    assertDoesNotParse("");
-    assertDoesNotParse(" ");
-    assertParses(500, "500 ms");
-    assertParses(500, "500ms");
-    assertParses(500, " 500 ms ");
-    assertParses(5200, "5.2 sec");
-    assertParses(60000, "1 min");
+  public void getDurationCanReturnDefault() throws Exception {
+    Duration def = Duration.standardSeconds(1);
+    Config config = new Config();
+    Duration t;
+
+    t = getDuration(config, "core", null, "blank", def);
+    assertThat(t.getMillis()).isEqualTo(1000);
+
+    config.setString("core", null, "blank", "");
+    t = getDuration(config, "core", null, "blank", def);
+    assertThat(t.getMillis()).isEqualTo(1000);
+
+    config.setString("core", null, "blank", " ");
+    t = getDuration(config, "core", null, "blank", def);
+    assertThat(t.getMillis()).isEqualTo(1000);
   }
 
-  private static void assertDoesNotParse(String val) {
-    assertThat(parseDuration(val)).named(String.valueOf(val)).isNull();
-  }
+  @Test
+  public void nullAsDefault() throws Exception {
+    Config config = new Config();
+    Duration t;
 
-  private static void assertParses(long expectedMillis, String val) {
-    Duration actual = parseDuration(checkNotNull(val));
-    assertThat(actual).named(val).isNotNull();
-    assertThat(actual.getMillis()).named(val).isEqualTo(expectedMillis);
+    t = getDuration(config, "core", null, "blank", null);
+    assertThat(t).isNull();
+
+    config.setString("core", null, "blank", "");
+    t = getDuration(config, "core", null, "blank", null);
+    assertThat(t).isNull();
+
+    config.setString("core", null, "blank", " ");
+    t = getDuration(config, "core", null, "blank", null);
+    assertThat(t).isNull();
   }
 }
