@@ -456,6 +456,7 @@ ul, ol {
   cursor: pointer;
 }
 .FileContents-lineContents {
+  line-height: 1.3em;
   min-height: 1em;
   padding-left: 10px;
 }
@@ -504,6 +505,7 @@ ul, ol {
 }
 .Blame-lineContent {
   font-size: 9pt;
+  line-height: 1.3em;
   padding: 0 8px;
 }
 
