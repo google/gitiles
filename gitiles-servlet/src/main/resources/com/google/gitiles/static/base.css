@@ -80,19 +80,16 @@ ul, ol {
 .Site {
   background: #fff;
   color: #000;
-  display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
   font: 14px/1.54 'Open Sans', sans-serif;
   min-height: 100vh;
-  -webkit-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
 }
 .Site-header,
 .Site-footer {
   background: #eee;
-  -webkit-flex: none;
   -ms-flex: none;
   flex: none;
 }
@@ -100,7 +97,6 @@ ul, ol {
   background: #fff;
 }
 .Site-content {
-  -webkit-flex: 1 0 auto;
   -ms-flex: 1 0 auto;
   flex: 1 0 auto;
   padding: 20px;
@@ -114,10 +110,8 @@ ul, ol {
 }
 .Header,
 .Footer {
-  -webkit-align-items: center;
   -ms-flex-align: center;
   align-items: center;
-  display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
   padding: 20px;
@@ -129,10 +123,8 @@ ul, ol {
 }
 .Header-title,
 .Header-image {
-  display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
 }
@@ -152,10 +144,8 @@ ul, ol {
   padding: 15px 0;
 }
 .Header-menu {
-  display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-justify-content: flex-end;
   -ms-flex-pack: end;
   justify-content: flex-end;
 }
@@ -182,16 +172,13 @@ ul, ol {
   color: #666;
 }
 .Footer-poweredBy {
-  -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
 }
 .Footer-formats,
 .Footer-links {
-  display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-justify-content: flex-end;
   -ms-flex-pack: end;
   justify-content: flex-end;
 }
@@ -206,7 +193,6 @@ ul, ol {
   margin-left: 10px;
 }
 .RepoList-item {
-  display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
   left: -10px;
@@ -243,7 +229,6 @@ ul, ol {
 }
 .RepoList-itemDescription {
   color: #000;
-  -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
   overflow: hidden;
@@ -276,12 +261,10 @@ ul, ol {
   width: 100%;
 }
 .RepoShortlog {
-  display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
 }
 .RepoShortlog-refs {
-  -webkit-flex: none !important;
   -ms-flex: none !important;
   flex: none !important;
   width: 20%;
@@ -290,7 +273,6 @@ ul, ol {
   margin: 0;
 }
 .RepoShortlog-log {
-  -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
 }
