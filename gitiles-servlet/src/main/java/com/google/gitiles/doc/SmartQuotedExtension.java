@@ -14,16 +14,18 @@
 
 package com.google.gitiles.doc;
 
-import static com.google.gitiles.doc.SmartQuoted.Type.*;
+import static com.google.gitiles.doc.SmartQuoted.Type.DOUBLE;
+import static com.google.gitiles.doc.SmartQuoted.Type.SINGLE;
 
 import com.google.gitiles.doc.SmartQuoted.Type;
 
 import org.commonmark.Extension;
 import org.commonmark.node.Node;
 import org.commonmark.node.Text;
-import org.commonmark.parser.DelimiterProcessor;
 import org.commonmark.parser.Parser;
 import org.commonmark.parser.Parser.ParserExtension;
+import org.commonmark.parser.delimiter.DelimiterProcessor;
+import org.commonmark.parser.delimiter.DelimiterRun;
 
 /** Uses smart quotes for ' and ". */
 public class SmartQuotedExtension implements ParserExtension {
@@ -61,22 +63,22 @@ public class SmartQuotedExtension implements ParserExtension {
     }
 
     @Override
-    public char getOpeningDelimiterChar() {
+    public char getOpeningCharacter() {
       return delim;
     }
 
     @Override
-    public char getClosingDelimiterChar() {
+    public char getClosingCharacter() {
       return delim;
     }
 
     @Override
-    public int getMinDelimiterCount() {
+    public int getMinLength() {
       return 1;
     }
 
     @Override
-    public int getDelimiterUse(int openerCount, int closerCount) {
+    public int getDelimiterUse(DelimiterRun opener, DelimiterRun closer) {
       return 1;
     }
 
