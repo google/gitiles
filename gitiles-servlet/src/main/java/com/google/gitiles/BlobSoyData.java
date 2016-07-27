@@ -46,10 +46,9 @@ public class BlobSoyData {
   private static final Logger log = LoggerFactory.getLogger(BlobSoyData.class);
 
   /**
-   * Maximum number of bytes to load from a supposed text file for display.
-   * Files larger than this will be displayed as binary files, even if the
-   * contents was text. For example really big XML files may be above this limit
-   * and will get displayed as binary.
+   * Maximum number of bytes to load from a supposed text file for display. Files larger than this
+   * will be displayed as binary files, even if the contents was text. For example really big XML
+   * files may be above this limit and will get displayed as binary.
    */
   private static final int MAX_FILE_SIZE = 10 << 20;
 
@@ -134,8 +133,7 @@ public class BlobSoyData {
     }
   }
 
-  private static void writeResult(
-      SoyListData lines, String classes, String s, int start, int end) {
+  private static void writeResult(SoyListData lines, String classes, String s, int start, int end) {
     SoyListData line = lines.getListData(lines.length() - 1);
     while (true) {
       int nl = nextLineBreak(s, start, end);
@@ -144,7 +142,7 @@ public class BlobSoyData {
       }
       addSpan(line, classes, s, start, nl);
 
-      start = nl + (isCrNl(s, nl) ? 2 : 1);
+      start = nl + 1;
       if (start == s.length()) {
         return;
       }
@@ -163,17 +161,9 @@ public class BlobSoyData {
     }
   }
 
-  private static boolean isCrNl(String s, int n) {
-    return s.charAt(n) == '\r' && n != s.length() - 1 && s.charAt(n + 1) == '\n';
-  }
-
   private static int nextLineBreak(String s, int start, int end) {
-    for (int i = start; i < end; i++) {
-      if (s.charAt(i) == '\n' || s.charAt(i) == '\r') {
-        return i;
-      }
-    }
-    return -1;
+    int n = s.indexOf('\n', start);
+    return n < end ? n : -1;
   }
 
   private static String extension(String path, String content) {
