@@ -275,6 +275,7 @@ ul, ol {
 .RepoShortlog-log {
   -ms-flex: 1;
   flex: 1;
+  width: 80%;
 }
 .RepoIndexDoc {
   border-top: 1px solid #ddd;
