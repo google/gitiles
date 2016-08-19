@@ -15,7 +15,8 @@
 package com.google.gitiles.doc;
 
 import com.google.gitiles.doc.html.HtmlBuilder;
-
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.commonmark.Extension;
 import org.commonmark.node.AbstractVisitor;
 import org.commonmark.node.HardLineBreak;
@@ -26,9 +27,6 @@ import org.commonmark.node.ThematicBreak;
 import org.commonmark.parser.Parser;
 import org.commonmark.parser.Parser.ParserExtension;
 import org.commonmark.parser.PostProcessor;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Convert some {@link HtmlInline} and {@link HtmlBlock} to safe types.

@@ -19,7 +19,6 @@ import static com.google.gitiles.TreeSoyData.getTargetDisplayName;
 import static com.google.gitiles.TreeSoyData.resolveTargetUrl;
 
 import com.google.common.base.Strings;
-
 import org.eclipse.jgit.lib.ObjectId;
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -26,7 +26,13 @@ import com.google.gitiles.DateFormatter.Format;
 import com.google.gitiles.doc.MarkdownConfig;
 import com.google.gson.reflect.TypeToken;
 import com.google.template.soy.data.SanitizedContent;
-
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.Writer;
+import java.util.List;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.http.server.ServletUtils;
 import org.eclipse.jgit.lib.Config;
@@ -37,15 +43,6 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevObject;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.Writer;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /** Serves the index page for a repository, if accessed directly by a browser. */
 public class RepositoryIndexServlet extends BaseServlet {

@@ -18,7 +18,6 @@ import com.google.common.base.Enums;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-
 import org.eclipse.jgit.api.ArchiveCommand;
 import org.eclipse.jgit.archive.TarFormat;
 import org.eclipse.jgit.archive.Tbz2Format;

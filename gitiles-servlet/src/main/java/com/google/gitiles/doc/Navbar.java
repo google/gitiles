@@ -15,17 +15,15 @@
 package com.google.gitiles.doc;
 
 import com.google.gitiles.doc.html.HtmlBuilder;
-import com.google.template.soy.shared.restricted.Sanitizers;
 import com.google.template.soy.shared.restricted.EscapingConventions.FilterImageDataUri;
-
-import org.commonmark.node.Heading;
-import org.commonmark.node.Node;
-import org.eclipse.jgit.util.RawParseUtils;
-
+import com.google.template.soy.shared.restricted.Sanitizers;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.commonmark.node.Heading;
+import org.commonmark.node.Node;
+import org.eclipse.jgit.util.RawParseUtils;
 
 class Navbar {
   private static final Pattern REF_LINK =

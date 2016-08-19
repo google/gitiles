@@ -19,7 +19,6 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.common.base.CharMatcher;
 import com.google.gitiles.GitilesView;
 import com.google.gitiles.RootedDocServlet;
-
 import org.eclipse.jgit.lib.Config;
 import org.junit.Before;
 import org.junit.Test;

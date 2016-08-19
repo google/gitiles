@@ -30,14 +30,6 @@ import com.google.gitiles.blame.BlameCache;
 import com.google.gitiles.blame.BlameCacheImpl;
 import com.google.gitiles.blame.BlameServlet;
 import com.google.gitiles.doc.DocServlet;
-
-import org.eclipse.jgit.errors.ConfigInvalidException;
-import org.eclipse.jgit.http.server.glue.MetaFilter;
-import org.eclipse.jgit.http.server.glue.ServletBinder;
-import org.eclipse.jgit.lib.Config;
-import org.eclipse.jgit.transport.resolver.FileResolver;
-import org.eclipse.jgit.transport.resolver.RepositoryResolver;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -45,7 +37,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Pattern;
-
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -55,6 +46,12 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.eclipse.jgit.errors.ConfigInvalidException;
+import org.eclipse.jgit.http.server.glue.MetaFilter;
+import org.eclipse.jgit.http.server.glue.ServletBinder;
+import org.eclipse.jgit.lib.Config;
+import org.eclipse.jgit.transport.resolver.FileResolver;
+import org.eclipse.jgit.transport.resolver.RepositoryResolver;
 
 /**
  * MetaFilter to serve Gitiles.

@@ -15,22 +15,19 @@
 package com.google.gitiles;
 
 import com.google.common.collect.ImmutableList;
-
+import java.net.URL;
+import java.util.Collections;
+import java.util.Enumeration;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
 import org.eclipse.jgit.junit.TestRepository;
 import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.transport.resolver.RepositoryResolver;
-
-import java.net.URL;
-import java.util.Collections;
-import java.util.Enumeration;
-
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 
 /** Static utility methods for creating {@link GitilesServlet}s for testing. */
 public class TestGitilesServlet {

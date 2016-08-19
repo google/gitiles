@@ -23,20 +23,17 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gitiles.CommitData.Field;
 import com.google.template.soy.tofu.SoyTofu;
-
+import java.io.IOException;
+import java.io.Writer;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.Nullable;
+import javax.servlet.http.HttpServletRequest;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
-
-import java.io.IOException;
-import java.io.Writer;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
 
 public class LogSoyData {
   private static final ImmutableSet<Field> FIELDS =

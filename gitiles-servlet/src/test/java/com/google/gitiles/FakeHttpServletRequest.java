@@ -25,10 +25,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
-
-import org.eclipse.jgit.http.server.ServletUtils;
-import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
-
 import java.io.BufferedReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -39,12 +35,13 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import org.eclipse.jgit.http.server.ServletUtils;
+import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
 
 /** Simple fake implementation of {@link HttpServletRequest}. */
 public class FakeHttpServletRequest implements HttpServletRequest {

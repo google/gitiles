@@ -14,7 +14,6 @@
 
 package com.google.gitiles;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.gitiles.ConfigUtil.getDuration;
 import static org.junit.Assert.fail;

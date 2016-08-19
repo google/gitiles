@@ -21,7 +21,8 @@ import com.google.common.io.BaseEncoding;
 import com.google.gitiles.TreeJsonData.Tree;
 import com.google.template.soy.data.SoyListData;
 import com.google.template.soy.data.restricted.StringData;
-
+import java.util.List;
+import java.util.Map;
 import org.eclipse.jgit.dircache.DirCacheEditor.PathEdit;
 import org.eclipse.jgit.dircache.DirCacheEntry;
 import org.eclipse.jgit.lib.FileMode;
@@ -32,9 +33,6 @@ import org.eclipse.jgit.revwalk.RevTree;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-
-import java.util.List;
-import java.util.Map;
 
 /** Tests for {@PathServlet}. */
 @SuppressWarnings("unchecked")

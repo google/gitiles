@@ -32,10 +32,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
-
-import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.revwalk.RevObject;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -43,8 +39,9 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
+import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.revwalk.RevObject;
 
 /**
  * Information about a view in Gitiles.

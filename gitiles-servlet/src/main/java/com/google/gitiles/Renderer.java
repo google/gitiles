@@ -31,7 +31,6 @@ import com.google.common.hash.Hashing;
 import com.google.common.io.ByteStreams;
 import com.google.common.net.HttpHeaders;
 import com.google.template.soy.tofu.SoyTofu;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,7 +40,6 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 

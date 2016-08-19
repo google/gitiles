@@ -19,7 +19,10 @@ import static javax.servlet.http.HttpServletResponse.SC_OK;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
-
+import java.io.IOException;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jgit.api.ArchiveCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
@@ -30,12 +33,6 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
-
-import java.io.IOException;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 public class ArchiveServlet extends BaseServlet {
   private static final long serialVersionUID = 1L;

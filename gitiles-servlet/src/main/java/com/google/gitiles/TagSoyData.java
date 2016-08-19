@@ -15,13 +15,10 @@
 package com.google.gitiles;
 
 import com.google.common.collect.Maps;
-
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevTag;
-
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
 
 /** Soy data converter for git tags. */
 public class TagSoyData {

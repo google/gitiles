@@ -26,7 +26,8 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-
+import java.util.Map;
+import java.util.TimeZone;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
 import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
@@ -37,9 +38,6 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.util.SystemReader;
 import org.junit.After;
 import org.junit.Before;
-
-import java.util.Map;
-import java.util.TimeZone;
 
 /** Base class for servlet tests. */
 public class ServletTest {

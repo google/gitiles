@@ -16,7 +16,6 @@ package com.google.gitiles;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableMap;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;

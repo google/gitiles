@@ -21,18 +21,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
-
-import org.eclipse.jgit.errors.ConfigInvalidException;
-import org.eclipse.jgit.errors.RepositoryNotFoundException;
-import org.eclipse.jgit.http.server.ServletUtils;
-import org.eclipse.jgit.lib.Config;
-import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.lib.StoredConfig;
-import org.eclipse.jgit.transport.resolver.FileResolver;
-import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
-import org.eclipse.jgit.util.IO;
-
 import java.io.File;
 import java.io.IOException;
 import java.text.Collator;
@@ -43,8 +31,17 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
-
 import javax.servlet.http.HttpServletRequest;
+import org.eclipse.jgit.errors.ConfigInvalidException;
+import org.eclipse.jgit.errors.RepositoryNotFoundException;
+import org.eclipse.jgit.http.server.ServletUtils;
+import org.eclipse.jgit.lib.Config;
+import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.StoredConfig;
+import org.eclipse.jgit.transport.resolver.FileResolver;
+import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
+import org.eclipse.jgit.util.IO;
 
 /**
  * Default implementation of {@link GitilesAccess} with local repositories.

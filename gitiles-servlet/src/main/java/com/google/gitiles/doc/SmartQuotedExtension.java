@@ -18,7 +18,6 @@ import static com.google.gitiles.doc.SmartQuoted.Type.DOUBLE;
 import static com.google.gitiles.doc.SmartQuoted.Type.SINGLE;
 
 import com.google.gitiles.doc.SmartQuoted.Type;
-
 import org.commonmark.Extension;
 import org.commonmark.node.Node;
 import org.commonmark.node.Text;

@@ -29,14 +29,6 @@ import com.google.gson.reflect.TypeToken;
 import com.google.template.soy.data.SoyData;
 import com.google.template.soy.data.SoyListData;
 import com.google.template.soy.data.SoyMapData;
-
-import org.eclipse.jgit.errors.RepositoryNotFoundException;
-import org.eclipse.jgit.transport.ServiceMayNotContinueException;
-import org.eclipse.jgit.transport.resolver.ServiceNotAuthorizedException;
-import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Collections;
@@ -44,10 +36,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.eclipse.jgit.errors.RepositoryNotFoundException;
+import org.eclipse.jgit.transport.ServiceMayNotContinueException;
+import org.eclipse.jgit.transport.resolver.ServiceNotAuthorizedException;
+import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** Serves the top level index page for a Gitiles host. */
 public class HostIndexServlet extends BaseServlet {

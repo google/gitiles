@@ -16,16 +16,14 @@ package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Map;
+import javax.servlet.FilterConfig;
 import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.storage.file.FileBasedConfig;
 import org.eclipse.jgit.util.FS;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Map;
-
-import javax.servlet.FilterConfig;
 
 public class GitilesConfig {
   private static final String FILTER_CONFIG_PARAM = "configPath";

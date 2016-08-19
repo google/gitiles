@@ -14,11 +14,10 @@
 
 package com.google.gitiles.blame;
 
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.Repository;
-
 import java.io.IOException;
 import java.util.List;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.Repository;
 
 public interface BlameCache {
   /** @return the blame of a path at a given commit. */

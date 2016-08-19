@@ -17,15 +17,13 @@ package com.google.gitiles;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.collect.Lists;
-
+import java.io.IOException;
+import java.util.List;
 import org.eclipse.jgit.annotations.Nullable;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.treewalk.TreeWalk;
-
-import java.io.IOException;
-import java.util.List;
 
 class TreeJsonData {
   static class Tree {

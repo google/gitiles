@@ -18,7 +18,6 @@ import com.google.common.base.Enums;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.net.HttpHeaders;
-
 import javax.servlet.http.HttpServletRequest;
 
 /** Type of formatting to use in the response to the client. */

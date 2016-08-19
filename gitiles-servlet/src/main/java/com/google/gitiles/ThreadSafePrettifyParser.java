@@ -15,7 +15,6 @@
 package com.google.gitiles;
 
 import java.util.Collections;
-
 import prettify.PrettifyParser;
 import prettify.parser.Prettify;
 

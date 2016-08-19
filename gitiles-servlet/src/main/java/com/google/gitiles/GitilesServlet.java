@@ -15,13 +15,7 @@
 package com.google.gitiles;
 
 import com.google.gitiles.blame.BlameCache;
-
-import org.eclipse.jgit.http.server.glue.MetaServlet;
-import org.eclipse.jgit.lib.Config;
-import org.eclipse.jgit.transport.resolver.RepositoryResolver;
-
 import java.util.Enumeration;
-
 import javax.annotation.Nullable;
 import javax.servlet.Filter;
 import javax.servlet.FilterConfig;
@@ -30,6 +24,9 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
+import org.eclipse.jgit.http.server.glue.MetaServlet;
+import org.eclipse.jgit.lib.Config;
+import org.eclipse.jgit.transport.resolver.RepositoryResolver;
 
 /**
  * Servlet to serve Gitiles.

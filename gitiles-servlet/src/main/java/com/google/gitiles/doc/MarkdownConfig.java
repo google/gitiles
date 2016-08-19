@@ -16,7 +16,6 @@ package com.google.gitiles.doc;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-
 import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.Config.SectionParser;
 import org.eclipse.jgit.util.StringUtils;

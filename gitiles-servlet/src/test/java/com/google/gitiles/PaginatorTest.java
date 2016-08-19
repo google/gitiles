@@ -18,7 +18,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.Lists;
-
+import java.util.List;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
 import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
@@ -30,8 +30,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-
-import java.util.List;
 
 /** Unit tests for {@link LogServlet}. */
 @RunWith(JUnit4.class)

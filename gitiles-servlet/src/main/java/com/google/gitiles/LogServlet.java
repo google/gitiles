@@ -29,7 +29,16 @@ import com.google.common.primitives.Longs;
 import com.google.gitiles.CommitData.Field;
 import com.google.gitiles.DateFormatter.Format;
 import com.google.gson.reflect.TypeToken;
-
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jgit.diff.DiffConfig;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
@@ -55,18 +64,6 @@ import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.eclipse.jgit.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /** Serves an HTML page with a shortlog for commits and paths. */
 public class LogServlet extends BaseServlet {

@@ -28,7 +28,13 @@ import com.google.common.io.BaseEncoding;
 import com.google.gitiles.CommitData.Field;
 import com.google.gitiles.CommitJsonData.Commit;
 import com.google.gitiles.DateFormatter.Format;
-
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.Writer;
+import java.util.List;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.http.server.ServletUtils;
@@ -45,15 +51,6 @@ import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.Writer;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /** Serves an HTML page with detailed information about a ref. */
 public class RevisionServlet extends BaseServlet {

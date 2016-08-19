@@ -21,19 +21,16 @@ import static com.google.gitiles.GitilesFilter.REPO_REGEX;
 import static com.google.gitiles.GitilesFilter.ROOT_REGEX;
 
 import com.google.common.collect.ImmutableList;
-
-import org.eclipse.jgit.http.server.glue.MetaFilter;
-import org.eclipse.jgit.http.server.glue.MetaServlet;
-import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
-import org.eclipse.jgit.junit.TestRepository;
-
 import java.io.IOException;
 import java.util.regex.Pattern;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.eclipse.jgit.http.server.glue.MetaFilter;
+import org.eclipse.jgit.http.server.glue.MetaServlet;
+import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
+import org.eclipse.jgit.junit.TestRepository;
 
 /** Run {@link ViewFilter} in a test environment. */
 public class TestViewFilter {

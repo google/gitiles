@@ -21,7 +21,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.gitiles.RefServlet.RefJsonData;
 import com.google.gson.reflect.TypeToken;
-
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -30,12 +33,6 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
 
 /** Tests for {@link RefServlet}. */
 @RunWith(JUnit4.class)

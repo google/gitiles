@@ -20,10 +20,8 @@ import com.google.gitiles.DateFormatter;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-
-import org.eclipse.jgit.lib.ObjectId;
-
 import java.io.IOException;
+import org.eclipse.jgit.lib.ObjectId;
 
 class RegionAdapter extends TypeAdapter<Region> {
   private final DateFormatter df;

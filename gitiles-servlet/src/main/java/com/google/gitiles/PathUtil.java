@@ -18,7 +18,6 @@ import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.io.Files;
-
 import java.util.StringTokenizer;
 
 /** Static utilities for dealing with pathnames. */

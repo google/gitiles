@@ -29,7 +29,14 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.BaseEncoding;
 import com.google.common.primitives.Bytes;
-
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.Writer;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.LargeObjectException;
@@ -56,16 +63,6 @@ import org.eclipse.jgit.util.RawParseUtils;
 import org.eclipse.jgit.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.Writer;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /** Serves an HTML page with detailed information about a path within a tree. */
 // TODO(dborowitz): Handle non-UTF-8 names.

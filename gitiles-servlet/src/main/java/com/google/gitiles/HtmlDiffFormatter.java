@@ -20,7 +20,10 @@ import static org.eclipse.jgit.util.QuotedString.GIT_PATH;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
@@ -29,11 +32,6 @@ import org.eclipse.jgit.diff.RawText;
 import org.eclipse.jgit.patch.FileHeader;
 import org.eclipse.jgit.patch.FileHeader.PatchType;
 import org.eclipse.jgit.util.RawParseUtils;
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.List;
-import java.util.Map;
 
 /** Formats a unified format patch as UTF-8 encoded HTML. */
 final class HtmlDiffFormatter extends DiffFormatter {

@@ -34,7 +34,12 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.google.template.soy.data.SoyListData;
 import com.google.template.soy.data.SoyMapData;
-
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.http.server.ServletUtils;
 import org.eclipse.jgit.lib.FileMode;
@@ -47,14 +52,6 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /** Serves an HTML page with blame data for a commit. */
 public class BlameServlet extends BaseServlet {

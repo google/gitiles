@@ -22,7 +22,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.google.template.soy.data.SoyListData;
 import com.google.template.soy.data.SoyMapData;
-
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import org.eclipse.jgit.diff.RawText;
 import org.eclipse.jgit.errors.LargeObjectException;
 import org.eclipse.jgit.errors.MissingObjectException;
@@ -33,11 +35,6 @@ import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.util.RawParseUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-
 import prettify.parser.Prettify;
 import syntaxhighlight.ParseResult;
 

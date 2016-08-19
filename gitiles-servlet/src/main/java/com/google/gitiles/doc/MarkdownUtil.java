@@ -16,7 +16,6 @@ package com.google.gitiles.doc;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Strings;
-
 import org.commonmark.node.Heading;
 import org.commonmark.node.Node;
 import org.commonmark.node.Text;

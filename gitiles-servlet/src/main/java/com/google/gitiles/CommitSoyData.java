@@ -27,7 +27,12 @@ import com.google.common.collect.Sets;
 import com.google.gitiles.CommitData.DiffList;
 import com.google.gitiles.CommitData.Field;
 import com.google.template.soy.data.restricted.NullData;
-
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.Nullable;
+import javax.servlet.http.HttpServletRequest;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.Constants;
@@ -36,14 +41,6 @@ import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.util.RelativeDateFormatter;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
 
 /** Soy data converter for git commits. */
 public class CommitSoyData {

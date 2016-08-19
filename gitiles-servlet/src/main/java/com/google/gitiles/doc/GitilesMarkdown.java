@@ -15,7 +15,6 @@
 package com.google.gitiles.doc;
 
 import com.google.common.collect.ImmutableList;
-
 import org.commonmark.ext.autolink.AutolinkExtension;
 import org.commonmark.ext.gfm.strikethrough.StrikethroughExtension;
 import org.commonmark.ext.gfm.tables.TablesExtension;

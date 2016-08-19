@@ -20,7 +20,12 @@ import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.reflect.TypeToken;
-
+import java.io.IOException;
+import java.io.Writer;
+import java.util.List;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.NameRevCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -30,14 +35,6 @@ import org.eclipse.jgit.http.server.ServletUtils;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
-
-import java.io.IOException;
-import java.io.Writer;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /** Serves an API result describing an object. */
 public class DescribeServlet extends BaseServlet {

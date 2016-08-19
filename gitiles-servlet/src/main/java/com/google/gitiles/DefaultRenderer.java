@@ -20,7 +20,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
 import com.google.template.soy.SoyFileSet;
 import com.google.template.soy.tofu.SoyTofu;
-
 import java.net.URL;
 import java.util.Map;
 

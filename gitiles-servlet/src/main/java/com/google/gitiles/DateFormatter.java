@@ -15,14 +15,12 @@
 package com.google.gitiles;
 
 import com.google.common.base.Optional;
-
-import org.eclipse.jgit.lib.PersonIdent;
-import org.eclipse.jgit.util.SystemReader;
-
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
+import org.eclipse.jgit.lib.PersonIdent;
+import org.eclipse.jgit.util.SystemReader;
 
 /** Date formatter similar in spirit to JGit's {@code GitDateFormatter}. */
 public class DateFormatter {

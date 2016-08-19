@@ -19,7 +19,8 @@ import com.google.common.io.BaseEncoding;
 import com.google.gitiles.GitilesView;
 import com.google.gitiles.MimeTypes;
 import com.google.template.soy.shared.restricted.EscapingConventions.FilterImageDataUri;
-
+import java.io.IOException;
+import javax.annotation.Nullable;
 import org.eclipse.jgit.errors.LargeObjectException;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.FileMode;
@@ -29,10 +30,6 @@ import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-
-import javax.annotation.Nullable;
 
 /** Reads an image from Git and converts to {@code data:image/*;base64,...} */
 class ImageLoader {

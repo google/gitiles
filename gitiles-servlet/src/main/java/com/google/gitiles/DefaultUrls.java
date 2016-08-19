@@ -18,7 +18,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-
 import javax.servlet.http.HttpServletRequest;
 
 /**

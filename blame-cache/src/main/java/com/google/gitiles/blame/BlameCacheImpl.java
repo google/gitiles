@@ -25,7 +25,13 @@ import com.google.common.collect.Interner;
 import com.google.common.collect.Interners;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import org.eclipse.jgit.blame.BlameGenerator;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
@@ -35,14 +41,6 @@ import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.eclipse.jgit.util.QuotedString;
-
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 
 /** Guava implementation of BlameCache, weighted by number of blame regions. */
 public class BlameCacheImpl implements BlameCache {

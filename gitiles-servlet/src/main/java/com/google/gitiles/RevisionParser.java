@@ -21,7 +21,8 @@ import static java.util.Objects.hash;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
-
+import java.io.IOException;
+import java.util.Objects;
 import org.eclipse.jgit.errors.AmbiguousObjectException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.errors.RevisionSyntaxException;
@@ -31,9 +32,6 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevObject;
 import org.eclipse.jgit.revwalk.RevTag;
 import org.eclipse.jgit.revwalk.RevWalk;
-
-import java.io.IOException;
-import java.util.Objects;
 
 /** Object to parse revisions out of Gitiles paths. */
 class RevisionParser {

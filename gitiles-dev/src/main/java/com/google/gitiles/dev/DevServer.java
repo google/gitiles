@@ -24,7 +24,20 @@ import com.google.gitiles.GitilesServlet;
 import com.google.gitiles.PathServlet;
 import com.google.gitiles.RepositoryDescription;
 import com.google.gitiles.RootedDocServlet;
-
+import java.io.File;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.URISyntaxException;
+import java.net.UnknownHostException;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
+import javax.servlet.Servlet;
+import javax.servlet.http.HttpServletRequest;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandler;
@@ -45,22 +58,6 @@ import org.eclipse.jgit.transport.resolver.RepositoryResolver;
 import org.eclipse.jgit.util.FS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.URISyntaxException;
-import java.net.UnknownHostException;
-import java.nio.file.NoSuchFileException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.Servlet;
-import javax.servlet.http.HttpServletRequest;
 
 class DevServer {
   private static final Logger log = LoggerFactory.getLogger(PathServlet.class);

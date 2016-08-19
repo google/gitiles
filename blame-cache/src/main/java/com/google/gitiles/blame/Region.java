@@ -16,10 +16,9 @@ package com.google.gitiles.blame;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+import java.io.Serializable;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
-
-import java.io.Serializable;
 
 /** Region of the blame of a file. */
 public class Region implements Serializable, Comparable<Region> {

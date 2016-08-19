@@ -24,7 +24,8 @@ import com.google.gitiles.doc.html.HtmlBuilder;
 import com.google.template.soy.data.SanitizedContent;
 import com.google.template.soy.shared.restricted.EscapingConventions.FilterImageDataUri;
 import com.google.template.soy.shared.restricted.EscapingConventions.FilterNormalizeUri;
-
+import java.util.List;
+import javax.annotation.Nullable;
 import org.commonmark.ext.gfm.strikethrough.Strikethrough;
 import org.commonmark.ext.gfm.tables.TableBlock;
 import org.commonmark.ext.gfm.tables.TableBody;
@@ -59,11 +60,6 @@ import org.commonmark.node.ThematicBreak;
 import org.commonmark.node.Visitor;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.revwalk.RevTree;
-
-import java.util.List;
-
-import javax.annotation.Nullable;
-
 import prettify.parser.Prettify;
 import syntaxhighlight.ParseResult;
 

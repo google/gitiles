@@ -19,11 +19,10 @@ import static com.google.gitiles.GitilesFilter.REPO_PATH_REGEX;
 import static com.google.gitiles.GitilesFilter.REPO_REGEX;
 import static com.google.gitiles.GitilesFilter.ROOT_REGEX;
 
+import java.util.regex.Matcher;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-
-import java.util.regex.Matcher;
 
 /** Tests for the Gitiles filter. */
 @RunWith(JUnit4.class)

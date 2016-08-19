@@ -21,7 +21,6 @@ import static org.eclipse.jgit.lib.Constants.OBJ_TAG;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.gitiles.RevisionParser.Result;
-
 import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
 import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;

@@ -20,13 +20,11 @@ import com.google.gitiles.CommitJsonData.Commit;
 import com.google.gitiles.CommitJsonData.Log;
 import com.google.gitiles.DateFormatter.Format;
 import com.google.gson.reflect.TypeToken;
-
+import java.util.ArrayList;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-
-import java.util.ArrayList;
 
 /** Tests for {@link LogServlet}. */
 @RunWith(JUnit4.class)

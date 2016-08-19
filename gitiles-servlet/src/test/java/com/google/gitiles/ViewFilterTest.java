@@ -19,7 +19,8 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import com.google.common.net.HttpHeaders;
 import com.google.gitiles.GitilesView.Type;
-
+import java.io.IOException;
+import javax.servlet.ServletException;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
 import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
@@ -29,10 +30,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-
-import java.io.IOException;
-
-import javax.servlet.ServletException;
 
 /** Tests for the view filter. */
 @RunWith(JUnit4.class)

@@ -20,11 +20,6 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-
-import org.eclipse.jgit.lib.Config;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -32,8 +27,10 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-
 import javax.servlet.http.HttpServletRequest;
+import org.eclipse.jgit.lib.Config;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** Linkifier for blocks of text such as commit message descriptions. */
 public class Linkifier {

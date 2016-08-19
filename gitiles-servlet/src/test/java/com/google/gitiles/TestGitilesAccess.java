@@ -18,15 +18,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.collect.ImmutableMap;
-
-import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
-import org.eclipse.jgit.lib.Config;
-
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
-
 import javax.servlet.http.HttpServletRequest;
+import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
+import org.eclipse.jgit.lib.Config;
 
 /** Gitiles access for testing. */
 public class TestGitilesAccess implements GitilesAccess.Factory {

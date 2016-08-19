@@ -14,16 +14,14 @@
 
 package com.google.gitiles;
 
-import org.eclipse.jgit.lib.Config;
-import org.eclipse.jgit.transport.resolver.ServiceNotAuthorizedException;
-import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
-
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
-
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
+import org.eclipse.jgit.lib.Config;
+import org.eclipse.jgit.transport.resolver.ServiceNotAuthorizedException;
+import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
 
 /**
  * Git storage interface for Gitiles.

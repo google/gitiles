@@ -17,7 +17,8 @@ package com.google.gitiles.doc;
 import com.google.common.base.Splitter;
 import com.google.common.primitives.Ints;
 import com.google.gitiles.doc.MultiColumnBlock.Column;
-
+import java.util.ArrayList;
+import java.util.List;
 import org.commonmark.Extension;
 import org.commonmark.node.Block;
 import org.commonmark.node.Heading;
@@ -30,9 +31,6 @@ import org.commonmark.parser.block.BlockContinue;
 import org.commonmark.parser.block.BlockStart;
 import org.commonmark.parser.block.MatchedBlockParser;
 import org.commonmark.parser.block.ParserState;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /** CommonMark extension for multicolumn layouts. */
 public class MultiColumnExtension implements ParserExtension {

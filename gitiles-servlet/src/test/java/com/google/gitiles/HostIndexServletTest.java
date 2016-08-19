@@ -22,7 +22,8 @@ import com.google.gson.reflect.TypeToken;
 import com.google.template.soy.data.SoyListData;
 import com.google.template.soy.data.SoyMapData;
 import com.google.template.soy.data.restricted.NullData;
-
+import java.util.Map;
+import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
 import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
@@ -31,10 +32,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-
-import java.util.Map;
-
-import javax.servlet.http.HttpServletResponse;
 
 /** Tests for {@link HostIndexServlet}. */
 @RunWith(JUnit4.class)

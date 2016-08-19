@@ -20,7 +20,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.gitiles.GitilesView.Type;
-
 import org.eclipse.jgit.lib.ObjectId;
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -21,19 +21,17 @@ import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 import static org.eclipse.jgit.http.server.GitSmartHttpTools.sendError;
 import static org.eclipse.jgit.http.server.ServletUtils.ATTRIBUTE_REPOSITORY;
 
+import java.io.IOException;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.transport.ServiceMayNotContinueException;
 import org.eclipse.jgit.transport.resolver.RepositoryResolver;
 import org.eclipse.jgit.transport.resolver.ServiceNotAuthorizedException;
 import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
-
-import java.io.IOException;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 class RepositoryFilter extends AbstractHttpFilter {
   private final RepositoryResolver<HttpServletRequest> resolver;

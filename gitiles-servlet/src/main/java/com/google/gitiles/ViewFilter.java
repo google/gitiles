@@ -21,19 +21,16 @@ import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
 import static org.eclipse.jgit.http.server.ServletUtils.ATTRIBUTE_REPOSITORY;
 
 import com.google.common.base.Strings;
-
-import org.eclipse.jgit.http.server.ServletUtils;
-import org.eclipse.jgit.http.server.glue.WrappedRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.Map;
-
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.eclipse.jgit.http.server.ServletUtils;
+import org.eclipse.jgit.http.server.glue.WrappedRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** Filter to parse URLs and convert them to {@link GitilesView}s. */
 public class ViewFilter extends AbstractHttpFilter {

@@ -15,7 +15,6 @@
 package com.google.gitiles.doc;
 
 import com.google.common.collect.ImmutableSet;
-
 import org.commonmark.Extension;
 import org.commonmark.node.Block;
 import org.commonmark.parser.Parser;

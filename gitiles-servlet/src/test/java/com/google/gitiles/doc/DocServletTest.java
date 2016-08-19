@@ -17,7 +17,6 @@ package com.google.gitiles.doc;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.gitiles.ServletTest;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;

@@ -17,13 +17,11 @@ package com.google.gitiles;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.ImmutableMap;
-
+import javax.servlet.http.HttpServletRequest;
 import org.eclipse.jgit.lib.Config;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-
-import javax.servlet.http.HttpServletRequest;
 
 /** Tests for {@link Linkifier}. */
 @RunWith(JUnit4.class)

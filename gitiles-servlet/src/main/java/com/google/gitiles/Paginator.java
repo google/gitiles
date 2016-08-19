@@ -18,6 +18,13 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
+import java.io.IOException;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import javax.annotation.Nullable;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
@@ -28,15 +35,6 @@ import org.eclipse.jgit.revwalk.RenameCallback;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
-
-import java.io.IOException;
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
-import javax.annotation.Nullable;
 
 /**
  * Wrapper around {@link RevWalk} that paginates for Gitiles.

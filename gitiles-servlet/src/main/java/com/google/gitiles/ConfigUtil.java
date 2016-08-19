@@ -21,16 +21,13 @@ import com.google.common.base.Predicates;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-
-import org.eclipse.jgit.lib.Config;
-import org.joda.time.Duration;
-
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.annotation.Nullable;
+import org.eclipse.jgit.lib.Config;
+import org.joda.time.Duration;
 
 /** Utilities for working with {@link Config} objects. */
 public class ConfigUtil {

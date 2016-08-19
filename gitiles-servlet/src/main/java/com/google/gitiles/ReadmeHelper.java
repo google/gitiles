@@ -17,7 +17,7 @@ import com.google.gitiles.doc.GitilesMarkdown;
 import com.google.gitiles.doc.MarkdownConfig;
 import com.google.gitiles.doc.MarkdownToHtml;
 import com.google.template.soy.data.SanitizedContent;
-
+import java.io.IOException;
 import org.eclipse.jgit.errors.CorruptObjectException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
@@ -29,8 +29,6 @@ import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
 
 class ReadmeHelper {
   private static final Logger log = LoggerFactory.getLogger(ReadmeHelper.class);

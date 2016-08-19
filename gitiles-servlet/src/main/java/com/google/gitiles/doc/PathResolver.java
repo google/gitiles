@@ -15,7 +15,6 @@
 package com.google.gitiles.doc;
 
 import com.google.common.base.CharMatcher;
-
 import javax.annotation.Nullable;
 
 class PathResolver {

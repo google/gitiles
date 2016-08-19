@@ -20,18 +20,15 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gitiles.CommitData.DiffList;
 import com.google.gitiles.CommitData.Field;
-
+import java.io.IOException;
+import java.util.List;
+import java.util.Set;
+import javax.annotation.Nullable;
+import javax.servlet.http.HttpServletRequest;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Set;
-
-import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
 
 public class CommitJsonData {
   static final ImmutableSet<Field> DEFAULT_FIELDS =

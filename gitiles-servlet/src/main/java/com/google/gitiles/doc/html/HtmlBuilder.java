@@ -25,7 +25,6 @@ import com.google.template.soy.data.UnsafeSanitizedContentOrdainer;
 import com.google.template.soy.shared.restricted.EscapingConventions.EscapeHtml;
 import com.google.template.soy.shared.restricted.EscapingConventions.FilterImageDataUri;
 import com.google.template.soy.shared.restricted.EscapingConventions.FilterNormalizeUri;
-
 import java.io.IOException;
 import java.util.regex.Pattern;
 

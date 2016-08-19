@@ -32,9 +32,6 @@ import com.google.common.collect.Maps;
 import com.google.common.net.HttpHeaders;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.GsonBuilder;
-
-import org.joda.time.Instant;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -43,11 +40,11 @@ import java.io.Writer;
 import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.zip.GZIPOutputStream;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.joda.time.Instant;
 
 /** Base servlet class for Gitiles servlets that serve Soy templates. */
 public abstract class BaseServlet extends HttpServlet {

@@ -19,17 +19,15 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.gitiles.doc.html.HtmlBuilder;
-
-import org.apache.commons.lang3.StringUtils;
-import org.commonmark.node.Heading;
-import org.commonmark.node.Node;
-
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
+import org.commonmark.node.Heading;
+import org.commonmark.node.Node;
 
 /** Outputs outline from HeaderNodes in the AST. */
 class TocFormatter {

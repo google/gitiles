@@ -25,7 +25,15 @@ import com.google.common.collect.Ordering;
 import com.google.common.primitives.Ints;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.google.gson.reflect.TypeToken;
-
+import java.io.IOException;
+import java.io.Writer;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nullable;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jgit.http.server.ServletUtils;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Constants;
@@ -34,17 +42,6 @@ import org.eclipse.jgit.lib.RefComparator;
 import org.eclipse.jgit.lib.RefDatabase;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.RefAdvertiser;
-
-import java.io.IOException;
-import java.io.Writer;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /** Serves an HTML page with all the refs in a repository. */
 public class RefServlet extends BaseServlet {

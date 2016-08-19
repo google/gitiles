@@ -27,19 +27,16 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.gitiles.GitilesView.InvalidViewException;
-
-import org.eclipse.jgit.lib.ObjectId;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.List;
 import java.util.regex.Pattern;
-
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.eclipse.jgit.lib.ObjectId;
 
 /** Filter to redirect Gitweb-style URLs to Gitiles-style URLs. */
 public class GitwebRedirectFilter extends AbstractHttpFilter {

@@ -20,7 +20,14 @@ import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import com.google.common.io.BaseEncoding;
 import com.google.gitiles.CommitData.Field;
 import com.google.gitiles.DateFormatter.Format;
-
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.Writer;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Set;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
@@ -35,16 +42,6 @@ import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.EmptyTreeIterator;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.Writer;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /** Serves an HTML page with all the diffs for a commit. */
 public class DiffServlet extends BaseServlet {

@@ -21,7 +21,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.hash.HashCode;
 import com.google.template.soy.SoyFileSet;
 import com.google.template.soy.tofu.SoyTofu;
-
 import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;

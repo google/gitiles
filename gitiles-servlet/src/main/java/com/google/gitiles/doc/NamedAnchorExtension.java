@@ -14,6 +14,8 @@
 
 package com.google.gitiles.doc;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.commonmark.Extension;
 import org.commonmark.node.Node;
 import org.commonmark.node.Text;
@@ -21,9 +23,6 @@ import org.commonmark.parser.Parser;
 import org.commonmark.parser.Parser.ParserExtension;
 import org.commonmark.parser.delimiter.DelimiterProcessor;
 import org.commonmark.parser.delimiter.DelimiterRun;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /** Parses <code>{#foo}</code> into {@link NamedAnchor}. */
 public class NamedAnchorExtension implements ParserExtension {

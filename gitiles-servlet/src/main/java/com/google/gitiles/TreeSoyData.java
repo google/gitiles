@@ -23,17 +23,15 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gitiles.PathServlet.FileType;
 import com.google.gitiles.doc.MarkdownConfig;
-
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.treewalk.TreeWalk;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 
 /** Soy data converter for git trees. */
 public class TreeSoyData {
