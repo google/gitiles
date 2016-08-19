@@ -30,10 +30,11 @@ import org.commonmark.parser.PostProcessor;
 
 /**
  * Convert some {@link HtmlInline} and {@link HtmlBlock} to safe types.
- * <p>
- * Gitiles style Markdown accepts only a very small subset of HTML that is safe
- * for use within the document. This {@code PostProcessor} scans parsed nodes
- * and converts them to safer types for rendering:
+ *
+ * <p>Gitiles style Markdown accepts only a very small subset of HTML that is safe for use within
+ * the document. This {@code PostProcessor} scans parsed nodes and converts them to safer types for
+ * rendering:
+ *
  * <ul>
  * <li>{@link HardLineBreak}
  * <li>{@link ThematicBreak}

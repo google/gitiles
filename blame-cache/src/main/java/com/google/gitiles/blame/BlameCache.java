@@ -23,10 +23,6 @@ public interface BlameCache {
   /** @return the blame of a path at a given commit. */
   List<Region> get(Repository repo, ObjectId commitId, String path) throws IOException;
 
-  /**
-   * @return the last commit that modified a path, starting at the given
-   *     commit.
-   */
-  ObjectId findLastCommit(Repository repo, ObjectId commitId, String path)
-      throws IOException;
+  /** @return the last commit that modified a path, starting at the given commit. */
+  ObjectId findLastCommit(Repository repo, ObjectId commitId, String path) throws IOException;
 }

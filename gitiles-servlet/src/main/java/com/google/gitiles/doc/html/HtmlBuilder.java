@@ -30,14 +30,13 @@ import java.util.regex.Pattern;
 
 /**
  * Builds a document fragment using a restricted subset of HTML.
- * <p>
- * Most attributes are rejected ({@code style}, {@code onclick}, ...) by
- * throwing IllegalArgumentException if the caller attempts to add them to a
- * pending element.
- * <p>
- * Useful but critical attributes like {@code href} on anchors or {@code src} on
- * img permit only safe subset of URIs, primarily {@code http://},
- * {@code https://}, and for image src {@code data:image/*;base64,...}.
+ *
+ * <p>Most attributes are rejected ({@code style}, {@code onclick}, ...) by throwing
+ * IllegalArgumentException if the caller attempts to add them to a pending element.
+ *
+ * <p>Useful but critical attributes like {@code href} on anchors or {@code src} on img permit only
+ * safe subset of URIs, primarily {@code http://}, {@code https://}, and for image src {@code
+ * data:image/*;base64,...}.
  */
 public final class HtmlBuilder {
   private static final ImmutableSet<String> ALLOWED_TAGS =

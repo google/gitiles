@@ -272,10 +272,7 @@ public class DocServlet extends BaseServlet {
     log.error(
         String.format(
             "cannot load markdown %s/%s %s %s",
-            view.getHostName(),
-            view.getRepositoryName(),
-            view.getRevision(),
-            view.getPathPart()),
+            view.getHostName(), view.getRepositoryName(), view.getRevision(), view.getPathPart()),
         err);
     res.setStatus(SC_INTERNAL_SERVER_ERROR);
   }

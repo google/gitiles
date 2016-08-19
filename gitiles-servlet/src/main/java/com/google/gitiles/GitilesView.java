@@ -45,11 +45,10 @@ import org.eclipse.jgit.revwalk.RevObject;
 
 /**
  * Information about a view in Gitiles.
- * <p>
- * Views are uniquely identified by a type, and dispatched to servlet types by
- * {@link GitilesServlet}. This class contains the list of all types, as
- * well as some methods containing basic information parsed from the URL.
- * Construction happens in {@link ViewFilter}.
+ *
+ * <p>Views are uniquely identified by a type, and dispatched to servlet types by {@link
+ * GitilesServlet}. This class contains the list of all types, as well as some methods containing
+ * basic information parsed from the URL. Construction happens in {@link ViewFilter}.
  */
 public class GitilesView {
   private static final String DEFAULT_ARCHIVE_EXTENSION = ".tar.gz";
@@ -167,9 +166,8 @@ public class GitilesView {
 
     public Builder setRepositoryPrefix(String prefix) {
       if (type == Type.HOST_INDEX) {
-        this.repositoryPrefix = prefix != null
-            ? Strings.emptyToNull(maybeTrimLeadingAndTrailingSlash(prefix))
-            : null;
+        this.repositoryPrefix =
+            prefix != null ? Strings.emptyToNull(maybeTrimLeadingAndTrailingSlash(prefix)) : null;
         return this;
       }
       throw new IllegalStateException(
@@ -728,9 +726,8 @@ public class GitilesView {
   }
 
   /**
-   * @return a list of maps with "text" and "url" keys for all file paths
-   *     leading up to the path represented by this view. All URLs allow
-   *     auto-diving into one-entry subtrees; see also
+   * @return a list of maps with "text" and "url" keys for all file paths leading up to the path
+   *     represented by this view. All URLs allow auto-diving into one-entry subtrees; see also
    *     {@link #getBreadcrumbs(List)}.
    */
   public List<Map<String, String>> getBreadcrumbs() {
@@ -740,13 +737,12 @@ public class GitilesView {
   private static final EnumSet<Type> NON_HTML_TYPES = EnumSet.of(Type.DESCRIBE, Type.ARCHIVE);
 
   /**
-   * @param hasSingleTree list of booleans, one per path entry in this view's
-   *     path excluding the leaf. True entries indicate the tree at that path
-   *     only has a single entry that is another tree.
-   * @return a list of maps with "text" and "url" keys for all file paths
-   *     leading up to the path represented by this view. URLs whose
-   *     corresponding entry in {@code hasSingleTree} is true will disable
-   *     auto-diving into one-entry subtrees.
+   * @param hasSingleTree list of booleans, one per path entry in this view's path excluding the
+   *     leaf. True entries indicate the tree at that path only has a single entry that is another
+   *     tree.
+   * @return a list of maps with "text" and "url" keys for all file paths leading up to the path
+   *     represented by this view. URLs whose corresponding entry in {@code hasSingleTree} is true
+   *     will disable auto-diving into one-entry subtrees.
    */
   public List<Map<String, String>> getBreadcrumbs(List<Boolean> hasSingleTree) {
     checkArgument(!NON_HTML_TYPES.contains(type), "breadcrumbs for %s view not supported", type);

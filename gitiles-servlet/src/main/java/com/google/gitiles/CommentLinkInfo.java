@@ -25,18 +25,19 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Converts commit message text to soy data in accordance with
- * a commentlink rule.
- * <p>
- * Example:
+ * Converts commit message text to soy data in accordance with a commentlink rule.
+ *
+ * <p>Example:
+ *
  * <pre>
  *  new CommentLinkInfo(
  *      Pattern.compile("bug (\d+)"),
  *      "http://bugs/$1")
  *    .linkify("do something nice\n\nbug 5")
  * </pre>
- * <p>
- * returns a list of soy data objects:
+ *
+ * <p>returns a list of soy data objects:
+ *
  * <pre>
  * ImmutableList.of(
  *   ImmutableMap.of("text", "do something nice\n\n"),

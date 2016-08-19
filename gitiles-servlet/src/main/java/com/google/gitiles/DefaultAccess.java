@@ -45,10 +45,9 @@ import org.eclipse.jgit.util.IO;
 
 /**
  * Default implementation of {@link GitilesAccess} with local repositories.
- * <p>
- * Repositories are scanned on-demand under the given path, configured by
- * default from {@code gitiles.basePath}. There is no access control beyond what
- * user the JVM is running under.
+ *
+ * <p>Repositories are scanned on-demand under the given path, configured by default from {@code
+ * gitiles.basePath}. There is no access control beyond what user the JVM is running under.
  */
 public class DefaultAccess implements GitilesAccess {
   private static final String ANONYMOUS_USER_KEY = "anonymous user";

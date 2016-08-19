@@ -47,8 +47,7 @@ public class DiffServletTest extends ServletTest {
     String diffHeader =
         String.format(
             "diff --git <a href=\"/b/repo/+/%s/foo\">a/foo</a> <a href=\"/b/repo/+/%s/foo\">b/foo</a>",
-            c1.name(),
-            c2.name());
+            c1.name(), c2.name());
     assertThat(actual).contains(diffHeader);
   }
 

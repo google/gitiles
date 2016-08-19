@@ -65,8 +65,8 @@ import syntaxhighlight.ParseResult;
 
 /**
  * Formats parsed Markdown AST into HTML.
- * <p>
- * Callers must create a new instance for each document.
+ *
+ * <p>Callers must create a new instance for each document.
  */
 public class MarkdownToHtml implements Visitor {
   public static Builder builder() {

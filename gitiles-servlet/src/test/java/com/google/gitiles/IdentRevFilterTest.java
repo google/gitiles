@@ -26,10 +26,9 @@ import org.junit.runners.JUnit4;
 /**
  * Tests for {@link IdentRevFilter}.
  *
- * Unfortunately it's not easy to test the Filter using real {@link RevCommit}s
- * because {@link TestRepository} hard-codes its author as "J. Author". The next
- * best thing is to test a {@link PersonIdent}, those are easy to construct.
- * TODO(dborowitz): Fix TestRepository to allow this.
+ * <p>Unfortunately it's not easy to test the Filter using real {@link RevCommit}s because {@link
+ * TestRepository} hard-codes its author as "J. Author". The next best thing is to test a {@link
+ * PersonIdent}, those are easy to construct. TODO(dborowitz): Fix TestRepository to allow this.
  */
 @RunWith(JUnit4.class)
 public class IdentRevFilterTest {

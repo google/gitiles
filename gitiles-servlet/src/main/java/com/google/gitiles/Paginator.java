@@ -39,14 +39,12 @@ import org.eclipse.jgit.treewalk.filter.TreeFilter;
 /**
  * Wrapper around {@link RevWalk} that paginates for Gitiles.
  *
- * A single page of a shortlog is defined by a revision range, such as "master"
- * or "master..next", a page size, and a start commit, such as "c0ffee". The
- * distance between the first commit in the walk ("next") and the first commit
- * in the page may be arbitrarily long, but in order to present the commit list
- * in a stable way, we must always start from the first commit in the walk. This
- * is because there may be arbitrary merge commits between "c0ffee" and "next"
- * that effectively insert arbitrary commits into the history starting from
- * "c0ffee".
+ * <p>A single page of a shortlog is defined by a revision range, such as "master" or
+ * "master..next", a page size, and a start commit, such as "c0ffee". The distance between the first
+ * commit in the walk ("next") and the first commit in the page may be arbitrarily long, but in
+ * order to present the commit list in a stable way, we must always start from the first commit in
+ * the walk. This is because there may be arbitrary merge commits between "c0ffee" and "next" that
+ * effectively insert arbitrary commits into the history starting from "c0ffee".
  */
 class Paginator implements Iterable<RevCommit> {
   private static class RenameWatcher extends RenameCallback {
@@ -80,8 +78,7 @@ class Paginator implements Iterable<RevCommit> {
    *
    * @param walk revision walk; must be fully initialized before calling.
    * @param limit page size.
-   * @param start commit at which to start the walk, or null to start at the
-   *     beginning.
+   * @param start commit at which to start the walk, or null to start at the beginning.
    */
   Paginator(RevWalk walk, int limit, @Nullable ObjectId start)
       throws MissingObjectException, IncorrectObjectTypeException, IOException {
@@ -120,7 +117,6 @@ class Paginator implements Iterable<RevCommit> {
    * Get the next element in this page of the walk.
    *
    * @return the next element, or null if the walk is finished.
-   *
    * @throws MissingObjectException See {@link RevWalk#next()}.
    * @throws IncorrectObjectTypeException See {@link RevWalk#next()}.
    * @throws IOException See {@link RevWalk#next()}.
@@ -164,33 +160,31 @@ class Paginator implements Iterable<RevCommit> {
   }
 
   /**
-   * @return the ID at the start of the page of results preceding this one, or
-   *     null if this is the first page.
+   * @return the ID at the start of the page of results preceding this one, or null if this is the
+   *     first page.
    */
   public ObjectId getPreviousStart() {
     return prevStart;
   }
 
   /**
-   * @return the ID at the start of the page of results after this one, or null
-   *     if this is the last page.
+   * @return the ID at the start of the page of results after this one, or null if this is the last
+   *     page.
    */
   public ObjectId getNextStart() {
     checkState(done, "getNextStart() invalid before walk done");
     return nextStart;
   }
 
-  /**
-   * @return entry corresponding to a rename or copy at the given commit.
-   */
+  /** @return entry corresponding to a rename or copy at the given commit. */
   public DiffEntry getRename(ObjectId commitId) {
     return renamed != null ? renamed.get(commitId) : null;
   }
 
   /**
    * @return an iterator over the commits in this walk.
-   * @throws RevWalkException if an error occurred, wrapping the checked
-   *     exception from {@link #next()}.
+   * @throws RevWalkException if an error occurred, wrapping the checked exception from {@link
+   *     #next()}.
    */
   @Override
   public Iterator<RevCommit> iterator() {

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 package com.google.gitiles;
+
 import com.google.gitiles.doc.GitilesMarkdown;
 import com.google.gitiles.doc.MarkdownConfig;
 import com.google.gitiles.doc.MarkdownToHtml;
@@ -101,10 +102,7 @@ class ReadmeHelper {
       log.error(
           String.format(
               "error rendering %s/%s %s:%s",
-              view.getHostName(),
-              view.getRepositoryName(),
-              view.getRevision(),
-              readmePath),
+              view.getHostName(), view.getRepositoryName(), view.getRevision(), readmePath),
           err);
       return null;
     }

@@ -55,8 +55,8 @@ import org.eclipse.jgit.transport.resolver.RepositoryResolver;
 
 /**
  * MetaFilter to serve Gitiles.
- * <p>
- * Do not use directly; use {@link GitilesServlet}.
+ *
+ * <p>Do not use directly; use {@link GitilesServlet}.
  */
 class GitilesFilter extends MetaFilter {
 

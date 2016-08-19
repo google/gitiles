@@ -21,14 +21,13 @@ class PathResolver {
   /**
    * Resolve a path within the repository.
    *
-   * @param file path of the Markdown file in the repository that is making the
-   *        reference. May be null.
-   * @param target destination within the repository. If {@code target} starts
-   *        with {@code '/'}, {@code file} may be null and {@code target} is
-   *        evaluated as from the root directory of the repository.
-   * @return resolved form of {@code target} within the repository. Null if
-   *         {@code target} is not valid from {@code file}. Does not begin with
-   *         {@code '/'}, even if {@code target} does.
+   * @param file path of the Markdown file in the repository that is making the reference. May be
+   *     null.
+   * @param target destination within the repository. If {@code target} starts with {@code '/'},
+   *     {@code file} may be null and {@code target} is evaluated as from the root directory of the
+   *     repository.
+   * @return resolved form of {@code target} within the repository. Null if {@code target} is not
+   *     valid from {@code file}. Does not begin with {@code '/'}, even if {@code target} does.
    */
   @Nullable
   static String resolve(@Nullable String file, String target) {

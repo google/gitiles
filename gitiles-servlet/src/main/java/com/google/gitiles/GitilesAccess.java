@@ -25,9 +25,9 @@ import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
 
 /**
  * Git storage interface for Gitiles.
- * <p>
- * Each instance is associated with a single end-user request, which implicitly
- * includes information about the host and repository.
+ *
+ * <p>Each instance is associated with a single end-user request, which implicitly includes
+ * information about the host and repository.
  */
 public interface GitilesAccess {
   /** Factory for per-request access. */
@@ -38,26 +38,22 @@ public interface GitilesAccess {
   /**
    * List repositories on the host.
    *
-   * @param prefix repository base path to list. Trailing "/" is implicitly
-   *        added if missing. Null or empty string will match all repositories.
+   * @param prefix repository base path to list. Trailing "/" is implicitly added if missing. Null
+   *     or empty string will match all repositories.
    * @param branches branches to list along with each repository.
    * @return map of repository names to descriptions.
-   * @throws ServiceNotEnabledException to trigger an HTTP 403 Forbidden
-   *         (matching behavior in
-   *         {@link org.eclipse.jgit.http.server.RepositoryFilter}).
-   * @throws ServiceNotAuthorizedException to trigger an HTTP 401 Unauthorized
-   *         (matching behavior in
-   *         {@link org.eclipse.jgit.http.server.RepositoryFilter}).
+   * @throws ServiceNotEnabledException to trigger an HTTP 403 Forbidden (matching behavior in
+   *     {@link org.eclipse.jgit.http.server.RepositoryFilter}).
+   * @throws ServiceNotAuthorizedException to trigger an HTTP 401 Unauthorized (matching behavior in
+   *     {@link org.eclipse.jgit.http.server.RepositoryFilter}).
    * @throws IOException if an error occurred.
    */
-  Map<String, RepositoryDescription> listRepositories(
-      @Nullable String prefix, Set<String> branches)
+  Map<String, RepositoryDescription> listRepositories(@Nullable String prefix, Set<String> branches)
       throws ServiceNotEnabledException, ServiceNotAuthorizedException, IOException;
 
   /**
-   * @return an opaque object that uniquely identifies the end-user making the
-   *     request, and supports {@link Object#equals(Object)} and
-   *     {@link Object#hashCode()}. Never null.
+   * @return an opaque object that uniquely identifies the end-user making the request, and supports
+   *     {@link Object#equals(Object)} and {@link Object#hashCode()}. Never null.
    */
   Object getUserKey();
 
@@ -66,8 +62,7 @@ public interface GitilesAccess {
 
   /**
    * @return the description attached to the repository of this request.
-   * @throws IOException an error occurred reading the description string from
-   *         the repository.
+   * @throws IOException an error occurred reading the description string from the repository.
    */
   RepositoryDescription getRepositoryDescription() throws IOException;
 

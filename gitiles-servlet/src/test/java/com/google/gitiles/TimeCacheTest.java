@@ -43,8 +43,8 @@ public class TimeCacheTest {
 
   /**
    * Start time of {@link #repo}.
-   * <p>
-   * Note that commits auto-increment the repo's ticker, but tags do not.
+   *
+   * <p>Note that commits auto-increment the repo's ticker, but tags do not.
    */
   private long start;
 

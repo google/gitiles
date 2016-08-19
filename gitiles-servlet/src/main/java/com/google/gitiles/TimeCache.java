@@ -30,10 +30,10 @@ import org.eclipse.jgit.revwalk.RevWalk;
 
 /**
  * Cache of the time associated with Git objects.
- * <p>
- * Uses the time as stored in annotated tags if available, or else the commit
- * time of the tagged commit. Non-commits are given {@link Long#MIN_VALUE},
- * rather than searching for occurrences in the entire repository.
+ *
+ * <p>Uses the time as stored in annotated tags if available, or else the commit time of the tagged
+ * commit. Non-commits are given {@link Long#MIN_VALUE}, rather than searching for occurrences in
+ * the entire repository.
  */
 public class TimeCache {
   public static CacheBuilder<Object, Object> defaultBuilder() {

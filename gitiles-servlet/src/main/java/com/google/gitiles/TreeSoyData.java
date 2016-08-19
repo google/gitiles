@@ -36,15 +36,14 @@ import org.eclipse.jgit.treewalk.TreeWalk;
 /** Soy data converter for git trees. */
 public class TreeSoyData {
   /**
-   * Number of characters to display for a symlink target. Targets longer than
-   * this are abbreviated for display in a tree listing.
+   * Number of characters to display for a symlink target. Targets longer than this are abbreviated
+   * for display in a tree listing.
    */
   private static final int MAX_SYMLINK_TARGET_LENGTH = 72;
 
   /**
-   * Maximum number of bytes to load from a blob that claims to be a symlink. If
-   * the blob is larger than this byte limit it will be displayed as a binary
-   * file instead of as a symlink.
+   * Maximum number of bytes to load from a blob that claims to be a symlink. If the blob is larger
+   * than this byte limit it will be displayed as a binary file instead of as a symlink.
    */
   static final int MAX_SYMLINK_SIZE = 16 << 10;
 

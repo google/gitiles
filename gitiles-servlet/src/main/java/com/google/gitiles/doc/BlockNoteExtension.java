@@ -28,6 +28,7 @@ import org.commonmark.parser.block.ParserState;
 
 /**
  * CommonMark extension for block notes.
+ *
  * <pre>
  * *** note
  * This is a note.

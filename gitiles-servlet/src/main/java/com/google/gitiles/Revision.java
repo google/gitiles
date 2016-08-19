@@ -32,9 +32,9 @@ import org.eclipse.jgit.revwalk.RevWalk;
 
 /**
  * Object encapsulating a single revision as seen by Gitiles.
- * <p>
- * A single revision consists of a name, an ID, and a type. Name parsing is done
- * once per request by {@link RevisionParser}.
+ *
+ * <p>A single revision consists of a name, an ID, and a type. Name parsing is done once per request
+ * by {@link RevisionParser}.
  */
 public class Revision {
   /** Sentinel indicating a missing or empty revision. */

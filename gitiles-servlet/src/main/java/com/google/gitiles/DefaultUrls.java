@@ -22,9 +22,9 @@ import javax.servlet.http.HttpServletRequest;
 
 /**
  * Default implementation of {@link GitilesUrls}.
- * <p>
- * This implementation uses statically-configured defaults, and thus assumes
- * that the servlet is running a single virtual host.
+ *
+ * <p>This implementation uses statically-configured defaults, and thus assumes that the servlet is
+ * running a single virtual host.
  */
 public class DefaultUrls implements GitilesUrls {
   private final String canonicalHostName;

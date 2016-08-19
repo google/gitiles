@@ -33,9 +33,9 @@ import org.joda.time.Duration;
 public class ConfigUtil {
   /**
    * Read a duration value from the configuration.
-   * <p>
-   * Durations can be written with unit suffixes, for example {@code "1 s"} or
-   * {@code "5 days"}. If units are not specified, milliseconds are assumed.
+   *
+   * <p>Durations can be written with unit suffixes, for example {@code "1 s"} or {@code "5 days"}.
+   * If units are not specified, milliseconds are assumed.
    *
    * @param config JGit config object.
    * @param section section to read, e.g. "google"
@@ -45,7 +45,10 @@ public class ConfigUtil {
    * @return a standard duration representing the time read, or defaultValue.
    */
   public static Duration getDuration(
-      Config config, String section, String subsection, String name,
+      Config config,
+      String section,
+      String subsection,
+      String name,
       @Nullable Duration defaultValue) {
     long m = config.getTimeUnit(section, subsection, name, -1, MILLISECONDS);
     return m == -1 ? defaultValue : Duration.millis(m);
@@ -91,10 +94,9 @@ public class ConfigUtil {
    * @param section section to read, e.g. "gitiles".
    * @param subsection subsection to read, e.g. "subsection".
    * @param name variable to read, e.g. "fixedTimeZone".
-   * @return a time zone read from parsing the specified config string value, or
-   *     {@link Optional#absent()} if not present. As in the behavior of
-   *     {@link TimeZone#getTimeZone(String)}, unknown time zones are treated as
-   *     GMT.
+   * @return a time zone read from parsing the specified config string value, or {@link
+   *     Optional#absent()} if not present. As in the behavior of {@link
+   *     TimeZone#getTimeZone(String)}, unknown time zones are treated as GMT.
    */
   public static Optional<TimeZone> getTimeZone(
       Config config, String section, String subsection, String name) {

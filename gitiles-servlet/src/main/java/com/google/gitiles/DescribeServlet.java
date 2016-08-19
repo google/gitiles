@@ -97,8 +97,7 @@ public class DescribeServlet extends BaseServlet {
           SC_BAD_REQUEST,
           String.format(
               "Ambiguous short SHA-1 %s (%s)",
-              e.getAbbreviatedObjectId(),
-              Joiner.on(", ").join(e.getCandidates())));
+              e.getAbbreviatedObjectId(), Joiner.on(", ").join(e.getCandidates())));
       return null;
     }
   }

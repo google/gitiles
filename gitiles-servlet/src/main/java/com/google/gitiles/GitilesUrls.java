@@ -25,13 +25,12 @@ import javax.servlet.http.HttpServletRequest;
 public interface GitilesUrls {
   /**
    * Escapes repository or path names to be safely embedded into a URL.
-   * <p>
-   * This escape implementation escapes a repository or path name such as
-   * "foo/bar&lt;/child" to appear as "foo/bar%3C/child". Spaces are escaped as
-   * "%20". Its purpose is to escape a repository name to be safe for inclusion
-   * in the path component of the URL, where "/" is a valid character that
-   * should not be encoded, while almost any other non-alpha, non-numeric
-   * character will be encoded using URL style encoding.
+   *
+   * <p>This escape implementation escapes a repository or path name such as "foo/bar&lt;/child" to
+   * appear as "foo/bar%3C/child". Spaces are escaped as "%20". Its purpose is to escape a
+   * repository name to be safe for inclusion in the path component of the URL, where "/" is a valid
+   * character that should not be encoded, while almost any other non-alpha, non-numeric character
+   * will be encoded using URL style encoding.
    */
   Function<String, String> NAME_ESCAPER =
       new Function<String, String>() {
@@ -53,7 +52,7 @@ public interface GitilesUrls {
   /**
    * Return the name of the host from the request.
    *
-   * Used in various user-visible text, like "MyHost Git Repositories".
+   * <p>Used in various user-visible text, like "MyHost Git Repositories".
    *
    * @param req request.
    * @return host name; may be null.
@@ -72,8 +71,7 @@ public interface GitilesUrls {
    * Return the base URL for Gerrit projects on this host.
    *
    * @param req request.
-   * @return base URL for Gerrit Code Review, or null if Gerrit is not
-   *     configured.
+   * @return base URL for Gerrit Code Review, or null if Gerrit is not configured.
    */
   String getBaseGerritUrl(HttpServletRequest req);
 }

@@ -19,9 +19,9 @@ import org.commonmark.node.Heading;
 
 /**
  * Multi-column layout delineated by {@code |||---|||}.
- * <p>
- * Each {@link Heading} or {@link BlockNote} within the layout begins a new
- * {@link Column} in the HTML.
+ *
+ * <p>Each {@link Heading} or {@link BlockNote} within the layout begins a new {@link Column} in the
+ * HTML.
  */
 public class MultiColumnBlock extends CustomBlock {
   /** Grid is 12 columns wide. */

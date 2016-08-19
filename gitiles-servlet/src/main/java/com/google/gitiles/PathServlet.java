@@ -74,8 +74,8 @@ public class PathServlet extends BaseServlet {
   static final String TYPE_HEADER = "X-Gitiles-Object-Type";
 
   /**
-   * Submodule URLs where we know there is a web page if the user visits the
-   * repository URL verbatim in a web browser.
+   * Submodule URLs where we know there is a web page if the user visits the repository URL verbatim
+   * in a web browser.
    */
   private static final Pattern VERBATIM_SUBMODULE_URL_PATTERN =
       Pattern.compile(
@@ -344,9 +344,9 @@ public class PathServlet extends BaseServlet {
 
   /**
    * Encapsulate the result of walking to a single tree.
-   * <p>
-   * Unlike {@link TreeWalk} itself, supports positioning at the root tree.
-   * Includes information to help the auto-dive routine as well.
+   *
+   * <p>Unlike {@link TreeWalk} itself, supports positioning at the root tree. Includes information
+   * to help the auto-dive routine as well.
    */
   private static class WalkResult implements AutoCloseable {
     private static WalkResult recursivePath(RevWalk rw, GitilesView view) throws IOException {

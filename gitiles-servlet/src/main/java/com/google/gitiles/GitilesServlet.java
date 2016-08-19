@@ -30,11 +30,10 @@ import org.eclipse.jgit.transport.resolver.RepositoryResolver;
 
 /**
  * Servlet to serve Gitiles.
- * <p>
- * This servlet can either be constructed manually with its dependencies, or
- * configured to use default implementations for the Gitiles interfaces. To
- * configure the defaults, you must provide a single init parameter
- * "configPath", which is the path to a git config file containing additional
+ *
+ * <p>This servlet can either be constructed manually with its dependencies, or configured to use
+ * default implementations for the Gitiles interfaces. To configure the defaults, you must provide a
+ * single init parameter "configPath", which is the path to a git config file containing additional
  * configuration.
  */
 public class GitilesServlet extends MetaServlet {
@@ -105,8 +104,8 @@ public class GitilesServlet extends MetaServlet {
 
   /**
    * Add a custom filter for a view.
-   * <p>
-   * Must be called before initializing the servlet.
+   *
+   * <p>Must be called before initializing the servlet.
    *
    * @param view view type.
    * @param filter filter.
@@ -117,8 +116,8 @@ public class GitilesServlet extends MetaServlet {
 
   /**
    * Set a custom handler for a view.
-   * <p>
-   * Must be called before initializing the servlet.
+   *
+   * <p>Must be called before initializing the servlet.
    *
    * @param view view type.
    * @param handler handler.

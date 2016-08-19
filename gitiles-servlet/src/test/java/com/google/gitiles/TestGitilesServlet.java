@@ -39,12 +39,12 @@ public class TestGitilesServlet {
 
   /**
    * Create a servlet backed by a single test repository.
-   * <p>
-   * The servlet uses the same filter lists as a real servlet, but only knows
-   * about a single repo, having the name returned by
-   * {@link org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription#getRepositoryName()}.
-   * Pass a {@link FakeHttpServletRequest} and {@link FakeHttpServletResponse}
-   * to the servlet's {@code service} method to test.
+   *
+   * <p>The servlet uses the same filter lists as a real servlet, but only knows about a single
+   * repo, having the name returned by {@link
+   * org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription#getRepositoryName()}. Pass a
+   * {@link FakeHttpServletRequest} and {@link FakeHttpServletResponse} to the servlet's {@code
+   * service} method to test.
    *
    * @param repo the test repo backing the servlet.
    * @param gitwebRedirect optional redirect filter for gitweb URLs.

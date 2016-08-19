@@ -132,8 +132,7 @@ public abstract class BaseServlet extends HttpServlet {
 
   /**
    * @param req in-progress request.
-   * @return the default {@link FormatType} used when {@code ?format=} is not
-   *     specified.
+   * @return the default {@link FormatType} used when {@code ?format=} is not specified.
    */
   protected FormatType getDefaultFormat(HttpServletRequest req) {
     return HTML;
@@ -192,8 +191,8 @@ public abstract class BaseServlet extends HttpServlet {
    *
    * @param req in-progress request.
    * @param res in-progress response.
-   * @param templateName Soy template name; must be in one of the template files
-   *     defined in {@link Renderer}.
+   * @param templateName Soy template name; must be in one of the template files defined in {@link
+   *     Renderer}.
    * @param soyData data for Soy.
    * @throws IOException an error occurred during rendering.
    */
@@ -205,20 +204,18 @@ public abstract class BaseServlet extends HttpServlet {
 
   /**
    * Start a streaming HTML response with header and footer rendered by Soy.
-   * <p>
-   * A streaming template includes the special template
-   * {@code gitiles.streamingPlaceholder} at the point where data is to be
-   * streamed. The template before and after this placeholder is rendered using
-   * the provided data map.
+   *
+   * <p>A streaming template includes the special template {@code gitiles.streamingPlaceholder} at
+   * the point where data is to be streamed. The template before and after this placeholder is
+   * rendered using the provided data map.
    *
    * @param req in-progress request.
    * @param res in-progress response.
-   * @param templateName Soy template name; must be in one of the template files
-   *     defined in {@link Renderer}.
+   * @param templateName Soy template name; must be in one of the template files defined in {@link
+   *     Renderer}.
    * @param soyData data for Soy.
-   * @return output stream to render to. The portion of the template before the
-   *     placeholder is already written and flushed; the portion after is
-   *     written only on calling {@code close()}.
+   * @return output stream to render to. The portion of the template before the placeholder is
+   *     already written and flushed; the portion after is written only on calling {@code close()}.
    * @throws IOException an error occurred during rendering the header.
    */
   protected OutputStream startRenderStreamingHtml(
@@ -295,14 +292,11 @@ public abstract class BaseServlet extends HttpServlet {
 
   /**
    * Prepare the response to render plain text.
-   * <p>
-   * Unlike
-   * {@link #renderHtml(HttpServletRequest, HttpServletResponse, String, Map)}
-   * and
-   * {@link #renderJson(HttpServletRequest, HttpServletResponse, Object, Type)},
-   * which assume the data to render is already completely prepared, this method
-   * does not write any data, only headers, and returns the response's
-   * ready-to-use writer.
+   *
+   * <p>Unlike {@link #renderHtml(HttpServletRequest, HttpServletResponse, String, Map)} and {@link
+   * #renderJson(HttpServletRequest, HttpServletResponse, Object, Type)}, which assume the data to
+   * render is already completely prepared, this method does not write any data, only headers, and
+   * returns the response's ready-to-use writer.
    *
    * @param req in-progress request.
    * @param res in-progress response.
@@ -320,7 +314,6 @@ public abstract class BaseServlet extends HttpServlet {
    * @param res in-progress response.
    * @param statusCode HTTP status code.
    * @param message full message text.
-   *
    * @throws IOException
    */
   protected void renderTextError(
