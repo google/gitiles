@@ -75,10 +75,10 @@ public class LinkTest {
     url = "git://example.com/repo.git";
     assertThat(md.href(url)).isEqualTo(url);
 
-    assertThat(md.href("git:example.com/repo.git")).isEqualTo("#zSoyz");
-    assertThat(md.href("git://")).isEqualTo("#zSoyz");
-    assertThat(md.href("git://example.com/../root")).isEqualTo("#zSoyz");
-    assertThat(md.href("git://example.com/root/..")).isEqualTo("#zSoyz");
+    assertThat(md.href("git:example.com/repo.git")).isEqualTo("about:invalid#zSoyz");
+    assertThat(md.href("git://")).isEqualTo("about:invalid#zSoyz");
+    assertThat(md.href("git://example.com/../root")).isEqualTo("about:invalid#zSoyz");
+    assertThat(md.href("git://example.com/root/..")).isEqualTo("about:invalid#zSoyz");
   }
 
   @Test
@@ -134,10 +134,10 @@ public class LinkTest {
     assertThat(md.href("./")).isEqualTo("/g/repo/+/HEAD/");
     assertThat(md.href(".")).isEqualTo("/g/repo/+/HEAD/");
 
-    assertThat(md.href("../")).isEqualTo("#zSoyz");
-    assertThat(md.href("../../")).isEqualTo("#zSoyz");
-    assertThat(md.href("../..")).isEqualTo("#zSoyz");
-    assertThat(md.href("..")).isEqualTo("#zSoyz");
+    assertThat(md.href("../")).isEqualTo("about:invalid#zSoyz");
+    assertThat(md.href("../../")).isEqualTo("about:invalid#zSoyz");
+    assertThat(md.href("../..")).isEqualTo("about:invalid#zSoyz");
+    assertThat(md.href("..")).isEqualTo("about:invalid#zSoyz");
   }
 
   private static void testMarkdownInTree(MarkdownToHtml md) {
@@ -155,10 +155,10 @@ public class LinkTest {
     assertThat(md.href("../")).isEqualTo("/g/repo/+/HEAD/");
     assertThat(md.href("..")).isEqualTo("/g/repo/+/HEAD/");
 
-    assertThat(md.href("../../")).isEqualTo("#zSoyz");
-    assertThat(md.href("../..")).isEqualTo("#zSoyz");
-    assertThat(md.href("../../../")).isEqualTo("#zSoyz");
-    assertThat(md.href("../../..")).isEqualTo("#zSoyz");
+    assertThat(md.href("../../")).isEqualTo("about:invalid#zSoyz");
+    assertThat(md.href("../..")).isEqualTo("about:invalid#zSoyz");
+    assertThat(md.href("../../../")).isEqualTo("about:invalid#zSoyz");
+    assertThat(md.href("../../..")).isEqualTo("about:invalid#zSoyz");
   }
 
   private MarkdownToHtml file(String path) {
@@ -203,10 +203,10 @@ public class LinkTest {
     assertThat(md.href("./")).isEqualTo("/");
     assertThat(md.href(".")).isEqualTo("/");
 
-    assertThat(md.href("../")).isEqualTo("#zSoyz");
-    assertThat(md.href("../../")).isEqualTo("#zSoyz");
-    assertThat(md.href("../..")).isEqualTo("#zSoyz");
-    assertThat(md.href("..")).isEqualTo("#zSoyz");
+    assertThat(md.href("../")).isEqualTo("about:invalid#zSoyz");
+    assertThat(md.href("../../")).isEqualTo("about:invalid#zSoyz");
+    assertThat(md.href("../..")).isEqualTo("about:invalid#zSoyz");
+    assertThat(md.href("..")).isEqualTo("about:invalid#zSoyz");
   }
 
   @Test
@@ -227,10 +227,10 @@ public class LinkTest {
     assertThat(md.href("../")).isEqualTo("/");
     assertThat(md.href("..")).isEqualTo("/");
 
-    assertThat(md.href("../../")).isEqualTo("#zSoyz");
-    assertThat(md.href("../..")).isEqualTo("#zSoyz");
-    assertThat(md.href("../../../")).isEqualTo("#zSoyz");
-    assertThat(md.href("../../..")).isEqualTo("#zSoyz");
+    assertThat(md.href("../../")).isEqualTo("about:invalid#zSoyz");
+    assertThat(md.href("../..")).isEqualTo("about:invalid#zSoyz");
+    assertThat(md.href("../../../")).isEqualTo("about:invalid#zSoyz");
+    assertThat(md.href("../../..")).isEqualTo("about:invalid#zSoyz");
   }
 
   private MarkdownToHtml rootedDoc(String path, String file) {

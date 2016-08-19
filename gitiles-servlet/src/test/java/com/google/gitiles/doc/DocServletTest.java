@@ -146,6 +146,6 @@ public class DocServletTest extends ServletTest {
     repo.branch("master").commit().add("README.md", "[c](git://example.com/repo/..)").create();
 
     String html = buildHtml("/repo/+doc/master/README.md");
-    assertThat(html).contains("<a href=\"#zSoyz\">c</a>");
+    assertThat(html).contains("<a href=\"about:invalid#zSoyz\">c</a>");
   }
 }
