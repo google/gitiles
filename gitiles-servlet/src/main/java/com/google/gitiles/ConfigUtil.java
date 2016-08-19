@@ -17,14 +17,9 @@ package com.google.gitiles;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Predicates;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.eclipse.jgit.lib.Config;
 import org.joda.time.Duration;
@@ -102,14 +97,6 @@ public class ConfigUtil {
       Config config, String section, String subsection, String name) {
     String id = config.getString(section, subsection, name);
     return id != null ? Optional.of(TimeZone.getTimeZone(id)) : Optional.<TimeZone>absent();
-  }
-
-  private static Matcher matcher(String pattern, String valStr) {
-    return Pattern.compile(pattern).matcher(valStr);
-  }
-
-  private static boolean anyOf(String a, String... cases) {
-    return Iterables.any(ImmutableList.copyOf(cases), Predicates.equalTo(a.toLowerCase()));
   }
 
   private ConfigUtil() {}
