@@ -44,6 +44,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.FollowFilter;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevObject;
+import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevTag;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.revwalk.filter.AndRevFilter;
@@ -97,7 +98,7 @@ public class LogServlet extends BaseServlet {
     Paginator paginator = null;
     try {
       GitilesAccess access = getAccess(req);
-      paginator = newPaginator(repo, view, getAccess(req));
+      paginator = newPaginator(repo, view, access);
       if (paginator == null) {
         res.setStatus(SC_NOT_FOUND);
         return;
@@ -158,12 +159,13 @@ public class LogServlet extends BaseServlet {
 
     Paginator paginator = null;
     try {
-      paginator = newPaginator(repo, view, getAccess(req));
+      GitilesAccess access = getAccess(req);
+      paginator = newPaginator(repo, view, access);
       if (paginator == null) {
         res.setStatus(SC_NOT_FOUND);
         return;
       }
-      DateFormatter df = new DateFormatter(getAccess(req), Format.DEFAULT);
+      DateFormatter df = new DateFormatter(access, Format.DEFAULT);
       CommitJsonData.Log result = new CommitJsonData.Log();
       List<CommitJsonData.Commit> entries = Lists.newArrayListWithCapacity(paginator.getLimit());
       for (RevCommit c : paginator) {
@@ -236,24 +238,37 @@ public class LogServlet extends BaseServlet {
       return null;
     }
     setTreeFilter(walk, view, access);
+    setRevFilter(walk, view);
+    if (isTrue(view, "topo-order")) {
+      walk.sort(RevSort.TOPO, true);
+    }
+    if (isTrue(view, "reverse")) {
+      walk.sort(RevSort.REVERSE, true);
+    }
+    return walk;
+  }
+
+  private static void setRevFilter(RevWalk walk, GitilesView view) {
     List<RevFilter> filters = new ArrayList<>(3);
-    if (isTrue(Iterables.getFirst(view.getParameters().get("no-merges"), null))) {
+    if (isTrue(view, "no-merges")) {
       filters.add(RevFilter.NO_MERGES);
     }
+
     String author = Iterables.getFirst(view.getParameters().get("author"), null);
     if (author != null) {
       filters.add(IdentRevFilter.author(author));
     }
+
     String committer = Iterables.getFirst(view.getParameters().get("committer"), null);
     if (committer != null) {
       filters.add(IdentRevFilter.committer(committer));
     }
+
     if (filters.size() > 1) {
       walk.setRevFilter(AndRevFilter.create(filters));
     } else if (filters.size() == 1) {
       walk.setRevFilter(filters.get(0));
     }
-    return walk;
   }
 
   private static void setTreeFilter(RevWalk walk, GitilesView view, GitilesAccess access)
@@ -275,6 +290,10 @@ public class LogServlet extends BaseServlet {
       walk.setTreeFilter(
           AndTreeFilter.create(PathFilterGroup.createFromStrings(path), TreeFilter.ANY_DIFF));
     }
+  }
+
+  private static boolean isTrue(GitilesView view, String param) {
+    return isTrue(Iterables.getFirst(view.getParameters().get(param), null));
   }
 
   private static boolean isTrue(String v) {
