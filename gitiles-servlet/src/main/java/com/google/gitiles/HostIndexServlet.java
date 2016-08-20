@@ -26,9 +26,9 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.google.gson.reflect.TypeToken;
-import com.google.template.soy.data.SoyData;
 import com.google.template.soy.data.SoyListData;
 import com.google.template.soy.data.SoyMapData;
+import com.google.template.soy.data.restricted.NullData;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Collections;
@@ -160,7 +160,7 @@ public class HostIndexServlet extends BaseServlet {
             "hostName",
             hostName,
             "breadcrumbs",
-            SoyData.createFromExistingData(breadcrumbs),
+            breadcrumbs != null ? new SoyListData(breadcrumbs) : NullData.INSTANCE,
             "prefix",
             prefix != null ? prefix + '/' : "",
             "repositories",
