@@ -6,8 +6,8 @@ maven_jar(
 
 maven_jar(
   name = 'gson',
-  id = 'com.google.code.gson:gson:2.1',
-  sha1 = '2e66da15851f9f5b5079228f856c2f090ba98c38',
+  id = 'com.google.code.gson:gson:2.7',
+  sha1 = '751f548c85fa49f330cecbb1875893f971b33c4e',
 )
 
 maven_jar(
