@@ -40,7 +40,6 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.reflect.Type;
 import java.util.Map;
-import java.util.List;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 import javax.servlet.ServletException;
