@@ -1,3 +1,4 @@
+# Keep this version of Soy synchronized with the version used in Gerrit.
 maven_jar(
   name = 'soy',
   id = 'com.google.template:soy:2016-08-09',
