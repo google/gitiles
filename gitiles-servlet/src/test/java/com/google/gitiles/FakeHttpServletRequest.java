@@ -276,6 +276,10 @@ public class FakeHttpServletRequest implements HttpServletRequest {
     return Iterables.getFirst(headers.get(name), null);
   }
 
+  public boolean setHeader(String name, String value) {
+    return headers.put(name, value);
+  }
+
   @Override
   public Enumeration<String> getHeaderNames() {
     return Collections.enumeration(headers.keySet());

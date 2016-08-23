@@ -25,6 +25,7 @@ import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.eclipse.jgit.util.HttpSupport.ENCODING_GZIP;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
@@ -39,6 +40,8 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.reflect.Type;
 import java.util.Map;
+import java.util.List;
+import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -261,7 +264,7 @@ public abstract class BaseServlet extends HttpServlet {
   protected void renderJson(
       HttpServletRequest req, HttpServletResponse res, Object src, Type typeOfSrc)
       throws IOException {
-    setApiHeaders(res, JSON);
+    setApiHeaders(req, res, JSON);
     res.setStatus(SC_OK);
     try (Writer writer = newWriter(req, res)) {
       newGsonBuilder(req).create().toJson(src, typeOfSrc, writer);
@@ -286,7 +289,7 @@ public abstract class BaseServlet extends HttpServlet {
    */
   protected Writer startRenderText(
       HttpServletRequest req, HttpServletResponse res, String contentType) throws IOException {
-    setApiHeaders(res, contentType);
+    setApiHeaders(req, res, contentType);
     return newWriter(req, res);
   }
 
@@ -320,7 +323,7 @@ public abstract class BaseServlet extends HttpServlet {
       HttpServletRequest req, HttpServletResponse res, int statusCode, String message)
       throws IOException {
     res.setStatus(statusCode);
-    setApiHeaders(res, TEXT);
+    setApiHeaders(req, res, TEXT);
     setCacheHeaders(res);
     try (Writer out = newWriter(req, res)) {
       out.write(message);
@@ -340,18 +343,33 @@ public abstract class BaseServlet extends HttpServlet {
     setNotCacheable(res);
   }
 
-  protected void setApiHeaders(HttpServletResponse res, String contentType) {
+  protected void setApiHeaders(
+       HttpServletRequest req, HttpServletResponse res, String contentType) throws IOException {
     if (!Strings.isNullOrEmpty(contentType)) {
       res.setContentType(contentType);
     }
     res.setCharacterEncoding(UTF_8.name());
     res.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment");
-    res.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
+
+    GitilesAccess access = getAccess(req);
+    String[] allowOrigin = access.getConfig().getStringList("gitiles", null, "allowOriginRegex");
+
+    if (allowOrigin.length > 0) {
+      String origin = req.getHeader(HttpHeaders.ORIGIN);
+      Pattern allowOriginPattern = Pattern.compile(Joiner.on("|").join(allowOrigin));
+
+      if (!Strings.isNullOrEmpty(origin) && allowOriginPattern.matcher(origin).matches()) {
+        res.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, origin);
+      }
+    } else {
+      res.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
+    }
     setCacheHeaders(res);
   }
 
-  protected void setApiHeaders(HttpServletResponse res, FormatType type) {
-    setApiHeaders(res, type.getMimeType());
+  protected void setApiHeaders(HttpServletRequest req, HttpServletResponse res, FormatType type)
+      throws IOException {
+    setApiHeaders(req, res, type.getMimeType());
   }
 
   protected void setDownloadHeaders(HttpServletResponse res, String filename, String contentType) {

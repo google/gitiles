@@ -59,8 +59,9 @@ public class ServletTest {
   }
 
   protected FakeHttpServletResponse buildResponse(
-      String path, String queryString, int expectedStatus) throws Exception {
+      String path, String queryString, int expectedStatus, String origin) throws Exception {
     FakeHttpServletRequest req = FakeHttpServletRequest.newRequest();
+    req.setHeader(HttpHeaders.ORIGIN, origin);
     req.setPathInfo(path);
     if (queryString != null) {
       req.setQueryString(queryString);
@@ -69,6 +70,11 @@ public class ServletTest {
     servlet.service(req, res);
     assertThat(res.getStatus()).isEqualTo(expectedStatus);
     return res;
+  }
+
+  protected FakeHttpServletResponse buildResponse(
+      String path, String queryString, int expectedStatus) throws Exception {
+    return buildResponse(path, queryString, expectedStatus, "http://localhost");
   }
 
   protected FakeHttpServletResponse build(String path) throws Exception {

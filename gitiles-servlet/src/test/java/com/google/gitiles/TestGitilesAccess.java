@@ -17,6 +17,7 @@ package com.google.gitiles;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.CharMatcher;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import java.util.Map;
@@ -76,7 +77,10 @@ public class TestGitilesAccess implements GitilesAccess.Factory {
 
       @Override
       public Config getConfig() {
-        return new Config();
+        Config config = new Config();
+        config.setStringList(
+            "gitiles", null, "allowOriginRegex", ImmutableList.of("http://localhost"));
+        return config;
       }
     };
   }
