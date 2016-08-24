@@ -1,13 +1,10 @@
-Gitiles - A simple JGit repository browser
-==========================================
+# Gitiles - A simple JGit repository browser
 
 Gitiles is a simple repository browser for Git repositories, built on JGit. Its
 guiding principle is simplicity: it has no formal access controls, no write
 access, no fancy Javascript, etc.
 
-
-Building
---------
+## Building
 
 Gitiles requires [Buck](http://facebook.github.io/buck/) to build.
 
@@ -25,8 +22,7 @@ buck test
 ```
 
 
-Testing
--------
+## Testing
 
 ```
 cd /path/to/repositories  # Don't run from the gitiles repo.
@@ -40,8 +36,7 @@ will serve any repositories under `/path/to/repositories`.
 To run unit tests, run `buck test`.
 
 
-Eclipse IDE
------------
+## Eclipse IDE
 
 If you'd like to use Eclipse to edit Gitiles, first generate a project file:
 
@@ -60,8 +55,7 @@ libraries have changed. For best results, ensure the project is closed in
 Eclipse before rebuilding.
 
 
-Code Style
-----------
+## Code Style
 
 Java code in Gitiles follows the [Google Java Style Guide][java-style]
 with a 100-column limit.
@@ -80,8 +74,7 @@ CSS in Gitiles follows the [SUIT CSS naming conventions][suit].
 [fmt]: https://github.com/google/google-java-format
 [suit]: https://github.com/suitcss/suit/blob/master/doc/naming-conventions.md
 
-Code Review
------------
+## Code Review
 
 Gitiles uses Gerrit for code review:
 https://gerrit-review.googlesource.com/
