@@ -359,6 +359,9 @@ public abstract class BaseServlet extends HttpServlet {
 
       if (!Strings.isNullOrEmpty(origin) && allowOriginPattern.matcher(origin).matches()) {
         res.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, origin);
+        res.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, "X-Requested-With");
+        res.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true");
+        res.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS, "GET");
       }
     } else {
       res.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
