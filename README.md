@@ -8,6 +8,12 @@ Gitiles automatically renders `*.md` Markdown files into HTML for simplified
 documentation. Refer to the [Markdown documentation](/Documentation/markdown.md)
 for details.
 
+## Configuration
+
+Gitiles is configurable in a git-style configuration file named
+`gitiles.config`. Refer to the [configuration documentation](/Documentation/config.md)
+for details.
+
 ## Contributing to Gitiles
 
 Please refer to the [Developer Guide](/Documentation/developer-guide.md).
