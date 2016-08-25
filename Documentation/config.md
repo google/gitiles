@@ -5,6 +5,21 @@ options.
 
 [TOC]
 
+## Core configuration
+
+### Cross-Origin Resource Sharing (CORS)
+
+Gitiles sets the `Access-Control-Allow-Origin` header to the
+HTTP origin of the client if the client's domain matches a regular
+expression defined in `allowOriginRegex`.
+
+```
+[gitiles]
+  allowOriginRegex = http://localhost
+```
+
+By default `allowOriginRegex` is unset, denying all cross-origin requests.
+
 ## Markdown
 
 ### Disabling markdown
