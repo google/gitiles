@@ -52,6 +52,36 @@ The image limit places an upper bound on the byte size of input.
   imageLimit = 256K
 ```
 
+### IFrames
+
+IFrame source URLs can be whitelisted by providing a list of allowed
+URLs. URLs ending with a `/` are treated as prefixes, allowing any source
+URL beginning with that prefix.
+
+```
+[markdown]
+  allowiframe = https://google.com/
+```
+
+URLs not ending with a `/` are treated as exact matches, and only those
+source URLs will be allowed.
+
+
+```
+[markdown]
+  allowiframe = https://example.com
+  allowiframe = https://example.org
+```
+
+If the list has a single entry with the value `true`, all source URLs
+will be allowed.
+
+
+```
+[markdown]
+  allowiframe = true
+```
+
 ## Google Analytics
 
 [Google Analytics](https://www.google.com/analytics/) can be
