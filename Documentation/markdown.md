@@ -619,7 +619,7 @@ border can be hidden by adding `frameborder="0"` to the iframe tag.
 _(optional)_
 
 Embedded source URLs must also be whitelisted by the Gitiles
-[`markdown.allowiframe`](/Documentation/config.md#IFrames) configuration
+[`markdown.allowiframe`](config.md#IFrames) configuration
 variable.
 
 ## Site layout
