@@ -341,7 +341,7 @@ Use https://www.google.com/ to search the web.
 
 Well formed URLs beginning with `https://`, `http://`, and `mailto:`
 are used as written for the link's destination.  Malformed URLs may be
-replaced with `#zSoyz` to prevent browser evaluation of dangerous
+replaced with `about:invalid#zSoyz` to prevent browser evaluation of dangerous
 content.
 
 HTML escaping of URL characters such as `&` is handled internally by
