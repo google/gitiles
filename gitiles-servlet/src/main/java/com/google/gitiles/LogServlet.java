@@ -202,8 +202,17 @@ public class LogServlet extends BaseServlet {
     }
   }
 
+  private static class InvalidStartValueException extends IllegalArgumentException {
+    private static final long serialVersionUID = 1L;
+
+    InvalidStartValueException() {
+      super();
+    }
+  }
+
   private static Optional<ObjectId> getStart(
-      ListMultimap<String, String> params, ObjectReader reader) throws IOException {
+      ListMultimap<String, String> params, ObjectReader reader)
+          throws IOException, InvalidStartValueException {
     List<String> values = params.get(START_PARAM);
     switch (values.size()) {
       case 0:
@@ -211,15 +220,15 @@ public class LogServlet extends BaseServlet {
       case 1:
         String id = values.get(0);
         if (!AbbreviatedObjectId.isId(id)) {
-          return null;
+          throw new InvalidStartValueException();
         }
         Collection<ObjectId> ids = reader.resolve(AbbreviatedObjectId.fromString(id));
         if (ids.size() != 1) {
-          return null;
+          throw new InvalidStartValueException();
         }
         return Optional.of(Iterables.getOnlyElement(ids));
       default:
-        return null;
+        throw new InvalidStartValueException();
     }
   }
 
@@ -313,12 +322,12 @@ public class LogServlet extends BaseServlet {
         return null;
       }
 
-      Optional<ObjectId> start = getStart(view.getParameters(), walk.getObjectReader());
-      if (start == null) {
+      try {
+        Optional<ObjectId> start = getStart(view.getParameters(), walk.getObjectReader());
+        return new Paginator(walk, getLimit(view), start.orNull());
+      } catch (InvalidStartValueException e) {
         return null;
       }
-
-      return new Paginator(walk, getLimit(view), start.orNull());
     }
   }
 
