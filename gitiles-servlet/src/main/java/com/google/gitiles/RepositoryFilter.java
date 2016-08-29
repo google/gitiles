@@ -54,7 +54,7 @@ class RepositoryFilter extends AbstractHttpFilter {
         // or send SC_NOT_FOUND there.
         chain.doFilter(req, res);
       } catch (ServiceMayNotContinueException e) {
-        sendError(req, res, SC_FORBIDDEN, e.getMessage());
+        sendError(req, res, e.getStatusCode(), e.getMessage());
       } finally {
         req.removeAttribute(ATTRIBUTE_REPOSITORY);
       }

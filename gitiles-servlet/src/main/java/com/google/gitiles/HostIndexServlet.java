@@ -76,7 +76,7 @@ public class HostIndexServlet extends BaseServlet {
       return null;
     } catch (ServiceMayNotContinueException e) {
       // TODO(dborowitz): Show the error message to the user.
-      res.sendError(SC_FORBIDDEN);
+      res.sendError(e.getStatusCode());
       return null;
     } catch (IOException err) {
       String name = urls.getHostName(req);
