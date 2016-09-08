@@ -102,7 +102,7 @@ public class Linkifier {
 
     if (baseGerritUrl != null) {
       CommentLinkInfo changeIds =
-          new CommentLinkInfo(CHANGE_ID_PATTERN, baseGerritUrl + "#/q/$0,n,z");
+          new CommentLinkInfo(CHANGE_ID_PATTERN, baseGerritUrl + "#/q/$0");
       operationalCommentLinks.add(changeIds);
     }
 
