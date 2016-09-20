@@ -39,7 +39,7 @@ To run unit tests, run `buck test`.
 If you'd like to use Eclipse to edit Gitiles, first generate a project file:
 
 ```
-./bucklets/tools/eclipse.py --src
+./bucklets/tools/eclipse.py --src --exclude=servlet-api_2_5
 ```
 
 Import the project in Eclipse:
