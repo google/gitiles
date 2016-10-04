@@ -24,7 +24,6 @@ import com.google.template.soy.data.SoyMapData;
 import com.google.template.soy.data.restricted.NullData;
 import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
-import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
 import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
 import org.eclipse.jgit.junit.TestRepository;
@@ -44,7 +43,7 @@ public class HostIndexServletTest extends ServletTest {
   @Before
   public void setUp() throws Exception {
     repo =
-        new TestRepository<DfsRepository>(
+        new TestRepository<>(
             new InMemoryRepository(new DfsRepositoryDescription(NAME)));
     servlet = TestGitilesServlet.create(repo);
   }

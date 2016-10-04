@@ -40,7 +40,7 @@ public class PaginatorTest {
   @Before
   public void setUp() throws Exception {
     repo =
-        new TestRepository<DfsRepository>(
+        new TestRepository<>(
             new InMemoryRepository(new DfsRepositoryDescription("test")));
     walk = new RevWalk(repo.getRepository());
   }

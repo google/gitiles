@@ -42,7 +42,7 @@ public class RevisionParserTest {
   @Before
   public void setUp() throws Exception {
     repo =
-        new TestRepository<DfsRepository>(
+        new TestRepository<>(
             new InMemoryRepository(new DfsRepositoryDescription("test")));
     parser =
         new RevisionParser(

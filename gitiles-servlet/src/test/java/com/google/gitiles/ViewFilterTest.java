@@ -39,7 +39,7 @@ public class ViewFilterTest {
   @Before
   public void setUp() throws Exception {
     repo =
-        new TestRepository<DfsRepository>(
+        new TestRepository<>(
             new InMemoryRepository(new DfsRepositoryDescription("repo")));
   }
 
