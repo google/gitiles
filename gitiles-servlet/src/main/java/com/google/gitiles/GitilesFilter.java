@@ -18,6 +18,7 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.gitiles.GitilesServlet.STATIC_PREFIX;
+import static com.google.gitiles.Renderer.fileUrlMapper;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.FluentIterable;
@@ -25,7 +26,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
-import com.google.gitiles.Renderer.FileUrlMapper;
 import com.google.gitiles.blame.BlameCache;
 import com.google.gitiles.blame.BlameCacheImpl;
 import com.google.gitiles.blame.BlameServlet;
@@ -319,7 +319,7 @@ class GitilesFilter extends MetaFilter {
               filterConfig.getServletContext().getContextPath() + STATIC_PREFIX,
               FluentIterable.from(
                       Arrays.asList(config.getStringList("gitiles", null, "customTemplates")))
-                  .transform(new FileUrlMapper()),
+                  .transform(fileUrlMapper()),
               firstNonNull(config.getString("gitiles", null, "siteTitle"), "Gitiles"));
     }
   }

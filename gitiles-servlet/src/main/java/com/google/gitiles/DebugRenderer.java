@@ -33,10 +33,10 @@ public class DebugRenderer extends Renderer {
       final String soyTemplatesRoot,
       String siteTitle) {
     super(
-        new FileUrlMapper(soyTemplatesRoot + File.separator),
+        fileUrlMapper(soyTemplatesRoot + File.separator),
         ImmutableMap.<String, String>of(),
         staticPrefix,
-        FluentIterable.from(customTemplatesFilenames).transform(new FileUrlMapper()),
+        FluentIterable.from(customTemplatesFilenames).transform(fileUrlMapper()),
         siteTitle);
   }
 

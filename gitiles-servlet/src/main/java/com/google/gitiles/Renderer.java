@@ -73,19 +73,13 @@ public abstract class Renderer {
           "gitiles.DOC_CSS_URL", "doc.css",
           "gitiles.PRETTIFY_CSS_URL", "prettify/prettify.css");
 
-  protected static class FileUrlMapper implements Function<String, URL> {
-    private final String prefix;
+  protected static Function<String, URL> fileUrlMapper() {
+    return fileUrlMapper("");
+  }
 
-    protected FileUrlMapper() {
-      this("");
-    }
-
-    protected FileUrlMapper(String prefix) {
-      this.prefix = checkNotNull(prefix, "prefix");
-    }
-
-    @Override
-    public URL apply(String filename) {
+  protected static Function<String, URL> fileUrlMapper(String prefix) {
+    checkNotNull(prefix);
+    return filename -> {
       if (filename == null) {
         return null;
       }
@@ -94,7 +88,7 @@ public abstract class Renderer {
       } catch (MalformedURLException e) {
         throw new IllegalArgumentException(e);
       }
-    }
+    };
   }
 
   protected ImmutableMap<String, URL> templates;
