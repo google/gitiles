@@ -14,17 +14,17 @@
 
 package com.google.gitiles;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.MoreObjects.toStringHelper;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.Collections2.filter;
 import static java.util.Objects.hash;
+import static java.util.stream.Collectors.toList;
 import static org.eclipse.jgit.lib.Constants.R_HEADS;
 import static org.eclipse.jgit.lib.Constants.R_TAGS;
 
 import com.google.common.base.Throwables;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.collect.Collections2;
 import com.google.common.util.concurrent.ExecutionError;
 import java.io.IOException;
 import java.util.Arrays;
@@ -33,6 +33,7 @@ import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.ObjectId;
@@ -122,9 +123,8 @@ public class VisibilityCache {
       Throwables.propagateIfInstanceOf(e.getCause(), IOException.class);
       throw new IOException(e);
     } catch (ExecutionError e) {
-      // markUninteresting may overflow on pathological repos with very long
-      // merge chains. Play it safe and return false rather than letting the
-      // error propagate.
+      // markUninteresting may overflow on pathological repos with very long merge chains. Play it
+      // safe and return false rather than letting the error propagate.
       if (e.getCause() instanceof StackOverflowError) {
         return false;
       }
@@ -142,24 +142,23 @@ public class VisibilityCache {
       return false;
     }
 
-    // If any reference directly points at the requested object, permit display.
-    // Common for displays of pending patch sets in Gerrit Code Review, or
-    // bookmarks to the commit a tag points at.
-    Collection<Ref> allRefs = repo.getRefDatabase().getRefs(RefDatabase.ALL).values();
-    for (Ref ref : allRefs) {
+    // If any reference directly points at the requested object, permit display. Common for displays
+    // of pending patch sets in Gerrit Code Review, or bookmarks to the commit a tag points at.
+    Collection<Ref> all = repo.getRefDatabase().getRefs(RefDatabase.ALL).values();
+    for (Ref ref : all) {
       ref = repo.getRefDatabase().peel(ref);
       if (id.equals(ref.getObjectId()) || id.equals(ref.getPeeledObjectId())) {
         return true;
       }
     }
 
-    // Check heads first under the assumption that most requests are for refs
-    // close to a head. Tags tend to be much further back in history and just
-    // clutter up the priority queue in the common case.
+    // Check heads first under the assumption that most requests are for refs close to a head. Tags
+    // tend to be much further back in history and just clutter up the priority queue in the common
+    // case.
     return isReachableFrom(walk, commit, knownReachable)
-        || isReachableFromRefs(walk, commit, filter(allRefs, r -> refStartsWith(r, R_HEADS)))
-        || isReachableFromRefs(walk, commit, filter(allRefs, r -> refStartsWith(r, R_TAGS)))
-        || isReachableFromRefs(walk, commit, filter(allRefs, r -> otherRefs(r)));
+        || isReachableFromRefs(walk, commit, all.stream().filter(r -> refStartsWith(r, R_HEADS)))
+        || isReachableFromRefs(walk, commit, all.stream().filter(r -> refStartsWith(r, R_TAGS)))
+        || isReachableFromRefs(walk, commit, all.stream().filter(r -> otherRefs(r)));
   }
 
   private static boolean refStartsWith(Ref ref, String prefix) {
@@ -172,14 +171,15 @@ public class VisibilityCache {
         || refStartsWith(r, "refs/changes/"));
   }
 
-  private boolean isReachableFromRefs(RevWalk walk, RevCommit commit, Collection<Ref> refs)
+  private boolean isReachableFromRefs(RevWalk walk, RevCommit commit, Stream<Ref> refs)
       throws IOException {
     return isReachableFrom(
-        walk,
-        commit,
-        Collections2.transform(
-            refs,
-            r -> r.getPeeledObjectId() != null ? r.getPeeledObjectId() : r.getObjectId()));
+        walk, commit, refs.map(r -> firstNonNull(r.getPeeledObjectId(), r.getObjectId())));
+  }
+
+  private boolean isReachableFrom(RevWalk walk, RevCommit commit, Stream<ObjectId> ids)
+      throws IOException {
+    return isReachableFrom(walk, commit, ids.collect(toList()));
   }
 
   private boolean isReachableFrom(RevWalk walk, RevCommit commit, Collection<ObjectId> ids)
