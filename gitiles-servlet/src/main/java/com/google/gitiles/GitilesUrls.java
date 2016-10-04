@@ -16,7 +16,6 @@ package com.google.gitiles;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import com.google.common.base.Function;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import javax.servlet.http.HttpServletRequest;
@@ -32,22 +31,18 @@ public interface GitilesUrls {
    * character that should not be encoded, while almost any other non-alpha, non-numeric character
    * will be encoded using URL style encoding.
    */
-  Function<String, String> NAME_ESCAPER =
-      new Function<String, String>() {
-        @Override
-        public String apply(String s) {
-          try {
-            return URLEncoder.encode(s, UTF_8.name())
-                .replace("%2F", "/")
-                .replace("%2f", "/")
-                .replace("+", "%20")
-                .replace("%2B", "+")
-                .replace("%2b", "+");
-          } catch (UnsupportedEncodingException e) {
-            throw new IllegalStateException(e);
-          }
-        }
-      };
+  static String escapeName(String name) {
+    try {
+      return URLEncoder.encode(name, UTF_8.name())
+          .replace("%2F", "/")
+          .replace("%2f", "/")
+          .replace("+", "%20")
+          .replace("%2B", "+")
+          .replace("%2b", "+");
+    } catch (UnsupportedEncodingException e) {
+      throw new IllegalStateException(e);
+    }
+  }
 
   /**
    * Return the name of the host from the request.

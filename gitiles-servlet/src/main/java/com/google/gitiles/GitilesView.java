@@ -19,7 +19,7 @@ import static com.google.common.base.MoreObjects.toStringHelper;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.gitiles.GitilesUrls.NAME_ESCAPER;
+import static com.google.gitiles.GitilesUrls.escapeName;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -714,13 +714,13 @@ public class GitilesView {
       default:
         throw new IllegalStateException("Unknown view type: " + type);
     }
-    String baseUrl = NAME_ESCAPER.apply(url.toString());
+    String baseUrl = escapeName(url.toString());
     url = new StringBuilder();
     if (!params.isEmpty()) {
       url.append('?').append(paramsToString(params));
     }
     if (!Strings.isNullOrEmpty(anchor)) {
-      url.append('#').append(NAME_ESCAPER.apply(anchor));
+      url.append('#').append(escapeName(anchor));
     }
     return baseUrl + url;
   }

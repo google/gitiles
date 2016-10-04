@@ -15,7 +15,7 @@
 package com.google.gitiles;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.gitiles.GitilesUrls.NAME_ESCAPER;
+import static com.google.gitiles.GitilesUrls.escapeName;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,31 +26,31 @@ import org.junit.runners.JUnit4;
 public class GitilesUrlsTest {
   @Test
   public void nameEscaperEscapesAppropriateSpecialCharacters() throws Exception {
-    assertThat(NAME_ESCAPER.apply("foo_bar")).isEqualTo("foo_bar");
-    assertThat(NAME_ESCAPER.apply("foo-bar")).isEqualTo("foo-bar");
-    assertThat(NAME_ESCAPER.apply("foo%bar")).isEqualTo("foo%25bar");
-    assertThat(NAME_ESCAPER.apply("foo&bar")).isEqualTo("foo%26bar");
-    assertThat(NAME_ESCAPER.apply("foo(bar")).isEqualTo("foo%28bar");
-    assertThat(NAME_ESCAPER.apply("foo)bar")).isEqualTo("foo%29bar");
-    assertThat(NAME_ESCAPER.apply("foo:bar")).isEqualTo("foo%3Abar");
-    assertThat(NAME_ESCAPER.apply("foo;bar")).isEqualTo("foo%3Bbar");
-    assertThat(NAME_ESCAPER.apply("foo=bar")).isEqualTo("foo%3Dbar");
-    assertThat(NAME_ESCAPER.apply("foo?bar")).isEqualTo("foo%3Fbar");
-    assertThat(NAME_ESCAPER.apply("foo[bar")).isEqualTo("foo%5Bbar");
-    assertThat(NAME_ESCAPER.apply("foo]bar")).isEqualTo("foo%5Dbar");
-    assertThat(NAME_ESCAPER.apply("foo{bar")).isEqualTo("foo%7Bbar");
-    assertThat(NAME_ESCAPER.apply("foo}bar")).isEqualTo("foo%7Dbar");
+    assertThat(escapeName("foo_bar")).isEqualTo("foo_bar");
+    assertThat(escapeName("foo-bar")).isEqualTo("foo-bar");
+    assertThat(escapeName("foo%bar")).isEqualTo("foo%25bar");
+    assertThat(escapeName("foo&bar")).isEqualTo("foo%26bar");
+    assertThat(escapeName("foo(bar")).isEqualTo("foo%28bar");
+    assertThat(escapeName("foo)bar")).isEqualTo("foo%29bar");
+    assertThat(escapeName("foo:bar")).isEqualTo("foo%3Abar");
+    assertThat(escapeName("foo;bar")).isEqualTo("foo%3Bbar");
+    assertThat(escapeName("foo=bar")).isEqualTo("foo%3Dbar");
+    assertThat(escapeName("foo?bar")).isEqualTo("foo%3Fbar");
+    assertThat(escapeName("foo[bar")).isEqualTo("foo%5Bbar");
+    assertThat(escapeName("foo]bar")).isEqualTo("foo%5Dbar");
+    assertThat(escapeName("foo{bar")).isEqualTo("foo%7Bbar");
+    assertThat(escapeName("foo}bar")).isEqualTo("foo%7Dbar");
   }
 
   @Test
   public void nameEscaperDoesNotEscapeSlashes() throws Exception {
-    assertThat(NAME_ESCAPER.apply("foo/bar")).isEqualTo("foo/bar");
+    assertThat(escapeName("foo/bar")).isEqualTo("foo/bar");
   }
 
   @Test
   public void nameEscaperEscapesSpacesWithPercentInsteadOfPlus() throws Exception {
-    assertThat(NAME_ESCAPER.apply("foo+bar")).isEqualTo("foo+bar");
-    assertThat(NAME_ESCAPER.apply("foo bar")).isEqualTo("foo%20bar");
-    assertThat(NAME_ESCAPER.apply("foo%20bar")).isEqualTo("foo%2520bar");
+    assertThat(escapeName("foo+bar")).isEqualTo("foo+bar");
+    assertThat(escapeName("foo bar")).isEqualTo("foo%20bar");
+    assertThat(escapeName("foo%20bar")).isEqualTo("foo%2520bar");
   }
 }

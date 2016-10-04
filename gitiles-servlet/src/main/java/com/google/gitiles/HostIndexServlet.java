@@ -187,7 +187,7 @@ public class HostIndexServlet extends BaseServlet {
           writer.write(ref);
           writer.write(' ');
         }
-        writer.write(GitilesUrls.NAME_ESCAPER.apply(stripPrefix(prefix, repo.name)));
+        writer.write(GitilesUrls.escapeName(stripPrefix(prefix, repo.name)));
         writer.write('\n');
       }
     }
