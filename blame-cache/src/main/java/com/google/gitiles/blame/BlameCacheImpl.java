@@ -19,7 +19,6 @@ import static java.util.Objects.hash;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.Weigher;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Interner;
 import com.google.common.collect.Interners;
@@ -50,13 +49,7 @@ public class BlameCacheImpl implements BlameCache {
 
   public static CacheBuilder<Key, List<Region>> weigher(
       CacheBuilder<? super Key, ? super List<Region>> builder) {
-    return builder.weigher(
-        new Weigher<Key, List<Region>>() {
-          @Override
-          public int weigh(Key key, List<Region> value) {
-            return value.size();
-          }
-        });
+    return builder.weigher((k, v) -> v.size());
   }
 
   public static class Key {
@@ -106,13 +99,8 @@ public class BlameCacheImpl implements BlameCache {
     return cache;
   }
 
-  public Callable<List<Region>> newLoader(final Key key, final Repository repo) {
-    return new Callable<List<Region>>() {
-      @Override
-      public List<Region> call() throws IOException {
-        return loadBlame(key, repo);
-      }
-    };
+  public Callable<List<Region>> newLoader(Key key, Repository repo) {
+    return () -> loadBlame(key, repo);
   }
 
   public BlameCacheImpl(CacheBuilder<? super Key, ? super List<Region>> builder) {

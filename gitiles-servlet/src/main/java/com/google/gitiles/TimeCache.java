@@ -18,7 +18,6 @@ import com.google.common.base.Throwables;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import java.io.IOException;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
@@ -58,24 +57,21 @@ public class TimeCache {
     try {
       return cache.get(
           id,
-          new Callable<Long>() {
-            @Override
-            public Long call() throws IOException {
-              RevObject o = walk.parseAny(id);
-              while (o instanceof RevTag) {
-                RevTag tag = (RevTag) o;
-                PersonIdent ident = tag.getTaggerIdent();
-                if (ident != null) {
-                  return ident.getWhen().getTime() / 1000;
-                }
-                o = tag.getObject();
-                walk.parseHeaders(o);
+          () -> {
+            RevObject o = walk.parseAny(id);
+            while (o instanceof RevTag) {
+              RevTag tag = (RevTag) o;
+              PersonIdent ident = tag.getTaggerIdent();
+              if (ident != null) {
+                return ident.getWhen().getTime() / 1000;
               }
-              if (o.getType() == Constants.OBJ_COMMIT) {
-                return Long.valueOf(((RevCommit) o).getCommitTime());
-              }
-              return Long.MIN_VALUE;
+              o = tag.getObject();
+              walk.parseHeaders(o);
             }
+            if (o.getType() == Constants.OBJ_COMMIT) {
+              return Long.valueOf(((RevCommit) o).getCommitTime());
+            }
+            return Long.MIN_VALUE;
           });
     } catch (ExecutionException e) {
       Throwables.propagateIfInstanceOf(e.getCause(), IOException.class);

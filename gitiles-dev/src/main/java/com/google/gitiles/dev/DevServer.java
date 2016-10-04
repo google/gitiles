@@ -50,7 +50,6 @@ import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryCache;
 import org.eclipse.jgit.lib.RepositoryCache.FileKey;
 import org.eclipse.jgit.storage.file.FileBasedConfig;
@@ -166,18 +165,14 @@ class DevServer {
 
   private Servlet createRootedDocServlet(DebugRenderer renderer, String docRoot) {
     File docRepo = new File(docRoot);
-    final FileKey repoKey = FileKey.exact(docRepo, FS.DETECTED);
+    FileKey repoKey = FileKey.exact(docRepo, FS.DETECTED);
 
     RepositoryResolver<HttpServletRequest> resolver =
-        new RepositoryResolver<HttpServletRequest>() {
-          @Override
-          public Repository open(HttpServletRequest req, String name)
-              throws RepositoryNotFoundException {
-            try {
-              return RepositoryCache.open(repoKey, true);
-            } catch (IOException e) {
-              throw new RepositoryNotFoundException(repoKey.getFile(), e);
-            }
+        (req, name) -> {
+          try {
+            return RepositoryCache.open(repoKey, true);
+          } catch (IOException e) {
+            throw new RepositoryNotFoundException(repoKey.getFile(), e);
           }
         };
 

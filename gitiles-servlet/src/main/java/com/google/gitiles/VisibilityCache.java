@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
@@ -113,12 +112,7 @@ public class VisibilityCache {
     try {
       return cache.get(
           new Key(access.getUserKey(), access.getRepositoryName(), id),
-          new Callable<Boolean>() {
-            @Override
-            public Boolean call() throws IOException {
-              return isVisible(repo, walk, id, Arrays.asList(knownReachable));
-            }
-          });
+          () -> isVisible(repo, walk, id, Arrays.asList(knownReachable)));
     } catch (ExecutionException e) {
       Throwables.propagateIfInstanceOf(e.getCause(), IOException.class);
       throw new IOException(e);
