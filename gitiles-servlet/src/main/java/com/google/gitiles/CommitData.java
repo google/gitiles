@@ -18,7 +18,6 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
@@ -190,18 +189,12 @@ class CommitData {
           .toUrl();
     }
 
-    private List<Ref> getRefsById(Repository repo, ObjectId id, final String prefix) {
+    private List<Ref> getRefsById(Repository repo, ObjectId id, String prefix) {
       if (refsById == null) {
         refsById = repo.getAllRefsByPeeledObjectId();
       }
       return FluentIterable.from(firstNonNull(refsById.get(id), ImmutableSet.<Ref>of()))
-          .filter(
-              new Predicate<Ref>() {
-                @Override
-                public boolean apply(Ref ref) {
-                  return ref.getName().startsWith(prefix);
-                }
-              })
+          .filter(r -> r.getName().startsWith(prefix))
           .toSortedList(
               Ordering.natural().onResultOf(r -> r.getName()));
     }

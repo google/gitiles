@@ -16,14 +16,11 @@ package com.google.gitiles;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Predicates.not;
 import static com.google.common.collect.Collections2.filter;
 import static java.util.Objects.hash;
 import static org.eclipse.jgit.lib.Constants.R_HEADS;
 import static org.eclipse.jgit.lib.Constants.R_TAGS;
 
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
 import com.google.common.base.Throwables;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -160,25 +157,19 @@ public class VisibilityCache {
     // close to a head. Tags tend to be much further back in history and just
     // clutter up the priority queue in the common case.
     return isReachableFrom(walk, commit, knownReachable)
-        || isReachableFromRefs(walk, commit, filter(allRefs, refStartsWith(R_HEADS)))
-        || isReachableFromRefs(walk, commit, filter(allRefs, refStartsWith(R_TAGS)))
-        || isReachableFromRefs(walk, commit, filter(allRefs, otherRefs()));
+        || isReachableFromRefs(walk, commit, filter(allRefs, r -> refStartsWith(r, R_HEADS)))
+        || isReachableFromRefs(walk, commit, filter(allRefs, r -> refStartsWith(r, R_TAGS)))
+        || isReachableFromRefs(walk, commit, filter(allRefs, r -> otherRefs(r)));
   }
 
-  private static Predicate<Ref> refStartsWith(final String prefix) {
-    return new Predicate<Ref>() {
-      @Override
-      public boolean apply(Ref ref) {
-        return ref.getName().startsWith(prefix);
-      }
-    };
+  private static boolean refStartsWith(Ref ref, String prefix) {
+    return ref.getName().startsWith(prefix);
   }
 
-  @SuppressWarnings("unchecked")
-  private static Predicate<Ref> otherRefs() {
-    return not(
-        Predicates.<Ref>or(
-            refStartsWith(R_HEADS), refStartsWith(R_TAGS), refStartsWith("refs/changes/")));
+  private static boolean otherRefs(Ref r) {
+    return !(refStartsWith(r, R_HEADS)
+        || refStartsWith(r, R_TAGS)
+        || refStartsWith(r, "refs/changes/"));
   }
 
   private boolean isReachableFromRefs(RevWalk walk, RevCommit commit, Collection<Ref> refs)
