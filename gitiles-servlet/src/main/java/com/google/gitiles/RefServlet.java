@@ -17,7 +17,6 @@ package com.google.gitiles;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -139,19 +138,17 @@ public class RefServlet extends BaseServlet {
         limit);
   }
 
-  private static Ordering<Ref> tagComparator(final TimeCache timeCache, final RevWalk walk) {
+  private static Long getTime(RevWalk walk, TimeCache timeCache, Ref ref) {
+    try {
+      return timeCache.getTime(walk, ref.getObjectId());
+    } catch (IOException e) {
+      throw new UncheckedExecutionException(e);
+    }
+  }
+
+  private static Ordering<Ref> tagComparator(TimeCache timeCache, RevWalk walk) {
     return Ordering.natural()
-        .onResultOf(
-            new Function<Ref, Long>() {
-              @Override
-              public Long apply(Ref ref) {
-                try {
-                  return timeCache.getTime(walk, ref.getObjectId());
-                } catch (IOException e) {
-                  throw new UncheckedExecutionException(e);
-                }
-              }
-            })
+        .onResultOf((Ref r) -> getTime(walk, timeCache, r))
         .reverse()
         .compound(RefComparator.INSTANCE);
   }

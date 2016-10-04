@@ -22,7 +22,6 @@ import static java.util.Objects.hash;
 import static org.eclipse.jgit.lib.Constants.R_HEADS;
 import static org.eclipse.jgit.lib.Constants.R_TAGS;
 
-import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.base.Throwables;
@@ -189,15 +188,7 @@ public class VisibilityCache {
         commit,
         Collections2.transform(
             refs,
-            new Function<Ref, ObjectId>() {
-              @Override
-              public ObjectId apply(Ref ref) {
-                if (ref.getPeeledObjectId() != null) {
-                  return ref.getPeeledObjectId();
-                }
-                return ref.getObjectId();
-              }
-            }));
+            r -> r.getPeeledObjectId() != null ? r.getPeeledObjectId() : r.getObjectId()));
   }
 
   private boolean isReachableFrom(RevWalk walk, RevCommit commit, Collection<ObjectId> ids)

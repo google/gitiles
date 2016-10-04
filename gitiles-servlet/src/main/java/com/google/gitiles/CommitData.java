@@ -18,7 +18,6 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
@@ -204,14 +203,7 @@ class CommitData {
                 }
               })
           .toSortedList(
-              Ordering.natural()
-                  .onResultOf(
-                      new Function<Ref, String>() {
-                        @Override
-                        public String apply(Ref ref) {
-                          return ref.getName();
-                        }
-                      }));
+              Ordering.natural().onResultOf(r -> r.getName()));
     }
 
     private AbstractTreeIterator getTreeIterator(RevCommit commit) throws IOException {
