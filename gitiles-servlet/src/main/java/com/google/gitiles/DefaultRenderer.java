@@ -14,12 +14,12 @@
 
 package com.google.gitiles;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
 import com.google.template.soy.SoyFileSet;
 import com.google.template.soy.tofu.SoyTofu;
+
 import java.net.URL;
 import java.util.Map;
 
@@ -41,12 +41,7 @@ public class DefaultRenderer extends Renderer {
       Iterable<URL> customTemplates,
       String siteTitle) {
     super(
-        new Function<String, URL>() {
-          @Override
-          public URL apply(String name) {
-            return Resources.getResource(Renderer.class, "templates/" + name);
-          }
-        },
+        r -> Resources.getResource(Renderer.class, "templates/" + r),
         globals,
         staticPrefix,
         customTemplates,
