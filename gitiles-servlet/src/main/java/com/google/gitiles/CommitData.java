@@ -14,14 +14,14 @@
 
 package com.google.gitiles;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
 
-import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.util.Arrays;
@@ -193,10 +193,14 @@ class CommitData {
       if (refsById == null) {
         refsById = repo.getAllRefsByPeeledObjectId();
       }
-      return FluentIterable.from(firstNonNull(refsById.get(id), ImmutableSet.<Ref>of()))
+      Set<Ref> refs = refsById.get(id);
+      if (refs == null) {
+        return ImmutableList.of();
+      }
+      return refs.stream()
           .filter(r -> r.getName().startsWith(prefix))
-          .toSortedList(
-              Ordering.natural().onResultOf(r -> r.getName()));
+          .sorted(comparing(Ref::getName))
+          .collect(toList());
     }
 
     private AbstractTreeIterator getTreeIterator(RevCommit commit) throws IOException {
