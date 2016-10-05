@@ -52,6 +52,15 @@ The project only needs to be rebuilt if the source roots or third-party
 libraries have changed. For best results, ensure the project is closed in
 Eclipse before rebuilding.
 
+## Running/Debugging from Eclipse IDE
+
+Running Gitiles from Eclipse requires setting the
+`com.google.gitiles.sourcePath` system property. The property value has to be
+the root folder of the Gitiles source code, for example:
+
+````
+-Dcom.google.gitiles.sourcePath=/home/johndoe/git/gitiles
+````
 
 ## Code Style
 
