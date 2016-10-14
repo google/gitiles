@@ -18,7 +18,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
@@ -36,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -216,7 +216,7 @@ public class LogServlet extends BaseServlet {
     List<String> values = params.get(START_PARAM);
     switch (values.size()) {
       case 0:
-        return Optional.absent();
+        return Optional.empty();
       case 1:
         String id = values.get(0);
         if (!AbbreviatedObjectId.isId(id)) {
@@ -324,7 +324,7 @@ public class LogServlet extends BaseServlet {
 
       try {
         Optional<ObjectId> start = getStart(view.getParameters(), walk.getObjectReader());
-        return new Paginator(walk, getLimit(view), start.orNull());
+        return new Paginator(walk, getLimit(view), start.orElse(null));
       } catch (InvalidStartValueException e) {
         return null;
       }

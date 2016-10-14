@@ -16,8 +16,8 @@ package com.google.gitiles;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-import com.google.common.base.Optional;
 import com.google.common.cache.CacheBuilder;
+import java.util.Optional;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
@@ -90,13 +90,13 @@ public class ConfigUtil {
    * @param subsection subsection to read, e.g. "subsection".
    * @param name variable to read, e.g. "fixedTimeZone".
    * @return a time zone read from parsing the specified config string value, or {@link
-   *     Optional#absent()} if not present. As in the behavior of {@link
+   *     Optional#empty()} if not present. As in the behavior of {@link
    *     TimeZone#getTimeZone(String)}, unknown time zones are treated as GMT.
    */
   public static Optional<TimeZone> getTimeZone(
       Config config, String section, String subsection, String name) {
     String id = config.getString(section, subsection, name);
-    return id != null ? Optional.of(TimeZone.getTimeZone(id)) : Optional.<TimeZone>absent();
+    return id != null ? Optional.of(TimeZone.getTimeZone(id)) : Optional.empty();
   }
 
   private ConfigUtil() {}

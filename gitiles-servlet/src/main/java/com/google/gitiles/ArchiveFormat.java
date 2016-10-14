@@ -15,9 +15,9 @@
 package com.google.gitiles;
 
 import com.google.common.base.Enums;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import java.util.Optional;
 import org.eclipse.jgit.api.ArchiveCommand;
 import org.eclipse.jgit.archive.TarFormat;
 import org.eclipse.jgit.archive.Tbz2Format;
@@ -83,10 +83,10 @@ public enum ArchiveFormat {
 
   static ArchiveFormat getDefault(Config cfg) {
     for (String allowed : cfg.getStringList("archive", null, "format")) {
-      Optional<ArchiveFormat> result =
-          Enums.getIfPresent(ArchiveFormat.class, allowed.toUpperCase());
-      if (result.isPresent()) {
-        return result.get();
+      ArchiveFormat result =
+          Enums.getIfPresent(ArchiveFormat.class, allowed.toUpperCase()).orNull();
+      if (result != null) {
+        return result;
       }
     }
     return TGZ;
@@ -99,7 +99,7 @@ public enum ArchiveFormat {
   static Optional<ArchiveFormat> byExtension(String ext, Config cfg) {
     ArchiveFormat format = BY_EXT.get(ext);
     if (format == null) {
-      return Optional.absent();
+      return Optional.empty();
     }
     String[] formats = cfg.getStringList("archive", null, "format");
     if (formats.length == 0) {
@@ -110,6 +110,6 @@ public enum ArchiveFormat {
         return Optional.of(format);
       }
     }
-    return Optional.absent();
+    return Optional.empty();
   }
 }

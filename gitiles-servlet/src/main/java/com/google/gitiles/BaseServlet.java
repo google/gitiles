@@ -26,7 +26,6 @@ import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.eclipse.jgit.util.HttpSupport.ENCODING_GZIP;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -40,6 +39,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.reflect.Type;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 import javax.servlet.ServletException;

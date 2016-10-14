@@ -17,9 +17,9 @@ package com.google.gitiles;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import java.io.IOException;
+import java.util.Optional;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

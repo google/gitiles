@@ -19,7 +19,6 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.net.HttpHeaders;
 import com.google.gson.FieldNamingPolicy;
@@ -27,7 +26,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import java.util.Map;
-import java.util.TimeZone;
+import java.util.Optional;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
 import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
@@ -146,7 +145,7 @@ public class ServletTest {
 
   protected String currentTimeFormatted() {
     PersonIdent p = new PersonIdent(repo.getRepository());
-    return new DateFormatter(Optional.<TimeZone>absent(), DateFormatter.Format.ISO).format(p);
+    return new DateFormatter(Optional.empty(), DateFormatter.Format.ISO).format(p);
   }
 
   protected void assertNotFound(String path, String queryString) throws Exception {

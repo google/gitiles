@@ -14,10 +14,10 @@
 
 package com.google.gitiles;
 
-import com.google.common.base.Optional;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Optional;
 import java.util.TimeZone;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.util.SystemReader;
