@@ -17,6 +17,7 @@ package com.google.gitiles;
 import com.google.common.base.Enums;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import java.util.Arrays;
 import java.util.Optional;
 import org.eclipse.jgit.api.ArchiveCommand;
 import org.eclipse.jgit.archive.TarFormat;
@@ -105,11 +106,9 @@ public enum ArchiveFormat {
     if (formats.length == 0) {
       return Optional.of(format);
     }
-    for (String allowed : formats) {
-      if (format.name().equals(allowed.toUpperCase())) {
-        return Optional.of(format);
-      }
-    }
-    return Optional.empty();
+    return Arrays.stream(formats)
+        .filter(format.name()::equalsIgnoreCase)
+        .findFirst()
+        .map(x -> format);
   }
 }

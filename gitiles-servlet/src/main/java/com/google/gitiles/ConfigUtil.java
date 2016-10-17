@@ -95,8 +95,8 @@ public class ConfigUtil {
    */
   public static Optional<TimeZone> getTimeZone(
       Config config, String section, String subsection, String name) {
-    String id = config.getString(section, subsection, name);
-    return id != null ? Optional.of(TimeZone.getTimeZone(id)) : Optional.empty();
+    return Optional.ofNullable(config.getString(section, subsection, name))
+        .map(TimeZone::getTimeZone);
   }
 
   private ConfigUtil() {}
