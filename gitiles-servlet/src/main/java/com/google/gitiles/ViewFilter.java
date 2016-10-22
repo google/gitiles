@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jgit.http.server.ServletUtils;
 import org.eclipse.jgit.http.server.glue.WrappedRequest;
+import org.eclipse.jgit.transport.ServiceMayNotContinueException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,6 +104,9 @@ public class ViewFilter extends AbstractHttpFilter {
     GitilesView.Builder view;
     try {
       view = parse(req);
+    } catch (ServiceMayNotContinueException e) {
+      res.setStatus(e.getStatusCode());
+      return;
     } catch (IOException err) {
       String name = urls.getHostName(req);
       log.warn("Cannot parse view" + (name != null ? " for " + name : ""), err);
