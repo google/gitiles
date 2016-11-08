@@ -334,7 +334,7 @@ public class MarkdownToHtml implements Visitor {
 
   @Override
   public void visit(Code node) {
-    html.open("code").appendAndEscape(node.getLiteral()).close("code");
+    html.open("code").attribute("class", "code").appendAndEscape(node.getLiteral()).close("code");
   }
 
   @Override
