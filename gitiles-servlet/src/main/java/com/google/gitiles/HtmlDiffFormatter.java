@@ -35,7 +35,7 @@ import org.eclipse.jgit.util.RawParseUtils;
 
 /** Formats a unified format patch as UTF-8 encoded HTML. */
 final class HtmlDiffFormatter extends DiffFormatter {
-  private static final byte[] DIFF_BEGIN = "<pre class=\"u-pre Diff-unified\">".getBytes(UTF_8);
+  private static final byte[] DIFF_BEGIN = "<pre class=\"u-pre u-monospace Diff-unified\">".getBytes(UTF_8);
   private static final byte[] DIFF_END = "</pre>".getBytes(UTF_8);
 
   private static final byte[] HUNK_BEGIN = "<span class=\"Diff-hunk\">".getBytes(UTF_8);
