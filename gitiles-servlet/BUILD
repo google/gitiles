@@ -56,14 +56,13 @@ java_library(
 load("@com_googlesource_gerrit_bazlets//tools:junit.bzl", "junit_tests")
 
 junit_tests(
-    name = "ServletTests",
+    name = "servlet_tests",
     srcs = glob(
         [
             "src/test/java/**/*Test.java",
         ],
         exclude = ["**/ServletTest.java"],
     ),
-    visibility = ["//visibility:public"],
     runtime_deps = ["//lib/junit:hamcrest-core"],
     deps = DEPS + [
         ":servlet",
@@ -73,6 +72,7 @@ junit_tests(
         "//lib/jgit:junit",
         "//lib/junit",
     ],
+    visibility = ["//visibility:public"],
 )
 
 load("@com_googlesource_gerrit_bazlets//tools:javadoc.bzl", "java_doc")

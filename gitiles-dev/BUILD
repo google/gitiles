@@ -13,6 +13,7 @@ java_library(
         "//lib/slf4j:slf4j-simple",
         "//lib/soy",
     ],
+    visibility = ["//visibility:public"],
 )
 
 java_binary(

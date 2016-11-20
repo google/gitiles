@@ -1,6 +1,9 @@
 workspace(name = "gitiles")
 load("//tools:bazlets.bzl", "load_bazlets")
-load_bazlets(commit = "3afbeab55ece585dbfc7a980bf7214b24ddbbe86")
+load_bazlets(
+    commit = "e10ae3f85781aa15054be802b2a9f9465b1bf1e0",
+#    local_path = "/home/<user>/projects/bazlets"
+)
 load("@com_googlesource_gerrit_bazlets//tools:maven_jar.bzl",
      "maven_jar",
      "GERRIT")
