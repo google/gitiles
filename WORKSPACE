@@ -1,3 +1,10 @@
+workspace(name = "gitiles")
+load("//tools:bazlets.bzl", "load_bazlets")
+load_bazlets(commit = "3afbeab55ece585dbfc7a980bf7214b24ddbbe86")
+load("@com_googlesource_gerrit_bazlets//tools:maven_jar.bzl",
+     "maven_jar",
+     "GERRIT")
+
 maven_jar(
     name = "commons_lang",
     artifact = "org.apache.commons:commons-lang3:3.1",
@@ -26,12 +33,13 @@ maven_jar(
     name = "jsr305",
     artifact = "com.google.code.findbugs:jsr305:3.0.0",
     sha1 = "5871fb60dc68d67da54a663c3fd636a10a532948",
+    attach_source = False,
 )
 
 maven_jar(
     name = "prettify",
     artifact = "prettify:java-prettify:1.2.1",
-    repository = "http://gerrit-maven.storage.googleapis.com/",
+    repository = GERRIT,
     sha1 = "29ad8d072f9d0b83d1a2e9aa6ccb0905e6d543c6",
 )
 
@@ -140,6 +148,7 @@ maven_jar(
     name = "tukaani_xz",
     artifact = "org.tukaani:xz:1.4",
     sha1 = "18a9a2ce6abf32ea1b5fd31dae5210ad93f4e5e3",
+    attach_source = False,
 )
 
 maven_jar(
