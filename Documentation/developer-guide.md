@@ -4,19 +4,14 @@
 
 ## Building
 
-Gitiles requires [Buck](http://facebook.github.io/buck/) to build.
+Gitiles requires [Bazel](https://bazel.build/) to build.
+
+You need to use Java for building Gitiles. You can install Bazel from the bazel.io:
+https://bazel.build/versions/master/docs/install.html
 
 ```
-sudo apt-get install ant
-cd ${HOME}
-git clone https://github.com/facebook/buck.git
-cd buck
-ant
-sudo ln -s ${PWD}/bin/buck /usr/bin/buck
-cd /path/to/gitiles
-git submodule update --init
-buck build all
-buck test
+  bazel build //...
+  bazel test //...
 ```
 
 
@@ -31,7 +26,7 @@ This will recompile and start a development server.  Open
 http://localhost:8080/ to view your local copy of gitiles, which
 will serve any repositories under `/path/to/repositories`.
 
-To run unit tests, run `buck test`.
+To run unit tests, run `bazel test ...`.
 
 
 ## Eclipse IDE
@@ -39,7 +34,7 @@ To run unit tests, run `buck test`.
 If you'd like to use Eclipse to edit Gitiles, first generate a project file:
 
 ```
-./bucklets/tools/eclipse.py --src --exclude=servlet-api_2_5
+tools/eclipse/project.sh
 ```
 
 Import the project in Eclipse:

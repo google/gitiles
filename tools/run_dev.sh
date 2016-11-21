@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright 2012 Google Inc. All Rights Reserved.
+# Copyright 2016 Google Inc. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,14 +19,14 @@ set -e
 ROOT="$(cd $(dirname "$0")/..; pwd)"
 PROPERTIES=
 if [ "x$1" != "x" ]; then
-  PROPERTIES="-Dcom.google.gitiles.configPath=$1"
+  PROPERTIES="--jvm_flag=-Dcom.google.gitiles.configPath=$1"
 fi
 
-PROPERTIES="$PROPERTIES -Dcom.google.gitiles.sourcePath=$ROOT"
+PROPERTIES="$PROPERTIES --jvm_flag=-Dcom.google.gitiles.sourcePath=$ROOT"
 
 (
   cd "$ROOT"
-  buck build gitiles-dev:dev
+  bazel build gitiles-dev:dev
 )
 
-exec java $PROPERTIES -jar "$ROOT/buck-out/gen/gitiles-dev/dev.jar"
+sh $ROOT/bazel-bin/gitiles-dev/dev $PROPERTIES
