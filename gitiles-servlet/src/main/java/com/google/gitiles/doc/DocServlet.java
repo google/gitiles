@@ -155,14 +155,6 @@ public class DocServlet extends BaseServlet {
     return h.hash().toString();
   }
 
-  @Override
-  protected void setCacheHeaders(HttpServletResponse res) {
-    long now = System.currentTimeMillis();
-    res.setDateHeader(HttpHeaders.EXPIRES, now);
-    res.setDateHeader(HttpHeaders.DATE, now);
-    res.setHeader(HttpHeaders.CACHE_CONTROL, "private, max-age=0, must-revalidate");
-  }
-
   private void showDoc(
       HttpServletRequest req,
       HttpServletResponse res,
@@ -196,7 +188,7 @@ public class DocServlet extends BaseServlet {
     byte[] raw = page.getBytes(UTF_8);
     res.setContentType(FormatType.HTML.getMimeType());
     res.setCharacterEncoding(UTF_8.name());
-    setCacheHeaders(res);
+    setCacheHeaders(req, res);
     if (acceptsGzipEncoding(req)) {
       res.addHeader(HttpHeaders.VARY, HttpHeaders.ACCEPT_ENCODING);
       res.setHeader(HttpHeaders.CONTENT_ENCODING, "gzip");

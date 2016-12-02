@@ -231,7 +231,7 @@ public abstract class BaseServlet extends HttpServlet {
       HttpServletRequest req, HttpServletResponse res, Map<String, ?> soyData) throws IOException {
     res.setContentType(FormatType.HTML.getMimeType());
     res.setCharacterEncoding(UTF_8.name());
-    setCacheHeaders(res);
+    setCacheHeaders(req, res);
 
     Map<String, Object> allData = getData(req);
 
@@ -323,7 +323,7 @@ public abstract class BaseServlet extends HttpServlet {
       throws IOException {
     res.setStatus(statusCode);
     setApiHeaders(req, res, TEXT);
-    setCacheHeaders(res);
+    setCacheHeaders(req, res);
     try (Writer out = newWriter(req, res)) {
       out.write(message);
     }
@@ -338,7 +338,22 @@ public abstract class BaseServlet extends HttpServlet {
     return access;
   }
 
-  protected void setCacheHeaders(HttpServletResponse res) {
+  protected void setCacheHeaders(HttpServletRequest req, HttpServletResponse res) {
+    if (Strings.nullToEmpty(req.getHeader(HttpHeaders.PRAGMA)).equalsIgnoreCase("no-cache") ||
+        Strings.nullToEmpty(req.getHeader(HttpHeaders.CACHE_CONTROL))
+            .equalsIgnoreCase("no-cache")) {
+      setNotCacheable(res);
+      return;
+    }
+
+    GitilesView view = ViewFilter.getView(req);
+    Revision rev = view.getRevision();
+    if (rev.nameIsId()) {
+      res.setHeader(HttpHeaders.CACHE_CONTROL,
+          "private, max-age=7200, stale-while-revalidate=604800");
+      return;
+    }
+
     setNotCacheable(res);
   }
 
@@ -366,7 +381,7 @@ public abstract class BaseServlet extends HttpServlet {
     } else {
       res.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
     }
-    setCacheHeaders(res);
+    setCacheHeaders(req, res);
   }
 
   protected void setApiHeaders(HttpServletRequest req, HttpServletResponse res, FormatType type)
@@ -374,10 +389,11 @@ public abstract class BaseServlet extends HttpServlet {
     setApiHeaders(req, res, type.getMimeType());
   }
 
-  protected void setDownloadHeaders(HttpServletResponse res, String filename, String contentType) {
+  protected void setDownloadHeaders(HttpServletRequest req, HttpServletResponse res,
+      String filename, String contentType) {
     res.setContentType(contentType);
     res.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename);
-    setCacheHeaders(res);
+    setCacheHeaders(req, res);
   }
 
   protected static Writer newWriter(OutputStream os, HttpServletResponse res) throws IOException {

@@ -61,7 +61,7 @@ public class ArchiveServlet extends BaseServlet {
       return;
     }
     String filename = getFilename(view, rev, view.getExtension());
-    setDownloadHeaders(res, filename, format.get().getMimeType());
+    setDownloadHeaders(req, res, filename, format.get().getMimeType());
     res.setStatus(SC_OK);
 
     try {
