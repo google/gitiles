@@ -60,11 +60,12 @@ class ReadmeHelper {
       throws MissingObjectException, IncorrectObjectTypeException, CorruptObjectException,
           IOException {
     if (config.render) {
-      TreeWalk tw = new TreeWalk(reader);
-      tw.setRecursive(false);
-      tw.addTree(tree);
-      while (tw.next() && !isPresent()) {
-        considerEntry(tw);
+      try (TreeWalk tw = new TreeWalk(reader)) {
+        tw.setRecursive(false);
+        tw.addTree(tree);
+        while (tw.next() && !isPresent()) {
+          considerEntry(tw);
+        }
       }
     }
   }
