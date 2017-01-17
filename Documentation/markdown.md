@@ -1,6 +1,6 @@
 # Markdown
 
-The [Gitiles](https://code.google.com/p/gitiles/) source browser
+The [Gitiles](https://gerrit.googlesource.com/gitiles/) source browser
 automatically renders `*.md` Markdown files into HTML for simplified
 documentation.
 
