@@ -14,10 +14,10 @@
 
 package com.google.gitiles.doc;
 
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
+import com.google.common.collect.MultimapBuilder;
 import com.google.gitiles.doc.html.HtmlBuilder;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -47,7 +47,8 @@ class TocFormatter {
 
   void setRoot(Node doc) {
     outline = new ArrayList<>();
-    Multimap<String, TocEntry> entries = ArrayListMultimap.create(16, 4);
+    ListMultimap<String, TocEntry> entries =
+        MultimapBuilder.hashKeys(16).arrayListValues(4).build();
     scan(doc, entries, new ArrayDeque<Heading>());
     ids = generateIds(entries);
   }
@@ -113,7 +114,7 @@ class TocFormatter {
         .close("li");
   }
 
-  private void scan(Node node, Multimap<String, TocEntry> entries, Deque<Heading> stack) {
+  private void scan(Node node, ListMultimap<String, TocEntry> entries, Deque<Heading> stack) {
     if (node instanceof Heading) {
       scan((Heading) node, entries, stack);
     } else {
@@ -123,7 +124,7 @@ class TocFormatter {
     }
   }
 
-  private void scan(Heading header, Multimap<String, TocEntry> entries, Deque<Heading> stack) {
+  private void scan(Heading header, ListMultimap<String, TocEntry> entries, Deque<Heading> stack) {
     if (header.getLevel() == 1) {
       countH1++;
     }
@@ -161,8 +162,9 @@ class TocFormatter {
     return null;
   }
 
-  private Map<Heading, String> generateIds(Multimap<String, TocEntry> entries) {
-    Multimap<String, TocEntry> tmp = ArrayListMultimap.create(entries.size(), 2);
+  private Map<Heading, String> generateIds(ListMultimap<String, TocEntry> entries) {
+    ListMultimap<String, TocEntry> tmp =
+        MultimapBuilder.hashKeys(entries.size()).arrayListValues(2).build();
     for (Collection<TocEntry> headers : entries.asMap().values()) {
       if (headers.size() == 1) {
         TocEntry entry = Iterables.getOnlyElement(headers);
