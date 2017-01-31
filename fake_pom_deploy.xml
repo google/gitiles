@@ -1,0 +1,21 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.google.gitiles</groupId>
+  <artifactId>gitiles</artifactId>
+  <version>1</version> <!-- Do not edit; see VERSION. -->
+  <build>
+    <extensions>
+      <extension>
+        <groupId>com.googlesource.gerrit</groupId>
+        <artifactId>gs-maven-wagon</artifactId>
+        <version>3.3</version>
+      </extension>
+    </extensions>
+  </build>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>gerrit-maven-repository</id>
+      <url>https://gerrit-maven.storage.googleapis.com/</url>
+    </pluginRepository>
+  </pluginRepositories>
+</project>
