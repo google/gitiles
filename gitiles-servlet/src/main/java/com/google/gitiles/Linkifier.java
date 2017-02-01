@@ -79,7 +79,12 @@ public class Linkifier {
       try {
         pattern = Pattern.compile(match);
       } catch (PatternSyntaxException ex) {
-        log.warn("invalid commentlink." + subsection + ".match", ex);
+        String msg = "invalid commentlink." + subsection + ".match";
+        if (log.isDebugEnabled()) {
+          log.debug(msg, ex);
+        } else {
+          log.warn(msg + ": " + ex.getMessage());
+        }
         continue;
       }
       if (Strings.isNullOrEmpty(link)) {
