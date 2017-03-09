@@ -37,7 +37,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import javax.servlet.http.HttpServletRequest;
@@ -53,7 +52,7 @@ public abstract class Renderer {
   // Must match .streamingPlaceholder.
   private static final String PLACEHOLDER = "id=\"STREAMED_OUTPUT_BLOCK\"";
 
-  private static final List<String> SOY_FILENAMES =
+  private static final ImmutableList<String> SOY_FILENAMES =
       ImmutableList.of(
           "BlameDetail.soy",
           "Common.soy",
@@ -67,7 +66,7 @@ public abstract class Renderer {
           "RevisionDetail.soy",
           "RepositoryIndex.soy");
 
-  public static final Map<String, String> STATIC_URL_GLOBALS =
+  public static final ImmutableMap<String, String> STATIC_URL_GLOBALS =
       ImmutableMap.of(
           "gitiles.BASE_CSS_URL", "base.css",
           "gitiles.DOC_CSS_URL", "doc.css",
