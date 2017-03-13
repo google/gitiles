@@ -74,7 +74,7 @@ public class TimeCache {
             return Long.MIN_VALUE;
           });
     } catch (ExecutionException e) {
-      Throwables.propagateIfInstanceOf(e.getCause(), IOException.class);
+      Throwables.throwIfInstanceOf(e.getCause(), IOException.class);
       throw new IOException(e);
     }
   }

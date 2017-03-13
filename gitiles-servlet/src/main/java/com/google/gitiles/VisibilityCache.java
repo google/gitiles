@@ -114,7 +114,7 @@ public class VisibilityCache {
           new Key(access.getUserKey(), access.getRepositoryName(), id),
           () -> isVisible(repo, walk, id, Arrays.asList(knownReachable)));
     } catch (ExecutionException e) {
-      Throwables.propagateIfInstanceOf(e.getCause(), IOException.class);
+      Throwables.throwIfInstanceOf(e.getCause(), IOException.class);
       throw new IOException(e);
     } catch (ExecutionError e) {
       // markUninteresting may overflow on pathological repos with very long merge chains. Play it
