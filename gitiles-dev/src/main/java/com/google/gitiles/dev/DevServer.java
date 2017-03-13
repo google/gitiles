@@ -45,7 +45,7 @@ import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.util.resource.FileResource;
+import org.eclipse.jetty.util.resource.PathResource;
 import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.Config;
@@ -152,7 +152,7 @@ class DevServer {
         sourceRoot.resolve("gitiles-servlet/src/main/resources/com/google/gitiles/static");
     ResourceHandler rh = new ResourceHandler();
     try {
-      rh.setBaseResource(new FileResource(staticRoot.toUri().toURL()));
+      rh.setBaseResource(new PathResource(staticRoot.toUri().toURL()));
     } catch (URISyntaxException e) {
       throw new IOException(e);
     }
