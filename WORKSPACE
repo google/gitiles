@@ -99,8 +99,20 @@ maven_jar(
 
 maven_jar(
     name = "soy",
-    artifact = "com.google.template:soy:2016-08-09",
-    sha1 = "43d33651e95480d515fe26c10a662faafe3ad1e4",
+    artifact = "com.google.template:soy:2017-02-01",
+    sha1 = "8638940b207779fe3b75e55b6e65abbefb6af678",
+)
+
+maven_jar(
+    name = "html_types",
+    artifact = "com.google.common.html.types:types:1.0.4",
+    sha1 = "2adf4c8bfccc0ff7346f9186ac5aa57d829ad065",
+)
+
+maven_jar(
+    name = "protobuf",
+    artifact = "com.google.protobuf:protobuf-java:3.0.0-beta-2",
+    sha1 = "de80fe047052445869b96f6def6baca7182c95af",
 )
 
 maven_jar(
