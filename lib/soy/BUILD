@@ -5,11 +5,11 @@ package(
 java_library(
     name = "soy",
     exports = [
-      "@soy//jar",
+        "@soy//jar",
     ],
     runtime_deps = [
-      "@icu4j//jar",
-      "@html_types//jar",
-      "@protobuf//jar",
+        "@html_types//jar",
+        "@icu4j//jar",
+        "@protobuf//jar",
     ],
 )

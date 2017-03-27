@@ -63,6 +63,7 @@ junit_tests(
         ],
         exclude = ["**/ServletTest.java"],
     ),
+    visibility = ["//visibility:public"],
     runtime_deps = ["//lib/junit:hamcrest-core"],
     deps = DEPS + [
         ":servlet",
@@ -72,7 +73,6 @@ junit_tests(
         "//lib/jgit:junit",
         "//lib/junit",
     ],
-    visibility = ["//visibility:public"],
 )
 
 load("@com_googlesource_gerrit_bazlets//tools:javadoc.bzl", "java_doc")

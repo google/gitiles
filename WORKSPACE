@@ -1,12 +1,17 @@
 workspace(name = "gitiles")
+
 load("//tools:bazlets.bzl", "load_bazlets")
+
 load_bazlets(
     commit = "0f87babe07a555425d829c6e7951e296e9e24579",
-#    local_path = "/home/<user>/projects/bazlets"
+    #    local_path = "/home/<user>/projects/bazlets"
 )
-load("@com_googlesource_gerrit_bazlets//tools:maven_jar.bzl",
-     "maven_jar",
-     "GERRIT")
+
+load(
+    "@com_googlesource_gerrit_bazlets//tools:maven_jar.bzl",
+    "maven_jar",
+    "GERRIT",
+)
 
 maven_jar(
     name = "commons_lang",
@@ -35,8 +40,8 @@ maven_jar(
 maven_jar(
     name = "jsr305",
     artifact = "com.google.code.findbugs:jsr305:3.0.0",
-    sha1 = "5871fb60dc68d67da54a663c3fd636a10a532948",
     attach_source = False,
+    sha1 = "5871fb60dc68d67da54a663c3fd636a10a532948",
 )
 
 maven_jar(
@@ -126,29 +131,29 @@ JGIT_VERS = "4.6.0.201612231935-r.30-gd3148f300"
 maven_jar(
     name = "jgit",
     artifact = "org.eclipse.jgit:org.eclipse.jgit:" + JGIT_VERS,
-    sha1 = "a2b5970b853f8fee64589fc1103c0ceb7677ba63",
     repository = GERRIT,
+    sha1 = "a2b5970b853f8fee64589fc1103c0ceb7677ba63",
 )
 
 maven_jar(
     name = "jgit_servlet",
     artifact = "org.eclipse.jgit:org.eclipse.jgit.http.server:" + JGIT_VERS,
-    sha1 = "d3aa54bd610db9a5c246aa8fef13989982c98628",
     repository = GERRIT,
+    sha1 = "d3aa54bd610db9a5c246aa8fef13989982c98628",
 )
 
 maven_jar(
     name = "jgit_junit",
     artifact = "org.eclipse.jgit:org.eclipse.jgit.junit:" + JGIT_VERS,
-    sha1 = "6c2b2f192c95d25a2e1576aee5d1169dd8bd2266",
     repository = GERRIT,
+    sha1 = "6c2b2f192c95d25a2e1576aee5d1169dd8bd2266",
 )
 
 maven_jar(
     name = "jgit_archive_library",
     artifact = "org.eclipse.jgit:org.eclipse.jgit.archive:" + JGIT_VERS,
-    sha1 = "a728cf277396f1227c5a8dffcf5dee0188fc0821",
     repository = GERRIT,
+    sha1 = "a728cf277396f1227c5a8dffcf5dee0188fc0821",
 )
 
 maven_jar(
@@ -166,8 +171,8 @@ maven_jar(
 maven_jar(
     name = "tukaani_xz",
     artifact = "org.tukaani:xz:1.4",
-    sha1 = "18a9a2ce6abf32ea1b5fd31dae5210ad93f4e5e3",
     attach_source = False,
+    sha1 = "18a9a2ce6abf32ea1b5fd31dae5210ad93f4e5e3",
 )
 
 maven_jar(
