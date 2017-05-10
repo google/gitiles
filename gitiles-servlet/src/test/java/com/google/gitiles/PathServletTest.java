@@ -20,6 +20,7 @@ import static javax.servlet.http.HttpServletResponse.SC_OK;
 
 import com.google.common.io.BaseEncoding;
 import com.google.common.net.HttpHeaders;
+import com.google.gitiles.FileJsonData.File;
 import com.google.gitiles.TreeJsonData.Tree;
 import com.google.template.soy.data.SoyListData;
 import com.google.template.soy.data.restricted.StringData;
@@ -155,6 +156,19 @@ public class PathServletTest extends ServletTest {
     repo.branch("master").commit().add("foo", "contents").create();
     String text = buildBlob("/repo/+/master/foo", "100644");
     assertThat(text).isEqualTo("contents");
+  }
+
+  @Test
+  public void fileJson() throws Exception {
+    RevBlob blob = repo.blob("contents");
+    repo.branch("master").commit().add("path/to/file", blob).create();
+
+    File file = buildJson(File.class, "/repo/+/master/path/to/file");
+
+    assertThat(file.id).isEqualTo(blob.name());
+    assertThat(file.repo).isEqualTo("repo");
+    assertThat(file.revision).isEqualTo("master");
+    assertThat(file.path).isEqualTo("path/to/file");
   }
 
   @Test

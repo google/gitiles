@@ -251,14 +251,32 @@ public class PathServlet extends BaseServlet {
 
     try (RevWalk rw = new RevWalk(repo);
         WalkResult wr = WalkResult.forPath(rw, view, recursive)) {
-      if (wr == null || wr.type != FileType.TREE) {
+      if (wr == null) {
         res.setStatus(SC_NOT_FOUND);
-      } else {
-        renderJson(
-            req,
-            res,
-            TreeJsonData.toJsonData(wr.id, wr.tw, includeSizes, recursive),
-            TreeJsonData.Tree.class);
+        return;
+      }
+      switch (wr.type) {
+        case REGULAR_FILE:
+          renderJson(
+              req,
+              res,
+              FileJsonData.toJsonData(
+                  wr.id,
+                  view.getRepositoryName(),
+                  view.getRevision().getName(),
+                  wr.path),
+              FileJsonData.File.class);
+          break;
+        case TREE:
+          renderJson(
+              req,
+              res,
+              TreeJsonData.toJsonData(wr.id, wr.tw, includeSizes, recursive),
+              TreeJsonData.Tree.class);
+          break;
+        default:
+          res.setStatus(SC_NOT_FOUND);
+          break;
       }
     } catch (LargeObjectException e) {
       res.setStatus(SC_INTERNAL_SERVER_ERROR);
