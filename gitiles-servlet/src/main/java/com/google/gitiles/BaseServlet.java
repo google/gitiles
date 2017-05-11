@@ -32,6 +32,7 @@ import com.google.common.collect.Maps;
 import com.google.common.net.HttpHeaders;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.GsonBuilder;
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -397,7 +398,10 @@ public abstract class BaseServlet extends HttpServlet {
   }
 
   protected static Writer newWriter(OutputStream os, HttpServletResponse res) throws IOException {
-    return new OutputStreamWriter(os, res.getCharacterEncoding());
+    // StreamEncoder#write(int) is wasteful with its allocations, and we don't have much control
+    // over whether library code calls that variant as opposed to the saner write(char[], int, int).
+    // Protect against this by buffering.
+    return new BufferedWriter(new OutputStreamWriter(os, res.getCharacterEncoding()));
   }
 
   private Writer newWriter(HttpServletRequest req, HttpServletResponse res) throws IOException {
