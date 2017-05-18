@@ -29,4 +29,4 @@ PROPERTIES="$PROPERTIES --jvm_flag=-Dcom.google.gitiles.sourcePath=$ROOT"
   bazel build gitiles-dev:dev
 )
 
-sh $ROOT/bazel-bin/gitiles-dev/dev $PROPERTIES
+"$ROOT/bazel-bin/gitiles-dev/dev" $PROPERTIES
