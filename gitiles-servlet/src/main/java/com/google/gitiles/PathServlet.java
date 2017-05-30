@@ -274,6 +274,9 @@ public class PathServlet extends BaseServlet {
               TreeJsonData.toJsonData(wr.id, wr.tw, includeSizes, recursive),
               TreeJsonData.Tree.class);
           break;
+        case EXECUTABLE_FILE:
+        case GITLINK:
+        case SYMLINK:
         default:
           res.setStatus(SC_NOT_FOUND);
           break;
