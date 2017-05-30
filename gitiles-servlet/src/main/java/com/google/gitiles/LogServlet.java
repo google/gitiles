@@ -212,7 +212,7 @@ public class LogServlet extends BaseServlet {
 
   private static Optional<ObjectId> getStart(
       ListMultimap<String, String> params, ObjectReader reader)
-          throws IOException, InvalidStartValueException {
+      throws IOException, InvalidStartValueException {
     List<String> values = params.get(START_PARAM);
     switch (values.size()) {
       case 0:

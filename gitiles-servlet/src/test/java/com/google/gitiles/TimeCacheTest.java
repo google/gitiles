@@ -50,9 +50,7 @@ public class TimeCacheTest {
 
   @Before
   public void setUp() throws Exception {
-    repo =
-        new TestRepository<>(
-            new InMemoryRepository(new DfsRepositoryDescription("test")));
+    repo = new TestRepository<>(new InMemoryRepository(new DfsRepositoryDescription("test")));
     walk = new RevWalk(repo.getRepository());
     cache = new TimeCache();
     start = repo.getDate().getTime() / 1000;

@@ -42,8 +42,7 @@ public class ConfigUtilTest {
       getDuration(config, "core", "dht", "timeout", def);
       fail("expected IllegalArgumentException");
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessageThat().isEqualTo(
-          "Invalid time unit value: core.dht.timeout=5.2 sec");
+      assertThat(e).hasMessageThat().isEqualTo("Invalid time unit value: core.dht.timeout=5.2 sec");
     }
 
     config.setString("core", "dht", "timeout", "1 min");

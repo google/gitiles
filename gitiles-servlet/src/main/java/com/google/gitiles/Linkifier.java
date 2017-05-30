@@ -106,8 +106,7 @@ public class Linkifier {
     String baseGerritUrl = urls.getBaseGerritUrl(req);
 
     if (baseGerritUrl != null) {
-      CommentLinkInfo changeIds =
-          new CommentLinkInfo(CHANGE_ID_PATTERN, baseGerritUrl + "#/q/$0");
+      CommentLinkInfo changeIds = new CommentLinkInfo(CHANGE_ID_PATTERN, baseGerritUrl + "#/q/$0");
       operationalCommentLinks.add(changeIds);
     }
 

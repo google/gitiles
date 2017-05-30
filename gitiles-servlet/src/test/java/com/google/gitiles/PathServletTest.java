@@ -358,13 +358,11 @@ public class PathServletTest extends ServletTest {
   @Test
   public void rejectOrigin() throws Exception {
     repo.branch("master").commit().add("foo", "contents").create();
-    FakeHttpServletResponse res = buildResponse(
-        "/repo/+/master/foo", "format=text", SC_OK, "http://notlocalhost");
+    FakeHttpServletResponse res =
+        buildResponse("/repo/+/master/foo", "format=text", SC_OK, "http://notlocalhost");
     assertThat(res.getHeader(HttpHeaders.CONTENT_TYPE)).isEqualTo("text/plain");
-    assertThat(res.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN))
-        .isEqualTo(null);
+    assertThat(res.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)).isEqualTo(null);
   }
-
 
   private Map<String, ?> getBlobData(Map<String, ?> data) {
     return ((Map<String, Map<String, ?>>) data).get("data");

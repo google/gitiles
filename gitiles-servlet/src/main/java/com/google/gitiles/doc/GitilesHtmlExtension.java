@@ -36,10 +36,10 @@ import org.commonmark.parser.PostProcessor;
  * rendering:
  *
  * <ul>
- * <li>{@link HardLineBreak}
- * <li>{@link ThematicBreak}
- * <li>{@link NamedAnchor}
- * <li>{@link IframeBlock}
+ *   <li>{@link HardLineBreak}
+ *   <li>{@link ThematicBreak}
+ *   <li>{@link NamedAnchor}
+ *   <li>{@link IframeBlock}
  * </ul>
  */
 public class GitilesHtmlExtension implements ParserExtension {

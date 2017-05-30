@@ -261,10 +261,7 @@ public class PathServlet extends BaseServlet {
               req,
               res,
               FileJsonData.toJsonData(
-                  wr.id,
-                  view.getRepositoryName(),
-                  view.getRevision().getName(),
-                  wr.path),
+                  wr.id, view.getRepositoryName(), view.getRevision().getName(), wr.path),
               FileJsonData.File.class);
           break;
         case TREE:
