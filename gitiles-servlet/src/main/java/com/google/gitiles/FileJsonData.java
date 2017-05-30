@@ -14,7 +14,6 @@
 
 package com.google.gitiles;
 
-import java.io.IOException;
 import org.eclipse.jgit.lib.ObjectId;
 
 class FileJsonData {
@@ -25,8 +24,7 @@ class FileJsonData {
     String path;
   }
 
-  static File toJsonData(ObjectId id, String repo, String revision, String path)
-      throws IOException {
+  static File toJsonData(ObjectId id, String repo, String revision, String path) {
     File file = new File();
     file.id = id.name();
     file.repo = repo;
