@@ -19,9 +19,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.gitiles.GitilesServlet.STATIC_PREFIX;
 import static com.google.gitiles.Renderer.fileUrlMapper;
+import static java.util.stream.Collectors.toList;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
@@ -317,9 +317,9 @@ class GitilesFilter extends MetaFilter {
       renderer =
           new DefaultRenderer(
               filterConfig.getServletContext().getContextPath() + STATIC_PREFIX,
-              FluentIterable.from(
-                      Arrays.asList(config.getStringList("gitiles", null, "customTemplates")))
-                  .transform(fileUrlMapper()),
+              Arrays.stream(config.getStringList("gitiles", null, "customTemplates"))
+                  .map(fileUrlMapper())
+                  .collect(toList()),
               firstNonNull(config.getString("gitiles", null, "siteTitle"), "Gitiles"));
     }
   }

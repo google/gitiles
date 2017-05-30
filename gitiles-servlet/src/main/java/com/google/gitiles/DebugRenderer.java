@@ -15,9 +15,10 @@
 package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkState;
+import static java.util.stream.Collectors.toList;
 
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Streams;
 import com.google.common.hash.HashCode;
 import com.google.template.soy.SoyFileSet;
 import com.google.template.soy.tofu.SoyTofu;
@@ -36,7 +37,7 @@ public class DebugRenderer extends Renderer {
         fileUrlMapper(soyTemplatesRoot + File.separator),
         ImmutableMap.<String, String>of(),
         staticPrefix,
-        FluentIterable.from(customTemplatesFilenames).transform(fileUrlMapper()),
+        Streams.stream(customTemplatesFilenames).map(fileUrlMapper()).collect(toList()),
         siteTitle);
   }
 
