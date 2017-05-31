@@ -139,7 +139,7 @@ public class DocServlet extends BaseServlet {
 
   private String etag(MarkdownFile srcmd, @Nullable MarkdownFile navmd) {
     byte[] b = new byte[Constants.OBJECT_ID_LENGTH];
-    Hasher h = Hashing.sha1().newHasher();
+    Hasher h = Hashing.murmur3_128().newHasher();
     h.putInt(ETAG_GEN);
 
     renderer.getTemplateHash(SOY_FILE).writeBytesTo(b, 0, b.length);
