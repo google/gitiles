@@ -4,7 +4,7 @@ load(
 )
 
 DEPS = [
-    "//blame-cache:lib",
+    "//blame-cache:blame-cache",
     "//lib:autolink",
     "//lib:commons-lang",
     "//lib:gson",

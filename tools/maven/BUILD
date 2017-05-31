@@ -3,7 +3,7 @@ load("@com_googlesource_gerrit_bazlets//tools/maven:package.bzl", "maven_package
 
 maven_package(
     src = {
-        "blame-cache": "//blame-cache:liblib-src.jar",
+        "blame-cache": "//blame-cache:libblame-cache-src.jar",
         "gitiles-servlet": "//gitiles-servlet:libservlet-src.jar",
     },
     doc = {
@@ -12,7 +12,7 @@ maven_package(
     },
     group = "com.google.gitiles",
     jar = {
-        "blame-cache": "//blame-cache:lib",
+        "blame-cache": "//blame-cache:blame-cache",
         "gitiles-servlet": "//gitiles-servlet:servlet",
     },
     repository = "gerrit-maven-repository",

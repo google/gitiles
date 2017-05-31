@@ -6,7 +6,7 @@ DEPS = [
 ]
 
 java_library(
-    name = "lib",
+    name = "blame-cache",
     srcs = SRCS,
     visibility = ["//visibility:public"],
     deps = DEPS,
@@ -17,7 +17,7 @@ load("@com_googlesource_gerrit_bazlets//tools:javadoc.bzl", "java_doc")
 java_doc(
     name = "javadoc",
     libs = [
-        ":lib",
+        ":blame-cache",
         "//lib:guava",
         "//lib/jgit:jgit",
     ],
