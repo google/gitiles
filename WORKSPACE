@@ -15,7 +15,7 @@ load(
 )
 
 maven_jar(
-    name = "commons_lang",
+    name = "commons_lang3",
     artifact = "org.apache.commons:commons-lang3:3.1",
     sha1 = "905075e6c80f206bbe6cf1e809d2caa69f420c76",
 )
@@ -132,7 +132,7 @@ JGIT_VERS = "4.7.0.201704051617-r"
 JGIT_REPO = MAVEN_CENTRAL
 
 maven_jar(
-    name = "jgit",
+    name = "jgit_lib",
     artifact = "org.eclipse.jgit:org.eclipse.jgit:" + JGIT_VERS,
     repository = JGIT_REPO,
     sha1 = "99be65d1827276b97d4f51668b60f4a38f282bda",
@@ -153,7 +153,7 @@ maven_jar(
 )
 
 maven_jar(
-    name = "jgit_archive_library",
+    name = "jgit_archive",
     artifact = "org.eclipse.jgit:org.eclipse.jgit.archive:" + JGIT_VERS,
     repository = JGIT_REPO,
     sha1 = "f825504a903dfe8d3daa61d6ab5c26fbad92c954",
