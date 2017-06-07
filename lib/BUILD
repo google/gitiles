@@ -13,7 +13,6 @@ package(
     "gfm-strikethrough",
     "gfm-tables",
     "jsr305",
-    "jgit-archive-library",
     "joda-time",
     "servlet-api_2_5",
     "servlet-api_3_0",
