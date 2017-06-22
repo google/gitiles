@@ -101,7 +101,7 @@
  * @param? branches list of branch objects with url and name keys.
  * @param? moreBranchesUrl URL to show more branches, if necessary.
  */
-{template .branches_ private="true"}
+{template .branches_ visibility="private"}
   {if length($branches)}
     {call .refList}
       {param type: 'Branches' /}
@@ -119,7 +119,7 @@
  * @param? tags list of branch objects with url and name keys.
  * @param? moreTagsUrl URL to show more tags, if necessary.
  */
-{template .tags_ private="true"}
+{template .tags_ visibility="private"}
   {if length($tags)}
     {call .refList}
       {param type: 'Tags' /}
