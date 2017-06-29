@@ -172,7 +172,9 @@ will render as:
 Placing `:` in the separator line indicates how the column should be
 aligned.  A colon on the left side is a **left-aligned** column; a
 colon on the right-most side is **right-aligned**; a colon on both
-sides is **center-aligned**.
+sides is **center-aligned**. If no alignment is specified, the column
+is aligned with the default for HTML `<td>` tags (left-aligned by
+default unless overridden by css).
 
 Empty table cells are indicated by whitespace between the column
 dividers (`| |`) while multiple column cells omit the whitespace.
