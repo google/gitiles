@@ -324,7 +324,7 @@
  * @param name name.
  * @param email email.
  */
-{template .person_ private="true"}
+{template .person_ visibility="private"}
 {$name}{if $email} &lt;{$email}&gt;{/if}
 {/template}
 
@@ -336,7 +336,7 @@
  *     text: raw text of the part.
  *     url: optional URL that should be linked to from the part.
  */
-{template .message_ private="true"}
+{template .message_ visibility="private"}
 <pre class="{$className}">
   {foreach $part in $message}
     {if $part.url}<a href="{$part.url}">{$part.text}</a>{else}{$part.text}{/if}
