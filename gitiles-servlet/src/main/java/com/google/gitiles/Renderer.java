@@ -165,22 +165,19 @@ public abstract class Renderer {
 
   OutputStream renderStreaming(HttpServletResponse res, String templateName, Map<String, ?> soyData)
       throws IOException {
-    final String html = newRenderer(templateName).setData(soyData).render();
+    String html = newRenderer(templateName).setData(soyData).render();
     int id = html.indexOf(PLACEHOLDER);
     checkArgument(id >= 0, "Template must contain %s", PLACEHOLDER);
 
     int lt = html.lastIndexOf('<', id);
-    final int gt = html.indexOf('>', id + PLACEHOLDER.length());
-    final OutputStream out = res.getOutputStream();
+    int gt = html.indexOf('>', id + PLACEHOLDER.length());
+
+    OutputStream out = res.getOutputStream();
     out.write(html.substring(0, lt).getBytes(UTF_8));
     out.flush();
 
+    byte[] tail = html.substring(gt + 1).getBytes(UTF_8);
     return new OutputStream() {
-      @Override
-      public void write(byte[] b) throws IOException {
-        out.write(b);
-      }
-
       @Override
       public void write(byte[] b, int off, int len) throws IOException {
         out.write(b, off, len);
@@ -198,8 +195,9 @@ public abstract class Renderer {
 
       @Override
       public void close() throws IOException {
-        out.write(html.substring(gt + 1).getBytes(UTF_8));
-        out.close();
+        try (OutputStream o = out) {
+          o.write(tail);
+        }
       }
     };
   }
