@@ -14,7 +14,6 @@
 
 package com.google.gitiles.doc;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_MODIFIED;
@@ -25,16 +24,19 @@ import static org.eclipse.jgit.lib.FileMode.TYPE_TREE;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
 import com.google.common.hash.Hasher;
 import com.google.common.hash.Hashing;
 import com.google.common.net.HttpHeaders;
 import com.google.gitiles.BaseServlet;
-import com.google.gitiles.FormatType;
 import com.google.gitiles.GitilesAccess;
 import com.google.gitiles.GitilesView;
 import com.google.gitiles.Renderer;
 import com.google.gitiles.ViewFilter;
+import com.google.gitiles.doc.html.StreamHtmlBuilder;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -165,14 +167,9 @@ public class DocServlet extends BaseServlet {
       MarkdownFile srcFile)
       throws IOException {
     Map<String, Object> data = new HashMap<>();
-    Navbar navbar = new Navbar();
-    if (navFile != null) {
-      navbar.setFormatter(fmt.setFilePath(navFile.path).build());
-      navbar.setMarkdown(navFile.content);
-    }
-    data.putAll(navbar.toSoyData());
+    data.putAll(buildNavbar(fmt, navFile));
 
-    Node doc = GitilesMarkdown.parse(srcFile.content);
+    Node doc = GitilesMarkdown.parse(srcFile.consumeContent());
     data.put("pageTitle", pageTitle(doc, srcFile));
     if (view.getType() != GitilesView.Type.ROOTED_DOC) {
       data.put("sourceUrl", GitilesView.show().copyFrom(view).toUrl());
@@ -182,21 +179,24 @@ public class DocServlet extends BaseServlet {
     if (cfg.analyticsId != null) {
       data.put("analyticsId", cfg.analyticsId);
     }
-    data.put("bodyHtml", fmt.setFilePath(srcFile.path).build().toSoyHtml(doc));
 
-    String page = renderer.render(SOY_TEMPLATE, data);
-    byte[] raw = page.getBytes(UTF_8);
-    res.setContentType(FormatType.HTML.getMimeType());
-    res.setCharacterEncoding(UTF_8.name());
-    setCacheHeaders(req, res);
-    if (acceptsGzipEncoding(req)) {
-      res.addHeader(HttpHeaders.VARY, HttpHeaders.ACCEPT_ENCODING);
-      res.setHeader(HttpHeaders.CONTENT_ENCODING, "gzip");
-      raw = gzip(raw);
+    try (OutputStream out = startRenderCompressedStreamingHtml(req, res, SOY_TEMPLATE, data)) {
+      Writer w = newWriter(out, res);
+      fmt.setFilePath(srcFile.path).build().renderToHtml(new StreamHtmlBuilder(w), doc);
+      w.flush();
+    } catch (RuntimeIOException e) {
+      Throwables.throwIfInstanceOf(e.getCause(), IOException.class);
+      throw e;
     }
-    res.setContentLength(raw.length);
-    res.setStatus(HttpServletResponse.SC_OK);
-    res.getOutputStream().write(raw);
+  }
+
+  private Map<String, Object> buildNavbar(MarkdownToHtml.Builder fmt, MarkdownFile navFile) {
+    Navbar navbar = new Navbar();
+    if (navFile != null) {
+      navbar.setFormatter(fmt.setFilePath(navFile.path).build());
+      navbar.setMarkdown(navFile.consumeContent());
+    }
+    return navbar.toSoyData();
   }
 
   private static String pageTitle(Node doc, MarkdownFile srcFile) {
@@ -281,6 +281,12 @@ public class DocServlet extends BaseServlet {
 
     void read(ObjectReader reader, MarkdownConfig cfg) throws IOException {
       content = reader.open(id, OBJ_BLOB).getCachedBytes(cfg.inputLimit);
+    }
+
+    byte[] consumeContent() {
+      byte[] c = content;
+      content = null;
+      return c;
     }
   }
 }

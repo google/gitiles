@@ -19,9 +19,7 @@ import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
-import com.google.template.soy.data.SanitizedContent;
-import com.google.template.soy.data.SanitizedContent.ContentKind;
-import com.google.template.soy.data.UnsafeSanitizedContentOrdainer;
+import com.google.gitiles.doc.RuntimeIOException;
 import com.google.template.soy.shared.restricted.EscapingConventions.EscapeHtml;
 import com.google.template.soy.shared.restricted.EscapingConventions.FilterImageDataUri;
 import com.google.template.soy.shared.restricted.EscapingConventions.FilterNormalizeUri;
@@ -37,8 +35,10 @@ import java.util.regex.Pattern;
  * <p>Useful but critical attributes like {@code href} on anchors or {@code src} on img permit only
  * safe subset of URIs, primarily {@code http://}, {@code https://}, and for image src {@code
  * data:image/*;base64,...}.
+ *
+ * <p>See concrete subclasses {@link SoyHtmlBuilder} and {@link StreamHtmlBuilder}.
  */
-public final class HtmlBuilder {
+public abstract class HtmlBuilder {
   private static final ImmutableSet<String> ALLOWED_TAGS =
       ImmutableSet.of(
           "h1",
@@ -112,12 +112,12 @@ public final class HtmlBuilder {
     return GIT_URI.matcher(val).find();
   }
 
-  private final StringBuilder htmlBuf;
+  private final Appendable htmlBuf;
   private final Appendable textBuf;
   private String tag;
 
-  public HtmlBuilder() {
-    htmlBuf = new StringBuilder();
+  HtmlBuilder(Appendable out) {
+    htmlBuf = out;
     textBuf = EscapeHtml.INSTANCE.escape(htmlBuf);
   }
 
@@ -125,7 +125,11 @@ public final class HtmlBuilder {
   public HtmlBuilder open(String tagName) {
     checkArgument(ALLOWED_TAGS.contains(tagName), "invalid HTML tag %s", tagName);
     finishActiveTag();
-    htmlBuf.append('<').append(tagName);
+    try {
+      htmlBuf.append('<').append(tagName);
+    } catch (IOException e) {
+      throw new RuntimeIOException(e);
+    }
     tag = tagName;
     return this;
   }
@@ -167,7 +171,7 @@ public final class HtmlBuilder {
       htmlBuf.append('"');
       return this;
     } catch (IOException e) {
-      throw new IllegalStateException(e);
+      throw new RuntimeIOException(e);
     }
   }
 
@@ -190,10 +194,14 @@ public final class HtmlBuilder {
 
   private void finishActiveTag() {
     if (tag != null) {
-      if (SELF_CLOSING_TAGS.contains(tag)) {
-        htmlBuf.append(" />");
-      } else {
-        htmlBuf.append('>');
+      try {
+        if (SELF_CLOSING_TAGS.contains(tag)) {
+          htmlBuf.append(" />");
+        } else {
+          htmlBuf.append('>');
+        }
+      } catch (IOException e) {
+        throw new RuntimeIOException(e);
       }
       tag = null;
     }
@@ -205,7 +213,11 @@ public final class HtmlBuilder {
         ALLOWED_TAGS.contains(tag) && !SELF_CLOSING_TAGS.contains(tag), "invalid HTML tag %s", tag);
 
     finishActiveTag();
-    htmlBuf.append("</").append(tag).append('>');
+    try {
+      htmlBuf.append("</").append(tag).append('>');
+    } catch (IOException e) {
+      throw new RuntimeIOException(e);
+    }
     return this;
   }
 
@@ -216,14 +228,18 @@ public final class HtmlBuilder {
       textBuf.append(in);
       return this;
     } catch (IOException e) {
-      throw new IllegalStateException(e);
+      throw new RuntimeIOException(e);
     }
   }
 
   /** Append a space outside of an element. */
   public HtmlBuilder space() {
     finishActiveTag();
-    htmlBuf.append(' ');
+    try {
+      htmlBuf.append(' ');
+    } catch (IOException e) {
+      throw new RuntimeIOException(e);
+    }
     return this;
   }
 
@@ -233,12 +249,15 @@ public final class HtmlBuilder {
   public void entity(String entity) {
     checkArgument(HTML_ENTITY.matcher(entity).matches(), "invalid entity %s", entity);
     finishActiveTag();
-    htmlBuf.append(entity);
+    try {
+      htmlBuf.append(entity);
+    } catch (IOException e) {
+      throw new RuntimeIOException(e);
+    }
   }
 
-  /** Bless the current content as HTML. */
-  public SanitizedContent toSoy() {
+  /** Finish the document. */
+  public void finish() {
     finishActiveTag();
-    return UnsafeSanitizedContentOrdainer.ordainAsSafe(htmlBuf.toString(), ContentKind.HTML);
   }
 }

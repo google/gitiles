@@ -21,6 +21,7 @@ import com.google.common.base.Strings;
 import com.google.gitiles.GitilesView;
 import com.google.gitiles.ThreadSafePrettifyParser;
 import com.google.gitiles.doc.html.HtmlBuilder;
+import com.google.gitiles.doc.html.SoyHtmlBuilder;
 import com.google.template.soy.data.SanitizedContent;
 import com.google.template.soy.shared.restricted.EscapingConventions.FilterImageDataUri;
 import com.google.template.soy.shared.restricted.EscapingConventions.FilterNormalizeUri;
@@ -118,8 +119,8 @@ public class MarkdownToHtml implements Visitor {
     }
   }
 
-  private final HtmlBuilder html = new HtmlBuilder();
-  private final TocFormatter toc = new TocFormatter(html, 3);
+  private HtmlBuilder html;
+  private TocFormatter toc;
   private final String requestUri;
   private final GitilesView view;
   private final MarkdownConfig config;
@@ -143,14 +144,26 @@ public class MarkdownToHtml implements Visitor {
   }
 
   /** Render the document AST to sanitized HTML. */
-  public SanitizedContent toSoyHtml(Node node) {
-    if (node == null) {
-      return null;
+  public void renderToHtml(HtmlBuilder out, Node node) {
+    if (node != null) {
+      html = out;
+      toc = new TocFormatter(html, 3);
+      toc.setRoot(node);
+      node.accept(this);
+      html.finish();
+      html = null;
+      toc = null;
     }
+  }
 
-    toc.setRoot(node);
-    node.accept(this);
-    return html.toSoy();
+  /** Render the document AST to sanitized HTML. */
+  public SanitizedContent toSoyHtml(Node node) {
+    if (node != null) {
+      SoyHtmlBuilder out = new SoyHtmlBuilder();
+      renderToHtml(out, node);
+      return out.toSoy();
+    }
+    return null;
   }
 
   @Override

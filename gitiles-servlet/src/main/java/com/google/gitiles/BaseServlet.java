@@ -280,7 +280,7 @@ public abstract class BaseServlet extends HttpServlet {
     if (!allData.containsKey("repositoryName") && view.getRepositoryName() != null) {
       allData.put("repositoryName", view.getRepositoryName());
     }
-    if (!allData.containsKey("breadcrumbs")) {
+    if (!allData.containsKey("breadcrumbs") && view.getRepositoryName() != null) {
       allData.put("breadcrumbs", view.getBreadcrumbs());
     }
 

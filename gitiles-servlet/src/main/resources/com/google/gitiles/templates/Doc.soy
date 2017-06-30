@@ -25,7 +25,6 @@
  * @param logUrl url for log history of page.
  * @param blameUrl url for blame of page source.
  * @param? navbarHtml markdown ast node to convert.
- * @param bodyHtml safe html to embed into the body of the page.
  */
 {template .markdownDoc}
 <!DOCTYPE html>
@@ -59,7 +58,7 @@
   <div class="Site-content Site-Content--markdown">
     <div class="Container">
       <div class="doc">
-        {$bodyHtml}
+        {call .streamingPlaceholder /}
       </div>
     </div>
   </div>
