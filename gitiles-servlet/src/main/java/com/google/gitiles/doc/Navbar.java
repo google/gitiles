@@ -42,9 +42,9 @@ class Navbar {
     return this;
   }
 
-  Navbar setMarkdown(byte[] md) {
+  Navbar setMarkdown(MarkdownConfig cfg, byte[] md) {
     if (md != null && md.length > 0) {
-      parse(RawParseUtils.decode(md));
+      parse(cfg, RawParseUtils.decode(md));
     }
     return this;
   }
@@ -73,8 +73,8 @@ class Navbar {
     }
   }
 
-  private void parse(String markdown) {
-    node = GitilesMarkdown.parse(markdown);
+  private void parse(MarkdownConfig cfg, String markdown) {
+    node = GitilesMarkdown.parse(cfg, markdown);
 
     extractSiteTitle();
     extractRefLinks(markdown);

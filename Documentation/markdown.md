@@ -150,6 +150,8 @@ least 2 leading spaces:
 
 ### Tables
 
+Requires `markdown.tables` to be true (default).
+
 Simple tables are supported with column alignment.  The first line is
 the header row and subsequent lines are data rows:
 
@@ -198,6 +200,8 @@ documentation. Literal \*bold* can be forced by prefixing the
 opening `*` with \ such as `\*bold*`.
 
 ### Strikethrough
+
+Requires `markdown.strikethrough` to be true (default).
 
 Text can be ~~struck out~~ within a paragraph:
 
@@ -313,9 +317,10 @@ Supported languages include:
 
 ### Horizontal rules
 
-A horizontal rule can be inserted using GitHub style `--` surrounded
-by blank lines.  Alternatively repeating `-` or `*` and space on a
-line will also create a horizontal rule:
+If `markdown.ghthematicbreak` is true, a horizontal rule can be
+inserted using GitHub style `--` surrounded by blank lines.
+Alternatively repeating `-` or `*` and space on a line will also
+create a horizontal rule:
 
 ```
 ---
@@ -380,7 +385,7 @@ will display the syntax highlighted source.
 ### Named anchors
 
 Explicit anchors can be inserted anywhere in the document using
-`<a name="tag"></a>` or `{#tag}`.
+`<a name="tag"></a>`, or `{#tag}` if `markdown.namedanchor` is true.
 
 Implicit anchors are automatically created for each
 [heading](#Headings).  For example `## Section 1` will have
@@ -460,9 +465,9 @@ Most HTML tags are not supported.  HTML will be dropped on the floor
 by the parser with no warnings, and no output from that section of the
 document.
 
-There are small exceptions for `<br>`, `<hr>`, `<a name>` and
-`<iframe>` elements, see [named anchor](#Named-anchors) and
-[HTML IFrame](#HTML-IFrame).
+If `markdown.safehtml` is true there are small exceptions for `<br>`,
+`<hr>`, `<a name>` and `<iframe>` elements, see [named anchor](#Named-anchors)
+and [HTML IFrame](#HTML-IFrame).
 
 ## Markdown extensions
 
@@ -470,6 +475,8 @@ Gitiles includes additional extensions to the Markdown language that
 make documentation writing for the web easier without using raw HTML.
 
 ### Table of contents
+
+Requires `markdown.toc` to be true.
 
 Place `[TOC]` surrounded by blank lines to insert a generated
 table of contents extracted from the H1, H2, and H3 headers
@@ -495,6 +502,8 @@ Anchors are automatically extracted from the headers, see
 [named anchors](#Named-anchors).
 
 ### Notification, aside, promotion blocks
+
+Requires `markdown.blocknote` to be true.
 
 Similar to fenced code blocks these blocks start and end with `***`,
 are surrounded by blank lines, and include the type of block on the
@@ -537,6 +546,8 @@ Promotions can raise awareness of an important concept.
 ***
 
 ### Column layout
+
+Requires `markdown.multicolumn` to be true.
 
 Gitiles markdown includes support for up to 12 columns of text across
 the width of the page.  By default space is divided equally between
@@ -607,6 +618,8 @@ renders as:
 |||---|||
 
 ### HTML IFrame
+
+Requires `markdown.safehtml` to be true (default).
 
 Although HTML is stripped the parser has special support for a limited
 subset of `<iframe>` elements:

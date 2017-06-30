@@ -78,6 +78,10 @@ public class TestGitilesAccess implements GitilesAccess.Factory {
       @Override
       public Config getConfig() {
         Config config = new Config();
+        config.setBoolean("markdown", null, "blocknote", true);
+        config.setBoolean("markdown", null, "multicolumn", true);
+        config.setBoolean("markdown", null, "namedanchor", true);
+        config.setBoolean("markdown", null, "smartquote", true);
         config.setStringList(
             "gitiles", null, "allowOriginRegex", ImmutableList.of("http://localhost"));
         return config;
