@@ -225,7 +225,42 @@ public abstract class BaseServlet extends HttpServlet {
       HttpServletRequest req, HttpServletResponse res, String templateName, Map<String, ?> soyData)
       throws IOException {
     req.setAttribute(STREAMING_ATTRIBUTE, true);
-    return renderer.renderStreaming(res, templateName, startHtmlResponse(req, res, soyData));
+    return renderer.renderStreaming(res, false, templateName, startHtmlResponse(req, res, soyData));
+  }
+
+  /**
+   * Start a compressed, streaming HTML response with header and footer rendered by Soy.
+   *
+   * <p>A streaming template includes the special template {@code gitiles.streamingPlaceholder} at
+   * the point where data is to be streamed. The template before and after this placeholder is
+   * rendered using the provided data map.
+   *
+   * <p>The response will be gzip compressed (if the user agent supports it) to reduce bandwidth.
+   * This may delay rendering in the browser.
+   *
+   * @param req in-progress request.
+   * @param res in-progress response.
+   * @param templateName Soy template name; must be in one of the template files defined in {@link
+   *     Renderer}.
+   * @param soyData data for Soy.
+   * @return output stream to render to. The portion of the template before the placeholder is
+   *     already written and flushed; the portion after is written only on calling {@code close()}.
+   * @throws IOException an error occurred during rendering the header.
+   */
+  protected OutputStream startRenderCompressedStreamingHtml(
+      HttpServletRequest req,
+      HttpServletResponse res,
+      String templateName,
+      Map<String, ?> soyData)
+      throws IOException {
+    req.setAttribute(STREAMING_ATTRIBUTE, true);
+    boolean gzip = false;
+    if (acceptsGzipEncoding(req)) {
+      res.addHeader(HttpHeaders.VARY, HttpHeaders.ACCEPT_ENCODING);
+      res.setHeader(HttpHeaders.CONTENT_ENCODING, "gzip");
+      gzip = true;
+    }
+    return renderer.renderStreaming(res, gzip, templateName, startHtmlResponse(req, res, soyData));
   }
 
   private Map<String, ?> startHtmlResponse(

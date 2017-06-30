@@ -39,6 +39,7 @@ import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
+import java.util.zip.GZIPOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -165,6 +166,12 @@ public abstract class Renderer {
 
   OutputStream renderStreaming(HttpServletResponse res, String templateName, Map<String, ?> soyData)
       throws IOException {
+    return renderStreaming(res, false, templateName, soyData);
+  }
+
+  OutputStream renderStreaming(
+      HttpServletResponse res, boolean gzip, String templateName, Map<String, ?> soyData)
+      throws IOException {
     String html = newRenderer(templateName).setData(soyData).render();
     int id = html.indexOf(PLACEHOLDER);
     checkArgument(id >= 0, "Template must contain %s", PLACEHOLDER);
@@ -172,7 +179,7 @@ public abstract class Renderer {
     int lt = html.lastIndexOf('<', id);
     int gt = html.indexOf('>', id + PLACEHOLDER.length());
 
-    OutputStream out = res.getOutputStream();
+    OutputStream out = gzip ? new GZIPOutputStream(res.getOutputStream()) : res.getOutputStream();
     out.write(html.substring(0, lt).getBytes(UTF_8));
     out.flush();
 
