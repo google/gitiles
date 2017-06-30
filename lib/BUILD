@@ -12,6 +12,7 @@ package(
     "cm-autolink",
     "gfm-strikethrough",
     "gfm-tables",
+    "html-types",
     "jsr305",
     "joda-time",
     "servlet-api_2_5",

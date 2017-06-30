@@ -17,6 +17,7 @@ package com.google.gitiles;
 import static org.eclipse.jgit.http.server.ServletUtils.ATTRIBUTE_REPOSITORY;
 
 import com.google.gitiles.doc.DocServlet;
+import com.google.gitiles.doc.HtmlSanitizer;
 import java.io.IOException;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -48,8 +49,16 @@ public class RootedDocServlet extends HttpServlet {
       RepositoryResolver<HttpServletRequest> resolver,
       GitilesAccess.Factory accessFactory,
       Renderer renderer) {
+    this(resolver, accessFactory, renderer, HtmlSanitizer.DISABLED_FACTORY);
+  }
+
+  public RootedDocServlet(
+      RepositoryResolver<HttpServletRequest> resolver,
+      GitilesAccess.Factory accessFactory,
+      Renderer renderer,
+      HtmlSanitizer.Factory htmlSanitizer) {
     this.resolver = resolver;
-    docServlet = new DocServlet(accessFactory, renderer);
+    docServlet = new DocServlet(accessFactory, renderer, htmlSanitizer);
   }
 
   @Override

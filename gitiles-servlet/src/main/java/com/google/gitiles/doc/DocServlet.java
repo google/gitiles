@@ -70,8 +70,16 @@ public class DocServlet extends BaseServlet {
   // files are automatically hashed as part of the ETag.
   private static final int ETAG_GEN = 5;
 
+  private final HtmlSanitizer.Factory htmlSanitizer;
+
   public DocServlet(GitilesAccess.Factory accessFactory, Renderer renderer) {
+    this(accessFactory, renderer, HtmlSanitizer.DISABLED_FACTORY);
+  }
+
+  public DocServlet(
+      GitilesAccess.Factory accessFactory, Renderer renderer, HtmlSanitizer.Factory htmlSanitizer) {
     super(renderer, accessFactory);
+    this.htmlSanitizer = htmlSanitizer;
   }
 
   @Override
@@ -128,7 +136,8 @@ public class DocServlet extends BaseServlet {
               .setGitilesView(view)
               .setRequestUri(req.getRequestURI())
               .setReader(reader)
-              .setRootTree(root);
+              .setRootTree(root)
+              .setHtmlSanitizer(htmlSanitizer.create(req));
       Navbar navbar = createNavbar(cfg, fmt, navmd);
       res.setHeader(HttpHeaders.ETAG, curEtag);
       showDoc(req, res, view, fmt, navbar, srcmd);

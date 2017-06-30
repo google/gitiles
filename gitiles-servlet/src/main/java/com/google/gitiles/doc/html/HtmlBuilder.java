@@ -15,10 +15,12 @@
 package com.google.gitiles.doc.html;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.html.types.SafeHtml;
 import com.google.gitiles.doc.RuntimeIOException;
 import com.google.template.soy.shared.restricted.EscapingConventions.EscapeHtml;
 import com.google.template.soy.shared.restricted.EscapingConventions.FilterImageDataUri;
@@ -251,6 +253,17 @@ public abstract class HtmlBuilder {
     finishActiveTag();
     try {
       htmlBuf.append(entity);
+    } catch (IOException e) {
+      throw new RuntimeIOException(e);
+    }
+  }
+
+  /** Append a previously determined to be safe HTML fragment. */
+  public void append(SafeHtml html) {
+    checkNotNull(html, "SafeHtml");
+    finishActiveTag();
+    try {
+      htmlBuf.append(html.getSafeHtmlString());
     } catch (IOException e) {
       throw new RuntimeIOException(e);
     }

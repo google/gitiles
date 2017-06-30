@@ -18,12 +18,14 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.gitiles.GitilesServlet.STATIC_PREFIX;
 
 import com.google.common.base.Strings;
+import com.google.common.html.types.UncheckedConversions;
 import com.google.gitiles.DebugRenderer;
 import com.google.gitiles.GitilesAccess;
 import com.google.gitiles.GitilesServlet;
 import com.google.gitiles.PathServlet;
 import com.google.gitiles.RepositoryDescription;
 import com.google.gitiles.RootedDocServlet;
+import com.google.gitiles.doc.HtmlSanitizer;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -176,7 +178,17 @@ class DevServer {
           }
         };
 
-    return new RootedDocServlet(resolver, new RootedDocAccess(docRepo), renderer);
+    HtmlSanitizer.Factory htmlSanitizer = HtmlSanitizer.DISABLED_FACTORY;
+    if (cfg.getBoolean("markdown", "unsafeAllowUserContentHtmlInDevMode", false)) {
+      log.warn("!!! Allowing unsafe user content HTML in Markdown !!!");
+      htmlSanitizer =
+          request ->
+              rawUnsafeHtml ->
+                  // Yes, this is evil. It's not known the input was safe.
+                  // I'm a development server to test Gitiles, not a cop.
+                  UncheckedConversions.safeHtmlFromStringKnownToSatisfyTypeContract(rawUnsafeHtml);
+    }
+    return new RootedDocServlet(resolver, new RootedDocAccess(docRepo), renderer, htmlSanitizer);
   }
 
   private class RootedDocAccess implements GitilesAccess.Factory {

@@ -17,6 +17,7 @@ package com.google.gitiles.doc;
 import static com.google.gitiles.doc.MarkdownUtil.getInnerText;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
 import com.google.gitiles.GitilesView;
 import com.google.gitiles.ThreadSafePrettifyParser;
@@ -81,6 +82,7 @@ public class MarkdownToHtml implements Visitor {
     private String filePath;
     private ObjectReader reader;
     private RevTree root;
+    private HtmlSanitizer htmlSanitizer = HtmlSanitizer.DISABLED;
 
     Builder() {}
 
@@ -114,6 +116,11 @@ public class MarkdownToHtml implements Visitor {
       return this;
     }
 
+    public Builder setHtmlSanitizer(HtmlSanitizer htmlSanitizer) {
+      this.htmlSanitizer = MoreObjects.firstNonNull(htmlSanitizer, HtmlSanitizer.DISABLED);
+      return this;
+    }
+
     public MarkdownToHtml build() {
       return new MarkdownToHtml(this);
     }
@@ -125,15 +132,21 @@ public class MarkdownToHtml implements Visitor {
   private final GitilesView view;
   private final MarkdownConfig config;
   private final String filePath;
+  private final HtmlSanitizer htmlSanitizer;
   private final ImageLoader imageLoader;
   private boolean outputNamedAnchor = true;
 
-  private MarkdownToHtml(Builder b) {
+  protected MarkdownToHtml(Builder b) {
     requestUri = b.requestUri;
     view = b.view;
     config = b.config;
     filePath = b.filePath;
+    htmlSanitizer = b.htmlSanitizer;
     imageLoader = newImageLoader(b);
+  }
+
+  protected HtmlBuilder html() {
+    return html;
   }
 
   private static ImageLoader newImageLoader(Builder b) {
@@ -501,12 +514,12 @@ public class MarkdownToHtml implements Visitor {
 
   @Override
   public void visit(HtmlInline node) {
-    // Discard all HTML.
+    // Discard inline HTML, as it's always partial tags.
   }
 
   @Override
   public void visit(HtmlBlock node) {
-    // Discard all HTML.
+    html.append(htmlSanitizer.sanitize(node.getLiteral()));
   }
 
   private void wrapChildren(String tag, Node node) {

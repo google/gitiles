@@ -5,6 +5,7 @@ java_library(
     deps = [
         "//gitiles-servlet:servlet",
         "//lib:guava",
+        "//lib:html-types",
         "//lib:servlet-api_3_0",
         "//lib/jetty:server",
         "//lib/jetty:servlet",

@@ -123,9 +123,6 @@ public class GitilesHtmlExtension implements ParserExtension {
         return;
       }
     }
-
-    // Discard potentially unsafe HtmlInline.
-    curr.unlink();
   }
 
   private static boolean isAnchorClose(Node n) {
@@ -148,9 +145,6 @@ public class GitilesHtmlExtension implements ParserExtension {
         }
       }
     }
-
-    // Discard potentially unsafe HtmlBlock.
-    curr.unlink();
   }
 
   private static IframeBlock iframe(String html) {

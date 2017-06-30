@@ -9,6 +9,7 @@ DEPS = [
     "//lib:commons-lang3",
     "//lib:gson",
     "//lib:guava",
+    "//lib:html-types",
     "//lib:joda-time",
     "//lib:jsr305",
     "//lib:commonmark",
