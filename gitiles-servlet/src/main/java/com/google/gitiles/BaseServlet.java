@@ -52,7 +52,6 @@ import org.joda.time.Instant;
 /** Base servlet class for Gitiles servlets that serve Soy templates. */
 public abstract class BaseServlet extends HttpServlet {
   private static final long serialVersionUID = 1L;
-  private static final String ACCESS_ATTRIBUTE = BaseServlet.class.getName() + "/GitilesAccess";
   private static final String DATA_ATTRIBUTE = BaseServlet.class.getName() + "/Data";
   private static final String STREAMING_ATTRIBUTE = BaseServlet.class.getName() + "/Streaming";
 
@@ -366,12 +365,7 @@ public abstract class BaseServlet extends HttpServlet {
   }
 
   protected GitilesAccess getAccess(HttpServletRequest req) {
-    GitilesAccess access = (GitilesAccess) req.getAttribute(ACCESS_ATTRIBUTE);
-    if (access == null) {
-      access = accessFactory.forRequest(req);
-      req.setAttribute(ACCESS_ATTRIBUTE, access);
-    }
-    return access;
+    return GitilesAccess.getAccess(req, accessFactory);
   }
 
   protected void setCacheHeaders(HttpServletRequest req, HttpServletResponse res) {

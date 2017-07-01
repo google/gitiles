@@ -16,6 +16,7 @@ package com.google.gitiles;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
@@ -30,6 +31,21 @@ import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
  * information about the host and repository.
  */
 public interface GitilesAccess {
+  /** Access for the current request, if it has been initialized. */
+  public static Optional<GitilesAccess> getAccess(HttpServletRequest req) {
+    return Optional.ofNullable((GitilesAccess) req.getAttribute(GitilesAccess.class.getName()));
+  }
+
+  /** Access for the current request. */
+  public static GitilesAccess getAccess(HttpServletRequest req, Factory factory) {
+    GitilesAccess access = getAccess(req).orElse(null);
+    if (access == null) {
+      access = factory.forRequest(req);
+      req.setAttribute(GitilesAccess.class.getName(), access);
+    }
+    return access;
+  }
+
   /** Factory for per-request access. */
   public interface Factory {
     GitilesAccess forRequest(HttpServletRequest req);
