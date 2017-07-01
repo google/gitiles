@@ -27,7 +27,7 @@ public class MarkdownConfig {
     return cfg.get(CONFIG_PARSER);
   }
 
-  private static SectionParser<MarkdownConfig> CONFIG_PARSER =
+  private static final SectionParser<MarkdownConfig> CONFIG_PARSER =
       new SectionParser<MarkdownConfig>() {
         @Override
         public MarkdownConfig parse(Config cfg) {
