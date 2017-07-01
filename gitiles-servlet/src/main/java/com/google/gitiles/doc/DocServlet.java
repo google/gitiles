@@ -129,8 +129,9 @@ public class DocServlet extends BaseServlet {
               .setRequestUri(req.getRequestURI())
               .setReader(reader)
               .setRootTree(root);
+      Navbar navbar = createNavbar(cfg, fmt, navmd);
       res.setHeader(HttpHeaders.ETAG, curEtag);
-      showDoc(req, res, view, cfg, fmt, navmd, srcmd);
+      showDoc(req, res, view, fmt, navbar, srcmd);
     }
   }
 
@@ -161,14 +162,14 @@ public class DocServlet extends BaseServlet {
       HttpServletRequest req,
       HttpServletResponse res,
       GitilesView view,
-      MarkdownConfig cfg,
       MarkdownToHtml.Builder fmt,
-      MarkdownFile navFile,
+      Navbar navbar,
       MarkdownFile srcFile)
       throws IOException {
     Map<String, Object> data = new HashMap<>();
-    data.putAll(buildNavbar(cfg, fmt, navFile));
+    data.putAll(navbar.toSoyData());
 
+    MarkdownConfig cfg = navbar.getConfig();
     Node doc = GitilesMarkdown.parse(cfg, srcFile.consumeContent());
     data.put("pageTitle", pageTitle(doc, srcFile));
     if (view.getType() != GitilesView.Type.ROOTED_DOC) {
@@ -182,7 +183,10 @@ public class DocServlet extends BaseServlet {
 
     try (OutputStream out = startRenderCompressedStreamingHtml(req, res, SOY_TEMPLATE, data)) {
       Writer w = newWriter(out, res);
-      fmt.setFilePath(srcFile.path).build().renderToHtml(new StreamHtmlBuilder(w), doc);
+      fmt.setConfig(cfg)
+          .setFilePath(srcFile.path)
+          .build()
+          .renderToHtml(new StreamHtmlBuilder(w), doc);
       w.flush();
     } catch (RuntimeIOException e) {
       Throwables.throwIfInstanceOf(e.getCause(), IOException.class);
@@ -190,14 +194,15 @@ public class DocServlet extends BaseServlet {
     }
   }
 
-  private Map<String, Object> buildNavbar(
-      MarkdownConfig cfg, MarkdownToHtml.Builder fmt, MarkdownFile navFile) {
-    Navbar navbar = new Navbar();
+  private static Navbar createNavbar(
+      MarkdownConfig cfg, MarkdownToHtml.Builder fmt, @Nullable MarkdownFile navFile) {
+    Navbar navbar = new Navbar().setConfig(cfg);
     if (navFile != null) {
-      navbar.setFormatter(fmt.setFilePath(navFile.path).build());
-      navbar.setMarkdown(cfg, navFile.consumeContent());
+      navbar
+          .setFormatter(fmt.setFilePath(navFile.path).build())
+          .setMarkdown(navFile.consumeContent());
     }
-    return navbar.toSoyData();
+    return navbar;
   }
 
   private static String pageTitle(Node doc, MarkdownFile srcFile) {
