@@ -25,6 +25,7 @@
  * @param? logUrl url for log history of page.
  * @param? blameUrl url for blame of page source.
  * @param? navbarHtml navar.md converted to SafeHtml.
+ * @param? customVariant variant name for custom styling.
  */
 {template .markdownDoc}
 <!DOCTYPE html>
@@ -38,6 +39,7 @@
   <link rel="stylesheet" type="text/css" href="{gitiles.BASE_CSS_URL}" />
   <link rel="stylesheet" type="text/css" href="{gitiles.DOC_CSS_URL}" />
   <link rel="stylesheet" type="text/css" href="{gitiles.PRETTIFY_CSS_URL}" />
+  {delcall gitiles.customHeadTagPart variant="$customVariant ?: ''" /}
 </head>
 <body class="Site">
   <header class="Site-header {if $navbarHtml}Site-header--withNavbar{/if}">
