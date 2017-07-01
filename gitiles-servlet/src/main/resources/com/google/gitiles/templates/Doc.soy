@@ -21,10 +21,10 @@
  * @param? logoUrl url of image logo.
  * @param? homeUrl url to jump to top of site.
  * @param? analyticsId Google Analytics Property ID.
- * @param sourceUrl url for source view of the page.
- * @param logUrl url for log history of page.
- * @param blameUrl url for blame of page source.
- * @param? navbarHtml markdown ast node to convert.
+ * @param? sourceUrl url for source view of the page.
+ * @param? logUrl url for log history of page.
+ * @param? blameUrl url for blame of page source.
+ * @param? navbarHtml navar.md converted to SafeHtml.
  */
 {template .markdownDoc}
 <!DOCTYPE html>
@@ -64,15 +64,11 @@
   </div>
   <footer class="Site-footer">
     <div class="Footer">
-      <div class="Footer-poweredBy">
-        Powered by <a href="https://gerrit.googlesource.com/gitiles/">Gitiles</a>
-      </div>
+      {call gitiles.footerPoweredBy /}
       <div class="Footer-links">
         {if $sourceUrl}<a class="Footer-link" href="{$sourceUrl}">{msg desc="text for the source link"}source{/msg}</a>{/if}
         {if $logUrl}<a class="Footer-link" href="{$logUrl}">{msg desc="text for the log link"}log{/msg}</a>{/if}
         {if $blameUrl}<a class="Footer-link" href="{$blameUrl}">{msg desc="text for the blame link"}blame{/msg}</a>{/if}
-      </ul>
-
     </div>
   </footer>
   {if $analyticsId}
