@@ -61,7 +61,7 @@ section:
   Markdown behavior.  Default is true.
 
 * `autolink`: automatically convert plain URLs and email
-  addresses into links. Default follows `gihubFlavor`.
+  addresses into links. Default follows `githubFlavor`.
 
 * `blocknote`: Gitiles style note/promo/aside blocks to raise
   awareness to important content. Default false.
