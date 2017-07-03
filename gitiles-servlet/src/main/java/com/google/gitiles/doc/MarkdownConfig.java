@@ -16,6 +16,7 @@ package com.google.gitiles.doc;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import java.util.Set;
 import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.Config.SectionParser;
 import org.eclipse.jgit.util.StringUtils;
@@ -85,6 +86,31 @@ public class MarkdownConfig {
     }
   }
 
+  private MarkdownConfig(MarkdownConfig p, Set<String> enable, Set<String> disable) {
+    render = p.render;
+    inputLimit = p.inputLimit;
+    imageLimit = p.imageLimit;
+    analyticsId = p.analyticsId;
+
+    autoLink = on("autolink", p.autoLink, enable, disable);
+    blockNote = on("blocknote", p.blockNote, enable, disable);
+    ghThematicBreak = on("ghthematicbreak", p.ghThematicBreak, enable, disable);
+    multiColumn = on("multicolumn", p.multiColumn, enable, disable);
+    namedAnchor = on("namedanchor", p.namedAnchor, enable, disable);
+    safeHtml = on("safehtml", p.safeHtml, enable, disable);
+    smartQuote = on("smartquote", p.smartQuote, enable, disable);
+    strikethrough = on("strikethrough", p.strikethrough, enable, disable);
+    tables = on("tables", p.tables, enable, disable);
+    toc = on("toc", p.toc, enable, disable);
+
+    allowAnyIFrame = safeHtml ? p.allowAnyIFrame : false;
+    allowIFrame = safeHtml ? p.allowIFrame : ImmutableList.of();
+  }
+
+  private static boolean on(String key, boolean val, Set<String> enable, Set<String> disable) {
+    return enable.contains(key) ? true : disable.contains(key) ? false : val;
+  }
+
   boolean isIFrameAllowed(String src) {
     if (allowAnyIFrame) {
       return true;
@@ -95,5 +121,9 @@ public class MarkdownConfig {
       }
     }
     return false;
+  }
+
+  MarkdownConfig copyWithExtensions(Set<String> enable, Set<String> disable) {
+    return new MarkdownConfig(this, enable, disable);
   }
 }

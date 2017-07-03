@@ -14,21 +14,27 @@
 
 package com.google.gitiles.doc;
 
+import com.google.common.base.CharMatcher;
+import com.google.common.base.Splitter;
 import com.google.gitiles.doc.html.HtmlBuilder;
 import com.google.template.soy.shared.restricted.EscapingConventions.FilterImageDataUri;
 import com.google.template.soy.shared.restricted.Sanitizers;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import static java.util.stream.Collectors.toSet;
 import org.commonmark.node.Heading;
 import org.commonmark.node.Node;
 import org.eclipse.jgit.util.RawParseUtils;
 
 class Navbar {
-  private static final Pattern REF_LINK =
-      Pattern.compile("^\\[(logo|home)\\]:\\s*(.+)$", Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
+  private static final Pattern META_LINK =
+      Pattern.compile(
+          "^\\[(logo|home|extensions)\\]:\\s*(.+)$", Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
 
+  private MarkdownConfig cfg;
   private MarkdownToHtml fmt;
   private Node node;
   private String siteTitle;
@@ -37,14 +43,23 @@ class Navbar {
 
   Navbar() {}
 
+  MarkdownConfig getConfig() {
+    return cfg;
+  }
+
+  Navbar setConfig(MarkdownConfig cfg) {
+    this.cfg = cfg;
+    return this;
+  }
+
   Navbar setFormatter(MarkdownToHtml html) {
     this.fmt = html;
     return this;
   }
 
-  Navbar setMarkdown(MarkdownConfig cfg, byte[] md) {
+  Navbar setMarkdown(byte[] md) {
     if (md != null && md.length > 0) {
-      parse(cfg, RawParseUtils.decode(md));
+      parse(RawParseUtils.decode(md));
     }
     return this;
   }
@@ -73,11 +88,10 @@ class Navbar {
     }
   }
 
-  private void parse(MarkdownConfig cfg, String markdown) {
+  private void parse(String markdown) {
+    extractMetadata(markdown);
     node = GitilesMarkdown.parse(cfg, markdown);
-
     extractSiteTitle();
-    extractRefLinks(markdown);
   }
 
   private void extractSiteTitle() {
@@ -93,8 +107,8 @@ class Navbar {
     }
   }
 
-  private void extractRefLinks(String markdown) {
-    Matcher m = REF_LINK.matcher(markdown);
+  private void extractMetadata(String markdown) {
+    Matcher m = META_LINK.matcher(markdown);
     while (m.find()) {
       String key = m.group(1).toLowerCase();
       String url = m.group(2).trim();
@@ -105,7 +119,29 @@ class Navbar {
         case "home":
           homeUrl = url;
           break;
+        case "extensions":
+          Set<String> names = splitExtensionNames(url);
+          cfg = cfg.copyWithExtensions(enabled(names), disabled(names));
+          break;
       }
     }
+  }
+
+  private static Set<String> splitExtensionNames(String url) {
+    return Splitter.on(CharMatcher.whitespace().or(CharMatcher.is(',')))
+        .trimResults()
+        .omitEmptyStrings()
+        .splitToList(url)
+        .stream()
+        .map(String::toLowerCase)
+        .collect(toSet());
+  }
+
+  private static Set<String> enabled(Set<String> names) {
+    return names.stream().filter(n -> !n.startsWith("!")).collect(toSet());
+  }
+
+  private static Set<String> disabled(Set<String> names) {
+    return names.stream().filter(n -> n.startsWith("!")).map(n -> n.substring(1)).collect(toSet());
   }
 }
