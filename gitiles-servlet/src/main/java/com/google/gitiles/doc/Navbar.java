@@ -14,6 +14,8 @@
 
 package com.google.gitiles.doc;
 
+import static java.util.stream.Collectors.toSet;
+
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.gitiles.doc.html.HtmlBuilder;
@@ -24,7 +26,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import static java.util.stream.Collectors.toSet;
 import org.commonmark.node.Heading;
 import org.commonmark.node.Node;
 import org.eclipse.jgit.util.RawParseUtils;

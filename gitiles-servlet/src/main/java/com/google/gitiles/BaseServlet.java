@@ -247,10 +247,7 @@ public abstract class BaseServlet extends HttpServlet {
    * @throws IOException an error occurred during rendering the header.
    */
   protected OutputStream startRenderCompressedStreamingHtml(
-      HttpServletRequest req,
-      HttpServletResponse res,
-      String templateName,
-      Map<String, ?> soyData)
+      HttpServletRequest req, HttpServletResponse res, String templateName, Map<String, ?> soyData)
       throws IOException {
     req.setAttribute(STREAMING_ATTRIBUTE, true);
     boolean gzip = false;
