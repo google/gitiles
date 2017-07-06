@@ -228,6 +228,14 @@ public class MarkdownToHtml implements Visitor {
           .open("span")
           .close("span")
           .close("a");
+      // github markdown compatibility
+      html.open("a")
+          .attribute("class", "h")
+          .attribute("name", id.toLowerCase())
+          .attribute("href", "#" + id.toLowerCase())
+          .open("span")
+          .close("span")
+          .close("a");
     }
     visitChildren(node);
     html.close(tag);
