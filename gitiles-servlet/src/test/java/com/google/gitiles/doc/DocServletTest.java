@@ -55,7 +55,10 @@ public class DocServletTest extends ServletTest {
     assertThat(html).contains("<li><a href=\"/b/repo/+/master/README.md\">README</a></li>");
     assertThat(html)
         .contains(
-            "<h1>" + "<a class=\"h\" name=\"page\" href=\"#page\"><span></span></a>" + "page</h1>");
+            "<h1>"
+                + "<a class=\"h\" name=\"page\" href=\"#page\"><span></span></a>"
+                + "<a class=\"h\" name=\"page\" href=\"#page\"><span></span></a>"
+                + "page</h1>");
   }
 
   @Test
@@ -78,17 +81,19 @@ public class DocServletTest extends ServletTest {
 
   @Test
   public void namedAnchor() throws Exception {
-    String markdown = "# Section {#debug}\n" + "# Other <a name=\"old-school\"></a>\n";
+    String markdown = "# Section {#debug}\n" + "# Other <a name=\"OLD-SCHOOL\"></a>\n";
     repo.branch("master").commit().add("index.md", markdown).create();
     String html = buildHtml("/repo/+doc/master/");
     assertThat(html)
         .contains(
             "<h1>"
                 + "<a class=\"h\" name=\"debug\" href=\"#debug\"><span></span></a>"
+                + "<a class=\"h\" name=\"debug\" href=\"#debug\"><span></span></a>"
                 + "Section</h1>");
     assertThat(html)
         .contains(
             "<h1>"
+                + "<a class=\"h\" name=\"OLD-SCHOOL\" href=\"#OLD-SCHOOL\"><span></span></a>"
                 + "<a class=\"h\" name=\"old-school\" href=\"#old-school\"><span></span></a>"
                 + "Other</h1>");
   }
