@@ -47,9 +47,8 @@ maven_jar(
 
 maven_jar(
     name = "prettify",
-    artifact = "prettify:java-prettify:1.2.1",
-    repository = GERRIT,
-    sha1 = "29ad8d072f9d0b83d1a2e9aa6ccb0905e6d543c6",
+    artifact = "com.github.twalcari:java-prettify:1.2.2",
+    sha1 = "b8ba1c1eb8b2e45cfd465d01218c6060e887572e",
 )
 
 COMMONMARK_VERSION = "0.9.0"
