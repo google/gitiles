@@ -6,8 +6,8 @@
 
 Gitiles requires [Bazel](https://bazel.build/) to build.
 
-You need to use Java for building Gitiles. You can install Bazel from the bazel.io:
-https://bazel.build/versions/master/docs/install.html
+You need to use Java for building Gitiles. You can install Bazel from
+bazel.build: https://bazel.build/versions/master/docs/install.html
 
 ```
   bazel build //...
