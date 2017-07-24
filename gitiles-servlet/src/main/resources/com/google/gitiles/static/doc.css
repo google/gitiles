@@ -43,8 +43,16 @@
 .doc h3 {
   font-size: 1.3em;
 }
-.doc h4,
-.doc h5,
+.doc h4 {
+  font-size: 1.3em;
+  font-weight: lighter;
+  font-style: italic;
+}
+.doc h5 {
+  font-size: 16px;
+  font-weight: lighter;
+  font-style: italic;
+}
 .doc h6 {
   font-size: 14px;
   font-style: italic;
