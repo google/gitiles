@@ -131,7 +131,7 @@ class DevServer {
             STATIC_PREFIX,
             Arrays.asList(cfg.getStringList("gitiles", null, "customTemplates")),
             sourceRoot
-                .resolve("gitiles-servlet/src/main/resources/com/google/gitiles/templates")
+                .resolve("resources/com/google/gitiles/templates")
                 .toString(),
             firstNonNull(cfg.getString("gitiles", null, "siteTitle"), "Gitiles"));
 
@@ -151,7 +151,7 @@ class DevServer {
 
   private Handler staticHandler() throws IOException {
     Path staticRoot =
-        sourceRoot.resolve("gitiles-servlet/src/main/resources/com/google/gitiles/static");
+        sourceRoot.resolve("resources/com/google/gitiles/static");
     ResourceHandler rh = new ResourceHandler();
     try {
       rh.setBaseResource(new PathResource(staticRoot.toUri().toURL()));

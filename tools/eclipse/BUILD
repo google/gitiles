@@ -2,8 +2,8 @@ load("@com_googlesource_gerrit_bazlets//tools:classpath.bzl", "classpath_collect
 load("@com_googlesource_gerrit_bazlets//tools:py_binary_path.bzl", "py_binary_path")
 
 DEPS = [
-    "//gitiles-servlet:servlet",
-    "//gitiles-dev:lib",
+    "//java/com/google/gitiles:servlet",
+    "//java/com/google/gitiles/dev:lib",
 ]
 
 java_library(
@@ -15,7 +15,7 @@ classpath_collector(
     name = "main_classpath_collect",
     testonly = 1,
     deps = DEPS + [
-        "//gitiles-servlet:servlet_tests",
+        "//javatests/com/google/gitiles:servlet_tests",
     ],
 )
 

@@ -1,5 +1,5 @@
 filegroup(
     name = "web_xml",
-    srcs = ["src/main/resources/web.xml"],
+    srcs = ["web.xml"],
     visibility = ["//visibility:public"],
 )

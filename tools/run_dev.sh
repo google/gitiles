@@ -26,7 +26,7 @@ PROPERTIES="$PROPERTIES --jvm_flag=-Dcom.google.gitiles.sourcePath=$ROOT"
 
 (
   cd "$ROOT"
-  bazel build gitiles-dev:dev
+  bazel build java/com/google/gitiles/dev
 )
 
-"$ROOT/bazel-bin/gitiles-dev/dev" $PROPERTIES
+"$ROOT/bazel-bin/java/com/google/gitiles/dev/dev" $PROPERTIES

@@ -1,7 +1,7 @@
 NAME = "com_googlesource_gerrit_bazlets"
 
 def load_bazlets(
-    commit,
+    commit = None,
     local_path = None
   ):
   if not local_path:
