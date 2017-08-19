@@ -14,7 +14,7 @@
 
 package com.google.gitiles;
 
-import com.google.gitiles.blame.BlameCache;
+import com.google.gitiles.blame.cache.BlameCache;
 import java.util.Enumeration;
 import javax.annotation.Nullable;
 import javax.servlet.Filter;

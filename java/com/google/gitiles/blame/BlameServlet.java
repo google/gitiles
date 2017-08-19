@@ -26,6 +26,8 @@ import com.google.gitiles.BlobSoyData;
 import com.google.gitiles.CommitSoyData;
 import com.google.gitiles.DateFormatter;
 import com.google.gitiles.DateFormatter.Format;
+import com.google.gitiles.blame.cache.BlameCache;
+import com.google.gitiles.blame.cache.Region;
 import com.google.gitiles.GitilesAccess;
 import com.google.gitiles.GitilesView;
 import com.google.gitiles.Renderer;

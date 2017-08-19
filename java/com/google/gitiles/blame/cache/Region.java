@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.gitiles.blame;
+package com.google.gitiles.blame.cache;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -45,11 +45,11 @@ public class Region implements Serializable, Comparable<Region> {
     this.count = end - start;
   }
 
-  void setStart(int start) {
+  public void setStart(int start) {
     this.start = start;
   }
 
-  int getStart() {
+  public int getStart() {
     return start;
   }
 

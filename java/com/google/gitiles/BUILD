@@ -1,38 +1,4 @@
-# TODO(davido): Move sources that depend on the rest of gitiles
-# out of the blame directory and move this rule into its own BUILD
-# file in blame directory.
-BLAME_CACHE_SRCS = ["blame/" + n for n in [
-    "BlameCache.java",
-    "BlameCacheImpl.java",
-    "Region.java",
-]]
-
-java_library(
-    name = "blame-cache",
-    srcs = BLAME_CACHE_SRCS,
-    visibility = ["//visibility:public"],
-    deps = [
-        "//lib:guava",
-        "//lib/jgit",
-    ],
-)
-
-load("@com_googlesource_gerrit_bazlets//tools:javadoc.bzl", "java_doc")
-
-java_doc(
-    name = "blame-cache-javadoc",
-    libs = [
-        ":blame-cache",
-        "//lib:guava",
-        "//lib/jgit:jgit",
-    ],
-    pkgs = ["com.google.gitiles.blame"],
-    title = "Blame Cache API Documentation",
-    visibility = ["//visibility:public"],
-)
-
 DEPS = [
-    ":blame-cache",
     "//lib:autolink",
     "//lib:commons-lang3",
     "//lib:gson",
@@ -49,6 +15,7 @@ DEPS = [
     "//lib/jgit:jgit-servlet",
     "//lib/slf4j:slf4j-api",
     "//lib/soy:soy",
+    "//java/com/google/gitiles/blame/cache",
 ]
 
 DEPS_ALL = DEPS + [
@@ -64,10 +31,7 @@ java_library(
 
 java_library(
     name = "servlet",
-    srcs = glob(
-        ["**/*.java"],
-        exclude = BLAME_CACHE_SRCS,
-    ),
+    srcs = glob(["**/*.java"]),
     resource_strip_prefix = "resources",
     resources = ["//resources/com/google/gitiles"],
     visibility = ["//visibility:public"],

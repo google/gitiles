@@ -17,6 +17,7 @@ package com.google.gitiles.blame;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.gitiles.DateFormatter;
+import com.google.gitiles.blame.cache.Region;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;

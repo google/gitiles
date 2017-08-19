@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.gitiles.blame;
+package com.google.gitiles.blame.cache;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.hash;
