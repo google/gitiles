@@ -18,6 +18,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
+import static org.eclipse.jgit.http.server.GitSmartHttpTools.sendError;
 import static org.eclipse.jgit.http.server.ServletUtils.ATTRIBUTE_REPOSITORY;
 
 import com.google.common.base.Strings;
@@ -105,7 +106,7 @@ public class ViewFilter extends AbstractHttpFilter {
     try {
       view = parse(req);
     } catch (ServiceMayNotContinueException e) {
-      res.setStatus(e.getStatusCode());
+      sendError(req, res, e.getStatusCode(), e.getMessage());
       return;
     } catch (IOException err) {
       String name = urls.getHostName(req);

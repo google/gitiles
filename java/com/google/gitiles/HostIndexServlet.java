@@ -20,6 +20,7 @@ import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
+import static org.eclipse.jgit.http.server.GitSmartHttpTools.sendError;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
@@ -75,8 +76,7 @@ public class HostIndexServlet extends BaseServlet {
       res.sendError(SC_UNAUTHORIZED);
       return null;
     } catch (ServiceMayNotContinueException e) {
-      // TODO(dborowitz): Show the error message to the user.
-      res.sendError(e.getStatusCode());
+      sendError(req, res, e.getStatusCode(), e.getMessage());
       return null;
     } catch (IOException err) {
       String name = urls.getHostName(req);
