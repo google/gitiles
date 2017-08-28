@@ -110,3 +110,25 @@ Normally you will create code reviews by pushing for master:
 ```
 git push origin HEAD:refs/for/master
 ```
+
+## Releases
+
+Gitiles artifacts are published to the [gerrit-maven
+bucket](http://gerrit-maven.storage.googleapis.com/). To release a new version,
+you must have write access to this bucket.
+
+First, increment `GITILES_VERSION` in `version.bzl`. Technically, Gitiles uses
+the
+["build number" scheme](http://mojo.codehaus.org/versions-maven-plugin/version-rules.html),
+which in practice just means incrementing the last component (after the `-`) by
+one. Get your change reviewed and submitted.
+
+Then, run:
+
+```
+./tools/maven/mvn.sh deploy
+```
+
+Once released, Maven projects can consume the new version as long as they point
+at the proper repository URL. Similarly, Bazel projects using the `maven_jar`
+bazlet can use the new version with `repository = GERRIT`.
