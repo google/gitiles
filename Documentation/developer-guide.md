@@ -129,6 +129,8 @@ Then, run:
 ./tools/maven/mvn.sh deploy
 ```
 
+Tag the release with an annotated tag matching the version number.
+
 Once released, Maven projects can consume the new version as long as they point
 at the proper repository URL. Similarly, Bazel projects using the `maven_jar`
 bazlet can use the new version with `repository = GERRIT`.
