@@ -51,3 +51,10 @@ java_doc(
     title = "Gitiles API Documentation",
     visibility = ["//visibility:public"],
 )
+
+load("//tools:stamper.bzl", "stamp")
+
+stamp(
+    name = "servlet",
+    workspace = "gitiles",
+)

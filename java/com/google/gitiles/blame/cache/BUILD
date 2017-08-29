@@ -21,3 +21,10 @@ java_doc(
     title = "Blame Cache API Documentation",
     visibility = ["//visibility:public"],
 )
+
+load("//tools:stamper.bzl", "stamp")
+
+stamp(
+    name = "cache",
+    workspace = "gitiles",
+)

@@ -12,8 +12,8 @@ maven_package(
     },
     group = "com.google.gitiles",
     jar = {
-        "blame-cache": "//java/com/google/gitiles/blame/cache",
-        "gitiles-servlet": "//java/com/google/gitiles:servlet",
+        "blame-cache": "//java/com/google/gitiles/blame/cache:cache-stamped",
+        "gitiles-servlet": "//java/com/google/gitiles:servlet-stamped",
     },
     repository = "gerrit-maven-repository",
     url = "gs://gerrit-maven",
