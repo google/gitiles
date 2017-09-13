@@ -98,8 +98,8 @@ maven_jar(
 
 maven_jar(
     name = "truth",
-    artifact = "com.google.truth:truth:0.32",
-    sha1 = "e996fb4b41dad04365112786796c945f909cfdf7",
+    artifact = "com.google.truth:truth:0.35",
+    sha1 = "c08a7fde45e058323bcfa3f510d4fe1e2b028f37",
 )
 
 maven_jar(
