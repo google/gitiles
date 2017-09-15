@@ -105,6 +105,10 @@ public abstract class HtmlBuilder {
         && URI.getValueFilter().matcher(val).find();
   }
 
+  public static boolean isValidMailtoUri(String val) {
+    return val.startsWith("mailto:") && URI.getValueFilter().matcher(val).find();
+  }
+
   /** Check if URL is valid for {@code <img src="data:image/*;base64,...">}. */
   public static boolean isImageDataUri(String url) {
     return IMAGE_DATA.getValueFilter().matcher(url).find();
