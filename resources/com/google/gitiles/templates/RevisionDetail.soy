@@ -29,7 +29,7 @@
  *     with an object whose keys correspond to the appropriate object detail
  *     template from ObjectDetail.soy.
  */
-{template .revisionDetail}
+{template .revisionDetail stricthtml="false"}
 {if $hasBlob}
   {call .header data="all"}
     {param css: [gitiles.PRETTIFY_CSS_URL] /}

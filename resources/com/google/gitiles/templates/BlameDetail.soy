@@ -35,7 +35,7 @@
  *       class: class name for tr.
  *     All keys but "class" are optional.
  */
-{template .blameDetail}
+{template .blameDetail stricthtml="false"}
 {if $regions}
   {call .header data="all"}
     {param css: [gitiles.PRETTIFY_CSS_URL] /}
@@ -52,7 +52,7 @@
         {if isNonnull($region.abbrevSha)}
           <td class="Blame-author">{$region.author.name}</td>
           <td class="Blame-sha1"><a class="u-sha1 u-monospace Blame-sha1" href="{$region.commitUrl}">{$region.abbrevSha}</a></td>
-          <td class="Blame-time">{$region.author.time}</span>
+          <td class="Blame-time">{$region.author.time}</td>
           <td class="Blame-regionLink">
             [<a href="{$region.diffUrl}">{msg desc="text for diff URL"}diff{/msg}</a>]
             [<a href="{$region.blameUrl}">{msg desc="text for blame URL"}{$region.blameText}{/msg}</a>]

@@ -30,7 +30,7 @@
  * @param hasLog whether a log should be shown for HEAD.
  * @param? readmeHtml optional rendered README.md contents.
  */
-{template .repositoryIndex}
+{template .repositoryIndex stricthtml="false"}
 {if $readmeHtml}
   {call .header data="all"}
     {param title: $repositoryName /}

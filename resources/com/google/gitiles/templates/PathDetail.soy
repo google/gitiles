@@ -26,7 +26,7 @@
  * @param data path data, matching the params for one of .treeDetail,
  *     .blobDetail, .symlinkDetail, or .gitlinkDetail as appropriate.
  */
-{template .pathDetail}
+{template .pathDetail stricthtml="false"}
 {if $type == 'REGULAR_FILE' or $type == 'EXECUTABLE_FILE'}
   {call .header data="all"}
     {param css: [gitiles.PRETTIFY_CSS_URL] /}

@@ -24,7 +24,7 @@
  * @param branches list of branch objects with url, name, and isHead keys.
  * @param tags list of tag objects with url and name keys.
  */
-{template .refsDetail}
+{template .refsDetail stricthtml="false"}
 {call .header}
   {param title: 'Refs' /}
   {param repositoryName: $repositoryName /}

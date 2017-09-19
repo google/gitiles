@@ -24,7 +24,7 @@
  * @param? commit optional commit for which diffs are displayed, with keys
  *     corresponding to the gitiles.commitDetail template (minus "diffTree").
  */
-{template .diffDetail}
+{template .diffDetail stricthtml="false"}
 {call .header data="all" /}
 
 {if $commit}

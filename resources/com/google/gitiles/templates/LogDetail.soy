@@ -24,7 +24,7 @@
  * @param? tags optional list of tags encountered when peeling this object, with
  *     keys corresponding to gitiles.tagDetail.
  */
-{template .logDetail}
+{template .logDetail stricthtml="false"}
 {call .header data="all" /}
 
 {if $tags}
@@ -46,7 +46,7 @@
  *
  * @param? previousUrl URL for the previous page of results.
  */
-{template .logEntriesHeader}
+{template .logEntriesHeader stricthtml="false"}
 {if $previousUrl}
   <nav class="LogNav">
     <a class="LogNav-prev" href="{$previousUrl}">{msg desc="text for previous URL"}&laquo; Previous{/msg}</a>
@@ -75,7 +75,7 @@
  *
  * @param? nextUrl URL for the next page of results.
  */
-{template .logEntriesFooter}
+{template .logEntriesFooter stricthtml="false"}
 </ol>
 {if $nextUrl}
   <nav class="LogNav">
@@ -89,7 +89,7 @@
  * Single log entry indicating the full log is empty.
  */
 {template .emptyLog}
-<li class="CommitLog-item CommitLog-item--empty">{msg desc="informational text for when the log is empty"}No commits.{/msg}</p>
+<li class="CommitLog-item CommitLog-item--empty">{msg desc="informational text for when the log is empty"}No commits.{/msg}</li>
 {/template}
 
 

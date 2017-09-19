@@ -24,7 +24,7 @@
  * @param repositories list of repository description maps with name, cloneUrl,
  *     and optional description values.
  */
-{template .hostIndex}
+{template .hostIndex stricthtml="false"}
 {call .header}
   {param title: $prefix ? $prefix : $hostName ? $hostName + ' Git repositories' : 'Git repositories' /}
   {param menuEntries: $menuEntries /}

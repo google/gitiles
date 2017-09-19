@@ -26,7 +26,7 @@
  * @param? css optional list of CSS URLs to include.
  * @param? containerClass optional class to append to the main container.
  */
-{template .header}
+{template .header stricthtml="false"}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -150,7 +150,7 @@
  *
  * @param? customVariant variant name for custom styling.
  */
-{template .footer}
+{template .footer stricthtml="false"}
     </div> <!-- Container -->
   </div> <!-- Site-content -->
   {delcall gitiles.customFooter variant="$customVariant ?: ''" /}
@@ -165,5 +165,5 @@
  * Renderer#renderStreaming(HttpServletResponse, String).
  */
 {template .streamingPlaceholder}
-<div id="STREAMED_OUTPUT_BLOCK" />
+<br id="STREAMED_OUTPUT_BLOCK">
 {/template}
