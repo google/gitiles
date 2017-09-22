@@ -60,6 +60,9 @@ public class LinkTest {
 
     url = "//example.com/foo.html";
     assertThat(md.href(url)).isEqualTo(url);
+
+    url = "mailto://nobody@nowhere.org";
+    assertThat(md.href(url)).isEqualTo(url);
   }
 
   @Test
