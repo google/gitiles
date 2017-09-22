@@ -130,9 +130,7 @@ class DevServer {
         new DebugRenderer(
             STATIC_PREFIX,
             Arrays.asList(cfg.getStringList("gitiles", null, "customTemplates")),
-            sourceRoot
-                .resolve("resources/com/google/gitiles/templates")
-                .toString(),
+            sourceRoot.resolve("resources/com/google/gitiles/templates").toString(),
             firstNonNull(cfg.getString("gitiles", null, "siteTitle"), "Gitiles"));
 
     String docRoot = cfg.getString("gitiles", null, "docroot");
@@ -150,8 +148,7 @@ class DevServer {
   }
 
   private Handler staticHandler() throws IOException {
-    Path staticRoot =
-        sourceRoot.resolve("resources/com/google/gitiles/static");
+    Path staticRoot = sourceRoot.resolve("resources/com/google/gitiles/static");
     ResourceHandler rh = new ResourceHandler();
     try {
       rh.setBaseResource(new PathResource(staticRoot.toUri().toURL()));

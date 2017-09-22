@@ -394,7 +394,9 @@ public class MarkdownToHtml implements Visitor {
 
   @VisibleForTesting
   String href(String target) {
-    if (target.startsWith("#") || HtmlBuilder.isValidHttpUri(target) || HtmlBuilder.isValidMailtoUri(target)) {
+    if (target.startsWith("#")
+        || HtmlBuilder.isValidHttpUri(target)
+        || HtmlBuilder.isValidMailtoUri(target)) {
       return target;
     } else if (target.startsWith("git:")) {
       if (HtmlBuilder.isValidGitUri(target)) {
