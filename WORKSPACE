@@ -16,8 +16,8 @@ load(
 
 maven_jar(
     name = "commons_lang3",
-    artifact = "org.apache.commons:commons-lang3:3.1",
-    sha1 = "905075e6c80f206bbe6cf1e809d2caa69f420c76",
+    artifact = "org.apache.commons:commons-lang3:3.6",
+    sha1 = "9d28a6b23650e8a7e9063c04588ace6cf7012c17",
 )
 
 maven_jar(
