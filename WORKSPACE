@@ -172,9 +172,9 @@ maven_jar(
 
 maven_jar(
     name = "tukaani_xz",
-    artifact = "org.tukaani:xz:1.4",
+    artifact = "org.tukaani:xz:1.6",
     attach_source = False,
-    sha1 = "18a9a2ce6abf32ea1b5fd31dae5210ad93f4e5e3",
+    sha1 = "05b6f921f1810bdf90e25471968f741f87168b64",
 )
 
 maven_jar(
