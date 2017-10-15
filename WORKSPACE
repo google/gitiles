@@ -126,36 +126,36 @@ maven_jar(
     sha1 = "198ea005f41219f038f4291f0b0e9f3259730e92",
 )
 
-JGIT_VERS = "4.9.0.201710071750-r"
+JGIT_VERS = "4.10.0.201712302008-r.24-gf3bb0e268"
 
-JGIT_REPO = MAVEN_CENTRAL
+JGIT_REPO = GERRIT
 
 maven_jar(
     name = "jgit_lib",
     artifact = "org.eclipse.jgit:org.eclipse.jgit:" + JGIT_VERS,
     repository = JGIT_REPO,
-    sha1 = "69d8510b335d4d33d551a133505a4141311f970a",
+    sha1 = "1813447ae544b38e36bda9f1599df5f7cff6cfac",
 )
 
 maven_jar(
     name = "jgit_servlet",
     artifact = "org.eclipse.jgit:org.eclipse.jgit.http.server:" + JGIT_VERS,
     repository = JGIT_REPO,
-    sha1 = "93fb0075988b9c6bb97c725c03706f2341965b6b",
+    sha1 = "f7a88c3744f864587d50096ab99a58e09e4afd95",
 )
 
 maven_jar(
     name = "jgit_junit",
     artifact = "org.eclipse.jgit:org.eclipse.jgit.junit:" + JGIT_VERS,
     repository = JGIT_REPO,
-    sha1 = "b6e712e743ea5798134f54547ae80456fad07f76",
+    sha1 = "b5fc2330bf0418e3a0f773925c57497131f13380",
 )
 
 maven_jar(
     name = "jgit_archive",
     artifact = "org.eclipse.jgit:org.eclipse.jgit.archive:" + JGIT_VERS,
     repository = JGIT_REPO,
-    sha1 = "a15aee805c758516ad7e9fa3f16e27bb9f4a1c2e",
+    sha1 = "af579bcc932fa26f3c4d4ae00e812dc50d50a355",
 )
 
 maven_jar(
@@ -168,17 +168,17 @@ maven_jar(
 # corresponding version
 maven_jar(
     name = "commons_compress",
-    artifact = "org.apache.commons:commons-compress:1.13",
-    sha1 = "15c5e9584200122924e50203ae210b57616b75ee",
+    artifact = "org.apache.commons:commons-compress:1.15",
+    sha1 = "b686cd04abaef1ea7bc5e143c080563668eec17e",
 )
 
 # Transitive dependency of commons_compress. Should only be
 # upgraded at the same time as commons_compress.
 maven_jar(
     name = "tukaani_xz",
-    artifact = "org.tukaani:xz:1.4",
+    artifact = "org.tukaani:xz:1.6",
     attach_source = False,
-    sha1 = "18a9a2ce6abf32ea1b5fd31dae5210ad93f4e5e3",
+    sha1 = "05b6f921f1810bdf90e25471968f741f87168b64",
 )
 
 maven_jar(
