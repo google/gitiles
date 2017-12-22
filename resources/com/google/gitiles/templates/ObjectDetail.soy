@@ -69,7 +69,7 @@
       <th class="Metadata-title">{msg desc="Header for tree SHA entry"}tree{/msg}</th>
       <td><a href="{$treeUrl}">{$tree}</a></td>
     </tr>
-    {foreach $parent in $parents}
+    {for $parent in $parents}
       <tr>
         <th class="Metadata-title">{msg desc="Header for parent SHA"}parent{/msg}</th>
         <td>
@@ -82,7 +82,7 @@
           </span>
         </td>
       </tr>
-    {/foreach}
+    {/for}
   </table>
 </div>
 {call .message_}
@@ -92,7 +92,7 @@
 
 {if $diffTree and length($diffTree)}
   <ul class="DiffTree">
-    {foreach $entry in $diffTree}
+    {for $entry in $diffTree}
       <li>
         <a href="{$entry.url}">{$entry.path}</a>
         {switch $entry.changeType}
@@ -129,7 +129,7 @@
           {default}
         {/switch}
       </li>
-    {/foreach}
+    {/for}
   </ul>
   <div class="DiffSummary">
     {if length($diffTree) == 1}
@@ -172,7 +172,7 @@
 
   {if length($entries)}
     <ol class="FileList">
-      {foreach $entry in $entries}
+      {for $entry in $entries}
         <li class="FileList-item{sp}
               {switch $entry.type}
                 {case 'TREE'}FileList-item--gitTree
@@ -205,7 +205,7 @@
           {/if}
           // TODO(dborowitz): Something reasonable for gitlinks.
         </li>
-      {/foreach}
+      {/for}
     </ol>
   {else}
     <p>{msg desc="Informational text for when a tree is empty"}This tree is empty.{/msg}</p>
@@ -256,18 +256,18 @@
   {if $lines != null}
     {if $lines}
       <table class="FileContents">
-        {foreach $line in $lines}
+        {for $line in $lines}
           {let $n: index($line) + 1 /}
           <tr class="u-pre u-monospace FileContents-line">
             <td class="u-lineNum u-noSelect FileContents-lineNum"
                 data-line-number="{$n}" onclick="window.location.hash='#{$n}'"></td>
             <td class="FileContents-lineContents" id="{$n}">
-              {foreach $span in $line}
+              {for $span in $line}
                 <span class="{$span.classes}">{$span.text}</span>
-              {/foreach}
+              {/for}
             </td>
           </tr>
-        {/foreach}
+        {/for}
       </table>
     {else}
       <div class="FileContents-empty">Empty file</div>
@@ -338,8 +338,8 @@
  */
 {template .message_ visibility="private"}
 <pre class="{$className}">
-  {foreach $part in $message}
+  {for $part in $message}
     {if $part.url}<a href="{$part.url}">{$part.text}</a>{else}{$part.text}{/if}
-  {/foreach}
+  {/for}
 </pre>
 {/template}

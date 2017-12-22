@@ -42,7 +42,7 @@
   {call .header data="all" /}
 {/if}
 
-{foreach $object in $objects}
+{for $object in $objects}
   {switch $object.type}
     {case 'commit'}
       {call .commitDetail data="$object.data" /}
@@ -57,7 +57,7 @@
         {msg desc="Error message for an unknown object type"}Object has unknown type.{/msg}
       </div>
   {/switch}
-{/foreach}
+{/for}
 
 {call .footer}
   {param customVariant: $customVariant /}

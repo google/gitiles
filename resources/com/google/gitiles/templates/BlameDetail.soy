@@ -45,7 +45,7 @@
   {call .blobHeader data="$data" /}
 
   <table class="Blame">
-    {foreach $line in $data.lines}
+    {for $line in $data.lines}
       {let $i: index($line) /}
       {let $region: $regions[$i] /}
       <tr class="Blame-region {$region.class}">
@@ -65,12 +65,12 @@
           <a class="u-monospace u-lineNum" href="#{$n}" name="{$n}">{$n}</a>
         </td>
         <td class="u-pre u-monospace Blame-lineContent">
-          {foreach $span in $line}
+          {for $span in $line}
             <span class="{$span.classes}">{$span.text}</span>
-          {/foreach}
+          {/for}
         </td>
       </tr>
-    {/foreach}
+    {/for}
   </table>
 {else}
   {call .header data="all" /}

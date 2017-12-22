@@ -54,12 +54,12 @@
         {/msg}
       </span>
     </div>
-    {foreach $repo in $repositories}
+    {for $repo in $repositories}
       <a class="RepoList-item" href="{$repo.url}">
         <span class="RepoList-itemName">{$repo.name}</span>
         <span class="RepoList-itemDescription">{$repo.description}</span>
       </a>
-    {/foreach}
+    {/for}
   </div>
 {/if}
 

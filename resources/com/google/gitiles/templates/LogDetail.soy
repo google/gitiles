@@ -28,9 +28,9 @@
 {call .header data="all" /}
 
 {if $tags}
-  {foreach $tag in $tags}
+  {for $tag in $tags}
     {call gitiles.tagDetail data="$tag" /}
-  {/foreach}
+  {/for}
 {/if}
 
 {call .streamingPlaceholder /}
@@ -120,14 +120,14 @@
 {sp}<span class="CommitLog-author" title="{$author.email}">{msg desc="commit author name"}by {$author.name}{/msg}</span>
 {sp}<span class="CommitLog-time" title="{$author.time}">· {$author.relativeTime}</span>
 {if length($branches)}
-  {foreach $branch in $branches}
+  {for $branch in $branches}
     {sp}<a class="CommitLog-branchLabel" href="{$branch.url}">{$branch.name}</a>
-  {/foreach}
+  {/for}
 {/if}
 {if length($tags)}
-  {foreach $tag in $tags}
+  {for $tag in $tags}
     {sp}<a class="CommitLog-tagLabel" href="{$tag.url}">{$tag.name}</a>
-  {/foreach}
+  {/for}
 {/if}
 
 {if $rename}
@@ -206,14 +206,14 @@
     </td>
     <td>
       {if length($branches)}
-        {foreach $branch in $branches}
+        {for $branch in $branches}
           {sp}<a href="{$branch.url}" class="branch-label">{$branch.name}</a>
-        {/foreach}
+        {/for}
       {/if}
       {if length($tags)}
-        {foreach $tag in $tags}
+        {for $tag in $tags}
           {sp}<a href="{$tag.url}" class="tag-label">{$tag.name}</a>
-        {/foreach}
+        {/for}
       {else}
         {sp}
       {/if}

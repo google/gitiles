@@ -64,9 +64,9 @@
   <div class="RefList">
     <h3 class="RefList-title">{$type}</h3>
     <ul class="RefList-items">
-    {foreach $ref in $refs}
+    {for $ref in $refs}
       <li class="RefList-item"><a href="{$ref.url}">{$ref.name}</a></li>
-    {/foreach}
+    {/for}
     </ul>
   </div>
 {/template}

@@ -48,14 +48,14 @@
 {template .diffHeader}
 <pre class="u-pre u-monospace Diff">
   <a name="F{$fileIndex}" class="Diff-fileIndex"></a>
-  {foreach $part in $firstParts}
+  {for $part in $firstParts}
     {if not isFirst($part)}{sp}{/if}
     {if $part.url}
       <a href="{$part.url}">{$part.text}</a>
     {else}
       {$part.text}
     {/if}
-  {/foreach}{\n}
+  {/for}{\n}
   {$rest}
 </pre>
 {/template}

@@ -41,9 +41,9 @@
 
   <link rel="stylesheet" type="text/css" href="{gitiles.BASE_CSS_URL}">
   {if $css and length($css)}
-    {foreach $url in $css}
+    {for $url in $css}
       <link rel="stylesheet" type="text/css" href="{$url}">
-    {/foreach}
+    {/for}
   {/if}
   {delcall gitiles.customHeadTagPart variant="$customVariant ?: ''" /}
 
@@ -55,14 +55,14 @@
 
       {if $menuEntries and length($menuEntries)}
         <div class="Header-menu">
-        {foreach $entry in $menuEntries}
+        {for $entry in $menuEntries}
           {sp}
           {if $entry.url}
             <a class="Header-menuItem" href="{$entry.url}">{$entry.text}</a>
           {else}
             <span class="Header-menuItem Header-menuItem--noAction">{$entry.text}</span>
           {/if}
-        {/foreach}
+        {/for}
         {sp}
         </div>
       {/if}
@@ -73,14 +73,14 @@
     <div class="Container {if $containerClass}{$containerClass}{/if}">
       {if $breadcrumbs and length($breadcrumbs)}
         <div class="Breadcrumbs">
-          {foreach $entry in $breadcrumbs}
+          {for $entry in $breadcrumbs}
             {if not isFirst($entry)}{sp}/{sp}{/if}
             {if not isLast($entry)}
               <a class="Breadcrumbs-crumb" href="{$entry.url}">{$entry.text}</a>
             {else}
               <span class="Breadcrumbs-crumb">{$entry.text}</span>
             {/if}
-          {/foreach}
+          {/for}
         </div>
       {/if}
 {/template}
