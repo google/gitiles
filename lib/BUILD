@@ -9,6 +9,7 @@ package(
     "autolink",
     "commonmark",
     "commons-lang3",
+    "commons-text",
     "cm-autolink",
     "gfm-strikethrough",
     "gfm-tables",

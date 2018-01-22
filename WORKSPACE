@@ -21,6 +21,12 @@ maven_jar(
 )
 
 maven_jar(
+    name = "commons_text",
+    artifact = "org.apache.commons:commons-text:1.2",
+    sha1 = "74acdec7237f576c4803fff0c1008ab8a3808b2b",
+)
+
+maven_jar(
     name = "gson",
     artifact = "com.google.code.gson:gson:2.8.2",
     sha1 = "3edcfe49d2c6053a70a2a47e4e1c2f94998a49cf",
