@@ -357,7 +357,7 @@ public class MarkdownToHtml implements Visitor {
     }
   }
 
-  private List<ParseResult> parse(String lang, String text) {
+  private List<ParseResult> parse(@Nullable String lang, String text) {
     if (Strings.isNullOrEmpty(lang)) {
       return null;
     }
