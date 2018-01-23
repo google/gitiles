@@ -242,7 +242,7 @@ public class MarkdownToHtml implements Visitor {
           .close("span")
           .close("a");
       // github markdown compatibility
-      if (id != id.toLowerCase()) {
+      if (!id.equals(id.toLowerCase())) {
         html.open("a")
             .attribute("class", "h")
             .attribute("name", id.toLowerCase())
