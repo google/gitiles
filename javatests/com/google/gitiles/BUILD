@@ -15,6 +15,7 @@ java_library(
     ) + glob(["**/ServletTest.java"]),
     deps = DEPS + [
         "//java/com/google/gitiles:servlet",
+        "//lib:jsr305",
         "//lib:servlet-api_2_5",
         "//lib:truth",
         "//lib/jgit:junit",

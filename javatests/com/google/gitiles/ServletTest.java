@@ -27,6 +27,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import java.util.Map;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
 import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
@@ -109,7 +110,7 @@ public class ServletTest {
     return res;
   }
 
-  private String buildJsonRaw(String path, String queryString) throws Exception {
+  private String buildJsonRaw(String path, @Nullable String queryString) throws Exception {
     String fmt = "format=JSON";
     queryString = Strings.isNullOrEmpty(queryString) ? fmt : fmt + "&" + queryString;
     FakeHttpServletResponse res = buildResponse(path, queryString, SC_OK);
