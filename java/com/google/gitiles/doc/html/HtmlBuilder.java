@@ -22,9 +22,9 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.html.types.SafeHtml;
 import com.google.gitiles.doc.RuntimeIOException;
-import com.google.template.soy.shared.restricted.EscapingConventions.EscapeHtml;
-import com.google.template.soy.shared.restricted.EscapingConventions.FilterImageDataUri;
-import com.google.template.soy.shared.restricted.EscapingConventions.FilterNormalizeUri;
+import com.google.template.soy.shared.internal.EscapingConventions.EscapeHtml;
+import com.google.template.soy.shared.internal.EscapingConventions.FilterImageDataUri;
+import com.google.template.soy.shared.internal.EscapingConventions.FilterNormalizeUri;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
