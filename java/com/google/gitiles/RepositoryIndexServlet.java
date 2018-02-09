@@ -134,7 +134,8 @@ public class RepositoryIndexServlet extends BaseServlet {
             startRenderStreamingHtml(req, res, "gitiles.repositoryIndex", data)) {
           Writer w = newWriter(out, res);
           new LogSoyData(req, access, "oneline")
-              .renderStreaming(paginator, "HEAD", renderer, w, df);
+              .renderStreaming(
+                  paginator, "HEAD", renderer, w, df, LogSoyData.FooterBehavior.LOG_HEAD);
           w.flush();
         }
       } else {

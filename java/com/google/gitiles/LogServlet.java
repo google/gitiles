@@ -129,7 +129,8 @@ public class LogServlet extends BaseServlet {
 
       try (OutputStream out = startRenderStreamingHtml(req, res, "gitiles.logDetail", data)) {
         Writer w = newWriter(out, res);
-        new LogSoyData(req, access, pretty).renderStreaming(paginator, null, renderer, w, df);
+        new LogSoyData(req, access, pretty)
+            .renderStreaming(paginator, null, renderer, w, df, LogSoyData.FooterBehavior.NEXT);
         w.flush();
       }
     } catch (RevWalkException e) {

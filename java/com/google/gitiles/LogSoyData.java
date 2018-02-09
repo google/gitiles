@@ -49,6 +49,15 @@ public class LogSoyData {
           Field.TAGS);
   private static final ImmutableSet<Field> VERBOSE_FIELDS = Field.setOf(FIELDS, Field.DIFF_TREE);
 
+  /** Behavior for the footer link when rendering streaming log data. */
+  public enum FooterBehavior {
+    /** "Next" link that skips commits in the current view. */
+    NEXT,
+
+    /** "More" link that starts from HEAD. */
+    LOG_HEAD;
+  }
+
   private final HttpServletRequest req;
   private final GitilesView view;
   private final Set<Field> fields;
@@ -70,7 +79,8 @@ public class LogSoyData {
       @Nullable String revision,
       Renderer renderer,
       Writer out,
-      DateFormatter df)
+      DateFormatter df,
+      FooterBehavior footerBehavior)
       throws IOException {
     renderer
         .newRenderer("gitiles.logEntriesHeader")
@@ -91,7 +101,7 @@ public class LogSoyData {
 
     renderer
         .newRenderer("gitiles.logEntriesFooter")
-        .setData(toFooterSoyData(paginator, revision))
+        .setData(toFooterSoyData(paginator, revision, footerBehavior))
         .render(out);
   }
 
@@ -139,17 +149,28 @@ public class LogSoyData {
         "score", entry.getScore());
   }
 
-  private Map<String, Object> toFooterSoyData(Paginator paginator, @Nullable String revision) {
-    Map<String, Object> data = Maps.newHashMapWithExpectedSize(1);
-    ObjectId next = paginator.getNextStart();
-    if (next != null) {
-      data.put(
-          "nextUrl",
-          copyAndCanonicalizeView(revision)
-              .replaceParam(LogServlet.START_PARAM, next.name())
-              .toUrl());
+  private Map<String, Object> toFooterSoyData(
+      Paginator paginator, @Nullable String revision, FooterBehavior behavior) {
+    switch (behavior) {
+      case NEXT:
+        ObjectId next = paginator.getNextStart();
+        if (next == null) {
+          return ImmutableMap.of();
+        }
+        return ImmutableMap.of(
+            "nextUrl",
+            copyAndCanonicalizeView(revision)
+                .replaceParam(LogServlet.START_PARAM, next.name())
+                .toUrl(),
+            "nextText",
+            "Next");
+
+      case LOG_HEAD:
+        return ImmutableMap.of(
+            "nextUrl", GitilesView.log().copyFrom(view).toUrl(), "nextText", "More");
+      default:
+        throw new IllegalStateException("unknown footer behavior: " + behavior);
     }
-    return data;
   }
 
   private GitilesView.Builder copyAndCanonicalizeView(String revision) {

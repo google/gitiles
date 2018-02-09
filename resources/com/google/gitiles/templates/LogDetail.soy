@@ -74,12 +74,13 @@
  * Footer for the list of log entries.
  *
  * @param? nextUrl URL for the next page of results.
+ * @param? nextText text for next page link.
  */
 {template .logEntriesFooter stricthtml="false"}
 </ol>
 {if $nextUrl}
   <nav class="LogNav">
-    <a class="LogNav-next" href="{$nextUrl}">{msg desc="text for next URL"}Next &raquo;{/msg}</a>
+    <a class="LogNav-next" href="{$nextUrl}">{$nextText} &raquo;</a>
   </nav>
 {/if}
 {/template}
