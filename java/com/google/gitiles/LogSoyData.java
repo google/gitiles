@@ -178,8 +178,10 @@ public class LogSoyData {
     GitilesView.Builder copy = GitilesView.log().copyFrom(view);
     if (view.getRevision() != Revision.NULL) {
       copy.setRevision(view.getRevision());
-    } else {
+    } else if (revision != null) {
       copy.setRevision(Revision.named(revision));
+    } else {
+      copy.setRevision(Revision.NULL);
     }
     if (view.getOldRevision() != Revision.NULL) {
       copy.setOldRevision(view.getOldRevision());
