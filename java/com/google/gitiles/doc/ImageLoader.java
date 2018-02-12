@@ -18,7 +18,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.io.BaseEncoding;
 import com.google.gitiles.GitilesView;
 import com.google.gitiles.MimeTypes;
-import com.google.template.soy.shared.restricted.EscapingConventions.FilterImageDataUri;
 import java.io.IOException;
 import javax.annotation.Nullable;
 import org.eclipse.jgit.errors.LargeObjectException;
@@ -54,7 +53,8 @@ class ImageLoader {
     if (data != null) {
       return data;
     }
-    return FilterImageDataUri.INSTANCE.getInnocuousOutput();
+    // Otherwise return something that is both clearly an image, but clearly invalid.
+    return SoyConstants.IMAGE_URI_INNOCUOUS_OUTPUT;
   }
 
   private String inlineMaybe(@Nullable String markdownPath, String imagePath) {

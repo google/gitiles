@@ -24,8 +24,6 @@ import com.google.gitiles.ThreadSafePrettifyParser;
 import com.google.gitiles.doc.html.HtmlBuilder;
 import com.google.gitiles.doc.html.SoyHtmlBuilder;
 import com.google.template.soy.data.SanitizedContent;
-import com.google.template.soy.shared.restricted.EscapingConventions.FilterImageDataUri;
-import com.google.template.soy.shared.restricted.EscapingConventions.FilterNormalizeUri;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.commonmark.ext.gfm.strikethrough.Strikethrough;
@@ -402,7 +400,7 @@ public class MarkdownToHtml implements Visitor {
       if (HtmlBuilder.isValidGitUri(target)) {
         return target;
       }
-      return FilterNormalizeUri.INSTANCE.getInnocuousOutput();
+      return SoyConstants.NORMAL_URI_INNOCUOUS_OUTPUT;
     }
 
     String anchor = "";
@@ -414,7 +412,7 @@ public class MarkdownToHtml implements Visitor {
 
     String dest = PathResolver.resolve(filePath, target);
     if (dest == null || view == null) {
-      return FilterNormalizeUri.INSTANCE.getInnocuousOutput();
+      return SoyConstants.NORMAL_URI_INNOCUOUS_OUTPUT;
     }
 
     GitilesView.Builder b;
@@ -442,7 +440,7 @@ public class MarkdownToHtml implements Visitor {
     } else if (imageLoader != null) {
       return imageLoader.inline(filePath, dest);
     }
-    return FilterImageDataUri.INSTANCE.getInnocuousOutput();
+    return SoyConstants.IMAGE_URI_INNOCUOUS_OUTPUT;
   }
 
   public void visit(TableBlock node) {
