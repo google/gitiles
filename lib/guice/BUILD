@@ -9,7 +9,6 @@ java_library(
         ":guice-assistedinject",
         ":guice_library",
         ":javax-inject",
-        ":multibindings",
     ],
 )
 
@@ -19,7 +18,6 @@ java_library(
 ) for n in [
     "guice_library",
     "guice-assistedinject",
-    "multibindings",
     "javax-inject",
     "aopalliance",
 ]]
