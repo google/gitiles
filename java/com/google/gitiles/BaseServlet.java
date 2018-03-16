@@ -39,6 +39,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.reflect.Type;
+import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -47,7 +48,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.joda.time.Instant;
 
 /** Base servlet class for Gitiles servlets that serve Soy templates. */
 public abstract class BaseServlet extends HttpServlet {
@@ -59,7 +59,7 @@ public abstract class BaseServlet extends HttpServlet {
     res.setHeader(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, max-age=0, must-revalidate");
     res.setHeader(HttpHeaders.PRAGMA, "no-cache");
     res.setHeader(HttpHeaders.EXPIRES, "Mon, 01 Jan 1990 00:00:00 GMT");
-    res.setDateHeader(HttpHeaders.DATE, new Instant().getMillis());
+    res.setDateHeader(HttpHeaders.DATE, Instant.now().toEpochMilli());
   }
 
   public static BaseServlet notFoundServlet() {

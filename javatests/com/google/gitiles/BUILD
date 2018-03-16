@@ -3,7 +3,6 @@ DEPS = [
     "//lib:guava",
     "//lib/jgit:jgit",
     "//lib/jgit:jgit-servlet",
-    "//lib:joda-time",
     "//lib/soy:soy",
 ]
 

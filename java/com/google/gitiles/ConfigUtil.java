@@ -17,12 +17,12 @@ package com.google.gitiles;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import com.google.common.cache.CacheBuilder;
+import java.time.Duration;
 import java.util.Optional;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import org.eclipse.jgit.lib.Config;
-import org.joda.time.Duration;
 
 /** Utilities for working with {@link Config} objects. */
 public class ConfigUtil {
@@ -47,7 +47,7 @@ public class ConfigUtil {
       String name,
       @Nullable Duration defaultValue) {
     long m = config.getTimeUnit(section, subsection, name, -1, MILLISECONDS);
-    return m == -1 ? defaultValue : Duration.millis(m);
+    return m == -1 ? defaultValue : Duration.ofMillis(m);
   }
 
   /**
@@ -68,11 +68,11 @@ public class ConfigUtil {
       }
       Duration expireAfterWrite = getDuration(config, "cache", name, "expireAfterWrite", null);
       if (expireAfterWrite != null) {
-        b.expireAfterWrite(expireAfterWrite.getMillis(), TimeUnit.MILLISECONDS);
+        b.expireAfterWrite(expireAfterWrite.toMillis(), TimeUnit.MILLISECONDS);
       }
       Duration expireAfterAccess = getDuration(config, "cache", name, "expireAfterAccess", null);
       if (expireAfterAccess != null) {
-        b.expireAfterAccess(expireAfterAccess.getMillis(), TimeUnit.MILLISECONDS);
+        b.expireAfterAccess(expireAfterAccess.toMillis(), TimeUnit.MILLISECONDS);
       }
       // Add other methods as needed.
     } catch (IllegalArgumentException e) {

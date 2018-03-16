@@ -18,8 +18,8 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.gitiles.ConfigUtil.getDuration;
 import static org.junit.Assert.fail;
 
+import java.time.Duration;
 import org.eclipse.jgit.lib.Config;
-import org.joda.time.Duration;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -29,13 +29,13 @@ import org.junit.runners.JUnit4;
 public class ConfigUtilTest {
   @Test
   public void getDurationReturnsDuration() throws Exception {
-    Duration def = Duration.standardSeconds(2);
+    Duration def = Duration.ofSeconds(2);
     Config config = new Config();
     Duration t;
 
     config.setString("core", "dht", "timeout", "500 ms");
     t = getDuration(config, "core", "dht", "timeout", def);
-    assertThat(t.getMillis()).isEqualTo(500);
+    assertThat(t.toMillis()).isEqualTo(500);
 
     config.setString("core", "dht", "timeout", "5.2 sec");
     try {
@@ -47,25 +47,25 @@ public class ConfigUtilTest {
 
     config.setString("core", "dht", "timeout", "1 min");
     t = getDuration(config, "core", "dht", "timeout", def);
-    assertThat(t.getMillis()).isEqualTo(60000);
+    assertThat(t.toMillis()).isEqualTo(60000);
   }
 
   @Test
   public void getDurationCanReturnDefault() throws Exception {
-    Duration def = Duration.standardSeconds(1);
+    Duration def = Duration.ofSeconds(1);
     Config config = new Config();
     Duration t;
 
     t = getDuration(config, "core", null, "blank", def);
-    assertThat(t.getMillis()).isEqualTo(1000);
+    assertThat(t.toMillis()).isEqualTo(1000);
 
     config.setString("core", null, "blank", "");
     t = getDuration(config, "core", null, "blank", def);
-    assertThat(t.getMillis()).isEqualTo(1000);
+    assertThat(t.toMillis()).isEqualTo(1000);
 
     config.setString("core", null, "blank", " ");
     t = getDuration(config, "core", null, "blank", def);
-    assertThat(t.getMillis()).isEqualTo(1000);
+    assertThat(t.toMillis()).isEqualTo(1000);
   }
 
   @Test

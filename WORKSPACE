@@ -39,12 +39,6 @@ maven_jar(
 )
 
 maven_jar(
-    name = "joda_time",
-    artifact = "joda-time:joda-time:2.9.9",
-    sha1 = "f7b520c458572890807d143670c9b24f4de90897",
-)
-
-maven_jar(
     name = "jsr305",
     artifact = "com.google.code.findbugs:jsr305:3.0.0",
     attach_source = False,

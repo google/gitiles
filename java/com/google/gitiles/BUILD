@@ -5,7 +5,6 @@ DEPS = [
     "//lib:gson",
     "//lib:guava",
     "//lib:html-types",
-    "//lib:joda-time",
     "//lib:jsr305",
     "//lib:commonmark",
     "//lib:cm-autolink",
