@@ -39,6 +39,7 @@ public class ConfigUtil {
    * @param defaultValue value to use when the value is not assigned.
    * @return a standard duration representing the time read, or defaultValue.
    */
+  @Nullable
   public static Duration getDuration(
       Config config,
       String section,
