@@ -36,9 +36,9 @@
     {if $siteTitle}{$siteTitle} -{sp}{/if}
     {$pageTitle}
   </title>
-  <link rel="stylesheet" type="text/css" href="{gitiles.BASE_CSS_URL}" />
-  <link rel="stylesheet" type="text/css" href="{gitiles.DOC_CSS_URL}" />
-  <link rel="stylesheet" type="text/css" href="{gitiles.PRETTIFY_CSS_URL}" />
+  <link rel="stylesheet" type="text/css" href="{gitiles.BASE_CSS_URL |blessStringAsTrustedResourceUrlForLegacy}" />
+  <link rel="stylesheet" type="text/css" href="{gitiles.DOC_CSS_URL |blessStringAsTrustedResourceUrlForLegacy}" />
+  <link rel="stylesheet" type="text/css" href="{gitiles.PRETTIFY_CSS_URL |blessStringAsTrustedResourceUrlForLegacy}" />
   {delcall gitiles.customHeadTagPart variant="$customVariant ?: ''" /}
 </head>
 <body class="Site">

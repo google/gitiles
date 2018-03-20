@@ -39,10 +39,10 @@
     {sp}- {msg desc="name of the application"}{gitiles.SITE_TITLE}{/msg}
   </title>
 
-  <link rel="stylesheet" type="text/css" href="{gitiles.BASE_CSS_URL}">
+  <link rel="stylesheet" type="text/css" href="{gitiles.BASE_CSS_URL |blessStringAsTrustedResourceUrlForLegacy}">
   {if $css and length($css)}
     {for $url in $css}
-      <link rel="stylesheet" type="text/css" href="{$url}">
+      <link rel="stylesheet" type="text/css" href="{$url |blessStringAsTrustedResourceUrlForLegacy}">
     {/for}
   {/if}
   {delcall gitiles.customHeadTagPart variant="$customVariant ?: ''" /}
