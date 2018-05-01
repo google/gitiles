@@ -21,7 +21,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.MapMaker;
 import com.google.common.collect.Maps;
 import com.google.common.hash.Funnels;
 import com.google.common.hash.HashCode;
@@ -37,6 +36,7 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
 import java.util.zip.GZIPOutputStream;
@@ -94,7 +94,7 @@ public abstract class Renderer {
   protected ImmutableMap<String, URL> templates;
   protected ImmutableMap<String, String> globals;
   private final ConcurrentMap<String, HashCode> hashes =
-      new MapMaker().initialCapacity(SOY_FILENAMES.size()).concurrencyLevel(1).makeMap();
+      new ConcurrentHashMap<>(SOY_FILENAMES.size());
 
   protected Renderer(
       Function<String, URL> resourceMapper,
