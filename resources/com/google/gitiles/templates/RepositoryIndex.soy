@@ -88,6 +88,9 @@
 {elseif length($branches) or length($tags)}
   {call .branches_ data="all" /}
   {call .tags_ data="all" /}
+{else}
+  <h1 class="EmptyRepo-header">Empty Repository</h1>
+  <p class="EmptyRepo-description">This repository is empty. Push to it to show branches and history.</p>
 {/if}
 
 {call .footer}
