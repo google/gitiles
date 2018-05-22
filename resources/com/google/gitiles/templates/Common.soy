@@ -110,24 +110,24 @@
  *
  * Please call this in custom variants as well.
  */
-{template .footerPoweredBy}
+{deltemplate gitiles.footerPoweredBy}
 <span class="Footer-poweredBy">
   Powered by <a href="https://gerrit.googlesource.com/gitiles/">Gitiles</a>
 </span>
-{/template}
+{/deltemplate}
 
 /**
  * Footer format badge
  *
  * You can use this in custom footers as well.
  */
-{template .footerFormatBadge}
+{deltemplate gitiles.footerFormatBadge}
 <span class="Footer-formats">
   <a class="u-monospace Footer-formatsItem" href="?format=TEXT">{msg desc="text format"}txt{/msg}</a>
     {sp}
   <a class="u-monospace Footer-formatsItem" href="?format=JSON">{msg desc="JSON format"}json{/msg}</a>
 </span>
-{/template}
+{/deltemplate}
 
 /**
  * Default Footer
@@ -136,8 +136,8 @@
 <!-- default customFooter -->
 <footer class="Site-footer">
   <div class="Footer">
-   {call gitiles.footerPoweredBy /}
-   {call gitiles.footerFormatBadge /}
+   {delcall gitiles.footerPoweredBy /}
+   {delcall gitiles.footerFormatBadge /}
   </div>
 </footer>
 {/deltemplate}
