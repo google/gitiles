@@ -28,14 +28,14 @@ maven_jar(
 
 maven_jar(
     name = "gson",
-    artifact = "com.google.code.gson:gson:2.8.2",
-    sha1 = "3edcfe49d2c6053a70a2a47e4e1c2f94998a49cf",
+    artifact = "com.google.code.gson:gson:2.8.4",
+    sha1 = "d0de1ca9b69e69d1d497ee3c6009d015f64dad57",
 )
 
 maven_jar(
     name = "guava",
-    artifact = "com.google.guava:guava:24.1-jre",
-    sha1 = "96c528475465aeb22cce60605d230a7e67cebd7b",
+    artifact = "com.google.guava:guava:25.0-jre",
+    sha1 = "7319c34fa5866a85b6bad445adad69d402323129",
 )
 
 maven_jar(
@@ -98,8 +98,8 @@ maven_jar(
 
 maven_jar(
     name = "truth",
-    artifact = "com.google.truth:truth:0.39",
-    sha1 = "bd1bf5706ff34eb7ff80fef8b0c4320f112ef899",
+    artifact = "com.google.truth:truth:0.40",
+    sha1 = "0d74e716afec045cc4a178dbbfde2a8314ae5574",
 )
 
 maven_jar(
@@ -116,8 +116,8 @@ maven_jar(
 
 maven_jar(
     name = "protobuf",
-    artifact = "com.google.protobuf:protobuf-java:3.4.0",
-    sha1 = "b32aba0cbe737a4ca953f71688725972e3ee927c",
+    artifact = "com.google.protobuf:protobuf-java:3.5.1",
+    sha1 = "8c3492f7662fa1cbf8ca76a0f5eb1146f7725acd",
 )
 
 maven_jar(
