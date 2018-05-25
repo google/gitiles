@@ -31,7 +31,7 @@ final class SoyConstants {
    * with GIF89a, we ensure the browser doesn't attempt to actually decode it and crash.
    *
    * <p>Based on {@link
-   * com.google.template.soy.shared.restricted.EscapingConventions.FilterImageDataUri}.
+   * com.google.template.soy.shared.internal.EscapingConventions.FilterImageDataUri}.
    */
   static String IMAGE_URI_INNOCUOUS_OUTPUT = "data:image/gif;base64,zSoyz";
 
@@ -44,7 +44,7 @@ final class SoyConstants {
    * document."
    *
    * <p>Based on {@link
-   * com.google.template.soy.shared.restricted.EscapingConventions.FilterNormalizeUri}.
+   * com.google.template.soy.shared.internal.EscapingConventions.FilterNormalizeUri}.
    */
   static String NORMAL_URI_INNOCUOUS_OUTPUT = "about:invalid#zSoyz";
 }
