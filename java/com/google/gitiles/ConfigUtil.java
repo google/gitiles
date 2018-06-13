@@ -60,6 +60,9 @@ public class ConfigUtil {
   public static CacheBuilder<Object, Object> getCacheBuilder(Config config, String name) {
     CacheBuilder<Object, Object> b = CacheBuilder.newBuilder();
     try {
+      if (config.getString("cache", name, "concurrencyLevel") != null) {
+        b.concurrencyLevel(config.getInt("cache", name, "concurrencyLevel", 4));
+      }
       if (config.getString("cache", name, "maximumWeight") != null) {
         b.maximumWeight(config.getLong("cache", name, "maximumWeight", 20 << 20));
       }
