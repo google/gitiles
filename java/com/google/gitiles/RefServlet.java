@@ -14,9 +14,11 @@
 
 package com.google.gitiles;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -74,22 +76,21 @@ public class RefServlet extends BaseServlet {
   @Override
   protected void doGetText(HttpServletRequest req, HttpServletResponse res) throws IOException {
     GitilesView view = ViewFilter.getView(req);
-    Map<String, Ref> refs =
-        getRefs(ServletUtils.getRepository(req).getRefDatabase(), view.getPathPart());
+    RefsResult refs = getRefs(ServletUtils.getRepository(req).getRefDatabase(), view.getPathPart());
     TextRefAdvertiser adv = new TextRefAdvertiser(startRenderText(req, res));
     adv.setDerefTags(true);
-    adv.send(refs);
+    adv.send(refs.refs);
     adv.end();
   }
 
   @Override
   protected void doGetJson(HttpServletRequest req, HttpServletResponse res) throws IOException {
     GitilesView view = ViewFilter.getView(req);
-    Map<String, Ref> refs =
-        getRefs(ServletUtils.getRepository(req).getRefDatabase(), view.getPathPart());
+    RefsResult refs = getRefs(ServletUtils.getRepository(req).getRefDatabase(), view.getPathPart());
     Map<String, RefJsonData> jsonRefs = new LinkedHashMap<>();
-    for (Map.Entry<String, Ref> ref : refs.entrySet()) {
-      jsonRefs.put(ref.getKey(), new RefJsonData(ref.getValue()));
+    int prefixLen = refs.prefix.length();
+    for (Ref ref : refs.refs) {
+      jsonRefs.put(ref.getName().substring(prefixLen), new RefJsonData(ref));
     }
     renderJson(req, res, jsonRefs, new TypeToken<Map<String, RefJsonData>>() {}.getType());
   }
@@ -161,7 +162,8 @@ public class RefServlet extends BaseServlet {
       @Nullable Ref headLeaf,
       int limit)
       throws IOException {
-    Collection<Ref> refs = refdb.getRefs(prefix).values();
+    checkArgument(prefix.endsWith("/"), "ref hierarchy prefix should end with /: %s", prefix);
+    Collection<Ref> refs = refdb.getRefsByPrefix(prefix);
     refs = ordering.leastOf(refs, limit > 0 ? Ints.saturatedCast(limit + 1L) : refs.size());
     List<Map<String, Object>> result = Lists.newArrayListWithCapacity(refs.size());
 
@@ -192,17 +194,28 @@ public class RefServlet extends BaseServlet {
     return refName.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
   }
 
-  private static Map<String, Ref> getRefs(RefDatabase refdb, String path) throws IOException {
+  private static class RefsResult {
+    String prefix;
+    List<Ref> refs;
+
+    RefsResult(String prefix, List<Ref> refs) {
+      this.prefix = prefix;
+      this.refs = refs;
+    }
+  }
+
+  private static RefsResult getRefs(RefDatabase refdb, String path) throws IOException {
     path = GitilesView.maybeTrimLeadingAndTrailingSlash(path);
     if (path.isEmpty()) {
-      return refdb.getRefs(RefDatabase.ALL);
+      return new RefsResult(path, refdb.getRefs());
     }
     path = Constants.R_REFS + path;
     Ref singleRef = refdb.exactRef(path);
     if (singleRef != null) {
-      return ImmutableMap.of(singleRef.getName(), singleRef);
+      return new RefsResult(path, ImmutableList.of(singleRef));
     }
-    return refdb.getRefs(path + '/');
+    path = path + '/';
+    return new RefsResult(path, refdb.getRefsByPrefix(path));
   }
 
   private static class TextRefAdvertiser extends RefAdvertiser {
