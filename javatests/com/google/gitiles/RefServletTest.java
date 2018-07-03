@@ -305,7 +305,10 @@ public class RefServletTest extends ServletTest {
 
   private String peeled(String refName) throws IOException {
     return ObjectId.toString(
-        repo.getRepository().peel(repo.getRepository().exactRef(refName)).getPeeledObjectId());
+        repo.getRepository()
+            .getRefDatabase()
+            .peel(repo.getRepository().exactRef(refName))
+            .getPeeledObjectId());
   }
 
   private Map<String, String> ref(String url, String name) {
