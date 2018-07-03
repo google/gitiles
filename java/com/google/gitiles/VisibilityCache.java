@@ -37,7 +37,6 @@ import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.lib.RefDatabase;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevSort;
@@ -138,7 +137,7 @@ public class VisibilityCache {
 
     // If any reference directly points at the requested object, permit display. Common for displays
     // of pending patch sets in Gerrit Code Review, or bookmarks to the commit a tag points at.
-    Collection<Ref> all = repo.getRefDatabase().getRefs(RefDatabase.ALL).values();
+    Collection<Ref> all = repo.getRefDatabase().getRefs();
     for (Ref ref : all) {
       ref = repo.getRefDatabase().peel(ref);
       if (id.equals(ref.getObjectId()) || id.equals(ref.getPeeledObjectId())) {
