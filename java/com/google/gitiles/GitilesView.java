@@ -112,7 +112,7 @@ public class GitilesView {
         case LOG:
         case DIFF:
           oldRevision = other.oldRevision;
-          //$FALL-THROUGH$
+          // $FALL-THROUGH$
         case PATH:
         case DOC:
         case ROOTED_DOC:
@@ -120,15 +120,15 @@ public class GitilesView {
         case BLAME:
         case SHOW:
           path = other.path;
-          //$FALL-THROUGH$
+          // $FALL-THROUGH$
         case REVISION:
           revision = other.revision;
-          //$FALL-THROUGH$
+          // $FALL-THROUGH$
         case DESCRIBE:
         case REFS:
         case REPOSITORY_INDEX:
           repositoryName = other.repositoryName;
-          //$FALL-THROUGH$
+          // $FALL-THROUGH$
         default:
           break;
       }

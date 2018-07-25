@@ -250,7 +250,7 @@ public class RevisionParserTest {
     assertThat(parser.parse("master:blob")).isNull();
 
     // TestRepository has no simple way of setting the reflog.
-    //assertThat(repo.getRepository().resolve("master@{0}")).isEqualTo(null);
+    // assertThat(repo.getRepository().resolve("master@{0}")).isEqualTo(null);
     assertThat(parser.parse("master@{0}")).isNull();
   }
 
