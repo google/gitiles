@@ -9,9 +9,9 @@ load_bazlets(
 
 load(
     "@com_googlesource_gerrit_bazlets//tools:maven_jar.bzl",
-    "maven_jar",
     "GERRIT",
     "MAVEN_CENTRAL",
+    "maven_jar",
 )
 
 maven_jar(
