@@ -249,7 +249,8 @@ public class RevisionParserTest {
     assertThat(repo.getRepository().resolve("master:blob")).isEqualTo(blob);
     assertThat(parser.parse("master:blob")).isNull();
 
-    // TestRepository has no simple way of setting the reflog.
+    // InMemoryRepository doesn't implement a reflog, so we can't test reflog entries.
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=537972
     // assertThat(repo.getRepository().resolve("master@{0}")).isEqualTo(null);
     assertThat(parser.parse("master@{0}")).isNull();
   }
