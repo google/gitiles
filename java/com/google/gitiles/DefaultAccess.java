@@ -15,6 +15,7 @@
 package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Strings;
@@ -196,7 +197,7 @@ public class DefaultAccess implements GitilesAccess {
     if (desc == null) {
       File descFile = new File(repo.getDirectory(), "description");
       if (descFile.exists()) {
-        desc = new String(IO.readFully(descFile));
+        desc = new String(IO.readFully(descFile), UTF_8);
         if (DEFAULT_DESCRIPTION.equals(CharMatcher.whitespace().trimFrom(desc))) {
           desc = null;
         }
