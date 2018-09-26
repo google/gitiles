@@ -10,12 +10,12 @@ You need to use Java for building Gitiles. You can install Bazel from
 bazel.build: https://bazel.build/versions/master/docs/install.html
 
 ```
-  bazel build //...
+  bazel build //:gitiles
   bazel test //...
 ```
 
 
-## Testing
+## Running Locally and Testing
 
 ```
 cd /path/to/repositories  # Don't run from the gitiles repo.
