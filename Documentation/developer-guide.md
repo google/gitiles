@@ -67,7 +67,7 @@ prior to sending a code review.  There is currently no Eclipse
 formatter, but the tool can be run from the command line:
 
 ```
-java -jar /path/to/google-java-format-1.0-all-deps.jar -i path/to/java/File.java
+java -jar /path/to/google-java-format.jar -i path/to/java/File.java
 ```
 
 CSS in Gitiles follows the [SUIT CSS naming conventions][suit].
