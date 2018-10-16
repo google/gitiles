@@ -1,10 +1,12 @@
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+
 NAME = "com_googlesource_gerrit_bazlets"
 
 def load_bazlets(
         commit = None,
         local_path = None):
     if not local_path:
-        native.git_repository(
+        git_repository(
             name = NAME,
             remote = "https://gerrit.googlesource.com/bazlets",
             commit = commit,
