@@ -3,5 +3,5 @@
 # Used by :install and :deploy when talking to the destination repository. As
 # we currently have no stable releases, we use the "build number" scheme
 # described at:
-# http://mojo.codehaus.org/versions-maven-plugin/version-rules.html
+# https://www.mojohaus.org/versions-maven-plugin/version-rules.html
 GITILES_VERSION = "0.2-6"
