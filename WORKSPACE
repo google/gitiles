@@ -58,6 +58,7 @@ maven_jar(
     sha1 = "5871fb60dc68d67da54a663c3fd636a10a532948",
 )
 
+# When upgrading prettify it should also be updated in plugins/gitiles
 maven_jar(
     name = "prettify",
     artifact = "com.github.twalcari:java-prettify:1.2.2",
