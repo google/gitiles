@@ -16,7 +16,7 @@ versions.check(minimum_bazel_version = "0.17.1")
 load("//tools:bazlets.bzl", "load_bazlets")
 
 load_bazlets(
-    commit = "13330934a0e577d60719551ffb746f64b0bb9637",
+    commit = "bd5e7bafb2bd72a4f84e06f07490b41d2921a65b",
     # local_path = "/home/<user>/projects/bazlets",
 )
 
