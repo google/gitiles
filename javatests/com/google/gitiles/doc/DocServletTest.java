@@ -58,6 +58,48 @@ public class DocServletTest extends ServletTest {
   }
 
   @Test
+  public void simpleSubNavbar() throws Exception {
+    String rootNavbar =
+        "# Site Title\n\n* [Home](index.md)\n* [README](README.md)\n";
+    String subNavbar =
+        "# Subdir Title\n\n* [Sub Home](index.md)\n* [Sub README](README.md)\n";
+    repo.branch("master")
+        .commit()
+        .add("README.md", "# page\n\nof information.")
+        .add("navbar.md", rootNavbar)
+        .add("subdir/README.md", "# subdir page\n\nof information.")
+        .add("subdir/navbar.md", subNavbar)
+        .create();
+
+    String rootReadmeHtml = buildHtml("/repo/+doc/master/README.md");
+    assertThat(rootReadmeHtml).contains("<title>Site Title - page</title>");
+
+    assertThat(rootReadmeHtml).contains("<span class=\"Header-anchorTitle\">Site Title</span>");
+    assertThat(rootReadmeHtml).contains("<li><a href=\"/b/repo/+/master/index.md\">Home</a></li>");
+    assertThat(rootReadmeHtml)
+        .contains("<li><a href=\"/b/repo/+/master/README.md\">README</a></li>");
+    assertThat(rootReadmeHtml)
+        .contains("<h1><a class=\"h\" name=\"page\" href=\"#page\"><span></span></a>page</h1>");
+
+    String subdirReadmeHtml = buildHtml("/repo/+doc/master/subdir/README.md");
+    assertThat(subdirReadmeHtml).contains("<title>Subdir Title - subdir page</title>");
+
+    assertThat(subdirReadmeHtml).contains("<span class=\"Header-anchorTitle\">Subdir Title</span>");
+    assertThat(subdirReadmeHtml)
+        .contains("<li><a href=\"/b/repo/+/master/subdir/index.md\">Sub Home</a></li>");
+    assertThat(subdirReadmeHtml)
+        .contains("<li><a href=\"/b/repo/+/master/subdir/README.md\">Sub README</a></li>");
+    assertThat(subdirReadmeHtml)
+        .contains(
+            "<h1><a class=\"h\" name=\"subdir-page\" href=\"#subdir-page\"><span></span>"
+                + "</a>subdir page</h1>");
+    assertThat(subdirReadmeHtml)
+        .doesNotContain("<li><a href=\"/b/repo/+/master/index.md\">Home</a></li>");
+    assertThat(subdirReadmeHtml)
+        .doesNotContain("<li><a href=\"/b/repo/+/master/README.md\">README</a></li>");
+  }
+
+  @Test
   public void dropsHtml() throws Exception {
     String markdown =
         "# B. Ad\n"
