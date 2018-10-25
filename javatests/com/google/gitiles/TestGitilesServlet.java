@@ -37,6 +37,12 @@ public class TestGitilesServlet {
     return create(repo, new GitwebRedirectFilter());
   }
 
+  /** @see #create(TestRepository) */
+  public static GitilesServlet create(
+      final TestRepository<DfsRepository> repo, GitwebRedirectFilter gitwebRedirect)
+      throws ServletException {
+    return create(repo, gitwebRedirect, null);
+  }
   /**
    * Create a servlet backed by a single test repository.
    *
@@ -48,19 +54,26 @@ public class TestGitilesServlet {
    *
    * @param repo the test repo backing the servlet.
    * @param gitwebRedirect optional redirect filter for gitweb URLs.
+   * @param config optional custom gitiles config
    * @return a servlet.
    */
   public static GitilesServlet create(
-      final TestRepository<DfsRepository> repo, GitwebRedirectFilter gitwebRedirect)
+      final TestRepository<DfsRepository> repo, GitwebRedirectFilter gitwebRedirect, Config config)
       throws ServletException {
     final String repoName = repo.getRepository().getDescription().getRepositoryName();
+
+    GitilesAccess.Factory accessFactory =
+        (config == null)
+            ? new TestGitilesAccess(repo.getRepository())
+            : new TestGitilesAccess(repo.getRepository(), config);
+
     GitilesServlet servlet =
         new GitilesServlet(
             new Config(),
             new DefaultRenderer(
                 GitilesServlet.STATIC_PREFIX, ImmutableList.<URL>of(), repoName + " test site"),
             TestGitilesUrls.URLS,
-            new TestGitilesAccess(repo.getRepository()),
+            accessFactory,
             new RepositoryResolver<HttpServletRequest>() {
               @Override
               public Repository open(HttpServletRequest req, String name)

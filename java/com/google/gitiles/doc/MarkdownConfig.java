@@ -50,6 +50,7 @@ public class MarkdownConfig {
   final boolean safeHtml;
   final boolean smartQuote;
   final boolean strikethrough;
+  final boolean subNavbar;
   final boolean tables;
   final boolean toc;
 
@@ -71,6 +72,7 @@ public class MarkdownConfig {
     safeHtml = cfg.getBoolean("markdown", "safehtml", githubFlavor);
     smartQuote = cfg.getBoolean("markdown", "smartquote", false);
     strikethrough = cfg.getBoolean("markdown", "strikethrough", githubFlavor);
+    subNavbar = cfg.getBoolean("markdown", "subnavbar", false);
     tables = cfg.getBoolean("markdown", "tables", githubFlavor);
     toc = cfg.getBoolean("markdown", "toc", true);
 
@@ -100,6 +102,7 @@ public class MarkdownConfig {
     safeHtml = on("safehtml", p.safeHtml, enable, disable);
     smartQuote = on("smartquote", p.smartQuote, enable, disable);
     strikethrough = on("strikethrough", p.strikethrough, enable, disable);
+    subNavbar = on("subnavbar", p.subNavbar, enable, disable);
     tables = on("tables", p.tables, enable, disable);
     toc = on("toc", p.toc, enable, disable);
 

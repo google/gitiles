@@ -109,7 +109,7 @@ public class DocServlet extends BaseServlet {
         return;
       }
 
-      MarkdownFile navmd = findFile(rw, root, NAVBAR_MD);
+      MarkdownFile navmd = findNavbar(cfg, rw, root, path);
       String curEtag = etag(srcmd, navmd);
       if (etagMatch(req, curEtag)) {
         res.setStatus(SC_NOT_MODIFIED);
@@ -165,6 +165,26 @@ public class DocServlet extends BaseServlet {
     srcmd.id.copyRawTo(b, 0);
     h.putBytes(b);
     return h.hash().toString();
+  }
+
+  private MarkdownFile findNavbar(MarkdownConfig cfg, RevWalk rw, RevTree root, String path)
+      throws IOException {
+    if (cfg.subNavbar && !path.isEmpty()) {
+      // Traverse up the path until we find a NAVBAR_MD.
+      StringBuilder pathRemaining = new StringBuilder(path);
+      while (pathRemaining.length() > 0) {
+        int lastPathSeparatorIndex = pathRemaining.lastIndexOf("/");
+        pathRemaining.setLength(lastPathSeparatorIndex + 1);
+        MarkdownFile navmd = findFile(rw, root, pathRemaining.toString() + NAVBAR_MD);
+        if (navmd != null) {
+          return navmd;
+        }
+        pathRemaining.setLength(Math.max(lastPathSeparatorIndex, 0));
+      }
+      return null;
+    }
+
+    return findFile(rw, root, NAVBAR_MD);
   }
 
   private void showDoc(

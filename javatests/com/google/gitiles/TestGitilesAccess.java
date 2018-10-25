@@ -29,9 +29,15 @@ import org.eclipse.jgit.lib.Config;
 /** Gitiles access for testing. */
 public class TestGitilesAccess implements GitilesAccess.Factory {
   private final DfsRepository repo;
+  private final Config config;
 
   public TestGitilesAccess(DfsRepository repo) {
+    this(repo, createDefaultConfig());
+  }
+
+  public TestGitilesAccess(DfsRepository repo, Config config) {
     this.repo = checkNotNull(repo);
+    this.config = config;
   }
 
   @Override
@@ -77,15 +83,19 @@ public class TestGitilesAccess implements GitilesAccess.Factory {
 
       @Override
       public Config getConfig() {
-        Config config = new Config();
-        config.setBoolean("markdown", null, "blocknote", true);
-        config.setBoolean("markdown", null, "multicolumn", true);
-        config.setBoolean("markdown", null, "namedanchor", true);
-        config.setBoolean("markdown", null, "smartquote", true);
-        config.setStringList(
-            "gitiles", null, "allowOriginRegex", ImmutableList.of("http://localhost"));
-        return config;
+        return new Config(config);
       }
     };
+  }
+
+  public static Config createDefaultConfig() {
+    Config defaultConfig = new Config();
+    defaultConfig.setBoolean("markdown", null, "blocknote", true);
+    defaultConfig.setBoolean("markdown", null, "multicolumn", true);
+    defaultConfig.setBoolean("markdown", null, "namedanchor", true);
+    defaultConfig.setBoolean("markdown", null, "smartquote", true);
+    defaultConfig.setStringList(
+        "gitiles", null, "allowOriginRegex", ImmutableList.of("http://localhost"));
+    return defaultConfig;
   }
 }

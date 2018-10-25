@@ -33,6 +33,7 @@ import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
 import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
 import org.eclipse.jgit.junit.MockSystemReader;
 import org.eclipse.jgit.junit.TestRepository;
+import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.util.SystemReader;
@@ -43,6 +44,7 @@ import org.junit.Before;
 public class ServletTest {
   protected TestRepository<DfsRepository> repo;
   protected GitilesServlet servlet;
+  private Config config;
 
   @Before
   public void setUp() throws Exception {
@@ -50,7 +52,11 @@ public class ServletTest {
     SystemReader.setInstance(mockSystemReader);
     DfsRepository r = new InMemoryRepository(new DfsRepositoryDescription("repo"));
     repo = new TestRepository<>(r, new RevWalk(r), mockSystemReader);
-    servlet = TestGitilesServlet.create(repo);
+    if (config == null) {
+      servlet = TestGitilesServlet.create(repo);
+    } else {
+      servlet = TestGitilesServlet.create(repo, new GitwebRedirectFilter(), config);
+    }
   }
 
   @After
@@ -147,6 +153,10 @@ public class ServletTest {
   protected String currentTimeFormatted() {
     PersonIdent p = new PersonIdent(repo.getRepository());
     return new DateFormatter(Optional.empty(), DateFormatter.Format.ISO).format(p);
+  }
+
+  protected void overrideConfig(Config config) {
+    this.config = config;
   }
 
   protected void assertNotFound(String path, String queryString) throws Exception {
