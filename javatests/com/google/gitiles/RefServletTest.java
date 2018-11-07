@@ -146,6 +146,18 @@ public class RefServletTest extends ServletTest {
   }
 
   @Test
+  public void singleHeadJson() throws Exception {
+    setUpSimpleRefs();
+    Map<String, RefJsonData> result = buildRefJson("/repo/+refs/heads/master");
+
+    assertThat(result.keySet()).containsExactly("refs/heads/master");
+    RefJsonData master = result.get("refs/heads/master");
+    assertThat(master.value).isEqualTo(id("refs/heads/master"));
+    assertThat(master.peeled).isNull();
+    assertThat(master.target).isNull();
+  }
+
+  @Test
   public void singlePeeledTagText() throws Exception {
     setUpSimpleRefs();
     FakeHttpServletResponse res = buildText("/repo/+refs/tags/atag");

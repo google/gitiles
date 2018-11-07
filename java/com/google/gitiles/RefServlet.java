@@ -212,7 +212,7 @@ public class RefServlet extends BaseServlet {
     path = Constants.R_REFS + path;
     Ref singleRef = refdb.exactRef(path);
     if (singleRef != null) {
-      return new RefsResult(path, ImmutableList.of(singleRef));
+      return new RefsResult("", ImmutableList.of(singleRef));
     }
     path = path + '/';
     return new RefsResult(path, refdb.getRefsByPrefix(path));
