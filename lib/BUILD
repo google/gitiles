@@ -17,7 +17,6 @@ package(
     "jsr305",
     "servlet-api_2_5",
     "servlet-api_3_0",
-    "truth",
     "gson",
     "guava",
     "prettify",

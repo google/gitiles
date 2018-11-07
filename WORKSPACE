@@ -116,6 +116,13 @@ maven_jar(
     sha1 = "b5768f644b114e6cf5c3962c2ebcb072f788dcbb",
 )
 
+# Indirect dependency of truth
+maven_jar(
+    name = "diffutils",
+    artifact = "com.googlecode.java-diff-utils:diffutils:1.3.0",
+    sha1 = "7e060dd5b19431e6d198e91ff670644372f60fbd",
+)
+
 maven_jar(
     name = "soy",
     artifact = "com.google.template:soy:2018-03-14",
