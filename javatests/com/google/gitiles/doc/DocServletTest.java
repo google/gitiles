@@ -59,10 +59,8 @@ public class DocServletTest extends ServletTest {
 
   @Test
   public void simpleSubNavbar() throws Exception {
-    String rootNavbar =
-        "# Site Title\n\n* [Home](index.md)\n* [README](README.md)\n";
-    String subNavbar =
-        "# Subdir Title\n\n* [Sub Home](index.md)\n* [Sub README](README.md)\n";
+    String rootNavbar = "# Site Title\n\n* [Home](index.md)\n* [README](README.md)\n";
+    String subNavbar = "# Subdir Title\n\n* [Sub Home](index.md)\n* [Sub README](README.md)\n";
     repo.branch("master")
         .commit()
         .add("README.md", "# page\n\nof information.")

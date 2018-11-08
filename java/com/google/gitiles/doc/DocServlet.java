@@ -167,8 +167,7 @@ public class DocServlet extends BaseServlet {
     return h.hash().toString();
   }
 
-  private MarkdownFile findNavbar(RevWalk rw, RevTree root, String path)
-      throws IOException {
+  private MarkdownFile findNavbar(RevWalk rw, RevTree root, String path) throws IOException {
     if (!Strings.isNullOrEmpty(path)) {
       // Traverse up the path until we find a NAVBAR_MD.
       StringBuilder pathRemaining = new StringBuilder(path);
