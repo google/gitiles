@@ -3,7 +3,9 @@ package com.google.gitiles;
 import static com.google.common.truth.Truth.assertThat;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 
+import com.google.common.collect.ImmutableList;
 import com.google.gitiles.GitilesRequestFailureException.FailureReason;
+import java.net.URL;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -19,7 +21,12 @@ public class DefaultErrorHandlingFilterTest {
 
   @Before
   public void setUp() {
-    mf.serve("*").through(new DefaultErrorHandlingFilter()).with(new TestServlet());
+    mf.serve("*")
+        .through(
+            new DefaultErrorHandlingFilter(
+                new DefaultRenderer(
+                    GitilesServlet.STATIC_PREFIX, ImmutableList.<URL>of(), "test site")))
+        .with(new TestServlet());
   }
 
   @Test

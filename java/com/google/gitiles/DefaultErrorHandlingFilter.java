@@ -13,12 +13,12 @@
 // limitations under the License.
 package com.google.gitiles;
 
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
-import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
-import static org.eclipse.jgit.http.server.GitSmartHttpTools.sendError;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.gitiles.GitilesRequestFailureException.FailureReason;
 import java.io.IOException;
+import java.util.Map;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -36,28 +36,56 @@ public class DefaultErrorHandlingFilter extends AbstractHttpFilter {
   /** HTTP header that indicates an error detail. */
   public static final String GITILES_ERROR = "X-Gitiles-Error";
 
+  private Renderer renderer;
+
+  public DefaultErrorHandlingFilter(Renderer renderer) {
+    this.renderer = renderer;
+  }
+
   @Override
   public void doFilter(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
       throws IOException, ServletException {
+    int status = -1;
+    String message = null;
     try {
       chain.doFilter(req, res);
     } catch (GitilesRequestFailureException e) {
       res.setHeader(GITILES_ERROR, e.getReason().toString());
-      String publicMessage = e.getPublicErrorMessage();
-      if (publicMessage != null) {
-        res.sendError(e.getReason().getHttpStatusCode(), publicMessage);
-      } else {
-        res.sendError(e.getReason().getHttpStatusCode());
-      }
+      status = e.getReason().getHttpStatusCode();
+      message = e.getPublicErrorMessage();
     } catch (RepositoryNotFoundException e) {
-      res.sendError(SC_NOT_FOUND);
+      status = FailureReason.REPOSITORY_NOT_FOUND.getHttpStatusCode();
+      message = FailureReason.REPOSITORY_NOT_FOUND.getMessage();
     } catch (AmbiguousObjectException e) {
-      res.sendError(SC_BAD_REQUEST);
+      status = FailureReason.AMBIGUOUS_OBJECT.getHttpStatusCode();
+      message = FailureReason.AMBIGUOUS_OBJECT.getMessage();
     } catch (ServiceMayNotContinueException e) {
-      sendError(req, res, e.getStatusCode(), e.getMessage());
+      status = e.getStatusCode();
+      message = e.getMessage();
     } catch (IOException | ServletException err) {
       log.warn("Internal server error", err);
-      res.sendError(SC_INTERNAL_SERVER_ERROR);
+      status = FailureReason.INTERNAL_SERVER_ERROR.getHttpStatusCode();
+      message = FailureReason.INTERNAL_SERVER_ERROR.getMessage();
     }
+    if (status != -1) {
+      res.setStatus(status);
+      renderHtml(req, res, "gitiles.error", ImmutableMap.of("title", message));
+    }
+  }
+
+  protected void renderHtml(
+      HttpServletRequest req, HttpServletResponse res, String templateName, Map<String, ?> soyData)
+      throws IOException {
+    renderer.render(req, res, templateName, startHtmlResponse(req, res, soyData));
+  }
+
+  private Map<String, ?> startHtmlResponse(
+      HttpServletRequest req, HttpServletResponse res, Map<String, ?> soyData) throws IOException {
+    res.setContentType(FormatType.HTML.getMimeType());
+    res.setCharacterEncoding(UTF_8.name());
+    BaseServlet.setNotCacheable(res);
+    Map<String, Object> allData = BaseServlet.getData(req);
+    allData.putAll(soyData);
+    return allData;
   }
 }

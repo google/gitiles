@@ -420,7 +420,7 @@ class GitilesFilter extends MetaFilter {
 
   private void setDefaultErrorHandler() {
     if (errorHandler == null) {
-      errorHandler = new DefaultErrorHandlingFilter();
+      errorHandler = new DefaultErrorHandlingFilter(renderer);
     }
   }
 
