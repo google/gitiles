@@ -1,3 +1,5 @@
+load("@com_googlesource_gerrit_bazlets//tools:junit.bzl", "junit_tests")
+
 DEPS = [
     "//lib:gson",
     "//lib:guava",
@@ -21,8 +23,6 @@ java_library(
         "//lib/junit",
     ],
 )
-
-load("@com_googlesource_gerrit_bazlets//tools:junit.bzl", "junit_tests")
 
 junit_tests(
     name = "servlet_tests",
