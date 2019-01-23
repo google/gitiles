@@ -1,3 +1,6 @@
+load("@com_googlesource_gerrit_bazlets//tools:javadoc.bzl", "java_doc")
+load("//tools:stamper.bzl", "stamp")
+
 DEPS = [
     "//lib:autolink",
     "//lib:commons-lang3",
@@ -40,8 +43,6 @@ java_library(
     ],
 )
 
-load("@com_googlesource_gerrit_bazlets//tools:javadoc.bzl", "java_doc")
-
 java_doc(
     name = "servlet-javadoc",
     libs = DEPS + [
@@ -51,8 +52,6 @@ java_doc(
     title = "Gitiles API Documentation",
     visibility = ["//visibility:public"],
 )
-
-load("//tools:stamper.bzl", "stamp")
 
 stamp(
     name = "servlet",
