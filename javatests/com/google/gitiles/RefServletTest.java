@@ -242,9 +242,10 @@ public class RefServletTest extends ServletTest {
     repo.branch("refs/nope/quux").commit().create();
 
     assertThat(buildBranchesSoyData())
-        .containsExactly(ref("/b/test/+/bar", "bar"), ref("/b/test/+/foo", "foo"))
+        .containsExactly(
+            ref("/b/test/+/refs/heads/bar", "bar"), ref("/b/test/+/refs/heads/foo", "foo"))
         .inOrder();
-    assertThat(buildTagsSoyData()).containsExactly(ref("/b/test/+/baz", "baz")).inOrder();
+    assertThat(buildTagsSoyData()).containsExactly(ref("/b/test/+/refs/tags/baz", "baz")).inOrder();
   }
 
   @Test
@@ -254,14 +255,10 @@ public class RefServletTest extends ServletTest {
     repo.branch("refs/tags/foo").commit().create();
 
     assertThat(buildBranchesSoyData())
-        .containsExactly(ref("/b/test/+/bar", "bar"), ref("/b/test/+/refs/heads/foo", "foo"))
-        .inOrder();
-    assertThat(buildTagsSoyData())
         .containsExactly(
-            // refs/tags/ is searched before refs/heads/, so this does not
-            // appear ambiguous.
-            ref("/b/test/+/foo", "foo"))
+            ref("/b/test/+/refs/heads/bar", "bar"), ref("/b/test/+/refs/heads/foo", "foo"))
         .inOrder();
+    assertThat(buildTagsSoyData()).containsExactly(ref("/b/test/+/refs/tags/foo", "foo")).inOrder();
   }
 
   @Test
@@ -283,7 +280,7 @@ public class RefServletTest extends ServletTest {
 
     assertThat(buildBranchesSoyData())
         .containsExactly(
-            ref("/b/test/+/foo", "foo"),
+            ref("/b/test/+/refs/heads/foo", "foo"),
             ref("/b/test/+/refs/heads/refs/heads/foo", "refs/heads/foo"))
         .inOrder();
   }
