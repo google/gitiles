@@ -15,21 +15,19 @@
 
 /**
  * Detail page about a single revision.
- *
- * @param title human-readable revision name.
- * @param repositoryName name of this repository.
- * @param? menuEntries menu entries.
- * @param? customVariant variant name for styling.
- * @param breadcrumbs breadcrumbs for this page.
- * @param? hasBlob set to true if the revision or its peeled value is a blob.
- * @param? hasReadme set to true if the treeDetail has readmeHtml.
- * @param objects list of objects encountered when peeling this object. Each
- *     object has a "type" key with one of the
- *     org.eclipse.jgit.lib.Contants.TYPE_* constant strings, and a "data" key
- *     with an object whose keys correspond to the appropriate object detail
- *     template from ObjectDetail.soy.
  */
 {template .revisionDetail stricthtml="false"}
+  {@param title: ?}  /** human-readable revision name. */
+  {@param repositoryName: ?}  /** name of this repository. */
+  {@param? menuEntries: ?}  /** menu entries. */
+  {@param? customVariant: ?}  /** variant name for styling. */
+  {@param breadcrumbs: ?}  /** breadcrumbs for this page. */
+  {@param? hasBlob: ?}  /** set to true if the revision or its peeled value is a blob. */
+  {@param? hasReadme: ?}  /** set to true if the treeDetail has readmeHtml. */
+  {@param objects: ?}  /** list of objects encountered when peeling this object. Each object has a
+      "type" key with one of the org.eclipse.jgit.lib.Contants.TYPE_* constant strings, and a "data"
+      key with an object whose keys correspond to the appropriate object detail template from
+      ObjectDetail.soy. */
 {if $hasBlob}
   {call .header data="all"}
     {param css: [gitiles.PRETTIFY_CSS_URL] /}

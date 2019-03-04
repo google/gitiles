@@ -15,16 +15,15 @@
 
 /**
  * Detail page showing diffs for a single commit.
- *
- * @param title human-readable revision name.
- * @param repositoryName name of this repository.
- * @param? menuEntries menu entries.
- * @param? customVariant variant name for custom styling.
- * @param breadcrumbs breadcrumbs for this page.
- * @param? commit optional commit for which diffs are displayed, with keys
- *     corresponding to the gitiles.commitDetail template (minus "diffTree").
  */
 {template .diffDetail stricthtml="false"}
+  {@param title: ?}  /** human-readable revision name. */
+  {@param repositoryName: ?}  /** name of this repository. */
+  {@param? menuEntries: ?}  /** menu entries. */
+  {@param? customVariant: ?}  /** variant name for custom styling. */
+  {@param breadcrumbs: ?}  /** breadcrumbs for this page. */
+  {@param? commit: ?}  /** optional commit for which diffs are displayed, with keys corresponding to
+      the gitiles.commitDetail template (minus "diffTree"). */
 {call .header data="all" /}
 
 {if $commit}
@@ -39,13 +38,12 @@
 
 /**
  * File header for a single unified diff patch.
- *
- * @param firstParts parts of the first line of the header, with "text" and
- *     optional "url" fields.
- * @param rest remaining lines of the header, if any.
- * @param fileIndex position of the file within the difference.
  */
 {template .diffHeader}
+  {@param firstParts: ?}  /** parts of the first line of the header, with "text" and optional "url"
+      fields. */
+  {@param rest: ?}  /** remaining lines of the header, if any. */
+  {@param fileIndex: ?}  /** position of the file within the difference. */
 <pre class="u-pre u-monospace Diff">
   <a name="F{$fileIndex}" class="Diff-fileIndex"></a>
   {for $part in $firstParts}

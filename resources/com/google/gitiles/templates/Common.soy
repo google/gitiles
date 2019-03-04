@@ -15,18 +15,17 @@
 
 /**
  * Common header for Gitiles.
- *
- * @param title title for this page. Always suffixed with repository name and a
- *     sitewide title.
- * @param? repositoryName repository name for this page, if applicable.
- * @param? menuEntries optional list of menu entries with "text" and optional
- *     "url" keys.
- * @param? customVariant variant name for custom styling.
- * @param breadcrumbs navigation breadcrumbs for this page.
- * @param? css optional list of CSS URLs to include.
- * @param? containerClass optional class to append to the main container.
  */
 {template .header stricthtml="false"}
+  {@param title: ?}  /** title for this page. Always suffixed with repository name and a sitewide
+      title. */
+  {@param? repositoryName: ?}  /** repository name for this page, if applicable. */
+  {@param? menuEntries: ?}  /** optional list of menu entries with "text" and optional "url" keys.
+      */
+  {@param? customVariant: ?}  /** variant name for custom styling. */
+  {@param breadcrumbs: ?}  /** navigation breadcrumbs for this page. */
+  {@param? css: ?}  /** optional list of CSS URLs to include. */
+  {@param? containerClass: ?}  /** optional class to append to the main container. */
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -147,10 +146,9 @@
  *
  * The footer tag part can be customized by creating a customFooter
  * variant template.
- *
- * @param? customVariant variant name for custom styling.
  */
 {template .footer stricthtml="false"}
+  {@param? customVariant: ?}  /** variant name for custom styling. */
     </div> <!-- Container -->
   </div> <!-- Site-content -->
   {delcall gitiles.customFooter variant="$customVariant ?: ''" /}

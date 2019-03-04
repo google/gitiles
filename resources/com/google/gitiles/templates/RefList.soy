@@ -16,15 +16,14 @@
 
 /**
  * List of all refs in a repository.
- *
- * @param repositoryName name of this repository.
- * @param? menuEntries menu entries.
- * @param? customVariant variant name for custom styling.
- * @param breadcrumbs breadcrumbs for this page.
- * @param branches list of branch objects with url, name, and isHead keys.
- * @param tags list of tag objects with url and name keys.
  */
 {template .refsDetail stricthtml="false"}
+  {@param repositoryName: ?}  /** name of this repository. */
+  {@param? menuEntries: ?}  /** menu entries. */
+  {@param? customVariant: ?}  /** variant name for custom styling. */
+  {@param breadcrumbs: ?}  /** breadcrumbs for this page. */
+  {@param branches: ?}  /** list of branch objects with url, name, and isHead keys. */
+  {@param tags: ?}  /** list of tag objects with url and name keys. */
 {call .header}
   {param title: 'Refs' /}
   {param repositoryName: $repositoryName /}
@@ -56,11 +55,10 @@
 
 /**
  * List of a single type of refs
- *
- * @param type name of this type of refs, e.g. "Branches"
- * @param refs list of branch objects with url, name, and optional isHead keys.
  */
 {template .refList}
+  {@param type: ?}  /** name of this type of refs, e.g. "Branches" */
+  {@param refs: ?}  /** list of branch objects with url, name, and optional isHead keys. */
   <div class="RefList">
     <h3 class="RefList-title">{$type}</h3>
     <ul class="RefList-items">

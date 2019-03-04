@@ -15,18 +15,17 @@
 
 /**
  * Detail page for a path within a tree.
- *
- * @param title human-readable name of this path.
- * @param repositoryName name of this repository.
- * @param? menuEntries menu entries.
- * @param? customVariant variant name for custom styling.
- * @param breadcrumbs breadcrumbs for this page.
- * @param type path type, matching one of the constant names defined in
- *         org.eclipse.jgit.lib.FileMode.
- * @param data path data, matching the params for one of .treeDetail,
- *     .blobDetail, .symlinkDetail, or .gitlinkDetail as appropriate.
  */
 {template .pathDetail stricthtml="false"}
+  {@param title: ?}  /** human-readable name of this path. */
+  {@param repositoryName: ?}  /** name of this repository. */
+  {@param? menuEntries: ?}  /** menu entries. */
+  {@param? customVariant: ?}  /** variant name for custom styling. */
+  {@param breadcrumbs: ?}  /** breadcrumbs for this page. */
+  {@param type: ?}  /** path type, matching one of the constant names defined in
+      org.eclipse.jgit.lib.FileMode. */
+  {@param data: ?}  /** path data, matching the params for one of .treeDetail, .blobDetail,
+      .symlinkDetail, or .gitlinkDetail as appropriate. */
 {if $type == 'REGULAR_FILE' or $type == 'EXECUTABLE_FILE'}
   {call .header data="all"}
     {param css: [gitiles.PRETTIFY_CSS_URL] /}
@@ -58,11 +57,10 @@
 
 /**
  * Detail for a symbolic link.
- *
- * @param target target of this symlink.
- * @param? targetUrl optional URL for the target, if it is within this repo.
  */
 {template .symlinkDetail}
+  {@param target: ?}  /** target of this symlink. */
+  {@param? targetUrl: ?}  /** optional URL for the target, if it is within this repo. */
 <div class="symlink-detail">
   {msg desc="Lead-in text for the symbolic link target."}Symbolic link to{/msg}
   {sp}{if $targetUrl}<a href="{$targetUrl}">{$target}</a>{else}{$target}{/if}
@@ -71,13 +69,12 @@
 
 /**
  * Detail for a git submodule link.
- *
- * @param sha submodule commit SHA.
- * @param remoteUrl URL of the remote repository.
- * @param? httpUrl optional HTTP URL pointing to a web-browser-compatible URL of
- *     the remote repository.
  */
 {template .gitlinkDetail}
+  {@param sha: ?}  /** submodule commit SHA. */
+  {@param remoteUrl: ?}  /** URL of the remote repository. */
+  {@param? httpUrl: ?}  /** optional HTTP URL pointing to a web-browser-compatible URL of the remote
+      repository. */
 <div class="gitlink-detail">
   {msg desc="Lead-in text for the git link URL"}Submodule link to {$sha} of{/msg}
   {if $remoteUrl}
