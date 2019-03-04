@@ -15,12 +15,11 @@
 
 /**
  * Default Doc Footer
- *
- * @param? sourceUrl url for source view of the page.
- * @param? logUrl url for log history of page.
- * @param? blameUrl url for blame of page source.
  */
 {deltemplate gitiles.customDocFooter}
+  {@param? sourceUrl: ?}  /** url for source view of the page. */
+  {@param? logUrl: ?}  /** url for log history of page. */
+  {@param? blameUrl: ?}  /** url for blame of page source. */
 <!-- default customDocFooter -->
 <footer class="Site-footer">
   <div class="Footer">
@@ -36,16 +35,15 @@
 
 /**
  * Documentation page rendered from markdown.
- *
- * @param? siteTitle h1 title from navbar.md.
- * @param pageTitle h1 title from specific page.
- * @param? logoUrl url of image logo.
- * @param? homeUrl url to jump to top of site.
- * @param? analyticsId Google Analytics Property ID.
- * @param? navbarHtml navar.md converted to SafeHtml.
- * @param? customVariant variant name for custom styling.
  */
 {template .markdownDoc}
+  {@param? siteTitle: ?}  /** h1 title from navbar.md. */
+  {@param pageTitle: ?}  /** h1 title from specific page. */
+  {@param? logoUrl: ?}  /** url of image logo. */
+  {@param? homeUrl: ?}  /** url to jump to top of site. */
+  {@param? analyticsId: ?}  /** Google Analytics Property ID. */
+  {@param? navbarHtml: ?}  /** navar.md converted to SafeHtml. */
+  {@param? customVariant: ?}  /** variant name for custom styling. */
 <!DOCTYPE html>
 <html lang="en">
 <head>

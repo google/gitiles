@@ -15,16 +15,15 @@
 
 /**
  * HTML page for /.
- *
- * @param hostName host name.
- * @param? menuEntries menu entries.
- * @param? customVariant variant name for custom styling.
- * @param? prefix prefix path for matching repositories.
- * @param? breadcrumbs map of breadcrumbs for header.
- * @param repositories list of repository description maps with name, cloneUrl,
- *     and optional description values.
  */
 {template .hostIndex stricthtml="false"}
+  {@param hostName: ?}  /** host name. */
+  {@param? menuEntries: ?}  /** menu entries. */
+  {@param? customVariant: ?}  /** variant name for custom styling. */
+  {@param? prefix: ?}  /** prefix path for matching repositories. */
+  {@param? breadcrumbs: ?}  /** map of breadcrumbs for header. */
+  {@param repositories: ?}  /** list of repository description maps with name, cloneUrl, and
+      optional description values. */
 {call .header}
   {param title: $prefix ? $prefix : $hostName ? $hostName + ' Git repositories' : 'Git repositories' /}
   {param menuEntries: $menuEntries /}

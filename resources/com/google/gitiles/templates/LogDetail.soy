@@ -15,16 +15,15 @@
 
 /**
  * Detail page showing a shortlog for a commit.
- *
- * @param title human-readable revision name.
- * @param repositoryName name of this repository.
- * @param? menuEntries menu entries.
- * @param? customVariant variant name for custom styling.
- * @param breadcrumbs breadcrumbs for this page.
- * @param? tags optional list of tags encountered when peeling this object, with
- *     keys corresponding to gitiles.tagDetail.
  */
 {template .logDetail stricthtml="false"}
+  {@param title: ?}  /** human-readable revision name. */
+  {@param repositoryName: ?}  /** name of this repository. */
+  {@param? menuEntries: ?}  /** menu entries. */
+  {@param? customVariant: ?}  /** variant name for custom styling. */
+  {@param breadcrumbs: ?}  /** breadcrumbs for this page. */
+  {@param? tags: ?}  /** optional list of tags encountered when peeling this object, with keys
+      corresponding to gitiles.tagDetail. */
 {call .header data="all" /}
 
 {if $tags}
@@ -43,10 +42,9 @@
 
 /**
  * Header for list of log entries.
- *
- * @param? previousUrl URL for the previous page of results.
  */
 {template .logEntriesHeader stricthtml="false"}
+  {@param? previousUrl: ?}  /** URL for the previous page of results. */
 {if $previousUrl}
   <nav class="LogNav">
     <a class="LogNav-prev" href="{$previousUrl}">{msg desc="text for previous URL"}&laquo; Previous{/msg}</a>
@@ -59,11 +57,10 @@
 
 /**
  * Wrapper for a single log entry with pretty format and variant.
- *
- * @param variant variant name for log entry template.
- * @param entry log entry; see .logEntry.
  */
 {template .logEntryWrapper}
+  {@param variant: ?}  /** variant name for log entry template. */
+  {@param entry: ?}  /** log entry; see .logEntry. */
 <li class="CommitLog-item CommitLog-item--{$variant}">
   {delcall gitiles.logEntry variant="$variant ?: 'default'" data="$entry" /}
 </li>
@@ -72,11 +69,10 @@
 
 /**
  * Footer for the list of log entries.
- *
- * @param? nextUrl URL for the next page of results.
- * @param? nextText text for next page link.
  */
 {template .logEntriesFooter stricthtml="false"}
+  {@param? nextUrl: ?}  /** URL for the next page of results. */
+  {@param? nextText: ?}  /** text for next page link. */
 </ol>
 {if $nextUrl}
   <nav class="LogNav">
@@ -96,26 +92,23 @@
 
 /**
  * Single pretty log entry, similar to --pretty=oneline.
- *
- * @param abbrevSha abbreviated SHA-1.
- * @param sha commit SHA-1.
- * @param url URL to commit detail page.
- * @param shortMessage short commit message.
- * @param message list of commit message parts, where each part contains:
- *     text: raw text of the part.
- *     url: optional URL that should be linked to from the part.
- * @param author author information with at least "name" and "relativeTime" keys.
- * @param committer committer information with at least "time" and "relativeTime" keys.
- * @param branches list of branches for this entry, with "name" and "url" keys.
- * @param tags list of tags for this entry, with "name" and "url" keys.
- * @param diffTree unused in this variant.
- * @param rename if this entry was a rename or a copy of the path, an object containg:
- *     changeType: the change type, "RENAME" or "COPY".
- *     oldPath: the old path prior to the rename or copy.
- *     newPath: the new path after the rename or copy.
- *     score: the similarity score of the rename or copy.
  */
 {deltemplate gitiles.logEntry variant="'oneline'"}
+  {@param abbrevSha: ?}  /** abbreviated SHA-1. */
+  {@param sha: ?}  /** commit SHA-1. */
+  {@param url: ?}  /** URL to commit detail page. */
+  {@param shortMessage: ?}  /** short commit message. */
+  {@param message: ?}  /** list of commit message parts, where each part contains: text: raw text of
+      the part. url: optional URL that should be linked to from the part. */
+  {@param author: ?}  /** author information with at least "name" and "relativeTime" keys. */
+  {@param committer: ?}  /** committer information with at least "time" and "relativeTime" keys. */
+  {@param branches: ?}  /** list of branches for this entry, with "name" and "url" keys. */
+  {@param tags: ?}  /** list of tags for this entry, with "name" and "url" keys. */
+  {@param diffTree: ?}  /** unused in this variant. */
+  {@param rename: ?}  /** if this entry was a rename or a copy of the path, an object containg:
+      changeType: the change type, "RENAME" or "COPY". oldPath: the old path prior to the rename or
+      copy. newPath: the new path after the rename or copy. score: the similarity score of the
+      rename or copy. */
 <a class="u-sha1 u-monospace CommitLog-sha1" href="{$url}">{$abbrevSha}</a>
 {sp}<a href="{$url}">{$shortMessage}</a>
 {sp}<span class="CommitLog-author" title="{$author.email}">{msg desc="commit author name"}by {$author.name}{/msg}</span>
@@ -152,52 +145,46 @@
 
 /**
  * Default single log entry (oneline format).
- *
- * @param abbrevSha abbreviated SHA-1.
- * @param sha commit SHA-1.
- * @param url URL to commit detail page.
- * @param shortMessage short commit message.
- * @param message list of commit message parts, where each part contains:
- *     text: raw text of the part.
- *     url: optional URL that should be linked to from the part.
- * @param author author information with at least "name" and "relativeTime" keys.
- * @param committer committer information with at least "time" and "relativeTime" keys.
- * @param branches list of branches for this entry, with "name" and "url" keys.
- * @param tags list of tags for this entry, with "name" and "url" keys.
- * @param diffTree unused in this variant.
- * @param rename if this entry was a rename or a copy of the path, an object containg:
- *     changeType: the change type, "RENAME" or "COPY".
- *     oldPath: the old path prior to the rename or copy.
- *     newPath: the new path after the rename or copy.
- *     score: the similarity score of the rename or copy.
  */
 {deltemplate gitiles.logEntry variant="'default'"}
+  {@param abbrevSha: ?}  /** abbreviated SHA-1. */
+  {@param sha: ?}  /** commit SHA-1. */
+  {@param url: ?}  /** URL to commit detail page. */
+  {@param shortMessage: ?}  /** short commit message. */
+  {@param message: ?}  /** list of commit message parts, where each part contains: text: raw text of
+      the part. url: optional URL that should be linked to from the part. */
+  {@param author: ?}  /** author information with at least "name" and "relativeTime" keys. */
+  {@param committer: ?}  /** committer information with at least "time" and "relativeTime" keys. */
+  {@param branches: ?}  /** list of branches for this entry, with "name" and "url" keys. */
+  {@param tags: ?}  /** list of tags for this entry, with "name" and "url" keys. */
+  {@param diffTree: ?}  /** unused in this variant. */
+  {@param rename: ?}  /** if this entry was a rename or a copy of the path, an object containg:
+      changeType: the change type, "RENAME" or "COPY". oldPath: the old path prior to the rename or
+      copy. newPath: the new path after the rename or copy. score: the similarity score of the
+      rename or copy. */
 {delcall gitiles.logEntry variant="'oneline'" data="all" /}
 {/deltemplate}
 
 
 /**
  * Single pretty log entry, similar to --pretty=full.
- *
- * @param abbrevSha abbreviated SHA-1.
- * @param sha commit SHA-1.
- * @param url URL to commit detail page.
- * @param shortMessage short commit message.
- * @param message list of commit message parts, where each part contains:
- *     text: raw text of the part.
- *     url: optional URL that should be linked to from the part.
- * @param author author information with at least "name" and "relativeTime" keys.
- * @param committer committer information with at least "time" and "relativeTime" keys.
- * @param branches list of branches for this entry, with "name" and "url" keys.
- * @param tags list of tags for this entry, with "name" and "url" keys.
- * @param diffTree unused in this variant.
- * @param rename if this entry was a rename or a copy of the path, an object containg:
- *     changeType: the change type, "RENAME" or "COPY".
- *     oldPath: the old path prior to the rename or copy.
- *     newPath: the new path after the rename or copy.
- *     score: the similarity score of the rename or copy.
  */
 {deltemplate gitiles.logEntry variant="'full'"}
+  {@param abbrevSha: ?}  /** abbreviated SHA-1. */
+  {@param sha: ?}  /** commit SHA-1. */
+  {@param url: ?}  /** URL to commit detail page. */
+  {@param shortMessage: ?}  /** short commit message. */
+  {@param message: ?}  /** list of commit message parts, where each part contains: text: raw text of
+      the part. url: optional URL that should be linked to from the part. */
+  {@param author: ?}  /** author information with at least "name" and "relativeTime" keys. */
+  {@param committer: ?}  /** committer information with at least "time" and "relativeTime" keys. */
+  {@param branches: ?}  /** list of branches for this entry, with "name" and "url" keys. */
+  {@param tags: ?}  /** list of tags for this entry, with "name" and "url" keys. */
+  {@param diffTree: ?}  /** unused in this variant. */
+  {@param rename: ?}  /** if this entry was a rename or a copy of the path, an object containg:
+      changeType: the change type, "RENAME" or "COPY". oldPath: the old path prior to the rename or
+      copy. newPath: the new path after the rename or copy. score: the similarity score of the
+      rename or copy. */
 <div class="u-monospace Metadata">
 <table>
   <tr>

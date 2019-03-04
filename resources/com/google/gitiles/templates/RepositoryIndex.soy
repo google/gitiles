@@ -15,22 +15,21 @@
 
 /**
  * Index page for a repository.
- *
- * @param repositoryName name of this repository.
- * @param? menuEntries menu entries.
- * @param? customVariant variant name for custom styling.
- * @param breadcrumbs breadcrumbs for this page.
- * @param cloneUrl clone URL for this repository.
- * @param description description text of the repository.
- * @param? mirroredFromUrl URL this repository is mirrored from.
- * @param branches list of branch objects with url, name, and isHead keys.
- * @param? moreBranchesUrl URL to show more branches, if necessary.
- * @param tags list of tag objects with url and name keys.
- * @param? moreTagsUrl URL to show more branches, if necessary.
- * @param hasLog whether a log should be shown for HEAD.
- * @param? readmeHtml optional rendered README.md contents.
  */
 {template .repositoryIndex stricthtml="false"}
+  {@param repositoryName: ?}  /** name of this repository. */
+  {@param? menuEntries: ?}  /** menu entries. */
+  {@param? customVariant: ?}  /** variant name for custom styling. */
+  {@param breadcrumbs: ?}  /** breadcrumbs for this page. */
+  {@param cloneUrl: ?}  /** clone URL for this repository. */
+  {@param description: ?}  /** description text of the repository. */
+  {@param? mirroredFromUrl: ?}  /** URL this repository is mirrored from. */
+  {@param branches: ?}  /** list of branch objects with url, name, and isHead keys. */
+  {@param? moreBranchesUrl: ?}  /** URL to show more branches, if necessary. */
+  {@param tags: ?}  /** list of tag objects with url and name keys. */
+  {@param? moreTagsUrl: ?}  /** URL to show more branches, if necessary. */
+  {@param hasLog: ?}  /** whether a log should be shown for HEAD. */
+  {@param? readmeHtml: ?}  /** optional rendered README.md contents. */
 {if $readmeHtml}
   {call .header data="all"}
     {param title: $repositoryName /}
@@ -100,11 +99,10 @@
 
 /**
  * List of branches.
- *
- * @param? branches list of branch objects with url and name keys.
- * @param? moreBranchesUrl URL to show more branches, if necessary.
  */
 {template .branches_ visibility="private"}
+  {@param? branches: ?}  /** list of branch objects with url and name keys. */
+  {@param? moreBranchesUrl: ?}  /** URL to show more branches, if necessary. */
   {if length($branches)}
     {call .refList}
       {param type: 'Branches' /}
@@ -118,11 +116,10 @@
 
 /**
  * List of tags.
- *
- * @param? tags list of branch objects with url and name keys.
- * @param? moreTagsUrl URL to show more tags, if necessary.
  */
 {template .tags_ visibility="private"}
+  {@param? tags: ?}  /** list of branch objects with url and name keys. */
+  {@param? moreTagsUrl: ?}  /** URL to show more tags, if necessary. */
   {if length($tags)}
     {call .refList}
       {param type: 'Tags' /}
