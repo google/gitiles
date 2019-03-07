@@ -122,7 +122,7 @@ public class RevisionServlet extends BaseServlet {
                       "type",
                       Constants.TYPE_TAG,
                       "data",
-                      new TagSoyData(linkifier, req).toSoyData((RevTag) obj, df)));
+                      new TagSoyData(linkifier, req).toSoyData(walk, (RevTag) obj, df)));
               break;
             default:
               log.warn("Bad object type for {}: {}", ObjectId.toString(obj.getId()), obj.getType());

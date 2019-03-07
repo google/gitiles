@@ -60,6 +60,8 @@ public class TimeCache {
           () -> {
             RevObject o = walk.parseAny(id);
             while (o instanceof RevTag) {
+              walk.parseBody(o);
+
               RevTag tag = (RevTag) o;
               PersonIdent ident = tag.getTaggerIdent();
               if (ident != null) {

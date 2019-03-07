@@ -110,7 +110,7 @@ public class LogServlet extends BaseServlet {
         List<Map<String, Object>> tags = Lists.newArrayListWithExpectedSize(1);
         for (RevObject o : RevisionServlet.listObjects(paginator.getWalk(), view.getRevision())) {
           if (o instanceof RevTag) {
-            tags.add(new TagSoyData(linkifier, req).toSoyData((RevTag) o, df));
+            tags.add(new TagSoyData(linkifier, req).toSoyData(paginator.getWalk(), (RevTag) o, df));
           }
         }
         if (!tags.isEmpty()) {
