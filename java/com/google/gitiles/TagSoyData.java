@@ -15,10 +15,13 @@
 package com.google.gitiles;
 
 import com.google.common.collect.Maps;
+import java.io.IOException;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
+import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevTag;
+import org.eclipse.jgit.revwalk.RevWalk;
 
 /** Soy data converter for git tags. */
 public class TagSoyData {
@@ -30,7 +33,10 @@ public class TagSoyData {
     this.req = req;
   }
 
-  public Map<String, Object> toSoyData(RevTag tag, DateFormatter df) {
+  public Map<String, Object> toSoyData(RevWalk walk, RevTag tag, DateFormatter df)
+      throws MissingObjectException, IOException {
+    walk.parseBody(tag);
+
     Map<String, Object> data = Maps.newHashMapWithExpectedSize(4);
     data.put("sha", ObjectId.toString(tag));
     if (tag.getTaggerIdent() != null) {
