@@ -23,7 +23,6 @@ import com.google.gitiles.CommitData.Field;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
-import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.lib.PersonIdent;
@@ -70,20 +69,15 @@ public class CommitJsonData {
     Integer score;
   }
 
-  private RevWalk walk;
-
-  CommitJsonData setRevWalk(@Nullable RevWalk walk) {
-    this.walk = walk;
-    return this;
-  }
-
-  Commit toJsonData(HttpServletRequest req, RevCommit c, DateFormatter df) throws IOException {
-    return toJsonData(req, c, DEFAULT_FIELDS, df);
-  }
-
-  Commit toJsonData(HttpServletRequest req, RevCommit c, Set<Field> fs, DateFormatter df)
+  Commit toJsonData(HttpServletRequest req, RevWalk walk, RevCommit c, DateFormatter df)
       throws IOException {
-    CommitData cd = new CommitData.Builder().setRevWalk(walk).build(req, c, fs);
+    return toJsonData(req, walk, c, DEFAULT_FIELDS, df);
+  }
+
+  Commit toJsonData(
+      HttpServletRequest req, RevWalk walk, RevCommit c, Set<Field> fs, DateFormatter df)
+      throws IOException {
+    CommitData cd = new CommitData.Builder().build(req, walk, c, fs);
 
     Commit result = new Commit();
     if (cd.sha != null) {

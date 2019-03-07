@@ -61,17 +61,11 @@ public class CommitSoyData {
       Sets.immutableEnumSet(Field.PARENT_BLAME_URL);
 
   private Linkifier linkifier;
-  private RevWalk walk;
   private CommitData.Builder cdb;
   private ArchiveFormat archiveFormat;
 
   CommitSoyData setLinkifier(@Nullable Linkifier linkifier) {
     this.linkifier = linkifier;
-    return this;
-  }
-
-  CommitSoyData setRevWalk(@Nullable RevWalk walk) {
-    this.walk = walk;
     return this;
   }
 
@@ -81,13 +75,14 @@ public class CommitSoyData {
   }
 
   Map<String, Object> toSoyData(
-      HttpServletRequest req, RevCommit c, Set<Field> fs, DateFormatter df) throws IOException {
+      HttpServletRequest req, RevWalk walk, RevCommit c, Set<Field> fs, DateFormatter df)
+      throws IOException {
     GitilesView view = ViewFilter.getView(req);
     if (cdb == null) {
       cdb = new CommitData.Builder();
     }
 
-    CommitData cd = cdb.setRevWalk(walk).setArchiveFormat(archiveFormat).build(req, c, fs);
+    CommitData cd = cdb.setArchiveFormat(archiveFormat).build(req, walk, c, fs);
 
     Map<String, Object> data = Maps.newHashMapWithExpectedSize(fs.size());
     if (cd.author != null) {
@@ -150,9 +145,9 @@ public class CommitSoyData {
     return data;
   }
 
-  Map<String, Object> toSoyData(HttpServletRequest req, RevCommit commit, DateFormatter df)
-      throws IOException {
-    return toSoyData(req, commit, DEFAULT_FIELDS, df);
+  Map<String, Object> toSoyData(
+      HttpServletRequest req, RevWalk walk, RevCommit commit, DateFormatter df) throws IOException {
+    return toSoyData(req, walk, commit, DEFAULT_FIELDS, df);
   }
 
   // TODO(dborowitz): Extract this.
