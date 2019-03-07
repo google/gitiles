@@ -100,9 +100,11 @@ class CommitData {
       CommitData result = new CommitData();
 
       if (fs.contains(Field.AUTHOR)) {
+        walk.parseBody(c);
         result.author = c.getAuthorIdent();
       }
       if (fs.contains(Field.COMMITTER)) {
+        walk.parseBody(c);
         result.committer = c.getCommitterIdent();
       }
       if (fs.contains(Field.SHA)) {
@@ -144,9 +146,11 @@ class CommitData {
         result.tags = getRefsById(repo, c, Constants.R_TAGS);
       }
       if (fs.contains(Field.MESSAGE)) {
+        walk.parseBody(c);
         result.message = c.getFullMessage();
       }
       if (fs.contains(Field.SHORT_MESSAGE)) {
+        walk.parseBody(c);
         String msg = c.getShortMessage();
         if (msg.length() > 80) {
           String ft = result.message;

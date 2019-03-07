@@ -43,7 +43,7 @@ public abstract class IdentRevFilter extends RevFilter {
   @Override
   public boolean include(RevWalk walker, RevCommit commit)
       throws StopWalkException, MissingObjectException, IncorrectObjectTypeException, IOException {
-    return matchesPerson(getIdent(commit));
+    return matchesPerson(getIdent(walker, commit));
   }
 
   @Override
@@ -60,7 +60,8 @@ public abstract class IdentRevFilter extends RevFilter {
     return person.getName().contains(pattern) || person.getEmailAddress().contains(pattern);
   }
 
-  protected abstract PersonIdent getIdent(RevCommit commit);
+  protected abstract PersonIdent getIdent(RevWalk walk, RevCommit commit)
+      throws MissingObjectException, IOException;
 
   private static class Author extends IdentRevFilter {
     private Author(String author) {
@@ -68,7 +69,9 @@ public abstract class IdentRevFilter extends RevFilter {
     }
 
     @Override
-    protected PersonIdent getIdent(RevCommit commit) {
+    protected PersonIdent getIdent(RevWalk walk, RevCommit commit)
+        throws MissingObjectException, IOException {
+      walk.parseBody(commit);
       return commit.getAuthorIdent();
     }
   }
@@ -79,7 +82,9 @@ public abstract class IdentRevFilter extends RevFilter {
     }
 
     @Override
-    protected PersonIdent getIdent(RevCommit commit) {
+    protected PersonIdent getIdent(RevWalk walk, RevCommit commit)
+        throws MissingObjectException, IOException {
+      walk.parseBody(commit);
       return commit.getCommitterIdent();
     }
   }
