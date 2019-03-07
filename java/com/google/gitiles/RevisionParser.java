@@ -108,6 +108,8 @@ class RevisionParser {
       path = path.substring(1);
     }
     try (RevWalk walk = new RevWalk(repo)) {
+      walk.setRetainBody(false);
+
       Revision oldRevision = null;
 
       StringBuilder b = new StringBuilder();
