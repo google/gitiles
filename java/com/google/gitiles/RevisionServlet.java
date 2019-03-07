@@ -96,9 +96,8 @@ public class RevisionServlet extends BaseServlet {
                       "data",
                       new CommitSoyData()
                           .setLinkifier(linkifier)
-                          .setRevWalk(walk)
                           .setArchiveFormat(getArchiveFormat(access))
-                          .toSoyData(req, (RevCommit) obj, COMMIT_SOY_FIELDS, df)));
+                          .toSoyData(req, walk, (RevCommit) obj, COMMIT_SOY_FIELDS, df)));
               break;
             case OBJ_TREE:
               Map<String, Object> tree =
@@ -184,9 +183,7 @@ public class RevisionServlet extends BaseServlet {
           renderJson(
               req,
               res,
-              new CommitJsonData()
-                  .setRevWalk(walk)
-                  .toJsonData(req, (RevCommit) obj, COMMIT_JSON_FIELDS, df),
+              new CommitJsonData().toJsonData(req, walk, (RevCommit) obj, COMMIT_JSON_FIELDS, df),
               Commit.class);
           break;
         default:

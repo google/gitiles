@@ -96,7 +96,7 @@ public class DiffServlet extends BaseServlet {
             new CommitSoyData()
                 .setLinkifier(linkifier)
                 .setArchiveFormat(getArchiveFormat(access))
-                .toSoyData(req, walk.parseCommit(view.getRevision().getId()), fs, df));
+                .toSoyData(req, walk, walk.parseCommit(view.getRevision().getId()), fs, df));
       }
       if (!data.containsKey("repositoryName") && (view.getRepositoryName() != null)) {
         data.put("repositoryName", view.getRepositoryName());

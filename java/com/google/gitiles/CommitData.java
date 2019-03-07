@@ -81,23 +81,19 @@ class CommitData {
   }
 
   static class Builder {
-    private RevWalk walk;
     private ArchiveFormat archiveFormat;
     private Map<AnyObjectId, Set<Ref>> refsById;
-
-    Builder setRevWalk(@Nullable RevWalk walk) {
-      this.walk = walk;
-      return this;
-    }
 
     Builder setArchiveFormat(@Nullable ArchiveFormat archiveFormat) {
       this.archiveFormat = archiveFormat;
       return this;
     }
 
-    CommitData build(HttpServletRequest req, RevCommit c, Set<Field> fs) throws IOException {
+    CommitData build(HttpServletRequest req, RevWalk walk, RevCommit c, Set<Field> fs)
+        throws IOException {
       checkFields(fs);
       checkNotNull(req, "request");
+      checkNotNull(walk, "walk");
       Repository repo = ServletUtils.getRepository(req);
       GitilesView view = ViewFilter.getView(req);
 
@@ -165,14 +161,13 @@ class CommitData {
         result.shortMessage = msg;
       }
       if (fs.contains(Field.DIFF_TREE)) {
-        result.diffEntries = computeDiffEntries(repo, view, c);
+        result.diffEntries = computeDiffEntries(repo, view, walk, c);
       }
 
       return result;
     }
 
     private void checkFields(Set<Field> fs) {
-      checkState(!fs.contains(Field.DIFF_TREE) || walk != null, "RevWalk required for diffTree");
       if (fs.contains(Field.ARCHIVE_URL) || fs.contains(Field.ARCHIVE_TYPE)) {
         checkState(archiveFormat != null, "archive format required");
       }
@@ -203,14 +198,15 @@ class CommitData {
           .collect(toList());
     }
 
-    private AbstractTreeIterator getTreeIterator(RevCommit commit) throws IOException {
+    private AbstractTreeIterator getTreeIterator(RevWalk walk, RevCommit commit)
+        throws IOException {
       CanonicalTreeParser p = new CanonicalTreeParser();
       p.reset(walk.getObjectReader(), walk.parseTree(walk.parseCommit(commit).getTree()));
       return p;
     }
 
-    private DiffList computeDiffEntries(Repository repo, GitilesView view, RevCommit commit)
-        throws IOException {
+    private DiffList computeDiffEntries(
+        Repository repo, GitilesView view, RevWalk walk, RevCommit commit) throws IOException {
       DiffList result = new DiffList();
       result.revision =
           view.getRevision().matches(commit)
@@ -226,13 +222,13 @@ class CommitData {
         case 1:
           result.oldRevision =
               Revision.peeled(result.revision.getName() + "^", commit.getParent(0));
-          oldTree = getTreeIterator(commit.getParent(0));
+          oldTree = getTreeIterator(walk, commit.getParent(0));
           break;
         default:
           // TODO(dborowitz): handle merges
           return result;
       }
-      AbstractTreeIterator newTree = getTreeIterator(commit);
+      AbstractTreeIterator newTree = getTreeIterator(walk, commit);
 
       try (DiffFormatter diff = new DiffFormatter(NullOutputStream.INSTANCE)) {
         diff.setRepository(repo);

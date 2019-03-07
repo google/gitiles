@@ -124,7 +124,7 @@ public class LogSoyData {
       csd = new CommitSoyData();
     }
 
-    Map<String, Object> entry = csd.setRevWalk(paginator.getWalk()).toSoyData(req, c, fields, df);
+    Map<String, Object> entry = csd.toSoyData(req, paginator.getWalk(), c, fields, df);
     DiffEntry rename = paginator.getRename(c);
     if (rename != null) {
       entry.put("rename", toRenameSoyData(rename));
