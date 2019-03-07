@@ -167,7 +167,6 @@ public class LogServlet extends BaseServlet {
       CommitJsonData.Log result = new CommitJsonData.Log();
       List<CommitJsonData.Commit> entries = Lists.newArrayListWithCapacity(paginator.getLimit());
       for (RevCommit c : paginator) {
-        paginator.getWalk().parseBody(c);
         entries.add(new CommitJsonData().toJsonData(req, paginator.getWalk(), c, fs, df));
       }
       result.log = entries;
