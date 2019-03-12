@@ -9,5 +9,5 @@ java_library(
 
 java_library(
     name = "hamcrest-core",
-    exports = ["@hamcrest_core//jar"],
+    exports = ["@hamcrest-core//jar"],
 )

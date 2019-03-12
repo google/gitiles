@@ -7,16 +7,16 @@ java_library(
     exports = [
         ":aopalliance",
         ":guice-assistedinject",
-        ":guice_library",
+        ":guice-library",
         ":javax-inject",
     ],
 )
 
 [java_library(
     name = n,
-    runtime_deps = ["@%s//jar" % n.replace("-", "_")],
+    runtime_deps = ["@%s//jar" % n],
 ) for n in [
-    "guice_library",
+    "guice-library",
     "guice-assistedinject",
     "javax-inject",
     "aopalliance",

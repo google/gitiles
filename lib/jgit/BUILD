@@ -4,12 +4,12 @@ package(
 
 java_library(
     name = "jgit-servlet",
-    exports = ["@jgit_servlet//jar"],
+    exports = ["@jgit-servlet//jar"],
 )
 
 java_library(
     name = "jgit",
-    exports = ["@jgit_lib//jar"],
+    exports = ["@jgit-lib//jar"],
 )
 
 java_library(
@@ -23,20 +23,20 @@ java_library(
 
 java_library(
     name = "tukaani-xz",
-    exports = ["@tukaani_xz//jar"],
+    exports = ["@tukaani-xz//jar"],
 )
 
 java_library(
     name = "commons-compress",
-    exports = ["@commons_compress//jar"],
+    exports = ["@commons-compress//jar"],
 )
 
 java_library(
     name = "jgit-archive_library",
-    exports = ["@jgit_archive//jar"],
+    exports = ["@jgit-archive//jar"],
 )
 
 java_library(
     name = "junit",
-    exports = ["@jgit_junit//jar"],
+    exports = ["@jgit-junit//jar"],
 )
