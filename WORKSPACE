@@ -27,13 +27,13 @@ load(
 )
 
 maven_jar(
-    name = "commons_lang3",
+    name = "commons-lang3",
     artifact = "org.apache.commons:commons-lang3:3.6",
     sha1 = "9d28a6b23650e8a7e9063c04588ace6cf7012c17",
 )
 
 maven_jar(
-    name = "commons_text",
+    name = "commons-text",
     artifact = "org.apache.commons:commons-text:1.2",
     sha1 = "74acdec7237f576c4803fff0c1008ab8a3808b2b",
 )
@@ -74,7 +74,7 @@ maven_jar(
 )
 
 maven_jar(
-    name = "cm_autolink",
+    name = "cm-autolink",
     artifact = "com.atlassian.commonmark:commonmark-ext-autolink:" + COMMONMARK_VERSION,
     sha1 = "a6056a5efbd68f57d420bc51bbc54b28a5d3c56b",
 )
@@ -86,25 +86,25 @@ maven_jar(
 )
 
 maven_jar(
-    name = "gfm_strikethrough",
+    name = "gfm-strikethrough",
     artifact = "com.atlassian.commonmark:commonmark-ext-gfm-strikethrough:" + COMMONMARK_VERSION,
     sha1 = "40837da951b421b545edddac57012e15fcc9e63c",
 )
 
 maven_jar(
-    name = "gfm_tables",
+    name = "gfm-tables",
     artifact = "com.atlassian.commonmark:commonmark-ext-gfm-tables:" + COMMONMARK_VERSION,
     sha1 = "c075db2a3301100cf70c7dced8ecf86b494458a2",
 )
 
 maven_jar(
-    name = "servlet_api_2_5",
+    name = "servlet-api_2_5",
     artifact = "org.eclipse.jetty.orbit:javax.servlet:2.5.0.v201103041518",
     sha1 = "9c16011c06bc6fe5e9dba080fcb40ddb4b75dc85",
 )
 
 maven_jar(
-    name = "servlet_api_3_0",
+    name = "servlet-api_3_0",
     artifact = "org.eclipse.jetty.orbit:javax.servlet:3.0.0.v201112011016",
     sha1 = "0aaaa85845fb5c59da00193f06b8e5278d8bf3f8",
 )
@@ -129,7 +129,7 @@ maven_jar(
 )
 
 maven_jar(
-    name = "html_types",
+    name = "html-types",
     artifact = "com.google.common.html.types:types:1.0.4",
     sha1 = "2adf4c8bfccc0ff7346f9186ac5aa57d829ad065",
 )
@@ -151,28 +151,28 @@ JGIT_VERS = "5.1.3.201810200350-r"
 JGIT_REPO = MAVEN_CENTRAL
 
 maven_jar(
-    name = "jgit_lib",
+    name = "jgit-lib",
     artifact = "org.eclipse.jgit:org.eclipse.jgit:" + JGIT_VERS,
     repository = JGIT_REPO,
     sha1 = "f270dbd1d792d5ad06074abe018a18644c90b60e",
 )
 
 maven_jar(
-    name = "jgit_servlet",
+    name = "jgit-servlet",
     artifact = "org.eclipse.jgit:org.eclipse.jgit.http.server:" + JGIT_VERS,
     repository = JGIT_REPO,
     sha1 = "360405244c28b537f0eafdc0b9d9f3753503d981",
 )
 
 maven_jar(
-    name = "jgit_junit",
+    name = "jgit-junit",
     artifact = "org.eclipse.jgit:org.eclipse.jgit.junit:" + JGIT_VERS,
     repository = JGIT_REPO,
     sha1 = "1dc8f86bba3c461cb90c9dc3e91bf343889ca684",
 )
 
 maven_jar(
-    name = "jgit_archive",
+    name = "jgit-archive",
     artifact = "org.eclipse.jgit:org.eclipse.jgit.archive:" + JGIT_VERS,
     repository = JGIT_REPO,
     sha1 = "08e10921fcc75ead2736dd5bf099ba8e2ed8a3fb",
@@ -187,7 +187,7 @@ maven_jar(
 # When upgrading commons_compress, upgrade tukaani_xz to the
 # corresponding version
 maven_jar(
-    name = "commons_compress",
+    name = "commons-compress",
     artifact = "org.apache.commons:commons-compress:1.15",
     sha1 = "b686cd04abaef1ea7bc5e143c080563668eec17e",
 )
@@ -195,7 +195,7 @@ maven_jar(
 # Transitive dependency of commons_compress. Should only be
 # upgraded at the same time as commons_compress.
 maven_jar(
-    name = "tukaani_xz",
+    name = "tukaani-xz",
     artifact = "org.tukaani:xz:1.6",
     attach_source = False,
     sha1 = "05b6f921f1810bdf90e25471968f741f87168b64",
@@ -208,7 +208,7 @@ maven_jar(
 )
 
 maven_jar(
-    name = "hamcrest_core",
+    name = "hamcrest-core",
     artifact = "org.hamcrest:hamcrest-core:1.3",
     sha1 = "42a25dc3219429f0e5d060061f71acb49bf010a0",
 )
@@ -216,13 +216,13 @@ maven_jar(
 SL_VERS = "1.7.7"
 
 maven_jar(
-    name = "slf4j_api",
+    name = "slf4j-api",
     artifact = "org.slf4j:slf4j-api:" + SL_VERS,
     sha1 = "2b8019b6249bb05d81d3a3094e468753e2b21311",
 )
 
 maven_jar(
-    name = "slf4j_simple",
+    name = "slf4j-simple",
     artifact = "org.slf4j:slf4j-simple:" + SL_VERS,
     sha1 = "8095d0b9f7e0a9cd79a663c740e0f8fb31d0e2c8",
 )
@@ -230,13 +230,13 @@ maven_jar(
 GUICE_VERSION = "4.2.1"
 
 maven_jar(
-    name = "guice_library",
+    name = "guice-library",
     artifact = "com.google.inject:guice:" + GUICE_VERSION,
     sha1 = "f77dfd89318fe3ff293bafceaa75fbf66e4e4b10",
 )
 
 maven_jar(
-    name = "guice_assistedinject",
+    name = "guice-assistedinject",
     artifact = "com.google.inject.extensions:guice-assistedinject:" + GUICE_VERSION,
     sha1 = "d327e4aee7c96f08cd657c17da231a1f4a8999ac",
 )
@@ -248,7 +248,7 @@ maven_jar(
 )
 
 maven_jar(
-    name = "javax_inject",
+    name = "javax-inject",
     artifact = "javax.inject:javax.inject:1",
     sha1 = "6975da39a7040257bd51d21a231b76c915872d38",
 )

@@ -8,7 +8,7 @@ java_library(
         "@soy//jar",
     ],
     runtime_deps = [
-        "@html_types//jar",
+        "@html-types//jar",
         "@icu4j//jar",
         "@protobuf//jar",
     ],

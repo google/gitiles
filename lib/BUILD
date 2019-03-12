@@ -4,7 +4,7 @@ package(
 
 [java_library(
     name = n,
-    exports = ["@%s//jar" % n.replace("-", "_")],
+    exports = ["@%s//jar" % n],
 ) for n in [
     "autolink",
     "commonmark",
