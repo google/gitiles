@@ -19,5 +19,6 @@ package(
     "servlet-api_3_0",
     "gson",
     "guava",
+    "guava-failureaccess",
     "prettify",
 ]]

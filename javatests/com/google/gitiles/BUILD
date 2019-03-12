@@ -3,6 +3,7 @@ load("@com_googlesource_gerrit_bazlets//tools:junit.bzl", "junit_tests")
 DEPS = [
     "//lib:gson",
     "//lib:guava",
+    "//lib:guava-failureaccess",
     "//lib/jgit:jgit",
     "//lib/jgit:jgit-servlet",
     "//lib/soy:soy",
