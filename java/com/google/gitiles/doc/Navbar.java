@@ -128,11 +128,8 @@ class Navbar {
   }
 
   private static Set<String> splitExtensionNames(String url) {
-    return Splitter.on(CharMatcher.whitespace().or(CharMatcher.is(',')))
-        .trimResults()
-        .omitEmptyStrings()
-        .splitToList(url)
-        .stream()
+    return Splitter.on(CharMatcher.whitespace().or(CharMatcher.is(','))).trimResults()
+        .omitEmptyStrings().splitToList(url).stream()
         .map(String::toLowerCase)
         .collect(toSet());
   }
