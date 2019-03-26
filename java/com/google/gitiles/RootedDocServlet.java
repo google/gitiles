@@ -16,6 +16,7 @@ package com.google.gitiles;
 
 import static org.eclipse.jgit.http.server.ServletUtils.ATTRIBUTE_REPOSITORY;
 
+import com.google.gitiles.GitilesRequestFailureException.FailureReason;
 import com.google.gitiles.doc.DocServlet;
 import com.google.gitiles.doc.HtmlSanitizer;
 import java.io.IOException;
@@ -24,7 +25,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -74,14 +74,12 @@ public class RootedDocServlet extends HttpServlet {
         RevWalk rw = new RevWalk(repo)) {
       ObjectId id = repo.resolve(BRANCH);
       if (id == null) {
-        res.sendError(HttpServletResponse.SC_NOT_FOUND);
-        return;
+        throw new GitilesRequestFailureException(FailureReason.OBJECT_NOT_FOUND);
       }
 
       RevObject obj = rw.peel(rw.parseAny(id));
       if (!(obj instanceof RevCommit)) {
-        res.sendError(HttpServletResponse.SC_NOT_FOUND);
-        return;
+        throw new GitilesRequestFailureException(FailureReason.INCORRECT_OBJECT_TYPE);
       }
 
       req.setAttribute(ATTRIBUTE_REPOSITORY, repo);
@@ -95,11 +93,10 @@ public class RootedDocServlet extends HttpServlet {
               .build());
 
       docServlet.service(req, res);
-    } catch (RepositoryNotFoundException
-        | ServiceNotAuthorizedException
-        | ServiceNotEnabledException e) {
-      log.error(String.format("cannot open repository for %s", req.getServerName()), e);
-      res.sendError(HttpServletResponse.SC_NOT_FOUND);
+    } catch (ServiceNotAuthorizedException e) {
+      throw new GitilesRequestFailureException(FailureReason.NOT_AUTHORIZED, e);
+    } catch (ServiceNotEnabledException e) {
+      throw new GitilesRequestFailureException(FailureReason.SERVICE_NOT_ENABLED, e);
     } finally {
       ViewFilter.removeView(req);
       req.removeAttribute(ATTRIBUTE_REPOSITORY);

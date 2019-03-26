@@ -14,11 +14,9 @@
 
 package com.google.gitiles;
 
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
-
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
+import com.google.gitiles.GitilesRequestFailureException.FailureReason;
 import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
 import java.io.Writer;
@@ -84,21 +82,14 @@ public class DescribeServlet extends BaseServlet {
     try {
       return repo.resolve(rev);
     } catch (RevisionSyntaxException e) {
-      renderTextError(
-          req,
-          res,
-          SC_BAD_REQUEST,
-          "Invalid revision syntax: " + RefServlet.sanitizeRefForText(rev));
-      return null;
+      throw new GitilesRequestFailureException(FailureReason.INCORECT_PARAMETER)
+          .withPublicErrorMessage(
+              "Invalid revision syntax: %s", RefServlet.sanitizeRefForText(rev));
     } catch (AmbiguousObjectException e) {
-      renderTextError(
-          req,
-          res,
-          SC_BAD_REQUEST,
-          String.format(
+      throw new GitilesRequestFailureException(FailureReason.AMBIGUOUS_OBJECT)
+          .withPublicErrorMessage(
               "Ambiguous short SHA-1 %s (%s)",
-              e.getAbbreviatedObjectId(), Joiner.on(", ").join(e.getCandidates())));
-      return null;
+              e.getAbbreviatedObjectId(), Joiner.on(", ").join(e.getCandidates()));
     }
   }
 
@@ -106,8 +97,7 @@ public class DescribeServlet extends BaseServlet {
       Repository repo, GitilesView view, HttpServletRequest req, HttpServletResponse res)
       throws IOException {
     if (!getBooleanParam(view, CONTAINS_PARAM)) {
-      res.setStatus(SC_BAD_REQUEST);
-      return null;
+      throw new GitilesRequestFailureException(FailureReason.INCORECT_PARAMETER);
     }
     ObjectId id = resolve(repo, view, req, res);
     if (id == null) {
@@ -124,8 +114,7 @@ public class DescribeServlet extends BaseServlet {
       throw new IOException(e);
     }
     if (name == null) {
-      res.setStatus(SC_NOT_FOUND);
-      return null;
+      throw new GitilesRequestFailureException(FailureReason.OBJECT_NOT_FOUND);
     }
     return name;
   }
@@ -137,8 +126,8 @@ public class DescribeServlet extends BaseServlet {
     boolean all = getBooleanParam(view, ALL_PARAM);
     boolean tags = getBooleanParam(view, TAGS_PARAM);
     if (all && tags) {
-      renderTextError(req, res, SC_BAD_REQUEST, "Cannot specify both \"all\" and \"tags\"");
-      return null;
+      throw new GitilesRequestFailureException(FailureReason.UNSUPPORTED_REVISION_NAMES)
+          .withPublicErrorMessage("Cannot specify both \"all\" and \"tags\"");
     }
     if (all) {
       cmd.addPrefix(Constants.R_REFS);

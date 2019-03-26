@@ -15,8 +15,6 @@
 package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
@@ -27,6 +25,7 @@ import com.google.common.collect.Sets;
 import com.google.common.primitives.Longs;
 import com.google.gitiles.CommitData.Field;
 import com.google.gitiles.DateFormatter.Format;
+import com.google.gitiles.GitilesRequestFailureException.FailureReason;
 import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -42,7 +41,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jgit.diff.DiffConfig;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
-import org.eclipse.jgit.errors.RevWalkException;
 import org.eclipse.jgit.http.server.ServletUtils;
 import org.eclipse.jgit.lib.AbbreviatedObjectId;
 import org.eclipse.jgit.lib.Constants;
@@ -97,8 +95,7 @@ public class LogServlet extends BaseServlet {
       GitilesAccess access = getAccess(req);
       paginator = newPaginator(repo, view, access);
       if (paginator == null) {
-        res.setStatus(SC_NOT_FOUND);
-        return;
+        throw new GitilesRequestFailureException(FailureReason.OBJECT_NOT_FOUND);
       }
       DateFormatter df = new DateFormatter(access, Format.DEFAULT);
 
@@ -133,10 +130,6 @@ public class LogServlet extends BaseServlet {
             .renderStreaming(paginator, null, renderer, w, df, LogSoyData.FooterBehavior.NEXT);
         w.flush();
       }
-    } catch (RevWalkException e) {
-      log.warn("Error in rev walk", e);
-      res.setStatus(SC_INTERNAL_SERVER_ERROR);
-      return;
     } finally {
       if (paginator != null) {
         paginator.getWalk().close();
@@ -160,8 +153,7 @@ public class LogServlet extends BaseServlet {
       GitilesAccess access = getAccess(req);
       paginator = newPaginator(repo, view, access);
       if (paginator == null) {
-        res.setStatus(SC_NOT_FOUND);
-        return;
+        throw new GitilesRequestFailureException(FailureReason.OBJECT_NOT_FOUND);
       }
       DateFormatter df = new DateFormatter(access, Format.DEFAULT);
       CommitJsonData.Log result = new CommitJsonData.Log();

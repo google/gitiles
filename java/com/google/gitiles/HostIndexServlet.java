@@ -15,16 +15,11 @@
 package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
-import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
-import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
-import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
-import static org.eclipse.jgit.http.server.GitSmartHttpTools.sendError;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
+import com.google.gitiles.GitilesRequestFailureException.FailureReason;
 import com.google.gson.reflect.TypeToken;
 import com.google.template.soy.data.SoyListData;
 import com.google.template.soy.data.SoyMapData;
@@ -40,8 +35,6 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.eclipse.jgit.errors.RepositoryNotFoundException;
-import org.eclipse.jgit.transport.ServiceMayNotContinueException;
 import org.eclipse.jgit.transport.resolver.ServiceNotAuthorizedException;
 import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
 import org.slf4j.Logger;
@@ -66,27 +59,13 @@ public class HostIndexServlet extends BaseServlet {
     Map<String, RepositoryDescription> descs;
     try {
       descs = getAccess(req).listRepositories(prefix, branches);
-    } catch (RepositoryNotFoundException e) {
-      res.sendError(SC_NOT_FOUND);
-      return null;
     } catch (ServiceNotEnabledException e) {
-      res.sendError(SC_FORBIDDEN);
-      return null;
+      throw new GitilesRequestFailureException(FailureReason.SERVICE_NOT_ENABLED, e);
     } catch (ServiceNotAuthorizedException e) {
-      res.sendError(SC_UNAUTHORIZED);
-      return null;
-    } catch (ServiceMayNotContinueException e) {
-      sendError(req, res, e.getStatusCode(), e.getMessage());
-      return null;
-    } catch (IOException err) {
-      String name = urls.getHostName(req);
-      log.warn("Cannot scan repositories" + (name != null ? " for " + name : ""), err);
-      res.sendError(SC_SERVICE_UNAVAILABLE);
-      return null;
+      throw new GitilesRequestFailureException(FailureReason.NOT_AUTHORIZED, e);
     }
     if (prefix != null && descs.isEmpty()) {
-      res.sendError(SC_NOT_FOUND);
-      return null;
+      throw new GitilesRequestFailureException(FailureReason.REPOSITORY_NOT_FOUND);
     }
     return descs;
   }
@@ -103,15 +82,14 @@ public class HostIndexServlet extends BaseServlet {
   protected void doHead(HttpServletRequest req, HttpServletResponse res) throws IOException {
     Optional<FormatType> format = getFormat(req);
     if (!format.isPresent()) {
-      res.sendError(SC_BAD_REQUEST);
-      return;
+      throw new GitilesRequestFailureException(FailureReason.UNSUPPORTED_RESPONSE_FORMAT);
     }
 
     GitilesView view = ViewFilter.getView(req);
     String prefix = view.getRepositoryPrefix();
     if (prefix != null) {
       Map<String, RepositoryDescription> descs =
-          list(req, res, prefix, Collections.<String>emptySet());
+          list(req, res, prefix, Collections.emptySet());
       if (descs == null) {
         return;
       }
@@ -125,8 +103,7 @@ public class HostIndexServlet extends BaseServlet {
         break;
       case DEFAULT:
       default:
-        res.sendError(SC_BAD_REQUEST);
-        break;
+        throw new GitilesRequestFailureException(FailureReason.UNSUPPORTED_RESPONSE_FORMAT);
     }
   }
 
