@@ -14,10 +14,10 @@
 
 package com.google.gitiles;
 
+import com.google.common.html.types.SafeHtml;
 import com.google.gitiles.doc.GitilesMarkdown;
 import com.google.gitiles.doc.MarkdownConfig;
 import com.google.gitiles.doc.MarkdownToHtml;
-import com.google.template.soy.data.SanitizedContent;
 import java.io.IOException;
 import org.eclipse.jgit.errors.CorruptObjectException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
@@ -87,7 +87,7 @@ class ReadmeHelper {
     return readmePath;
   }
 
-  SanitizedContent render() {
+  SafeHtml render() {
     try {
       byte[] raw = reader.open(readmeId, Constants.OBJ_BLOB).getCachedBytes(config.inputLimit);
       return MarkdownToHtml.builder()

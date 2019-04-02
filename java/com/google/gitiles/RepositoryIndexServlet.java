@@ -21,10 +21,10 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import com.google.common.html.types.SafeHtml;
 import com.google.gitiles.DateFormatter.Format;
 import com.google.gitiles.doc.MarkdownConfig;
 import com.google.gson.reflect.TypeToken;
-import com.google.template.soy.data.SanitizedContent;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
@@ -174,7 +174,7 @@ public class RepositoryIndexServlet extends BaseServlet {
             req.getRequestURI());
     readme.scanTree(rootTree);
     if (readme.isPresent()) {
-      SanitizedContent html = readme.render();
+      SafeHtml html = readme.render();
       if (html != null) {
         return ImmutableMap.<String, Object>of("readmeHtml", html);
       }

@@ -14,9 +14,8 @@
 
 package com.google.gitiles.doc.html;
 
-import com.google.template.soy.data.SanitizedContent;
-import com.google.template.soy.data.SanitizedContent.ContentKind;
-import com.google.template.soy.data.UnsafeSanitizedContentOrdainer;
+import com.google.common.html.types.LegacyConversions;
+import com.google.common.html.types.SafeHtml;
 
 /** Builds a document fragment using a restricted subset of HTML. */
 public final class SoyHtmlBuilder extends HtmlBuilder {
@@ -32,8 +31,8 @@ public final class SoyHtmlBuilder extends HtmlBuilder {
   }
 
   /** Bless the current content as HTML. */
-  public SanitizedContent toSoy() {
+  public SafeHtml toSoy() {
     finish();
-    return UnsafeSanitizedContentOrdainer.ordainAsSafe(buf.toString(), ContentKind.HTML);
+    return LegacyConversions.riskilyAssumeSafeHtml(buf.toString());
   }
 }
