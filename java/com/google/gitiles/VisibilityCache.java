@@ -37,6 +37,7 @@ import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.RefDatabase;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevSort;
@@ -135,10 +136,11 @@ public class VisibilityCache {
       return false;
     }
 
+    RefDatabase refDb = repo.getRefDatabase();
+
     // If any reference directly points at the requested object, permit display. Common for displays
     // of pending patch sets in Gerrit Code Review, or bookmarks to the commit a tag points at.
-    Collection<Ref> all = repo.getRefDatabase().getRefs();
-    for (Ref ref : all) {
+    for (Ref ref : repo.getRefDatabase().getRefs()) {
       ref = repo.getRefDatabase().peel(ref);
       if (id.equals(ref.getObjectId()) || id.equals(ref.getPeeledObjectId())) {
         return true;
@@ -149,9 +151,9 @@ public class VisibilityCache {
     // tend to be much further back in history and just clutter up the priority queue in the common
     // case.
     return isReachableFrom(walk, commit, knownReachable)
-        || isReachableFromRefs(walk, commit, all.stream().filter(r -> refStartsWith(r, R_HEADS)))
-        || isReachableFromRefs(walk, commit, all.stream().filter(r -> refStartsWith(r, R_TAGS)))
-        || isReachableFromRefs(walk, commit, all.stream().filter(r -> otherRefs(r)));
+        || isReachableFromRefs(walk, commit, refDb.getRefsByPrefix(R_HEADS).stream())
+        || isReachableFromRefs(walk, commit, refDb.getRefsByPrefix(R_TAGS).stream())
+        || isReachableFromRefs(walk, commit, refDb.getRefs().stream().filter(r -> otherRefs(r)));
   }
 
   private static boolean refStartsWith(Ref ref, String prefix) {
