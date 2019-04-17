@@ -89,8 +89,8 @@ class Navbar {
   }
 
   private void parse(String markdown) {
-    extractMetadata(markdown);
-    node = GitilesMarkdown.parse(cfg, markdown);
+    String md = extractMetadata(markdown);
+    node = GitilesMarkdown.parse(cfg, md);
     extractSiteTitle();
   }
 
@@ -107,24 +107,33 @@ class Navbar {
     }
   }
 
-  private void extractMetadata(String markdown) {
+  private String extractMetadata(String markdown) {
     Matcher m = META_LINK.matcher(markdown);
-    while (m.find()) {
-      String key = m.group(1).toLowerCase();
-      String url = m.group(2).trim();
-      switch (key) {
-        case "logo":
-          logoUrl = url;
-          break;
-        case "home":
-          homeUrl = url;
-          break;
-        case "extensions":
-          Set<String> names = splitExtensionNames(url);
-          cfg = cfg.copyWithExtensions(enabled(names), disabled(names));
-          break;
-      }
+    boolean foundMetadata = m.find();
+    if (foundMetadata) {
+      StringBuffer sb = new StringBuffer();
+      do {
+        String key = m.group(1).toLowerCase();
+        String url = m.group(2).trim();
+        switch (key) {
+          case "logo":
+            logoUrl = url;
+            break;
+          case "home":
+            homeUrl = url;
+            break;
+          case "extensions":
+            Set<String> names = splitExtensionNames(url);
+            cfg = cfg.copyWithExtensions(enabled(names), disabled(names));
+            break;
+        }
+        m.appendReplacement(sb, "");
+        foundMetadata = m.find();
+      } while (foundMetadata);
+      m.appendTail(sb);
+      return sb.toString();
     }
+    return markdown;
   }
 
   private static Set<String> splitExtensionNames(String url) {
