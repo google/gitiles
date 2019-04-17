@@ -40,7 +40,12 @@ public class DocServletTest extends ServletTest {
 
   @Test
   public void includesNavbar() throws Exception {
-    String navbar = "# Site Title\n" + "\n" + "* [Home](index.md)\n" + "* [README](README.md)\n";
+    String navbar =
+        "# Site Title\n"
+            + "\n"
+            + "* [Home](index.md)\n"
+            + "* [README](README.md)\n"
+            + "[extensions]: blocknote\n";
     repo.branch("master")
         .commit()
         .add("README.md", "# page\n\nof information.")
@@ -53,6 +58,7 @@ public class DocServletTest extends ServletTest {
     assertThat(html).contains("<span class=\"Header-anchorTitle\">Site Title</span>");
     assertThat(html).contains("<li><a href=\"/b/repo/+/master/index.md\">Home</a></li>");
     assertThat(html).contains("<li><a href=\"/b/repo/+/master/README.md\">README</a></li>");
+    assertThat(html).doesNotContain("extensions");
     assertThat(html)
         .contains("<h1><a class=\"h\" name=\"page\" href=\"#page\"><span></span></a>page</h1>");
   }
