@@ -16,7 +16,6 @@ package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -25,6 +24,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
 import com.google.common.primitives.Ints;
 import com.google.common.util.concurrent.UncheckedExecutionException;
+import com.google.gitiles.GitilesRequestFailureException.FailureReason;
 import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
 import java.io.Writer;
@@ -59,8 +59,7 @@ public class RefServlet extends BaseServlet {
   @Override
   protected void doGetHtml(HttpServletRequest req, HttpServletResponse res) throws IOException {
     if (!ViewFilter.getView(req).getPathPart().isEmpty()) {
-      res.setStatus(SC_NOT_FOUND);
-      return;
+      throw new GitilesRequestFailureException(FailureReason.INCORECT_PARAMETER);
     }
     List<Map<String, Object>> tags;
     try (RevWalk walk = new RevWalk(ServletUtils.getRepository(req))) {

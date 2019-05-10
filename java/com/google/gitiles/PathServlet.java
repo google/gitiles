@@ -16,8 +16,6 @@ package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.gitiles.TreeSoyData.resolveTargetUrl;
-import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static org.eclipse.jgit.lib.Constants.OBJ_BLOB;
 import static org.eclipse.jgit.lib.Constants.OBJ_COMMIT;
 import static org.eclipse.jgit.lib.Constants.OBJ_TREE;
@@ -29,6 +27,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.BaseEncoding;
 import com.google.common.primitives.Bytes;
+import com.google.gitiles.GitilesRequestFailureException.FailureReason;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
@@ -131,8 +130,7 @@ public class PathServlet extends BaseServlet {
     try (RevWalk rw = new RevWalk(repo);
         WalkResult wr = WalkResult.forPath(rw, view, false)) {
       if (wr == null) {
-        res.setStatus(SC_NOT_FOUND);
-        return;
+        throw new GitilesRequestFailureException(FailureReason.OBJECT_NOT_FOUND);
       }
       switch (wr.type) {
         case TREE:
@@ -149,12 +147,10 @@ public class PathServlet extends BaseServlet {
           showGitlink(req, res, wr);
           break;
         default:
-          log.error("Bad file type: {}", wr.type);
-          res.setStatus(SC_NOT_FOUND);
-          break;
+          throw new GitilesRequestFailureException(FailureReason.UNSUPPORTED_OBJECT_TYPE);
       }
     } catch (LargeObjectException e) {
-      res.setStatus(SC_INTERNAL_SERVER_ERROR);
+      throw new GitilesRequestFailureException(FailureReason.OBJECT_TOO_LARGE, e);
     }
   }
 
@@ -166,8 +162,7 @@ public class PathServlet extends BaseServlet {
     try (RevWalk rw = new RevWalk(repo);
         WalkResult wr = WalkResult.forPath(rw, view, false)) {
       if (wr == null) {
-        res.setStatus(SC_NOT_FOUND);
-        return;
+        throw new GitilesRequestFailureException(FailureReason.OBJECT_NOT_FOUND);
       }
 
       // Write base64 as plain text without modifying any other headers, under
@@ -185,11 +180,10 @@ public class PathServlet extends BaseServlet {
           break;
         case GITLINK:
         default:
-          renderTextError(req, res, SC_NOT_FOUND, "Not a file");
-          break;
+          throw new GitilesRequestFailureException(FailureReason.UNSUPPORTED_OBJECT_TYPE);
       }
     } catch (LargeObjectException e) {
-      res.setStatus(SC_INTERNAL_SERVER_ERROR);
+      throw new GitilesRequestFailureException(FailureReason.OBJECT_TOO_LARGE, e);
     }
   }
 
@@ -252,8 +246,7 @@ public class PathServlet extends BaseServlet {
     try (RevWalk rw = new RevWalk(repo);
         WalkResult wr = WalkResult.forPath(rw, view, recursive)) {
       if (wr == null) {
-        res.setStatus(SC_NOT_FOUND);
-        return;
+        throw new GitilesRequestFailureException(FailureReason.OBJECT_NOT_FOUND);
       }
       switch (wr.type) {
         case REGULAR_FILE:
@@ -275,11 +268,10 @@ public class PathServlet extends BaseServlet {
         case GITLINK:
         case SYMLINK:
         default:
-          res.setStatus(SC_NOT_FOUND);
-          break;
+          throw new GitilesRequestFailureException(FailureReason.UNSUPPORTED_OBJECT_TYPE);
       }
     } catch (LargeObjectException e) {
-      res.setStatus(SC_INTERNAL_SERVER_ERROR);
+      throw new GitilesRequestFailureException(FailureReason.OBJECT_TOO_LARGE, e);
     }
   }
 

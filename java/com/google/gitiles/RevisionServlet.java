@@ -15,7 +15,6 @@
 package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static org.eclipse.jgit.lib.Constants.OBJ_BLOB;
 import static org.eclipse.jgit.lib.Constants.OBJ_COMMIT;
 import static org.eclipse.jgit.lib.Constants.OBJ_TAG;
@@ -28,6 +27,7 @@ import com.google.common.io.BaseEncoding;
 import com.google.gitiles.CommitData.Field;
 import com.google.gitiles.CommitJsonData.Commit;
 import com.google.gitiles.DateFormatter.Format;
+import com.google.gitiles.GitilesRequestFailureException.FailureReason;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
@@ -125,18 +125,12 @@ public class RevisionServlet extends BaseServlet {
                       new TagSoyData(linkifier, req).toSoyData(walk, (RevTag) obj, df)));
               break;
             default:
-              log.warn("Bad object type for {}: {}", ObjectId.toString(obj.getId()), obj.getType());
-              res.setStatus(SC_NOT_FOUND);
-              return;
+              throw new GitilesRequestFailureException(FailureReason.UNSUPPORTED_OBJECT_TYPE);
           }
         } catch (MissingObjectException e) {
-          log.warn("Missing object " + ObjectId.toString(obj.getId()), e);
-          res.setStatus(SC_NOT_FOUND);
-          return;
+          throw new GitilesRequestFailureException(FailureReason.OBJECT_NOT_FOUND, e);
         } catch (IncorrectObjectTypeException e) {
-          log.warn("Incorrect object type for " + ObjectId.toString(obj.getId()), e);
-          res.setStatus(SC_NOT_FOUND);
-          return;
+          throw new GitilesRequestFailureException(FailureReason.INCORRECT_OBJECT_TYPE, e);
         }
       }
 
@@ -159,7 +153,7 @@ public class RevisionServlet extends BaseServlet {
     try (ObjectReader reader = repo.newObjectReader()) {
       ObjectLoader loader = reader.open(view.getRevision().getId());
       if (loader.getType() != OBJ_COMMIT) {
-        res.setStatus(SC_NOT_FOUND);
+        throw new GitilesRequestFailureException(FailureReason.UNSUPPORTED_OBJECT_TYPE);
       } else {
         PathServlet.setTypeHeader(res, loader.getType());
         try (Writer writer = startRenderText(req, res);
@@ -188,8 +182,7 @@ public class RevisionServlet extends BaseServlet {
           break;
         default:
           // TODO(dborowitz): Support showing other types.
-          res.setStatus(SC_NOT_FOUND);
-          break;
+          throw new GitilesRequestFailureException(FailureReason.UNSUPPORTED_OBJECT_TYPE);
       }
     }
   }

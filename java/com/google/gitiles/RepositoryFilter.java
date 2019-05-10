@@ -16,11 +16,9 @@ package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.gitiles.ViewFilter.getRegexGroup;
-import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
-import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
-import static org.eclipse.jgit.http.server.GitSmartHttpTools.sendError;
 import static org.eclipse.jgit.http.server.ServletUtils.ATTRIBUTE_REPOSITORY;
 
+import com.google.gitiles.GitilesRequestFailureException.FailureReason;
 import java.io.IOException;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -28,12 +26,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.transport.ServiceMayNotContinueException;
 import org.eclipse.jgit.transport.resolver.RepositoryResolver;
 import org.eclipse.jgit.transport.resolver.ServiceNotAuthorizedException;
 import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
 
 class RepositoryFilter extends AbstractHttpFilter {
+
   private final RepositoryResolver<HttpServletRequest> resolver;
 
   RepositoryFilter(RepositoryResolver<HttpServletRequest> resolver) {
@@ -53,15 +51,13 @@ class RepositoryFilter extends AbstractHttpFilter {
         // to HostIndexServlet which will attempt to list repositories
         // or send SC_NOT_FOUND there.
         chain.doFilter(req, res);
-      } catch (ServiceMayNotContinueException e) {
-        sendError(req, res, e.getStatusCode(), e.getMessage());
       } finally {
         req.removeAttribute(ATTRIBUTE_REPOSITORY);
       }
     } catch (ServiceNotEnabledException e) {
-      sendError(req, res, SC_FORBIDDEN);
+      throw new GitilesRequestFailureException(FailureReason.SERVICE_NOT_ENABLED, e);
     } catch (ServiceNotAuthorizedException e) {
-      res.sendError(SC_UNAUTHORIZED);
+      throw new GitilesRequestFailureException(FailureReason.NOT_AUTHORIZED, e);
     }
   }
 }

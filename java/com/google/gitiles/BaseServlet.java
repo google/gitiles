@@ -30,6 +30,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.net.HttpHeaders;
+import com.google.gitiles.GitilesRequestFailureException.FailureReason;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.GsonBuilder;
 import java.io.BufferedWriter;
@@ -119,8 +120,7 @@ public abstract class BaseServlet extends HttpServlet {
         break;
       case DEFAULT:
       default:
-        res.sendError(SC_BAD_REQUEST);
-        break;
+        throw new GitilesRequestFailureException(FailureReason.UNSUPPORTED_RESPONSE_FORMAT);
     }
   }
 
@@ -147,7 +147,7 @@ public abstract class BaseServlet extends HttpServlet {
    * @param res in-progress response.
    */
   protected void doGetHtml(HttpServletRequest req, HttpServletResponse res) throws IOException {
-    res.sendError(SC_BAD_REQUEST);
+    throw new GitilesRequestFailureException(FailureReason.UNSUPPORTED_RESPONSE_FORMAT);
   }
 
   /**
@@ -157,7 +157,7 @@ public abstract class BaseServlet extends HttpServlet {
    * @param res in-progress response.
    */
   protected void doGetText(HttpServletRequest req, HttpServletResponse res) throws IOException {
-    res.sendError(SC_BAD_REQUEST);
+    throw new GitilesRequestFailureException(FailureReason.UNSUPPORTED_RESPONSE_FORMAT);
   }
 
   /**
@@ -167,7 +167,7 @@ public abstract class BaseServlet extends HttpServlet {
    * @param res in-progress response.
    */
   protected void doGetJson(HttpServletRequest req, HttpServletResponse res) throws IOException {
-    res.sendError(SC_BAD_REQUEST);
+    throw new GitilesRequestFailureException(FailureReason.UNSUPPORTED_RESPONSE_FORMAT);
   }
 
   protected static Map<String, Object> getData(HttpServletRequest req) {

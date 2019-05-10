@@ -15,7 +15,6 @@
 package com.google.gitiles.blame;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -29,6 +28,8 @@ import com.google.gitiles.DateFormatter.Format;
 import com.google.gitiles.GitilesAccess;
 import com.google.gitiles.GitilesView;
 import com.google.gitiles.Renderer;
+import com.google.gitiles.GitilesRequestFailureException;
+import com.google.gitiles.GitilesRequestFailureException.FailureReason;
 import com.google.gitiles.ViewFilter;
 import com.google.gitiles.blame.cache.BlameCache;
 import com.google.gitiles.blame.cache.Region;
@@ -159,8 +160,7 @@ public class BlameServlet extends BaseServlet {
     RevCommit currCommit = rw.parseCommit(view.getRevision().getId());
     ObjectId currCommitBlobId = resolveBlob(view, rw, currCommit);
     if (currCommitBlobId == null) {
-      res.setStatus(SC_NOT_FOUND);
-      return null;
+      throw new GitilesRequestFailureException(FailureReason.OBJECT_NOT_FOUND);
     }
 
     ObjectId lastCommit = cache.findLastCommit(repo, currCommit, view.getPathPart());
@@ -182,8 +182,7 @@ public class BlameServlet extends BaseServlet {
 
     List<Region> regions = cache.get(repo, lastCommit, view.getPathPart());
     if (regions.isEmpty()) {
-      res.setStatus(SC_NOT_FOUND);
-      return null;
+      throw new GitilesRequestFailureException(FailureReason.BLAME_REGION_NOT_FOUND);
     }
     return new RegionResult(regions, lastCommitBlobId);
   }
