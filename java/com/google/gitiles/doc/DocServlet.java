@@ -116,8 +116,8 @@ public class DocServlet extends BaseServlet {
         if (navmd != null) {
           navmd.read(reader, cfg);
         }
-      } catch (LargeObjectException.ExceedsLimit errBig) {
-        fileTooBig(res, view, errBig);
+      } catch (LargeObjectException.ExceedsLimit e) {
+        fileTooBig(res, view);
         return;
       }
 
@@ -267,9 +267,7 @@ public class DocServlet extends BaseServlet {
     return false;
   }
 
-  private static void fileTooBig(
-      HttpServletResponse res, GitilesView view, LargeObjectException.ExceedsLimit errBig)
-      throws IOException {
+  private static void fileTooBig(HttpServletResponse res, GitilesView view) throws IOException {
     if (view.getType() == GitilesView.Type.ROOTED_DOC) {
       throw new GitilesRequestFailureException(FailureReason.OBJECT_TOO_LARGE);
     } else {
