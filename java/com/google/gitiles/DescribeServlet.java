@@ -53,7 +53,7 @@ public class DescribeServlet extends BaseServlet {
 
   @Override
   protected void doGetText(HttpServletRequest req, HttpServletResponse res) throws IOException {
-    String name = describe(ServletUtils.getRepository(req), ViewFilter.getView(req), req, res);
+    String name = describe(ServletUtils.getRepository(req), ViewFilter.getView(req), req);
     if (name == null) {
       return;
     }
@@ -64,7 +64,7 @@ public class DescribeServlet extends BaseServlet {
 
   @Override
   protected void doGetJson(HttpServletRequest req, HttpServletResponse res) throws IOException {
-    String name = describe(ServletUtils.getRepository(req), ViewFilter.getView(req), req, res);
+    String name = describe(ServletUtils.getRepository(req), ViewFilter.getView(req), req);
     if (name == null) {
       return;
     }
@@ -75,9 +75,7 @@ public class DescribeServlet extends BaseServlet {
         new TypeToken<Map<String, String>>() {}.getType());
   }
 
-  private ObjectId resolve(
-      Repository repo, GitilesView view, HttpServletRequest req, HttpServletResponse res)
-      throws IOException {
+  private ObjectId resolve(Repository repo, GitilesView view) throws IOException {
     String rev = view.getPathPart();
     try {
       return repo.resolve(rev);
@@ -93,19 +91,18 @@ public class DescribeServlet extends BaseServlet {
     }
   }
 
-  private String describe(
-      Repository repo, GitilesView view, HttpServletRequest req, HttpServletResponse res)
+  private String describe(Repository repo, GitilesView view, HttpServletRequest req)
       throws IOException {
     if (!getBooleanParam(view, CONTAINS_PARAM)) {
       throw new GitilesRequestFailureException(FailureReason.INCORECT_PARAMETER);
     }
-    ObjectId id = resolve(repo, view, req, res);
+    ObjectId id = resolve(repo, view);
     if (id == null) {
       return null;
     }
     String name;
     try (Git git = new Git(repo)) {
-      NameRevCommand cmd = nameRevCommand(git, id, req, res);
+      NameRevCommand cmd = nameRevCommand(git, id, req);
       if (cmd == null) {
         return null;
       }
@@ -119,8 +116,8 @@ public class DescribeServlet extends BaseServlet {
     return name;
   }
 
-  private NameRevCommand nameRevCommand(
-      Git git, ObjectId id, HttpServletRequest req, HttpServletResponse res) throws IOException {
+  private NameRevCommand nameRevCommand(Git git, ObjectId id, HttpServletRequest req)
+      throws IOException {
     GitilesView view = ViewFilter.getView(req);
     NameRevCommand cmd = git.nameRev();
     boolean all = getBooleanParam(view, ALL_PARAM);

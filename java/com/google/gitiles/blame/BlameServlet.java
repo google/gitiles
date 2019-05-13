@@ -75,7 +75,7 @@ public class BlameServlet extends BaseServlet {
 
     try (RevWalk rw = new RevWalk(repo)) {
       GitilesAccess access = getAccess(req);
-      RegionResult result = getRegions(view, access, repo, rw, res);
+      RegionResult result = getRegions(view, access, repo, rw);
       if (result == null) {
         return;
       }
@@ -117,7 +117,7 @@ public class BlameServlet extends BaseServlet {
     Repository repo = ServletUtils.getRepository(req);
 
     try (RevWalk rw = new RevWalk(repo)) {
-      RegionResult result = getRegions(view, getAccess(req), repo, rw, res);
+      RegionResult result = getRegions(view, getAccess(req), repo, rw);
       if (result == null) {
         return;
       }
@@ -155,8 +155,7 @@ public class BlameServlet extends BaseServlet {
   }
 
   private RegionResult getRegions(
-      GitilesView view, GitilesAccess access, Repository repo, RevWalk rw, HttpServletResponse res)
-      throws IOException {
+      GitilesView view, GitilesAccess access, Repository repo, RevWalk rw) throws IOException {
     RevCommit currCommit = rw.parseCommit(view.getRevision().getId());
     ObjectId currCommitBlobId = resolveBlob(view, rw, currCommit);
     if (currCommitBlobId == null) {
