@@ -60,14 +60,11 @@ import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.eclipse.jgit.util.QuotedString;
 import org.eclipse.jgit.util.RawParseUtils;
 import org.eclipse.jgit.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /** Serves an HTML page with detailed information about a path within a tree. */
 // TODO(dborowitz): Handle non-UTF-8 names.
 public class PathServlet extends BaseServlet {
   private static final long serialVersionUID = 1L;
-  private static final Logger log = LoggerFactory.getLogger(PathServlet.class);
 
   static final String MODE_HEADER = "X-Gitiles-Path-Mode";
   static final String TYPE_HEADER = "X-Gitiles-Object-Type";

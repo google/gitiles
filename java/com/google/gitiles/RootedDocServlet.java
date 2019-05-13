@@ -33,12 +33,9 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.resolver.RepositoryResolver;
 import org.eclipse.jgit.transport.resolver.ServiceNotAuthorizedException;
 import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /** Serves Markdown at the root of a host. */
 public class RootedDocServlet extends HttpServlet {
-  private static final Logger log = LoggerFactory.getLogger(ViewFilter.class);
   private static final long serialVersionUID = 1L;
   public static final String BRANCH = "refs/heads/md-pages";
 

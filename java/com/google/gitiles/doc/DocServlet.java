@@ -53,11 +53,8 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class DocServlet extends BaseServlet {
-  private static final Logger log = LoggerFactory.getLogger(DocServlet.class);
   private static final long serialVersionUID = 1L;
 
   private static final String INDEX_MD = "index.md";
