@@ -24,7 +24,9 @@ public class MoreAssert {
       throw new AssertionError("Expected " + expected.getSimpleName() + " to be thrown");
     } catch (Throwable actual) {
       if (expected.isAssignableFrom(actual.getClass())) {
-        return (T) actual;
+        @SuppressWarnings("unchecked")
+        T toReturn = (T) actual;
+        return toReturn;
       }
       throw new AssertionError(
           "Expected " + expected.getSimpleName() + ", but got " + actual.getClass().getSimpleName(),
