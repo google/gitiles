@@ -88,8 +88,7 @@ public class HostIndexServlet extends BaseServlet {
     GitilesView view = ViewFilter.getView(req);
     String prefix = view.getRepositoryPrefix();
     if (prefix != null) {
-      Map<String, RepositoryDescription> descs =
-          list(req, res, prefix, Collections.emptySet());
+      Map<String, RepositoryDescription> descs = list(req, res, prefix, Collections.emptySet());
       if (descs == null) {
         return;
       }

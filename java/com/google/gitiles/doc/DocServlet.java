@@ -14,8 +14,6 @@
 
 package com.google.gitiles.doc;
 
-import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_MODIFIED;
 import static org.eclipse.jgit.lib.Constants.OBJ_BLOB;
 import static org.eclipse.jgit.lib.FileMode.TYPE_FILE;
@@ -30,10 +28,10 @@ import com.google.common.hash.Hashing;
 import com.google.common.net.HttpHeaders;
 import com.google.gitiles.BaseServlet;
 import com.google.gitiles.GitilesAccess;
+import com.google.gitiles.GitilesRequestFailureException;
+import com.google.gitiles.GitilesRequestFailureException.FailureReason;
 import com.google.gitiles.GitilesView;
 import com.google.gitiles.Renderer;
-import com.google.gitiles.GitilesRequestFailureException.FailureReason;
-import com.google.gitiles.GitilesRequestFailureException;
 import com.google.gitiles.ViewFilter;
 import com.google.gitiles.doc.html.StreamHtmlBuilder;
 import java.io.IOException;
