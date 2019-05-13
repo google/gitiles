@@ -151,12 +151,11 @@ public class RevisionServlet extends BaseServlet {
       ObjectLoader loader = reader.open(view.getRevision().getId());
       if (loader.getType() != OBJ_COMMIT) {
         throw new GitilesRequestFailureException(FailureReason.UNSUPPORTED_OBJECT_TYPE);
-      } else {
-        PathServlet.setTypeHeader(res, loader.getType());
-        try (Writer writer = startRenderText(req, res);
-            OutputStream out = BaseEncoding.base64().encodingStream(writer)) {
-          loader.copyTo(out);
-        }
+      }
+      PathServlet.setTypeHeader(res, loader.getType());
+      try (Writer writer = startRenderText(req, res);
+          OutputStream out = BaseEncoding.base64().encodingStream(writer)) {
+        loader.copyTo(out);
       }
     }
   }

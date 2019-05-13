@@ -270,9 +270,8 @@ public class DocServlet extends BaseServlet {
   private static void fileTooBig(HttpServletResponse res, GitilesView view) throws IOException {
     if (view.getType() == GitilesView.Type.ROOTED_DOC) {
       throw new GitilesRequestFailureException(FailureReason.OBJECT_TOO_LARGE);
-    } else {
-      res.sendRedirect(GitilesView.show().copyFrom(view).toUrl());
     }
+    res.sendRedirect(GitilesView.show().copyFrom(view).toUrl());
   }
 
   private static class MarkdownFile {
