@@ -251,7 +251,8 @@ public class ViewFilterTest {
     assertThat(view.getRevision().getId()).isEqualTo(master);
     assertThat(view.getPathPart()).isEqualTo("foo/bar");
 
-    assertThrows(GitilesRequestFailureException.class, () -> getView("/repo/+show/stable..master/foo"));
+    assertThrows(
+        GitilesRequestFailureException.class, () -> getView("/repo/+show/stable..master/foo"));
   }
 
   @Test
@@ -280,7 +281,8 @@ public class ViewFilterTest {
     assertThat(view.getRevision().getId()).isEqualTo(master);
     assertThat(view.getPathPart()).isEqualTo("foo/bar.md");
 
-    assertThrows(GitilesRequestFailureException.class, () -> getView("/repo/+doc/stable..master/foo"));
+    assertThrows(
+        GitilesRequestFailureException.class, () -> getView("/repo/+doc/stable..master/foo"));
   }
 
   @Test
@@ -290,7 +292,8 @@ public class ViewFilterTest {
     assertThat(getView("//repo").getType()).isEqualTo(Type.REPOSITORY_INDEX);
     assertThat(getView("//repo//").getType()).isEqualTo(Type.REPOSITORY_INDEX);
     assertThrows(GitilesRequestFailureException.class, () -> getView("/repo/+//master"));
-    assertThrows(GitilesRequestFailureException.class, () -> getView("/repo/+/refs//heads//master"));
+    assertThrows(
+        GitilesRequestFailureException.class, () -> getView("/repo/+/refs//heads//master"));
     assertThrows(GitilesRequestFailureException.class, () -> getView("/repo/+//master//"));
     assertThrows(GitilesRequestFailureException.class, () -> getView("/repo/+//master/foo//bar"));
   }
@@ -423,11 +426,14 @@ public class ViewFilterTest {
 
     assertThrows(GitilesRequestFailureException.class, () -> getView("/repo/+archive"));
     assertThrows(GitilesRequestFailureException.class, () -> getView("/repo/+archive/"));
-    assertThrows(GitilesRequestFailureException.class, () -> getView("/repo/+archive/master..branch"));
+    assertThrows(
+        GitilesRequestFailureException.class, () -> getView("/repo/+archive/master..branch"));
     assertThrows(GitilesRequestFailureException.class, () -> getView("/repo/+archive/master.foo"));
     assertThrows(GitilesRequestFailureException.class, () -> getView("/repo/+archive/master.zip"));
-    assertThrows(GitilesRequestFailureException.class, () -> getView("/repo/+archive/master/.tar.gz"));
-    assertThrows(GitilesRequestFailureException.class, () -> getView("/repo/+archive/master/foo/.tar.gz"));
+    assertThrows(
+        GitilesRequestFailureException.class, () -> getView("/repo/+archive/master/.tar.gz"));
+    assertThrows(
+        GitilesRequestFailureException.class, () -> getView("/repo/+archive/master/foo/.tar.gz"));
 
     view = getView("/repo/+archive/master.tar.gz");
     assertThat(view.getType()).isEqualTo(Type.ARCHIVE);
@@ -466,7 +472,8 @@ public class ViewFilterTest {
     assertThrows(GitilesRequestFailureException.class, () -> getView("/repo/+blame"));
     assertThrows(GitilesRequestFailureException.class, () -> getView("/repo/+blame/"));
     assertThrows(GitilesRequestFailureException.class, () -> getView("/repo/+blame/master"));
-    assertThrows(GitilesRequestFailureException.class, () -> getView("/repo/+blame/master..branch"));
+    assertThrows(
+        GitilesRequestFailureException.class, () -> getView("/repo/+blame/master..branch"));
 
     view = getView("/repo/+blame/master/foo/bar");
     assertThat(view.getType()).isEqualTo(Type.BLAME);

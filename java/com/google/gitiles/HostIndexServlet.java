@@ -37,13 +37,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jgit.transport.resolver.ServiceNotAuthorizedException;
 import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /** Serves the top level index page for a Gitiles host. */
 public class HostIndexServlet extends BaseServlet {
   private static final long serialVersionUID = 1L;
-  private static final Logger log = LoggerFactory.getLogger(HostIndexServlet.class);
 
   protected final GitilesUrls urls;
 
@@ -54,8 +51,7 @@ public class HostIndexServlet extends BaseServlet {
   }
 
   private Map<String, RepositoryDescription> list(
-      HttpServletRequest req, HttpServletResponse res, String prefix, Set<String> branches)
-      throws IOException {
+      HttpServletRequest req, String prefix, Set<String> branches) throws IOException {
     Map<String, RepositoryDescription> descs;
     try {
       descs = getAccess(req).listRepositories(prefix, branches);
@@ -88,8 +84,7 @@ public class HostIndexServlet extends BaseServlet {
     GitilesView view = ViewFilter.getView(req);
     String prefix = view.getRepositoryPrefix();
     if (prefix != null) {
-      Map<String, RepositoryDescription> descs =
-          list(req, res, prefix, Collections.emptySet());
+      Map<String, RepositoryDescription> descs = list(req, prefix, Collections.emptySet());
       if (descs == null) {
         return;
       }
@@ -111,7 +106,7 @@ public class HostIndexServlet extends BaseServlet {
   protected void doGetHtml(HttpServletRequest req, HttpServletResponse res) throws IOException {
     GitilesView view = ViewFilter.getView(req);
     String prefix = view.getRepositoryPrefix();
-    Map<String, RepositoryDescription> descs = list(req, res, prefix, parseShowBranch(req));
+    Map<String, RepositoryDescription> descs = list(req, prefix, parseShowBranch(req));
     if (descs == null) {
       return;
     }
@@ -148,7 +143,7 @@ public class HostIndexServlet extends BaseServlet {
   protected void doGetText(HttpServletRequest req, HttpServletResponse res) throws IOException {
     String prefix = ViewFilter.getView(req).getRepositoryPrefix();
     Set<String> branches = parseShowBranch(req);
-    Map<String, RepositoryDescription> descs = list(req, res, prefix, branches);
+    Map<String, RepositoryDescription> descs = list(req, prefix, branches);
     if (descs == null) {
       return;
     }
@@ -173,7 +168,7 @@ public class HostIndexServlet extends BaseServlet {
   @Override
   protected void doGetJson(HttpServletRequest req, HttpServletResponse res) throws IOException {
     String prefix = ViewFilter.getView(req).getRepositoryPrefix();
-    Map<String, RepositoryDescription> descs = list(req, res, prefix, parseShowBranch(req));
+    Map<String, RepositoryDescription> descs = list(req, prefix, parseShowBranch(req));
     if (descs == null) {
       return;
     }

@@ -35,6 +35,8 @@ public class DefaultErrorHandlingFilterTest {
   }
 
   private static class TestServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse res) {
       throw new GitilesRequestFailureException(FailureReason.INCORECT_PARAMETER);

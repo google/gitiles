@@ -87,6 +87,7 @@ import javax.annotation.Nullable;
  * MyErrorHandlingFilter} will handle that. You can control how the error should be surfaced.
  */
 public final class GitilesRequestFailureException extends RuntimeException {
+  private static final long serialVersionUID = 1L;
   private final FailureReason reason;
   private String publicErrorMessage;
 

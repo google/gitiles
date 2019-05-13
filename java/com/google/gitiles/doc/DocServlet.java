@@ -14,8 +14,6 @@
 
 package com.google.gitiles.doc;
 
-import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_MODIFIED;
 import static org.eclipse.jgit.lib.Constants.OBJ_BLOB;
 import static org.eclipse.jgit.lib.FileMode.TYPE_FILE;
@@ -30,10 +28,10 @@ import com.google.common.hash.Hashing;
 import com.google.common.net.HttpHeaders;
 import com.google.gitiles.BaseServlet;
 import com.google.gitiles.GitilesAccess;
+import com.google.gitiles.GitilesRequestFailureException;
+import com.google.gitiles.GitilesRequestFailureException.FailureReason;
 import com.google.gitiles.GitilesView;
 import com.google.gitiles.Renderer;
-import com.google.gitiles.GitilesRequestFailureException.FailureReason;
-import com.google.gitiles.GitilesRequestFailureException;
 import com.google.gitiles.ViewFilter;
 import com.google.gitiles.doc.html.StreamHtmlBuilder;
 import java.io.IOException;
@@ -55,11 +53,8 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class DocServlet extends BaseServlet {
-  private static final Logger log = LoggerFactory.getLogger(DocServlet.class);
   private static final long serialVersionUID = 1L;
 
   private static final String INDEX_MD = "index.md";
@@ -121,8 +116,8 @@ public class DocServlet extends BaseServlet {
         if (navmd != null) {
           navmd.read(reader, cfg);
         }
-      } catch (LargeObjectException.ExceedsLimit errBig) {
-        fileTooBig(res, view, errBig);
+      } catch (LargeObjectException.ExceedsLimit e) {
+        fileTooBig(res, view);
         return;
       }
 
@@ -272,14 +267,11 @@ public class DocServlet extends BaseServlet {
     return false;
   }
 
-  private static void fileTooBig(
-      HttpServletResponse res, GitilesView view, LargeObjectException.ExceedsLimit errBig)
-      throws IOException {
+  private static void fileTooBig(HttpServletResponse res, GitilesView view) throws IOException {
     if (view.getType() == GitilesView.Type.ROOTED_DOC) {
       throw new GitilesRequestFailureException(FailureReason.OBJECT_TOO_LARGE);
-    } else {
-      res.sendRedirect(GitilesView.show().copyFrom(view).toUrl());
     }
+    res.sendRedirect(GitilesView.show().copyFrom(view).toUrl());
   }
 
   private static class MarkdownFile {

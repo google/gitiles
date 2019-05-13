@@ -49,8 +49,6 @@ import org.eclipse.jgit.revwalk.RevObject;
 import org.eclipse.jgit.revwalk.RevTag;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /** Serves an HTML page with detailed information about a ref. */
 public class RevisionServlet extends BaseServlet {
@@ -60,7 +58,6 @@ public class RevisionServlet extends BaseServlet {
       Field.setOf(CommitJsonData.DEFAULT_FIELDS, Field.DIFF_TREE);
 
   private static final long serialVersionUID = 1L;
-  private static final Logger log = LoggerFactory.getLogger(RevisionServlet.class);
 
   private final Linkifier linkifier;
 
@@ -154,12 +151,11 @@ public class RevisionServlet extends BaseServlet {
       ObjectLoader loader = reader.open(view.getRevision().getId());
       if (loader.getType() != OBJ_COMMIT) {
         throw new GitilesRequestFailureException(FailureReason.UNSUPPORTED_OBJECT_TYPE);
-      } else {
-        PathServlet.setTypeHeader(res, loader.getType());
-        try (Writer writer = startRenderText(req, res);
-            OutputStream out = BaseEncoding.base64().encodingStream(writer)) {
-          loader.copyTo(out);
-        }
+      }
+      PathServlet.setTypeHeader(res, loader.getType());
+      try (Writer writer = startRenderText(req, res);
+          OutputStream out = BaseEncoding.base64().encodingStream(writer)) {
+        loader.copyTo(out);
       }
     }
   }

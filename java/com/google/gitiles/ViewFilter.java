@@ -28,12 +28,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jgit.http.server.ServletUtils;
 import org.eclipse.jgit.http.server.glue.WrappedRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /** Filter to parse URLs and convert them to {@link GitilesView}s. */
 public class ViewFilter extends AbstractHttpFilter {
-  private static final Logger log = LoggerFactory.getLogger(ViewFilter.class);
   // TODO(dborowitz): Make this public in JGit (or implement getRegexGroup
   // upstream).
   private static final String REGEX_GROUPS_ATTRIBUTE =
