@@ -26,6 +26,7 @@ import com.google.common.hash.Funnels;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.Hasher;
 import com.google.common.hash.Hashing;
+import com.google.common.html.types.LegacyConversions;
 import com.google.common.io.ByteStreams;
 import com.google.common.net.HttpHeaders;
 import com.google.template.soy.tofu.SoyTofu;
@@ -210,7 +211,15 @@ public abstract class Renderer {
   }
 
   SoyTofu.Renderer newRenderer(String templateName) {
-    return getTofu().newRenderer(templateName);
+    ImmutableMap.Builder<String, Object> staticUrls = ImmutableMap.builder();
+    for (String key : STATIC_URL_GLOBALS.keySet()) {
+      staticUrls.put(
+          key.replaceFirst("^gitiles\\.", ""),
+          LegacyConversions.riskilyAssumeTrustedResourceUrl(globals.get(key)));
+    }
+    return getTofu()
+        .newRenderer(templateName)
+        .setIjData(ImmutableMap.of("staticUrls", staticUrls.build()));
   }
 
   protected abstract SoyTofu getTofu();

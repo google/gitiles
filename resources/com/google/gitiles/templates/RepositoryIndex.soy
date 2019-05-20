@@ -30,6 +30,7 @@
   {@param? moreTagsUrl: ?}  /** URL to show more branches, if necessary. */
   {@param hasLog: ?}  /** whether a log should be shown for HEAD. */
   {@param? readmeHtml: ?}  /** optional rendered README.md contents. */
+  {@inject staticUrls: ?}
 {if $readmeHtml}
   {call .header data="all"}
     {param title: $repositoryName /}
@@ -37,7 +38,7 @@
     {param menuEntries: $menuEntries /}
     {param customVariant: $customVariant /}
     {param breadcrumbs: $breadcrumbs /}
-    {param css: [gitiles.DOC_CSS_URL] /}
+    {param css: [$staticUrls.DOC_CSS_URL] /}
   {/call}
 {else}
   {call .header}

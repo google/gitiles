@@ -28,13 +28,14 @@
       "type" key with one of the org.eclipse.jgit.lib.Contants.TYPE_* constant strings, and a "data"
       key with an object whose keys correspond to the appropriate object detail template from
       ObjectDetail.soy. */
+  {@inject staticUrls: ?}
 {if $hasBlob}
   {call .header data="all"}
-    {param css: [gitiles.PRETTIFY_CSS_URL] /}
+    {param css: [$staticUrls.PRETTIFY_CSS_URL] /}
   {/call}
 {elseif $hasReadme}
   {call .header data="all"}
-    {param css: [gitiles.DOC_CSS_URL, gitiles.PRETTIFY_CSS_URL] /}
+    {param css: [$staticUrls.DOC_CSS_URL, $staticUrls.PRETTIFY_CSS_URL] /}
   {/call}
 {else}
   {call .header data="all" /}
