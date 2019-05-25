@@ -152,7 +152,7 @@ maven_jar(
     sha1 = "198ea005f41219f038f4291f0b0e9f3259730e92",
 )
 
-JGIT_VERS = "5.2.0.201812061821-r"
+JGIT_VERS = "5.3.1.201904271842-r"
 
 JGIT_REPO = MAVEN_CENTRAL
 
@@ -160,28 +160,28 @@ maven_jar(
     name = "jgit-lib",
     artifact = "org.eclipse.jgit:org.eclipse.jgit:" + JGIT_VERS,
     repository = JGIT_REPO,
-    sha1 = "250269f30458084777a480895e390d2a42143da3",
+    sha1 = "dba85014483315fa426259bc1b8ccda9373a624b",
 )
 
 maven_jar(
     name = "jgit-servlet",
     artifact = "org.eclipse.jgit:org.eclipse.jgit.http.server:" + JGIT_VERS,
     repository = JGIT_REPO,
-    sha1 = "5d7fbe1c8528d881e2987c75e512df2cfa408d73",
+    sha1 = "3287341fca859340a00b51cb5dd3b78b8e532b39",
 )
 
 maven_jar(
     name = "jgit-junit",
     artifact = "org.eclipse.jgit:org.eclipse.jgit.junit:" + JGIT_VERS,
     repository = JGIT_REPO,
-    sha1 = "723b9e6c54f8b3012dd7d4fe42b616b8d10ee230",
+    sha1 = "3d9ba7e610d6ab5d08dcb1e4ba448b592a34de77",
 )
 
 maven_jar(
     name = "jgit-archive",
     artifact = "org.eclipse.jgit:org.eclipse.jgit.archive:" + JGIT_VERS,
     repository = JGIT_REPO,
-    sha1 = "6e49b0516b46ca90d394256d40c6069cdd8f2957",
+    sha1 = "3585027e83fb44a5de2c10ae9ddbf976593bf080",
 )
 
 maven_jar(
