@@ -13,5 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-bazel build tools/eclipse:project.py
-`bazel info output_base`/`cat bazel-bin/tools/eclipse/project.py.txt` -n gitiles -r .
+[ $(basename $PWD) != "gitiles" ] && echo "This script must be run from the gitiles top directory" && exit 1
+
+PROJECT_PY_PATH=$(bazel query @com_googlesource_gerrit_bazlets//tools/eclipse:project --output location | sed s/BUILD:.*//)
+[ $? -ne 0 ] && echo "Unable fo find project.py" && exit 1
+
+$PROJECT_PY_PATH/project.py -n gitiles -r .
+[ $? -eq 0 ] && echo "Eclipse configuration generated."
+
