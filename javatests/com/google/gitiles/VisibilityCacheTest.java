@@ -39,7 +39,8 @@
  * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */ package com.google.gitiles;
+ */
+package com.google.gitiles;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -80,9 +81,18 @@ public class VisibilityCacheTest {
   @Before
   public void setUp() throws Exception {
     /**
-     * master (branch not visible)
      *
-     * <p>commitC | commit2 commitB | | commit1 commitA <--- refs/tags/v0.1 \ / \ / baseCommit
+     *
+     * <pre>
+     *               commitC
+     *                 |
+     *   commit2     commitB
+     *      |          |
+     *   commit1     commitA <--- refs/tags/v0.1
+     *       \         /
+     *        \       /
+     *        baseCommit
+     * </pre>
      */
     repo = new InMemoryRepository(new DfsRepositoryDescription());
     TestRepository<InMemoryRepository> git = new TestRepository<>(repo);
