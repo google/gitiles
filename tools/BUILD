@@ -14,8 +14,10 @@ default_java_toolchain(
     visibility = ["//visibility:public"],
 )
 
-# This EP warnings list borrowed from here:
+# Error Prone errors enabled by default; see ../.bazelrc for how this is
+# enabled. This warnings list is originally based on:
 # https://github.com/bazelbuild/BUILD_file_generator/blob/master/tools/bazel_defs/java.bzl
+# However, feel free to add any additional errors. Thus far they have all been pretty useful.
 java_package_configuration(
     name = "error_prone",
     javacopts = [
