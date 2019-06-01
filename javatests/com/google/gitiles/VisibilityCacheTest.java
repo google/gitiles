@@ -95,17 +95,18 @@ public class VisibilityCacheTest {
      * </pre>
      */
     repo = new InMemoryRepository(new DfsRepositoryDescription());
-    TestRepository<InMemoryRepository> git = new TestRepository<>(repo);
-    baseCommit = git.commit().message("baseCommit").create();
-    commit1 = git.commit().parent(baseCommit).message("commit1").create();
-    commit2 = git.commit().parent(commit1).message("commit2").create();
+    try (TestRepository<InMemoryRepository> git = new TestRepository<>(repo)) {
+      baseCommit = git.commit().message("baseCommit").create();
+      commit1 = git.commit().parent(baseCommit).message("commit1").create();
+      commit2 = git.commit().parent(commit1).message("commit2").create();
 
-    commitA = git.commit().parent(baseCommit).message("commitA").create();
-    commitB = git.commit().parent(commitA).message("commitB").create();
-    commitC = git.commit().parent(commitB).message("commitC").create();
+      commitA = git.commit().parent(baseCommit).message("commitA").create();
+      commitB = git.commit().parent(commitA).message("commitB").create();
+      commitC = git.commit().parent(commitB).message("commitC").create();
 
-    git.update("master", commit2);
-    git.update("refs/tags/v0.1", commitA);
+      git.update("master", commit2);
+      git.update("refs/tags/v0.1", commitA);
+    }
 
     visibilityCache = new VisibilityCache(true);
     walk = new RevWalk(repo);
