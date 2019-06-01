@@ -145,6 +145,7 @@ public abstract class BaseServlet extends HttpServlet {
    *
    * @param req in-progress request.
    * @param res in-progress response.
+   * @throws IOException if there was an error rendering the result.
    */
   protected void doGetHtml(HttpServletRequest req, HttpServletResponse res) throws IOException {
     throw new GitilesRequestFailureException(FailureReason.UNSUPPORTED_RESPONSE_FORMAT);
@@ -155,6 +156,7 @@ public abstract class BaseServlet extends HttpServlet {
    *
    * @param req in-progress request.
    * @param res in-progress response.
+   * @throws IOException if there was an error rendering the result.
    */
   protected void doGetText(HttpServletRequest req, HttpServletResponse res) throws IOException {
     throw new GitilesRequestFailureException(FailureReason.UNSUPPORTED_RESPONSE_FORMAT);
@@ -165,6 +167,7 @@ public abstract class BaseServlet extends HttpServlet {
    *
    * @param req in-progress request.
    * @param res in-progress response.
+   * @throws IOException if there was an error rendering the result.
    */
   protected void doGetJson(HttpServletRequest req, HttpServletResponse res) throws IOException {
     throw new GitilesRequestFailureException(FailureReason.UNSUPPORTED_RESPONSE_FORMAT);
