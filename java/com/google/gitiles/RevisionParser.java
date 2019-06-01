@@ -225,7 +225,7 @@ class RevisionParser {
     if (!cache.isVisible(repo, walk, access, id)) {
       return false;
     }
-    if (result.getOldRevision() != null && result.getOldRevision() != Revision.NULL) {
+    if (result.getOldRevision() != null && !Revision.isNull(result.getOldRevision())) {
       return cache.isVisible(repo, walk, access, result.getOldRevision().getId(), id);
     }
     return true;

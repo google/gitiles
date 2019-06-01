@@ -176,14 +176,14 @@ public class LogSoyData {
   private GitilesView.Builder copyAndCanonicalizeView(String revision) {
     // Canonicalize the view by using full SHAs.
     GitilesView.Builder copy = GitilesView.log().copyFrom(view);
-    if (view.getRevision() != Revision.NULL) {
+    if (!Revision.isNull(view.getRevision())) {
       copy.setRevision(view.getRevision());
     } else if (revision != null) {
       copy.setRevision(Revision.named(revision));
     } else {
       copy.setRevision(Revision.NULL);
     }
-    if (view.getOldRevision() != Revision.NULL) {
+    if (!Revision.isNull(view.getOldRevision())) {
       copy.setOldRevision(view.getOldRevision());
     }
     return copy;
