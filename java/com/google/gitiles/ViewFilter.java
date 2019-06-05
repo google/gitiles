@@ -124,7 +124,7 @@ public class ViewFilter extends AbstractHttpFilter {
     }
     Revision r = view.getRevision();
     Revision nr = Revision.normalizeParentExpressions(r);
-    if (r != nr) {
+    if (!r.equals(nr)) {
       res.sendRedirect(view.setRevision(nr).toUrl());
       return true;
     }
