@@ -78,7 +78,7 @@ public class MarkdownConfig {
     if (safeHtml) {
       f = cfg.getStringList("markdown", null, "allowiframe");
     }
-    allowAnyIFrame = f.length == 1 && StringUtils.toBooleanOrNull(f[0]) == Boolean.TRUE;
+    allowAnyIFrame = f.length == 1 && Boolean.TRUE.equals(StringUtils.toBooleanOrNull(f[0]));
     if (allowAnyIFrame) {
       allowIFrame = ImmutableList.of();
     } else {
