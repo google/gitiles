@@ -95,6 +95,7 @@ public class PathServlet extends BaseServlet {
     EXECUTABLE_FILE(FileMode.EXECUTABLE_FILE),
     GITLINK(FileMode.GITLINK);
 
+    @SuppressWarnings("ImmutableEnumChecker") // FileMode is effectively immutable.
     private final FileMode mode;
 
     FileType(FileMode mode) {
