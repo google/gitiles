@@ -14,6 +14,7 @@
 
 package com.google.gitiles;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -63,7 +64,8 @@ public class DateFormatter {
   private final Optional<TimeZone> fixedTz;
   private final Format format;
 
-  public DateFormatter(Optional<TimeZone> fixedTz, Format format) {
+  @VisibleForTesting
+  protected DateFormatter(Optional<TimeZone> fixedTz, Format format) {
     this.fixedTz = fixedTz;
     this.format = format;
   }
