@@ -29,6 +29,7 @@ java_package_configuration(
         "-Xep:CannotMockFinalClass:ERROR",
         "-Xep:ClassCanBeStatic:ERROR",
         "-Xep:ClassNewInstance:ERROR",
+        "-Xep:DateFormatConstant:ERROR",
         "-Xep:DefaultCharset:ERROR",
         "-Xep:DoubleCheckedLocking:ERROR",
         "-Xep:DoubleCheckedLocking:ERROR",
