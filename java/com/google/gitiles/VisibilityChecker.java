@@ -60,7 +60,7 @@ import org.eclipse.jgit.revwalk.RevWalk;
  */
 public class VisibilityChecker {
 
-  private boolean topoSort;
+  private final boolean topoSort;
 
   /**
    * @param topoSort whether to use a more thorough reachability check by sorting in topological
