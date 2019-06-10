@@ -103,10 +103,7 @@ public class VisibilityChecker {
    * @throws IOException a pack file or loose object could not be read
    */
   protected boolean isReachableFrom(
-      String description,
-      RevWalk walk,
-      RevCommit commit,
-      Collection<ObjectId> starters)
+      String description, RevWalk walk, RevCommit commit, Collection<ObjectId> starters)
       throws IOException {
     if (starters.isEmpty()) {
       return false;
