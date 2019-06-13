@@ -46,8 +46,8 @@ maven_jar(
 
 maven_jar(
     name = "guava",
-    artifact = "com.google.guava:guava:27.1-jre",
-    sha1 = "e47b59c893079b87743cdcfb6f17ca95c08c592c",
+    artifact = "com.google.guava:guava:28.0-jre",
+    sha1 = "54fed371b4b8a8cce1e94a9abd9620982d3aa54b",
 )
 
 maven_jar(
