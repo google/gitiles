@@ -33,6 +33,8 @@ class Navbar {
   private static final Pattern META_LINK =
       Pattern.compile(
           "^\\[(logo|home|extensions)\\]:\\s*(.+)$", Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
+  private static final Pattern EXTENSIONS_LINK =
+      Pattern.compile("^\\[extensions\\]:\\s*(.+)$", Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
 
   private MarkdownConfig cfg;
   private MarkdownToHtml fmt;
@@ -108,30 +110,27 @@ class Navbar {
   }
 
   private String extractMetadata(String markdown) {
+    boolean extensionsFound = false;
     Matcher m = META_LINK.matcher(markdown);
-    boolean foundMetadata = m.find();
-    if (foundMetadata) {
-      StringBuffer sb = new StringBuffer();
-      do {
-        String key = m.group(1).toLowerCase();
-        String url = m.group(2).trim();
-        switch (key) {
-          case "logo":
-            logoUrl = url;
-            break;
-          case "home":
-            homeUrl = url;
-            break;
-          case "extensions":
-            Set<String> names = splitExtensionNames(url);
-            cfg = cfg.copyWithExtensions(enabled(names), disabled(names));
-            break;
-        }
-        m.appendReplacement(sb, "");
-        foundMetadata = m.find();
-      } while (foundMetadata);
-      m.appendTail(sb);
-      return sb.toString();
+    while (m.find()) {
+      String key = m.group(1).toLowerCase();
+      String url = m.group(2).trim();
+      switch (key) {
+        case "logo":
+          logoUrl = url;
+          break;
+        case "home":
+          homeUrl = url;
+          break;
+        case "extensions":
+          extensionsFound = true;
+          Set<String> names = splitExtensionNames(url);
+          cfg = cfg.copyWithExtensions(enabled(names), disabled(names));
+          break;
+      }
+    }
+    if (extensionsFound) {
+      return EXTENSIONS_LINK.matcher(markdown).replaceAll("");
     }
     return markdown;
   }

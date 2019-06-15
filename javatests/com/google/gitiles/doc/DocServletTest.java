@@ -43,7 +43,10 @@ public class DocServletTest extends ServletTest {
     String navbar =
         "# Site Title\n"
             + "\n"
-            + "* [Home](index.md)\n"
+            + "[home]: index.md\n"
+            + "[logo]: logo.png\n"
+            + "\n"
+            + "* [Home][home]\n"
             + "* [README](README.md)\n"
             + "[extensions]: blocknote\n";
     repo.branch("master")
@@ -54,7 +57,7 @@ public class DocServletTest extends ServletTest {
 
     String html = buildHtml("/repo/+doc/master/README.md");
     assertThat(html).contains("<title>Site Title - page</title>");
-
+    assertThat(html).contains("Header-anchorLogo");
     assertThat(html).contains("<span class=\"Header-anchorTitle\">Site Title</span>");
     assertThat(html).contains("<li><a href=\"/b/repo/+/master/index.md\">Home</a></li>");
     assertThat(html).contains("<li><a href=\"/b/repo/+/master/README.md\">README</a></li>");
