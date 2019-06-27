@@ -45,32 +45,68 @@ public class DefaultErrorHandlingFilter extends AbstractHttpFilter {
   @Override
   public void doFilter(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
       throws IOException, ServletException {
-    int status = -1;
-    String message = null;
     try {
       chain.doFilter(req, res);
     } catch (GitilesRequestFailureException e) {
-      res.setHeader(GITILES_ERROR, e.getReason().toString());
-      status = e.getReason().getHttpStatusCode();
-      message = e.getPublicErrorMessage();
+      try {
+        res.setHeader(GITILES_ERROR, e.getReason().toString());
+        renderHtml(req, res, e.getReason().getHttpStatusCode(), e.getPublicErrorMessage());
+      } catch (IOException e2) {
+        e.addSuppressed(e2);
+        throw e;
+      }
     } catch (RepositoryNotFoundException e) {
-      status = FailureReason.REPOSITORY_NOT_FOUND.getHttpStatusCode();
-      message = FailureReason.REPOSITORY_NOT_FOUND.getMessage();
+      try {
+        res.setHeader(GITILES_ERROR, FailureReason.REPOSITORY_NOT_FOUND.toString());
+        renderHtml(
+            req,
+            res,
+            FailureReason.REPOSITORY_NOT_FOUND.getHttpStatusCode(),
+            FailureReason.REPOSITORY_NOT_FOUND.getMessage());
+      } catch (IOException e2) {
+        e.addSuppressed(e2);
+        throw e;
+      }
     } catch (AmbiguousObjectException e) {
-      status = FailureReason.AMBIGUOUS_OBJECT.getHttpStatusCode();
-      message = FailureReason.AMBIGUOUS_OBJECT.getMessage();
+      try {
+        res.setHeader(GITILES_ERROR, FailureReason.AMBIGUOUS_OBJECT.toString());
+        renderHtml(
+            req,
+            res,
+            FailureReason.AMBIGUOUS_OBJECT.getHttpStatusCode(),
+            FailureReason.AMBIGUOUS_OBJECT.getMessage());
+      } catch (IOException e2) {
+        e.addSuppressed(e2);
+        throw e;
+      }
     } catch (ServiceMayNotContinueException e) {
-      status = e.getStatusCode();
-      message = e.getMessage();
-    } catch (IOException | ServletException err) {
-      log.warn("Internal server error", err);
-      status = FailureReason.INTERNAL_SERVER_ERROR.getHttpStatusCode();
-      message = FailureReason.INTERNAL_SERVER_ERROR.getMessage();
+      try {
+        renderHtml(req, res, e.getStatusCode(), e.getMessage());
+      } catch (IOException e2) {
+        e.addSuppressed(e2);
+        throw e;
+      }
+    } catch (IOException | ServletException e) {
+      try {
+        log.warn("Internal server error", e);
+        res.setHeader(GITILES_ERROR, FailureReason.INTERNAL_SERVER_ERROR.toString());
+        renderHtml(
+            req,
+            res,
+            FailureReason.INTERNAL_SERVER_ERROR.getHttpStatusCode(),
+            FailureReason.INTERNAL_SERVER_ERROR.getMessage());
+      } catch (IOException e2) {
+        e.addSuppressed(e2);
+        throw e;
+      }
     }
-    if (status != -1) {
-      res.setStatus(status);
-      renderHtml(req, res, "gitiles.error", ImmutableMap.of("title", message));
-    }
+  }
+
+  private void renderHtml(
+      HttpServletRequest req, HttpServletResponse res, int status, String message)
+      throws IOException {
+    res.setStatus(status);
+    renderHtml(req, res, "gitiles.error", ImmutableMap.of("title", message));
   }
 
   protected void renderHtml(
