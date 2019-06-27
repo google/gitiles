@@ -204,7 +204,7 @@ public abstract class BaseServlet extends HttpServlet {
   protected void renderHtml(
       HttpServletRequest req, HttpServletResponse res, String templateName, Map<String, ?> soyData)
       throws IOException {
-    renderer.render(req, res, templateName, startHtmlResponse(req, res, soyData));
+    renderer.renderHtml(req, res, templateName, startHtmlResponse(req, res, soyData));
   }
 
   /**
@@ -227,7 +227,8 @@ public abstract class BaseServlet extends HttpServlet {
       HttpServletRequest req, HttpServletResponse res, String templateName, Map<String, ?> soyData)
       throws IOException {
     req.setAttribute(STREAMING_ATTRIBUTE, true);
-    return renderer.renderStreaming(res, false, templateName, startHtmlResponse(req, res, soyData));
+    return renderer.renderHtmlStreaming(
+        res, false, templateName, startHtmlResponse(req, res, soyData));
   }
 
   /**
@@ -259,7 +260,8 @@ public abstract class BaseServlet extends HttpServlet {
       res.setHeader(HttpHeaders.CONTENT_ENCODING, "gzip");
       gzip = true;
     }
-    return renderer.renderStreaming(res, gzip, templateName, startHtmlResponse(req, res, soyData));
+    return renderer.renderHtmlStreaming(
+        res, gzip, templateName, startHtmlResponse(req, res, soyData));
   }
 
   private Map<String, ?> startHtmlResponse(

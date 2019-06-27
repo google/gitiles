@@ -103,7 +103,7 @@ public class DefaultErrorHandlingFilter extends AbstractHttpFilter {
   protected void renderHtml(
       HttpServletRequest req, HttpServletResponse res, String templateName, Map<String, ?> soyData)
       throws IOException {
-    renderer.render(req, res, templateName, startHtmlResponse(req, res, soyData));
+    renderer.renderHtml(req, res, templateName, startHtmlResponse(req, res, soyData));
   }
 
   private Map<String, ?> startHtmlResponse(

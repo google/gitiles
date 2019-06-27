@@ -18,13 +18,13 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
 import com.google.template.soy.SoyFileSet;
-import com.google.template.soy.tofu.SoyTofu;
+import com.google.template.soy.jbcsrc.api.SoySauce;
 import java.net.URL;
 import java.util.Map;
 
 /** Renderer that precompiles Soy and uses static precompiled CSS. */
 public class DefaultRenderer extends Renderer {
-  private final SoyTofu tofu;
+  private final SoySauce sauce;
 
   DefaultRenderer() {
     this("", ImmutableList.<URL>of(), "");
@@ -49,11 +49,11 @@ public class DefaultRenderer extends Renderer {
     for (URL template : templates.values()) {
       builder.add(template);
     }
-    tofu = builder.build().compileToTofu();
+    sauce = builder.build().compileTemplates();
   }
 
   @Override
-  protected SoyTofu getTofu() {
-    return tofu;
+  protected SoySauce getSauce() {
+    return sauce;
   }
 }

@@ -21,7 +21,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Streams;
 import com.google.common.hash.HashCode;
 import com.google.template.soy.SoyFileSet;
-import com.google.template.soy.tofu.SoyTofu;
+import com.google.template.soy.jbcsrc.api.SoySauce;
 import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -47,7 +47,7 @@ public class DebugRenderer extends Renderer {
   }
 
   @Override
-  protected SoyTofu getTofu() {
+  protected SoySauce getSauce() {
     SoyFileSet.Builder builder = SoyFileSet.builder().setCompileTimeGlobals(globals);
     for (URL template : templates.values()) {
       try {
@@ -57,6 +57,6 @@ public class DebugRenderer extends Renderer {
       }
       builder.add(template);
     }
-    return builder.build().compileToTofu();
+    return builder.build().compileTemplates();
   }
 }

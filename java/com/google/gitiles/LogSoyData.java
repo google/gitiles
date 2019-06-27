@@ -22,7 +22,8 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gitiles.CommitData.Field;
-import com.google.template.soy.tofu.SoyTofu;
+import com.google.template.soy.data.LoggingAdvisingAppendable;
+import com.google.template.soy.jbcsrc.api.SoySauce;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Map;
@@ -74,35 +75,43 @@ public class LogSoyData {
     variant = firstNonNull(config.getString("logFormat", pretty, "variant"), pretty);
   }
 
+  private void renderHtml(SoySauce.Renderer renderer, LoggingAdvisingAppendable out)
+      throws IOException {
+    if (!renderer.renderHtml(out).result().isDone()) {
+      throw new IOException("failed to render HTML");
+    }
+  }
+
   public void renderStreaming(
       Paginator paginator,
       @Nullable String revision,
       Renderer renderer,
-      Writer out,
+      Writer writer,
       DateFormatter df,
       FooterBehavior footerBehavior)
       throws IOException {
-    renderer
-        .newRenderer("gitiles.logEntriesHeader")
-        .setData(toHeaderSoyData(paginator, revision))
-        .render(out);
-    out.flush();
+    LoggingAdvisingAppendable out = LoggingAdvisingAppendable.delegating(writer);
+    renderHtml(
+        renderer
+            .newRenderer("gitiles.logEntriesHeader")
+            .setData(toHeaderSoyData(paginator, revision)),
+        out);
 
-    SoyTofu.Renderer entryRenderer = renderer.newRenderer("gitiles.logEntryWrapper");
+    SoySauce.Renderer entryRenderer = renderer.newRenderer("gitiles.logEntryWrapper");
     boolean renderedEntries = false;
     for (RevCommit c : paginator) {
-      entryRenderer.setData(toEntrySoyData(paginator, c, df)).render(out);
-      out.flush();
+      renderHtml(entryRenderer.setData(toEntrySoyData(paginator, c, df)), out);
       renderedEntries = true;
     }
     if (!renderedEntries) {
-      renderer.newRenderer("gitiles.emptyLog").render(out);
+      renderHtml(renderer.newRenderer("gitiles.emptyLog"), out);
     }
 
-    renderer
-        .newRenderer("gitiles.logEntriesFooter")
-        .setData(toFooterSoyData(paginator, revision, footerBehavior))
-        .render(out);
+    renderHtml(
+        renderer
+            .newRenderer("gitiles.logEntriesFooter")
+            .setData(toFooterSoyData(paginator, revision, footerBehavior)),
+        out);
   }
 
   private Map<String, Object> toHeaderSoyData(Paginator paginator, @Nullable String revision) {
