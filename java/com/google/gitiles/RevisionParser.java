@@ -212,7 +212,10 @@ class RevisionParser {
   private static boolean isValidRevision(String revision) {
     // Disallow some uncommon but valid revision expressions that either we
     // don't support or we represent differently in our URLs.
-    return !revision.contains(":") && !revision.contains("^{") && !revision.contains("@");
+    return !revision.contains(":")
+        && !revision.contains("^{")
+        && !revision.contains("@{")
+        && !revision.equals("@");
   }
 
   private boolean isVisible(RevWalk walk, Result result) throws IOException {
