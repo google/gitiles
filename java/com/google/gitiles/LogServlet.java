@@ -71,6 +71,9 @@ public class LogServlet extends BaseServlet {
   private static final String FOLLOW_PARAM = "follow";
   private static final String NAME_STATUS_PARAM = "name-status";
   private static final String PRETTY_PARAM = "pretty";
+  private static final String TOPO_ORDER_PARAM = "topo-order";
+  private static final String REVERSE_PARAM = "reverse";
+  private static final String FIRST_PARENT_PARAM = "first-parent";
 
   private static final int DEFAULT_LIMIT = 100;
   private static final int MAX_LIMIT = 10000;
@@ -223,6 +226,15 @@ public class LogServlet extends BaseServlet {
   private static RevWalk newWalk(Repository repo, GitilesView view, GitilesAccess access)
       throws MissingObjectException, IOException {
     RevWalk walk = new RevWalk(repo);
+    if (isTrue(view, FIRST_PARENT_PARAM)) {
+      walk.setFirstParent(true);
+    }
+    if (isTrue(view, TOPO_ORDER_PARAM)) {
+      walk.sort(RevSort.TOPO, true);
+    }
+    if (isTrue(view, REVERSE_PARAM)) {
+      walk.sort(RevSort.REVERSE, true);
+    }
     try {
       walk.markStart(walk.parseCommit(view.getRevision().getId()));
       if (!Revision.isNull(view.getOldRevision())) {
@@ -233,12 +245,6 @@ public class LogServlet extends BaseServlet {
     }
     setTreeFilter(walk, view, access);
     setRevFilter(walk, view);
-    if (isTrue(view, "topo-order")) {
-      walk.sort(RevSort.TOPO, true);
-    }
-    if (isTrue(view, "reverse")) {
-      walk.sort(RevSort.REVERSE, true);
-    }
     return walk;
   }
 
