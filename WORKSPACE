@@ -117,8 +117,8 @@ maven_jar(
 
 maven_jar(
     name = "truth",
-    artifact = "com.google.truth:truth:0.46",
-    sha1 = "5907b14d1af802644e7f4fb7230419b709e06c6b",
+    artifact = "com.google.truth:truth:1.0",
+    sha1 = "998e5fb3fa31df716574b4c9e8d374855e800451",
 )
 
 # Indirect dependency of truth
