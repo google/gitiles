@@ -258,7 +258,7 @@ public class RevisionParserTest {
   @Test
   public void parseEmailInRevision() throws Exception {
     RevCommit c = repo.commit().create();
-    RevCommit experimental = repo.update("refs/experimental/author@example.com/foo", c);
+    repo.update("refs/experimental/author@example.com/foo", c);
     assertThat(parser.parse("refs/experimental/author@example.com/foo"))
         .isEqualTo(new Result(Revision.peeled("refs/experimental/author@example.com/foo", c)));
   }
