@@ -57,24 +57,14 @@ public class DefaultErrorHandlingFilter extends AbstractHttpFilter {
       }
     } catch (RepositoryNotFoundException e) {
       try {
-        res.setHeader(GITILES_ERROR, FailureReason.REPOSITORY_NOT_FOUND.toString());
-        renderHtml(
-            req,
-            res,
-            FailureReason.REPOSITORY_NOT_FOUND.getHttpStatusCode(),
-            FailureReason.REPOSITORY_NOT_FOUND.getMessage());
+        renderHtml(req, res, FailureReason.REPOSITORY_NOT_FOUND);
       } catch (IOException e2) {
         e.addSuppressed(e2);
         throw e;
       }
     } catch (AmbiguousObjectException e) {
       try {
-        res.setHeader(GITILES_ERROR, FailureReason.AMBIGUOUS_OBJECT.toString());
-        renderHtml(
-            req,
-            res,
-            FailureReason.AMBIGUOUS_OBJECT.getHttpStatusCode(),
-            FailureReason.AMBIGUOUS_OBJECT.getMessage());
+        renderHtml(req, res, FailureReason.AMBIGUOUS_OBJECT);
       } catch (IOException e2) {
         e.addSuppressed(e2);
         throw e;
@@ -89,17 +79,18 @@ public class DefaultErrorHandlingFilter extends AbstractHttpFilter {
     } catch (IOException | ServletException e) {
       try {
         log.warn("Internal server error", e);
-        res.setHeader(GITILES_ERROR, FailureReason.INTERNAL_SERVER_ERROR.toString());
-        renderHtml(
-            req,
-            res,
-            FailureReason.INTERNAL_SERVER_ERROR.getHttpStatusCode(),
-            FailureReason.INTERNAL_SERVER_ERROR.getMessage());
+        renderHtml(req, res, FailureReason.INTERNAL_SERVER_ERROR);
       } catch (IOException e2) {
         e.addSuppressed(e2);
         throw e;
       }
     }
+  }
+
+  private void renderHtml(HttpServletRequest req, HttpServletResponse res, FailureReason reason)
+      throws IOException {
+    res.setHeader(GITILES_ERROR, reason.toString());
+    renderHtml(req, res, reason.getHttpStatusCode(), reason.getMessage());
   }
 
   private void renderHtml(
@@ -116,7 +107,7 @@ public class DefaultErrorHandlingFilter extends AbstractHttpFilter {
   }
 
   private Map<String, ?> startHtmlResponse(
-      HttpServletRequest req, HttpServletResponse res, Map<String, ?> soyData) throws IOException {
+      HttpServletRequest req, HttpServletResponse res, Map<String, ?> soyData) {
     res.setContentType(FormatType.HTML.getMimeType());
     res.setCharacterEncoding(UTF_8.name());
     BaseServlet.setNotCacheable(res);
