@@ -18,9 +18,8 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.gitiles.TestGitilesUrls.URLS;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+import com.google.common.collect.ImmutableList;
 import com.google.gson.reflect.TypeToken;
-import com.google.template.soy.data.SoyListData;
-import com.google.template.soy.data.SoyMapData;
 import com.google.template.soy.data.restricted.NullData;
 import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
@@ -48,15 +47,16 @@ public class HostIndexServletTest extends ServletTest {
 
   @Test
   public void rootHtml() throws Exception {
-    Map<String, ?> data = buildData("/");
+    Map<String, Object> data = buildData("/");
     assertThat(data).containsEntry("hostName", URLS.getHostName(null));
     assertThat(data).containsEntry("breadcrumbs", NullData.INSTANCE);
     assertThat(data).containsEntry("prefix", "");
 
-    SoyListData repos = (SoyListData) data.get("repositories");
+    ImmutableList<Map<String, Object>> repos =
+        (ImmutableList<Map<String, Object>>) data.get("repositories");
     assertThat(repos).hasSize(1);
 
-    SoyMapData ent = (SoyMapData) repos.get(0);
+    Map<String, Object> ent = repos.get(0);
     assertThat(ent.get("name").toString()).isEqualTo(NAME);
     assertThat(ent.get("url").toString()).isEqualTo("/b/" + NAME + "/");
   }
@@ -67,13 +67,15 @@ public class HostIndexServletTest extends ServletTest {
     assertThat(data).containsEntry("hostName", URLS.getHostName(null) + "/foo");
     assertThat(data).containsEntry("prefix", "foo/");
 
-    SoyListData breadcrumbs = (SoyListData) data.get("breadcrumbs");
-    assertThat(breadcrumbs.length()).isEqualTo(2);
+    ImmutableList<Map<String, Object>> breadcrumbs =
+        (ImmutableList<Map<String, Object>>) data.get("breadcrumbs");
+    assertThat(breadcrumbs.size()).isEqualTo(2);
 
-    SoyListData repos = (SoyListData) data.get("repositories");
-    assertThat(repos.length()).isEqualTo(1);
+    ImmutableList<Map<String, Object>> repos =
+        (ImmutableList<Map<String, Object>>) data.get("repositories");
+    assertThat(repos.size()).isEqualTo(1);
 
-    SoyMapData ent = (SoyMapData) repos.get(0);
+    Map<String, Object> ent = repos.get(0);
     assertThat(ent.get("name").toString()).isEqualTo("bar/repo");
     assertThat(ent.get("url").toString()).isEqualTo("/b/" + NAME + "/");
   }
@@ -84,13 +86,15 @@ public class HostIndexServletTest extends ServletTest {
     assertThat(data).containsEntry("hostName", URLS.getHostName(null) + "/foo/bar");
     assertThat(data).containsEntry("prefix", "foo/bar/");
 
-    SoyListData breadcrumbs = (SoyListData) data.get("breadcrumbs");
-    assertThat(breadcrumbs.length()).isEqualTo(3);
+    ImmutableList<Map<String, Object>> breadcrumbs =
+        (ImmutableList<Map<String, Object>>) data.get("breadcrumbs");
+    assertThat(breadcrumbs.size()).isEqualTo(3);
 
-    SoyListData repos = (SoyListData) data.get("repositories");
-    assertThat(repos.length()).isEqualTo(1);
+    ImmutableList<Map<String, Object>> repos =
+        (ImmutableList<Map<String, Object>>) data.get("repositories");
+    assertThat(repos.size()).isEqualTo(1);
 
-    SoyMapData ent = (SoyMapData) repos.get(0);
+    Map<String, Object> ent = repos.get(0);
     assertThat(ent.get("name").toString()).isEqualTo("repo");
     assertThat(ent.get("url").toString()).isEqualTo("/b/" + NAME + "/");
   }

@@ -94,7 +94,7 @@ public class ServletTest {
     return buildHtml(path, true);
   }
 
-  protected Map<String, ?> buildData(String path) throws Exception {
+  protected Map<String, Object> buildData(String path) throws Exception {
     // Render the page through Soy to ensure templates are valid, then return
     // the Soy data for introspection.
     FakeHttpServletRequest req = FakeHttpServletRequest.newRequest();
