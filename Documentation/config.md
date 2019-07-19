@@ -57,7 +57,7 @@ The image limit places an upper bound on the byte size of input.
 The following extensions can be enabled/disabled in the markdown
 section:
 
-* `githubFlavor`: enable extensions that mirror GitHub Flavor
+* `githubFlavor`: enable extensions that mirror GitHub Flavored
   Markdown behavior.  Default is true.
 
 * `autolink`: automatically convert plain URLs and email
@@ -66,7 +66,7 @@ section:
 * `blocknote`: Gitiles style note/promo/aside blocks to raise
   awareness to important content. Default false.
 
-* `ghthematicbreak`: accept `--` for `<hr>`, like GitHub Flavor
+* `ghthematicbreak`: accept `--` for `<hr>`, like GitHub Flavored
   Markdown.  Default follows `githubFlavor`.
 
 * `multicolumn`: Gitiles extension to layout content in a 12 cell
@@ -83,10 +83,10 @@ section:
   ASCII characters to Unicode smart quotes when in prose.  Default
   false.
 
-* `strikethrough`: strikethrough text with GitHub Flavor Markdown
+* `strikethrough`: strikethrough text with GitHub Flavored Markdown
   style `~~`.  Default follows `githubFlavor`.
 
-* `tables`: format tables with GitHub Flavor Markdown.  Default
+* `tables`: format tables with GitHub Flavored Markdown.  Default
   follows `githubFlavor`.
 
 * `toc`: Gitiles extension to replace `[TOC]` in a paragraph by itself
