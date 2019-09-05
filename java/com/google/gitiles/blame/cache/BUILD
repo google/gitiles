@@ -1,3 +1,4 @@
+load("@rules_java//java:defs.bzl", "java_library")
 load("@com_googlesource_gerrit_bazlets//tools:javadoc.bzl", "java_doc")
 load("//tools:stamper.bzl", "stamp")
 
