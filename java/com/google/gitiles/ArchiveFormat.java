@@ -53,7 +53,9 @@ public enum ArchiveFormat {
     }
   }
 
+  @SuppressWarnings("ImmutableEnumChecker") // ArchiveCommand.Format is effectively immutable.
   private final ArchiveCommand.Format<?> format;
+
   private final String mimeType;
 
   ArchiveFormat(String mimeType, ArchiveCommand.Format<?> format) {

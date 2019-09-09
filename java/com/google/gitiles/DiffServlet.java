@@ -152,7 +152,7 @@ public class DiffServlet extends BaseServlet {
     if (newCommit.getParentCount() > 0) {
       return Arrays.asList(newCommit.getParents()).contains(oldRevision.getId());
     }
-    return oldRevision == Revision.NULL;
+    return Revision.isNull(oldRevision);
   }
 
   private static boolean isFile(TreeWalk tw) {

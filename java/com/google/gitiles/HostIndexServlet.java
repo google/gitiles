@@ -17,12 +17,11 @@ package com.google.gitiles;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.google.gitiles.GitilesRequestFailureException.FailureReason;
 import com.google.gson.reflect.TypeToken;
-import com.google.template.soy.data.SoyListData;
-import com.google.template.soy.data.SoyMapData;
 import com.google.template.soy.data.restricted.NullData;
 import java.io.IOException;
 import java.io.Writer;
@@ -66,12 +65,15 @@ public class HostIndexServlet extends BaseServlet {
     return descs;
   }
 
-  private SoyMapData toSoyMapData(
+  private Map<String, Object> toMapData(
       RepositoryDescription desc, @Nullable String prefix, GitilesView view) {
-    return new SoyMapData(
-        "name", stripPrefix(prefix, desc.name),
-        "description", Strings.nullToEmpty(desc.description),
-        "url", GitilesView.repositoryIndex().copyFrom(view).setRepositoryName(desc.name).toUrl());
+    return ImmutableMap.<String, Object>builder()
+        .put("name", stripPrefix(prefix, desc.name))
+        .put("description", Strings.nullToEmpty(desc.description))
+        .put(
+            "url",
+            GitilesView.repositoryIndex().copyFrom(view).setRepositoryName(desc.name).toUrl())
+        .build();
   }
 
   @Override
@@ -111,10 +113,10 @@ public class HostIndexServlet extends BaseServlet {
       return;
     }
 
-    SoyListData repos = new SoyListData();
+    ImmutableList.Builder<Map<String, Object>> repos = ImmutableList.builder();
     for (RepositoryDescription desc : descs.values()) {
       if (prefix == null || desc.name.startsWith(prefix)) {
-        repos.add(toSoyMapData(desc, prefix, view));
+        repos.add(toMapData(desc, prefix, view));
       }
     }
 
@@ -132,11 +134,11 @@ public class HostIndexServlet extends BaseServlet {
             "hostName",
             hostName,
             "breadcrumbs",
-            breadcrumbs != null ? new SoyListData(breadcrumbs) : NullData.INSTANCE,
+            breadcrumbs != null ? breadcrumbs : NullData.INSTANCE,
             "prefix",
             prefix != null ? prefix + '/' : "",
             "repositories",
-            repos));
+            repos.build()));
   }
 
   @Override

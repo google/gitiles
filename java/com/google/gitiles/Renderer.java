@@ -29,7 +29,7 @@ import com.google.common.hash.Hashing;
 import com.google.common.html.types.LegacyConversions;
 import com.google.common.io.ByteStreams;
 import com.google.common.net.HttpHeaders;
-import com.google.template.soy.tofu.SoyTofu;
+import com.google.template.soy.jbcsrc.api.SoySauce;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -60,6 +60,7 @@ public abstract class Renderer {
           "Common.soy",
           "DiffDetail.soy",
           "Doc.soy",
+          "Error.soy",
           "HostIndex.soy",
           "LogDetail.soy",
           "ObjectDetail.soy",
@@ -146,16 +147,17 @@ public abstract class Renderer {
     return h.hash();
   }
 
-  public String render(String templateName, Map<String, ?> soyData) {
-    return newRenderer(templateName).setData(soyData).render();
+  public String renderHtml(String templateName, Map<String, ?> soyData) {
+    return newRenderer(templateName).setData(soyData).renderHtml().get().toString();
   }
 
-  void render(
+  void renderHtml(
       HttpServletRequest req, HttpServletResponse res, String templateName, Map<String, ?> soyData)
       throws IOException {
     res.setContentType("text/html");
     res.setCharacterEncoding("UTF-8");
-    byte[] data = newRenderer(templateName).setData(soyData).render().getBytes(UTF_8);
+    byte[] data =
+        newRenderer(templateName).setData(soyData).renderHtml().get().toString().getBytes(UTF_8);
     if (BaseServlet.acceptsGzipEncoding(req)) {
       res.addHeader(HttpHeaders.VARY, HttpHeaders.ACCEPT_ENCODING);
       res.setHeader(HttpHeaders.CONTENT_ENCODING, "gzip");
@@ -165,15 +167,15 @@ public abstract class Renderer {
     res.getOutputStream().write(data);
   }
 
-  OutputStream renderStreaming(HttpServletResponse res, String templateName, Map<String, ?> soyData)
-      throws IOException {
-    return renderStreaming(res, false, templateName, soyData);
+  OutputStream renderHtmlStreaming(
+      HttpServletResponse res, String templateName, Map<String, ?> soyData) throws IOException {
+    return renderHtmlStreaming(res, false, templateName, soyData);
   }
 
-  OutputStream renderStreaming(
+  OutputStream renderHtmlStreaming(
       HttpServletResponse res, boolean gzip, String templateName, Map<String, ?> soyData)
       throws IOException {
-    String html = newRenderer(templateName).setData(soyData).render();
+    String html = newRenderer(templateName).setData(soyData).renderHtml().get().toString();
     int id = html.indexOf(PLACEHOLDER);
     checkArgument(id >= 0, "Template must contain %s", PLACEHOLDER);
 
@@ -210,17 +212,17 @@ public abstract class Renderer {
     };
   }
 
-  SoyTofu.Renderer newRenderer(String templateName) {
+  SoySauce.Renderer newRenderer(String templateName) {
     ImmutableMap.Builder<String, Object> staticUrls = ImmutableMap.builder();
     for (String key : STATIC_URL_GLOBALS.keySet()) {
       staticUrls.put(
           key.replaceFirst("^gitiles\\.", ""),
           LegacyConversions.riskilyAssumeTrustedResourceUrl(globals.get(key)));
     }
-    return getTofu()
-        .newRenderer(templateName)
-        .setIjData(ImmutableMap.of("staticUrls", staticUrls.build()));
+    return getSauce()
+        .renderTemplate(templateName)
+        .setIj(ImmutableMap.of("staticUrls", staticUrls.build()));
   }
 
-  protected abstract SoyTofu getTofu();
+  protected abstract SoySauce getSauce();
 }

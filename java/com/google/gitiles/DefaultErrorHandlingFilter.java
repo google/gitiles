@@ -13,12 +13,12 @@
 // limitations under the License.
 package com.google.gitiles;
 
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
-import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
-import static org.eclipse.jgit.http.server.GitSmartHttpTools.sendError;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.gitiles.GitilesRequestFailureException.FailureReason;
 import java.io.IOException;
+import java.util.Map;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -36,28 +36,83 @@ public class DefaultErrorHandlingFilter extends AbstractHttpFilter {
   /** HTTP header that indicates an error detail. */
   public static final String GITILES_ERROR = "X-Gitiles-Error";
 
+  private Renderer renderer;
+
+  public DefaultErrorHandlingFilter(Renderer renderer) {
+    this.renderer = renderer;
+  }
+
   @Override
   public void doFilter(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
       throws IOException, ServletException {
     try {
       chain.doFilter(req, res);
     } catch (GitilesRequestFailureException e) {
-      res.setHeader(GITILES_ERROR, e.getReason().toString());
-      String publicMessage = e.getPublicErrorMessage();
-      if (publicMessage != null) {
-        res.sendError(e.getReason().getHttpStatusCode(), publicMessage);
-      } else {
-        res.sendError(e.getReason().getHttpStatusCode());
+      try {
+        res.setHeader(GITILES_ERROR, e.getReason().toString());
+        renderHtml(req, res, e.getReason().getHttpStatusCode(), e.getPublicErrorMessage());
+      } catch (IOException e2) {
+        e.addSuppressed(e2);
+        throw e;
       }
     } catch (RepositoryNotFoundException e) {
-      res.sendError(SC_NOT_FOUND);
+      try {
+        renderHtml(req, res, FailureReason.REPOSITORY_NOT_FOUND);
+      } catch (IOException e2) {
+        e.addSuppressed(e2);
+        throw e;
+      }
     } catch (AmbiguousObjectException e) {
-      res.sendError(SC_BAD_REQUEST);
+      try {
+        renderHtml(req, res, FailureReason.AMBIGUOUS_OBJECT);
+      } catch (IOException e2) {
+        e.addSuppressed(e2);
+        throw e;
+      }
     } catch (ServiceMayNotContinueException e) {
-      sendError(req, res, e.getStatusCode(), e.getMessage());
-    } catch (IOException | ServletException err) {
-      log.warn("Internal server error", err);
-      res.sendError(SC_INTERNAL_SERVER_ERROR);
+      try {
+        renderHtml(req, res, e.getStatusCode(), e.getMessage());
+      } catch (IOException e2) {
+        e.addSuppressed(e2);
+        throw e;
+      }
+    } catch (IOException | ServletException e) {
+      try {
+        log.warn("Internal server error", e);
+        renderHtml(req, res, FailureReason.INTERNAL_SERVER_ERROR);
+      } catch (IOException e2) {
+        e.addSuppressed(e2);
+        throw e;
+      }
     }
+  }
+
+  private void renderHtml(HttpServletRequest req, HttpServletResponse res, FailureReason reason)
+      throws IOException {
+    res.setHeader(GITILES_ERROR, reason.toString());
+    renderHtml(req, res, reason.getHttpStatusCode(), reason.getMessage());
+  }
+
+  private void renderHtml(
+      HttpServletRequest req, HttpServletResponse res, int status, String message)
+      throws IOException {
+    res.setStatus(status);
+    renderHtml(req, res, "gitiles.error", ImmutableMap.of("title", message));
+  }
+
+  protected void renderHtml(
+      HttpServletRequest req, HttpServletResponse res, String templateName, Map<String, ?> soyData)
+      throws IOException {
+    renderer.renderHtml(req, res, templateName, startHtmlResponse(req, res, soyData));
+  }
+
+  private Map<String, ?> startHtmlResponse(
+      HttpServletRequest req, HttpServletResponse res, Map<String, ?> soyData) {
+    res.setContentType(FormatType.HTML.getMimeType());
+    res.setCharacterEncoding(UTF_8.name());
+    BaseServlet.setNotCacheable(res);
+    Map<String, Object> allData = BaseServlet.getData(req);
+    allData.putAll(soyData);
+    return allData;
   }
 }

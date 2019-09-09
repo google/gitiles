@@ -256,6 +256,14 @@ public class RevisionParserTest {
   }
 
   @Test
+  public void parseEmailInRevision() throws Exception {
+    RevCommit c = repo.commit().create();
+    repo.update("refs/experimental/author@example.com/foo", c);
+    assertThat(parser.parse("refs/experimental/author@example.com/foo"))
+        .isEqualTo(new Result(Revision.peeled("refs/experimental/author@example.com/foo", c)));
+  }
+
+  @Test
   public void parseMissingSha() throws Exception {
     assertThat(parser.parse("deadbeef")).isNull();
     assertThat(parser.parse("deadbeefdeadbeefdeadbeefdeadbeefdeadbeef")).isNull();

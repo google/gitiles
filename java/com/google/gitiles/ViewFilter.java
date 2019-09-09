@@ -119,12 +119,12 @@ public class ViewFilter extends AbstractHttpFilter {
   }
 
   private boolean normalize(GitilesView.Builder view, HttpServletResponse res) throws IOException {
-    if (view.getOldRevision() != Revision.NULL) {
+    if (!Revision.isNull(view.getOldRevision())) {
       return false;
     }
     Revision r = view.getRevision();
     Revision nr = Revision.normalizeParentExpressions(r);
-    if (r != nr) {
+    if (!r.equals(nr)) {
       res.sendRedirect(view.setRevision(nr).toUrl());
       return true;
     }

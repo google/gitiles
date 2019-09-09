@@ -113,7 +113,7 @@ public class LogServlet extends BaseServlet {
       }
 
       String title = "Log - ";
-      if (view.getOldRevision() != Revision.NULL) {
+      if (!Revision.isNull(view.getOldRevision())) {
         title += view.getRevisionRange();
       } else {
         title += view.getRevision().getName();
@@ -175,7 +175,7 @@ public class LogServlet extends BaseServlet {
 
   private static GitilesView getView(HttpServletRequest req, Repository repo) throws IOException {
     GitilesView view = ViewFilter.getView(req);
-    if (view.getRevision() != Revision.NULL) {
+    if (!Revision.isNull(view.getRevision())) {
       return view;
     }
     Ref headRef = repo.exactRef(Constants.HEAD);
@@ -225,7 +225,7 @@ public class LogServlet extends BaseServlet {
     RevWalk walk = new RevWalk(repo);
     try {
       walk.markStart(walk.parseCommit(view.getRevision().getId()));
-      if (view.getOldRevision() != Revision.NULL) {
+      if (!Revision.isNull(view.getOldRevision())) {
         walk.markUninteresting(walk.parseCommit(view.getOldRevision().getId()));
       }
     } catch (IncorrectObjectTypeException iote) {

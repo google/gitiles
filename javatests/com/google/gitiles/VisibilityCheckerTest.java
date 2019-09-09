@@ -42,31 +42,26 @@
  */
 package com.google.gitiles;
 
-import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.util.Map;
-import java.util.Set;
+import java.util.Arrays;
+import java.util.List;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
 import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
 import org.eclipse.jgit.junit.TestRepository;
-import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
-import org.eclipse.jgit.transport.resolver.ServiceNotAuthorizedException;
-import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
-public class VisibilityCacheTest {
-
+public class VisibilityCheckerTest {
   private InMemoryRepository repo;
-  private GitilesAccess access = new FakeGitilesAccess();
 
   private RevCommit baseCommit;
   private RevCommit commit1;
@@ -75,25 +70,11 @@ public class VisibilityCacheTest {
   private RevCommit commitB;
   private RevCommit commitC;
 
-  private VisibilityCache visibilityCache;
+  private VisibilityChecker visibilityChecker;
   private RevWalk walk;
 
   @Before
   public void setUp() throws Exception {
-    /**
-     *
-     *
-     * <pre>
-     *               commitC
-     *                 |
-     *   commit2     commitB
-     *      |          |
-     *   commit1     commitA <--- refs/tags/v0.1
-     *       \         /
-     *        \       /
-     *        baseCommit
-     * </pre>
-     */
     repo = new InMemoryRepository(new DfsRepositoryDescription());
     try (TestRepository<InMemoryRepository> git = new TestRepository<>(repo)) {
       baseCommit = git.commit().message("baseCommit").create();
@@ -108,71 +89,32 @@ public class VisibilityCacheTest {
       git.update("refs/tags/v0.1", commitA);
     }
 
-    visibilityCache = new VisibilityCache(true);
+    visibilityChecker = new VisibilityChecker(true);
     walk = new RevWalk(repo);
     walk.setRetainBody(false);
   }
 
-  @After
-  public void tearDown() {
-    repo.close();
-  }
-
   @Test
   public void isTip() throws IOException {
-    ObjectId[] known = new ObjectId[0];
-    assertThat(visibilityCache.isVisible(repo, walk, access, commit2.getId(), known)).isTrue();
+    assertTrue(visibilityChecker.isTipOfBranch(repo.getRefDatabase(), commit2.getId()));
   }
 
   @Test
-  public void reachableFromHeads() throws Exception {
-    ObjectId[] known = new ObjectId[0];
-    assertThat(visibilityCache.isVisible(repo, walk, access, commit1.getId(), known)).isTrue();
+  public void isNotTip() throws IOException {
+    assertFalse(visibilityChecker.isTipOfBranch(repo.getRefDatabase(), commit1.getId()));
   }
 
   @Test
-  public void reachableFromTags() throws Exception {
-    ObjectId[] known = new ObjectId[0];
-    assertThat(visibilityCache.isVisible(repo, walk, access, commitA.getId(), known)).isTrue();
+  public void reachableFromRef() throws IOException {
+    List<ObjectId> starters = Arrays.asList(commitC.getId());
+    assertTrue(
+        visibilityChecker.isReachableFrom("test", walk, walk.parseCommit(commitB), starters));
   }
 
   @Test
-  public void unreachableFromAnyTip() throws Exception {
-    ObjectId[] known = new ObjectId[0];
-    assertThat(visibilityCache.isVisible(repo, walk, access, commitB.getId(), known)).isFalse();
-  }
-
-  @Test
-  public void reachableFromAnotherId() throws Exception {
-    ObjectId[] known = new ObjectId[] {commitC.getId()};
-    assertThat(visibilityCache.isVisible(repo, walk, access, commitB.getId(), known)).isTrue();
-  }
-
-  private static class FakeGitilesAccess implements GitilesAccess {
-    @Override
-    public Map<String, RepositoryDescription> listRepositories(String prefix, Set<String> branches)
-        throws ServiceNotEnabledException, ServiceNotAuthorizedException, IOException {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Object getUserKey() {
-      return "Test";
-    }
-
-    @Override
-    public String getRepositoryName() {
-      return "VisibilityCache-Test";
-    }
-
-    @Override
-    public RepositoryDescription getRepositoryDescription() throws IOException {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Config getConfig() throws IOException {
-      throw new UnsupportedOperationException();
-    }
+  public void unreachableFromRef() throws IOException {
+    List<ObjectId> starters = Arrays.asList(commit2.getId(), commitA.getId());
+    assertFalse(
+        visibilityChecker.isReachableFrom("test", walk, walk.parseCommit(commitC), starters));
   }
 }

@@ -3,6 +3,7 @@ load(
     "JDK9_JVM_OPTS",
     "default_java_toolchain",
 )
+load("@rules_java//java:defs.bzl", "java_package_configuration")
 
 default_java_toolchain(
     name = "error_prone_warnings_toolchain",
@@ -29,10 +30,11 @@ java_package_configuration(
         "-Xep:CannotMockFinalClass:ERROR",
         "-Xep:ClassCanBeStatic:ERROR",
         "-Xep:ClassNewInstance:ERROR",
+        "-Xep:DateFormatConstant:ERROR",
         "-Xep:DefaultCharset:ERROR",
         "-Xep:DoubleCheckedLocking:ERROR",
-        "-Xep:ElementsCountedInLoop:ERROR",
         "-Xep:DoubleCheckedLocking:ERROR",
+        "-Xep:ElementsCountedInLoop:ERROR",
         "-Xep:ElementsCountedInLoop:ERROR",
         "-Xep:EqualsHashCode:ERROR",
         "-Xep:EqualsIncompatibleType:ERROR",
@@ -44,7 +46,7 @@ java_package_configuration(
         "-Xep:FunctionalInterfaceClash:ERROR",
         "-Xep:FutureReturnValueIgnored:ERROR",
         "-Xep:GetClassOnEnum:ERROR",
-        "-Xep:ImmutableAnnotationChecker:WARN",
+        "-Xep:ImmutableAnnotationChecker:ERROR",
         "-Xep:ImmutableEnumChecker:WARN",
         "-Xep:IncompatibleModifiers:ERROR",
         "-Xep:InjectOnConstructorOfAbstractClass:ERROR",
@@ -68,7 +70,7 @@ java_package_configuration(
         "-Xep:PreconditionsInvalidPlaceholder:ERROR",
         "-Xep:ProtoFieldPreconditionsCheckNotNull:ERROR",
         "-Xep:ProtocolBufferOrdinal:ERROR",
-        "-Xep:ReferenceEquality:WARN",
+        "-Xep:ReferenceEquality:ERROR",
         "-Xep:RequiredModifiers:ERROR",
         "-Xep:ShortCircuitBoolean:ERROR",
         "-Xep:SimpleDateFormatConstant:ERROR",
