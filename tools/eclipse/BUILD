@@ -1,5 +1,5 @@
-load("@rules_java//java:defs.bzl", "java_library")
 load("@com_googlesource_gerrit_bazlets//tools:classpath.bzl", "classpath_collector")
+load("@rules_java//java:defs.bzl", "java_library")
 
 DEPS = [
     "//java/com/google/gitiles:servlet",
