@@ -9,9 +9,14 @@ http_archive(
     urls = ["https://github.com/bazelbuild/bazel-skylib/archive/2169ae1c374aab4a09aa90e65efe1a3aad4e279b.tar.gz"],
 )
 
-load("@bazel_skylib//lib:versions.bzl", "versions")
+# Check Bazel version when invoked by Bazel directly
+load("//tools:bazelisk_version.bzl", "bazelisk_version")
 
-versions.check(minimum_bazel_version = "0.19.0")
+bazelisk_version(name = "bazelisk_version")
+
+load("@bazelisk_version//:check.bzl", "check_bazel_version")
+
+check_bazel_version()
 
 load("//tools:bazlets.bzl", "load_bazlets")
 
