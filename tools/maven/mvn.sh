@@ -53,4 +53,4 @@ bazel build //tools/maven:gen_${command} || \
   { echo "bazel failed to build gen_${command}. Use VERBOSE=1 for more info" ; exit 1 ; }
 
 export OUTPUT_BASE=`bazel info output_base`
-./bazel-genfiles/tools/maven/${command}.sh
+./bazel-bin/tools/maven/${command}.sh
