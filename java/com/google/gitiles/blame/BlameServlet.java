@@ -35,8 +35,6 @@ import com.google.gitiles.blame.cache.BlameCache;
 import com.google.gitiles.blame.cache.Region;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.google.template.soy.data.SoyListData;
-import com.google.template.soy.data.SoyMapData;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -205,21 +203,21 @@ public class BlameServlet extends BaseServlet {
 
   private static final ImmutableList<String> CLASSES =
       ImmutableList.of("Blame-region--bg1", "Blame-region--bg2");
-  private static final ImmutableList<SoyMapData> NULLS;
+  private static final ImmutableList<ImmutableMap<String, Object>> NULLS;
 
   static {
-    ImmutableList.Builder<SoyMapData> nulls = ImmutableList.builder();
+    ImmutableList.Builder<ImmutableMap<String, Object>> nulls = ImmutableList.builder();
     for (String clazz : CLASSES) {
-      nulls.add(new SoyMapData("class", clazz));
+      nulls.add(ImmutableMap.of("class", clazz));
     }
     NULLS = nulls.build();
   }
 
-  private static SoyListData toSoyData(
+  private static List<ImmutableMap<String, Object>> toSoyData(
       GitilesView view, ObjectReader reader, List<Region> regions, DateFormatter df)
       throws IOException {
     Map<ObjectId, String> abbrevShas = Maps.newHashMap();
-    SoyListData result = new SoyListData();
+    ImmutableList.Builder<ImmutableMap<String, Object>> result = ImmutableList.builder();
 
     for (int i = 0; i < regions.size(); i++) {
       Region r = regions.get(i);
@@ -234,7 +232,7 @@ public class BlameServlet extends BaseServlet {
           abbrevSha = reader.abbreviate(r.getSourceCommit()).name();
           abbrevShas.put(r.getSourceCommit(), abbrevSha);
         }
-        Map<String, Object> e = Maps.newHashMapWithExpectedSize(6);
+        ImmutableMap.Builder<String, Object> e = ImmutableMap.builder();
         e.put("abbrevSha", abbrevSha);
         String blameParent = "";
         String blameText = "blame";
@@ -262,7 +260,7 @@ public class BlameServlet extends BaseServlet {
                 .toUrl());
         e.put("author", CommitSoyData.toSoyData(r.getSourceAuthor(), df));
         e.put("class", CLASSES.get(c));
-        result.add(e);
+        result.add(e.build());
       }
       // Pad the list with null regions so we can iterate in parallel in the
       // template. We can't do this by maintaining an index variable into the
@@ -272,6 +270,6 @@ public class BlameServlet extends BaseServlet {
         result.add(NULLS.get(c));
       }
     }
-    return result;
+    return result.build();
   }
 }
