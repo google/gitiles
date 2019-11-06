@@ -136,6 +136,9 @@ public class BlameCacheImpl implements BlameCache {
   public static List<Region> loadBlame(Key key, Repository repo) throws IOException {
     try (BlameGenerator gen = new BlameGenerator(repo, key.path)) {
       gen.push(null, key.commitId);
+      if (gen.getResultContents() == null) {
+        return ImmutableList.of();
+      }
       return loadRegions(gen);
     }
   }
