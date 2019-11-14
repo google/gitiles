@@ -3,6 +3,7 @@ load(
     "JDK9_JVM_OPTS",
     "default_java_toolchain",
 )
+load("@rules_java//java:defs.bzl", "java_package_configuration")
 
 default_java_toolchain(
     name = "error_prone_warnings_toolchain",
