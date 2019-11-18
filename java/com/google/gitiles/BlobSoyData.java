@@ -17,6 +17,7 @@ package com.google.gitiles;
 import static com.google.common.base.Preconditions.checkState;
 import static org.eclipse.jgit.lib.Constants.OBJ_COMMIT;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
@@ -47,7 +48,7 @@ public class BlobSoyData {
    * will be displayed as binary files, even if the contents was text. For example really big XML
    * files may be above this limit and will get displayed as binary.
    */
-  private static final int MAX_FILE_SIZE = 10 << 20;
+  @VisibleForTesting static final int MAX_FILE_SIZE = 10 << 20;
 
   private final GitilesView view;
   private final ObjectReader reader;
@@ -70,7 +71,8 @@ public class BlobSoyData {
     String content;
     try {
       byte[] raw = loader.getCachedBytes(MAX_FILE_SIZE);
-      content = !RawText.isBinary(raw) ? RawParseUtils.decode(raw) : null;
+      content =
+          (raw.length < MAX_FILE_SIZE && !RawText.isBinary(raw)) ? RawParseUtils.decode(raw) : null;
     } catch (LargeObjectException.OutOfMemory e) {
       throw e;
     } catch (LargeObjectException e) {
