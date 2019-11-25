@@ -108,7 +108,7 @@ public class VisibilityCacheTest {
       git.update("refs/tags/v0.1", commitA);
     }
 
-    visibilityCache = new VisibilityCache(true);
+    visibilityCache = new VisibilityCache();
     walk = new RevWalk(repo);
     walk.setRetainBody(false);
   }

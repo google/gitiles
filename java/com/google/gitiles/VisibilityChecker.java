@@ -59,18 +59,6 @@ import org.eclipse.jgit.revwalk.RevWalk;
  */
 public class VisibilityChecker {
 
-  // TODO(ifrade): Right now we are using always topoSort, but we should respect this parameter
-  // or delete it.
-  private final boolean topoSort;
-
-  /**
-   * @param topoSort whether to use a more thorough reachability check by sorting in topological
-   *     order
-   */
-  public VisibilityChecker(boolean topoSort) {
-    this.topoSort = topoSort;
-  }
-
   /**
    * Check if any of the refs in {@code refDb} points to the object {@code id}.
    *
