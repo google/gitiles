@@ -130,6 +130,24 @@ public class PathServletTest extends ServletTest {
   }
 
   @Test
+  public void largeFileHtml() throws Exception {
+    int largeContentSize = BlobSoyData.MAX_FILE_SIZE + 1;
+    repo.branch("master").commit().add("foo", generateContent(largeContentSize)).create();
+
+    Map<String, ?> data = (Map<String, ?>) buildData("/repo/+/master/foo").get("data");
+    assertThat(data).containsEntry("lines", null);
+    assertThat(data).containsEntry("size", "" + largeContentSize);
+  }
+
+  private static String generateContent(int contentSize) {
+    char[] str = new char[contentSize];
+    for (int i = 0; i < contentSize; i++) {
+      str[i] = (char) ('0' + (i % 78));
+    }
+    return new String(str);
+  }
+
+  @Test
   public void symlinkHtml() throws Exception {
     final RevBlob link = repo.blob("foo");
     repo.branch("master")
