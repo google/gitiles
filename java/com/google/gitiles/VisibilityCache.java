@@ -89,16 +89,16 @@ public class VisibilityCache {
     return CacheBuilder.newBuilder().maximumSize(1 << 10).expireAfterWrite(30, TimeUnit.MINUTES);
   }
 
-  public VisibilityCache(boolean topoSort) {
-    this(topoSort, defaultBuilder());
+  public VisibilityCache() {
+    this(new VisibilityChecker(), defaultBuilder());
   }
 
-  public VisibilityCache(boolean topoSort, CacheBuilder<Object, Object> builder) {
-    this(new VisibilityChecker(topoSort), builder);
+  public VisibilityCache(CacheBuilder<Object, Object> builder) {
+    this(new VisibilityChecker(), builder);
   }
 
   /**
-   * Use the constructors with a boolean parameter (e.g. {@link #VisibilityCache(boolean)}). The
+   * Use the constructors with a boolean parameter (e.g. {@link #VisibilityCache()}). The
    * default visibility checker should cover all common use cases.
    *
    * <p>This constructor is useful to use a checker with additional logging or metrics collection,
@@ -109,7 +109,7 @@ public class VisibilityCache {
   }
 
   /**
-   * Use the constructors with a boolean parameter (e.g. {@link #VisibilityCache(boolean)}). The
+   * Use the constructors with a boolean parameter (e.g. {@link #VisibilityCache()}). The
    * default visibility checker should cover all common use cases.
    *
    * <p>This constructor is useful to use a checker with additional logging or metrics collection,

@@ -42,6 +42,7 @@
  */
 package com.google.gitiles;
 
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.Collection;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
@@ -49,7 +50,6 @@ import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.RefDatabase;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
 
 /**
@@ -58,16 +58,6 @@ import org.eclipse.jgit.revwalk.RevWalk;
  * <p>Objects are visible if they are reachable from any of the references visible to the user.
  */
 public class VisibilityChecker {
-
-  private final boolean topoSort;
-
-  /**
-   * @param topoSort whether to use a more thorough reachability check by sorting in topological
-   *     order
-   */
-  public VisibilityChecker(boolean topoSort) {
-    this.topoSort = topoSort;
-  }
 
   /**
    * Check if any of the refs in {@code refDb} points to the object {@code id}.
@@ -90,7 +80,7 @@ public class VisibilityChecker {
    * @param walk The walk to use for the reachability check
    * @param commit The starting commit. It *MUST* come from the walk in use
    * @param starters visible commits. Anything reachable from these commits is visible. Missing ids
-   *     or ids pointing to wrong kind of objects are ignored.
+   *     or ids referring to other kinds of objects are ignored.
    * @return true if we can get to {@code commit} from the {@code starters}
    * @throws IOException a pack file or loose object could not be read
    */
@@ -101,28 +91,29 @@ public class VisibilityChecker {
       return false;
     }
 
-    walk.reset();
-    if (topoSort) {
-      walk.sort(RevSort.TOPO);
+    ImmutableList<RevCommit> startCommits = objectIdsToCommits(walk, starters);
+    if (startCommits.isEmpty()) {
+      return false;
     }
 
-    walk.markStart(commit);
-    for (ObjectId id : starters) {
-      markUninteresting(walk, id);
-    }
-    // If the commit is reachable from any given tip, it will appear to be
-    // uninteresting to the RevWalk and no output will be produced.
-    return walk.next() == null;
+    return !walk.createReachabilityChecker()
+        .areAllReachable(ImmutableList.of(commit), startCommits)
+        .isPresent();
   }
 
-  private static void markUninteresting(RevWalk walk, ObjectId id) throws IOException {
-    if (id == null) {
-      return;
+  private static ImmutableList<RevCommit> objectIdsToCommits(RevWalk walk, Collection<ObjectId> ids)
+      throws IOException {
+    ImmutableList.Builder<RevCommit> commits = ImmutableList.builder();
+    for (ObjectId id : ids) {
+      try {
+        commits.add(walk.parseCommit(id));
+      } catch (MissingObjectException e) {
+        // TODO(ifrade): ResolveParser has already checked that the object exists in the repo.
+        // Report as AssertionError.
+      } catch (IncorrectObjectTypeException e) {
+        // Ignore, doesn't affect commit reachability
+      }
     }
-    try {
-      walk.markUninteresting(walk.parseCommit(id));
-    } catch (IncorrectObjectTypeException | MissingObjectException e) {
-      // Do nothing, doesn't affect reachability.
-    }
+    return commits.build();
   }
 }

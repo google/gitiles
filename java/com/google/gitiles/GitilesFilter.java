@@ -383,9 +383,9 @@ class GitilesFilter extends MetaFilter {
     if (visibilityCache == null) {
       if (config.getSubsections("cache").contains("visibility")) {
         visibilityCache =
-            new VisibilityCache(false, ConfigUtil.getCacheBuilder(config, "visibility"));
+            new VisibilityCache(ConfigUtil.getCacheBuilder(config, "visibility"));
       } else {
-        visibilityCache = new VisibilityCache(false);
+        visibilityCache = new VisibilityCache();
       }
     }
   }

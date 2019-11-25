@@ -89,7 +89,7 @@ public class VisibilityCheckerTest {
       git.update("refs/tags/v0.1", commitA);
     }
 
-    visibilityChecker = new VisibilityChecker(true);
+    visibilityChecker = new VisibilityChecker();
     walk = new RevWalk(repo);
     walk.setRetainBody(false);
   }
