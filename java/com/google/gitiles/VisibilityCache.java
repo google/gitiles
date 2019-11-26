@@ -98,8 +98,8 @@ public class VisibilityCache {
   }
 
   /**
-   * Use the constructors with a boolean parameter (e.g. {@link #VisibilityCache()}). The
-   * default visibility checker should cover all common use cases.
+   * Use the constructors with a boolean parameter (e.g. {@link #VisibilityCache()}). The default
+   * visibility checker should cover all common use cases.
    *
    * <p>This constructor is useful to use a checker with additional logging or metrics collection,
    * for example.
@@ -109,8 +109,8 @@ public class VisibilityCache {
   }
 
   /**
-   * Use the constructors with a boolean parameter (e.g. {@link #VisibilityCache()}). The
-   * default visibility checker should cover all common use cases.
+   * Use the constructors with a boolean parameter (e.g. {@link #VisibilityCache()}). The default
+   * visibility checker should cover all common use cases.
    *
    * <p>This constructor is useful to use a checker with additional logging or metrics collection,
    * for example.
