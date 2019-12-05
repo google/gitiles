@@ -24,11 +24,16 @@
   {@param breadcrumbs: ?}  /** breadcrumbs for this page. */
   {@param data: ?}  /** blob data, matching the params for .blobBox. */
   {@param? regions: ?}  /** for non-binary files, list of regions, one per line, with the following
-      keys: abbrevSha: abbreviated SHA-1 of revision for this line; if missing, assume blame info is
-      missing. author: author information with at least "name" and "relativeTime" keys. time: time
-      of the revision. blameUrl: URL for a blame of this file at this commit. commitUrl: URL for
-      detail about the commit. diffUrl: URL for a diff of this file at this commit. class: class
-      name for tr. All keys but "class" are optional. */
+      keys:
+        abbrevSha: abbreviated SHA-1 of revision for this line; if missing, assume blame info is
+          missing.
+        author: author information with at least "name" and "relativeTime" keys.
+        time: time of the revision.
+        blameUrl: URL for a blame of this file at this commit.
+        commitUrl: URL for detail about the commit.
+        diffUrl: URL for a diff of this file at this commit.
+        class: class name for tr. All keys but "class" are optional.
+      */
 {if $regions}
   {call .header data="all"}
     {param css: [gitiles.PRETTIFY_CSS_URL] /}

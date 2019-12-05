@@ -98,17 +98,21 @@
   {@param sha: ?}  /** commit SHA-1. */
   {@param url: ?}  /** URL to commit detail page. */
   {@param shortMessage: ?}  /** short commit message. */
-  {@param message: ?}  /** list of commit message parts, where each part contains: text: raw text of
-      the part. url: optional URL that should be linked to from the part. */
+  {@param message: ?}  /** list of commit message parts, where each part contains:
+      text: raw text of the part.
+      url: optional URL that should be linked to from the part.
+      */
   {@param author: ?}  /** author information with at least "name" and "relativeTime" keys. */
   {@param committer: ?}  /** committer information with at least "time" and "relativeTime" keys. */
   {@param branches: ?}  /** list of branches for this entry, with "name" and "url" keys. */
   {@param tags: ?}  /** list of tags for this entry, with "name" and "url" keys. */
   {@param diffTree: ?}  /** unused in this variant. */
   {@param rename: ?}  /** if this entry was a rename or a copy of the path, an object containg:
-      changeType: the change type, "RENAME" or "COPY". oldPath: the old path prior to the rename or
-      copy. newPath: the new path after the rename or copy. score: the similarity score of the
-      rename or copy. */
+      changeType: the change type, "RENAME" or "COPY".
+      oldPath: the old path prior to the rename or copy.
+      newPath: the new path after the rename or copy.
+      score: the similarity score of the rename or copy.
+      */
 <a class="u-sha1 u-monospace CommitLog-sha1" href="{$url}">{$abbrevSha}</a>
 {sp}<a href="{$url}">{$shortMessage}</a>
 {sp}<span class="CommitLog-author" title="{$author.email}">{msg desc="commit author name"}by {$author.name}{/msg}</span>
@@ -151,17 +155,21 @@
   {@param sha: ?}  /** commit SHA-1. */
   {@param url: ?}  /** URL to commit detail page. */
   {@param shortMessage: ?}  /** short commit message. */
-  {@param message: ?}  /** list of commit message parts, where each part contains: text: raw text of
-      the part. url: optional URL that should be linked to from the part. */
+  {@param message: ?}  /** list of commit message parts, where each part contains:
+      text: raw text of the part.
+      url: optional URL that should be linked to from the part.
+      */
   {@param author: ?}  /** author information with at least "name" and "relativeTime" keys. */
   {@param committer: ?}  /** committer information with at least "time" and "relativeTime" keys. */
   {@param branches: ?}  /** list of branches for this entry, with "name" and "url" keys. */
   {@param tags: ?}  /** list of tags for this entry, with "name" and "url" keys. */
   {@param diffTree: ?}  /** unused in this variant. */
   {@param rename: ?}  /** if this entry was a rename or a copy of the path, an object containg:
-      changeType: the change type, "RENAME" or "COPY". oldPath: the old path prior to the rename or
-      copy. newPath: the new path after the rename or copy. score: the similarity score of the
-      rename or copy. */
+      changeType: the change type, "RENAME" or "COPY".
+      oldPath: the old path prior to the rename or copy.
+      newPath: the new path after the rename or copy.
+      score: the similarity score of the rename or copy.
+      */
 {delcall gitiles.logEntry variant="'oneline'" data="all" /}
 {/deltemplate}
 
@@ -174,17 +182,21 @@
   {@param sha: ?}  /** commit SHA-1. */
   {@param url: ?}  /** URL to commit detail page. */
   {@param shortMessage: ?}  /** short commit message. */
-  {@param message: ?}  /** list of commit message parts, where each part contains: text: raw text of
-      the part. url: optional URL that should be linked to from the part. */
+  {@param message: ?}  /** list of commit message parts, where each part contains:
+      text: raw text of the part.
+      url: optional URL that should be linked to from the part.
+      */
   {@param author: ?}  /** author information with at least "name" and "relativeTime" keys. */
   {@param committer: ?}  /** committer information with at least "time" and "relativeTime" keys. */
   {@param branches: ?}  /** list of branches for this entry, with "name" and "url" keys. */
   {@param tags: ?}  /** list of tags for this entry, with "name" and "url" keys. */
   {@param diffTree: ?}  /** unused in this variant. */
   {@param rename: ?}  /** if this entry was a rename or a copy of the path, an object containg:
-      changeType: the change type, "RENAME" or "COPY". oldPath: the old path prior to the rename or
-      copy. newPath: the new path after the rename or copy. score: the similarity score of the
-      rename or copy. */
+      changeType: the change type, "RENAME" or "COPY".
+      oldPath: the old path prior to the rename or copy.
+      newPath: the new path after the rename or copy.
+      score: the similarity score of the rename or copy.
+      */
 <div class="u-monospace Metadata">
 <table>
   <tr>
