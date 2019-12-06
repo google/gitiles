@@ -22,15 +22,23 @@
   {@param sha: ?}  /** commit SHA-1. */
   {@param tree: ?}  /** tree SHA-1. */
   {@param treeUrl: ?}  /** tree URL. */
-  {@param parents: ?}  /** list of parent objects with the following keys: sha: SHA-1. url: URL to
-      view the parent commit. diffUrl: URL to display diffs relative to this parent. blameUrl:
-      optional URL to display blame of a file at this parent. */
-  {@param message: ?}  /** list of commit message parts, where each part contains: text: raw text of
-      the part. url: optional URL that should be linked to from the part. */
-  {@param diffTree: ?}  /** list of changed tree entries with the following keys: changeType: string
-      matching an org.eclipse.jgit.diff.DiffEntry.ChangeType constant. path: (new) path of the tree
-      entry. oldPath: old path, only for renames and copies. url: URL to a detail page for the tree
-      entry. diffUrl: URL to a diff page for the tree entry's diff in this commit. */
+  {@param parents: ?}  /** list of parent objects with the following keys:
+      sha: SHA-1.
+      url: URL to view the parent commit.
+      diffUrl: URL to display diffs relative to this parent.
+      blameUrl: optional URL to display blame of a file at this parent.
+      */
+  {@param message: ?}  /** list of commit message parts, where each part contains:
+      text: raw text of the part.
+      url: optional URL that should be linked to from the part.
+      */
+  {@param diffTree: ?}  /** list of changed tree entries with the following keys:
+      changeType: string matching an org.eclipse.jgit.diff.DiffEntry.ChangeType constant.
+      path: (new) path of the tree entry.
+      oldPath: old path, only for renames and copies.
+      url: URL to a detail page for the tree entry.
+      diffUrl: URL to a diff page for the tree entry's diff in this commit.
+      */
   {@param logUrl: ?}  /** URL to a log page starting at this commit. */
   {@param archiveUrl: ?}  /** URL to a download link of this commit as an archive. */
   {@param archiveType: ?}  /** type of the archive to download. */
@@ -143,10 +151,13 @@
   {@param? logUrl: ?}  /** optional URL to a log for this path. */
   {@param? archiveUrl: ?}  /** optional URL to a download link of this tree as an archive. */
   {@param? archiveType: ?}  /** type of the archive to download, if archiveUrl is set. */
-  {@param entries: ?}  /** list of entries with the following keys: type: entry type, matching one
-      of the constant names defined in org.eclipse.jgit.lib.FileMode. name: tree entry name. url:
-      URL to link to. targetName: name of a symlink target, required only if type == 'SYMLINK'.
-      targetUrl: optional url of a symlink target, required only if type == 'SYMLINK'. */
+  {@param entries: ?}  /** list of entries with the following keys:
+      type: entry type, matching one of the constant names defined in org.eclipse.jgit.lib.FileMode.
+      name: tree entry name.
+      url: URL to link to.
+      targetName: name of a symlink target, required only if type == 'SYMLINK'.
+      targetUrl: optional url of a symlink target, required only if type == 'SYMLINK'.
+      */
   {@param? readmePath: ?}  /** optional path of the selected README.md file. */
   {@param? readmeHtml: ?}  /** optional rendered README.md contents. */
 <div class="TreeDetail">
@@ -315,8 +326,10 @@
  */
 {template .message_ visibility="private"}
   {@param className: ?}  /** CSS class name for <pre> block. */
-  {@param message: ?}  /** list of message parts, where each part contains: text: raw text of the
-      part. url: optional URL that should be linked to from the part. */
+  {@param message: ?}  /** list of message parts, where each part contains:
+      text: raw text of the part.
+      url: optional URL that should be linked to from the part.
+      */
 <pre class="{$className}">
   {for $part in $message}
     {if $part.url}<a href="{$part.url}">{$part.text}</a>{else}{$part.text}{/if}
