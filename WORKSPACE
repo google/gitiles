@@ -28,7 +28,7 @@ check_bazel_version()
 load("//tools:bazlets.bzl", "load_bazlets")
 
 load_bazlets(
-    commit = "ed210c9f7132b2e1b21d993b85bc55e9623ea4e2",
+    commit = "fbe2b2fd07c95d752dced6b8624c9d5a08e8c6c6",
     # local_path = "/home/<user>/projects/bazlets",
 )
 
