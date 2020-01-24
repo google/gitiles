@@ -131,7 +131,7 @@ public class GitwebRedirectFilter extends AbstractHttpFilter {
               .setServletPath(gitwebView.getServletPath())
               .toUrl();
     } catch (InvalidViewException e) {
-      throw new GitilesRequestFailureException(FailureReason.UNSUPPORTED_GITWEB_URL);
+      throw new GitilesRequestFailureException(FailureReason.UNSUPPORTED_GITWEB_URL, e);
     }
     res.setStatus(SC_MOVED_PERMANENTLY);
     res.setHeader(LOCATION, url);

@@ -95,7 +95,7 @@ public class DocServlet extends BaseServlet {
       try {
         root = rw.parseTree(view.getRevision().getId());
       } catch (IncorrectObjectTypeException e) {
-        throw new GitilesRequestFailureException(FailureReason.INCORRECT_OBJECT_TYPE);
+        throw new GitilesRequestFailureException(FailureReason.INCORRECT_OBJECT_TYPE, e);
       }
 
       MarkdownFile srcmd = findFile(rw, root, path);

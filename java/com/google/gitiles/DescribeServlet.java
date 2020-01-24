@@ -80,7 +80,7 @@ public class DescribeServlet extends BaseServlet {
     try {
       return repo.resolve(rev);
     } catch (RevisionSyntaxException e) {
-      throw new GitilesRequestFailureException(FailureReason.INCORECT_PARAMETER)
+      throw new GitilesRequestFailureException(FailureReason.INCORECT_PARAMETER, e)
           .withPublicErrorMessage(
               "Invalid revision syntax: %s", RefServlet.sanitizeRefForText(rev));
     } catch (AmbiguousObjectException e) {
