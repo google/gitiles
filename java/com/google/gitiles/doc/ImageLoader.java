@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 class ImageLoader {
   private static final Logger log = LoggerFactory.getLogger(ImageLoader.class);
   private static final ImmutableSet<String> ALLOWED_TYPES =
-      ImmutableSet.of("image/gif", "image/jpeg", "image/png");
+      ImmutableSet.of("image/gif", "image/jpeg", "image/png", "image/svg+xml");
 
   private final ObjectReader reader;
   private final GitilesView view;

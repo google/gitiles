@@ -111,7 +111,8 @@ public abstract class HtmlBuilder {
 
   /** Check if URL is valid for {@code <img src="data:image/*;base64,...">}. */
   public static boolean isImageDataUri(String url) {
-    return IMAGE_DATA.getValueFilter().matcher(url).find();
+    return IMAGE_DATA.getValueFilter().matcher(url).find() ||
+        url.startsWith("data:image/svg+xml;base64");
   }
 
   public static boolean isValidGitUri(String val) {
