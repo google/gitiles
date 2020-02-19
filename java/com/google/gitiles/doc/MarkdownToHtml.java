@@ -24,6 +24,7 @@ import com.google.gitiles.GitilesView;
 import com.google.gitiles.ThreadSafePrettifyParser;
 import com.google.gitiles.doc.html.HtmlBuilder;
 import com.google.gitiles.doc.html.SoyHtmlBuilder;
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.commonmark.ext.gfm.strikethrough.Strikethrough;
@@ -319,7 +320,7 @@ public class MarkdownToHtml implements Visitor {
     html.open("pre").attribute("class", "code");
     text = printLeadingBlankLines(text);
     List<ParseResult> parsed = parse(lang, text);
-    if (parsed != null) {
+    if (!parsed.isEmpty()) {
       int last = 0;
       for (ParseResult r : parsed) {
         span(null, text, last, r.getOffset());
@@ -357,12 +358,12 @@ public class MarkdownToHtml implements Visitor {
 
   private List<ParseResult> parse(@Nullable String lang, String text) {
     if (Strings.isNullOrEmpty(lang)) {
-      return null;
+      return Collections.emptyList();
     }
     try {
       return ThreadSafePrettifyParser.INSTANCE.parse(lang, text);
     } catch (StackOverflowError e) {
-      return null;
+      return Collections.emptyList();
     }
   }
 
