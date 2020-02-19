@@ -63,9 +63,9 @@ public class Linkifier {
     patterns.add(CHANGE_ID_PATTERN.pattern());
 
     for (String subsection : config.getSubsections(COMMENTLINK)) {
-      String match = config.getString("commentlink", subsection, "match");
-      String link = config.getString("commentlink", subsection, "link");
-      String html = config.getString("commentlink", subsection, "html");
+      String match = config.getString(COMMENTLINK, subsection, "match");
+      String link = config.getString(COMMENTLINK, subsection, "link");
+      String html = config.getString(COMMENTLINK, subsection, "html");
       if (html != null) {
         log.warn(
             "Beware: html in commentlinks is unsupported in gitiles; "
