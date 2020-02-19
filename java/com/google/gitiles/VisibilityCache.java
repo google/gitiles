@@ -170,7 +170,7 @@ public class VisibilityCache {
         || isReachableFromRefs("heads", walk, commit, refDb.getRefsByPrefix(R_HEADS).stream())
         || isReachableFromRefs("tags", walk, commit, refDb.getRefsByPrefix(R_TAGS).stream())
         || isReachableFromRefs(
-            "other", walk, commit, refDb.getRefs().stream().filter(r -> otherRefs(r)));
+            "other", walk, commit, refDb.getRefs().stream().filter(VisibilityCache::otherRefs));
   }
 
   private static boolean refStartsWith(Ref ref, String prefix) {
