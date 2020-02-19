@@ -72,7 +72,7 @@ public class Linkifier {
                 + "Did you copy it from a gerrit config?");
       }
       if (Strings.isNullOrEmpty(match)) {
-        log.warn("invalid commentlink.%s.match", subsection);
+        log.warn("invalid commentlink.{}.match", subsection);
         continue;
       }
       Pattern pattern;
@@ -88,7 +88,7 @@ public class Linkifier {
         continue;
       }
       if (Strings.isNullOrEmpty(link)) {
-        log.warn("invalid commentlink.%s.link", subsection);
+        log.warn("invalid commentlink.{}.link", subsection);
         continue;
       }
       list.add(new CommentLinkInfo(pattern, link));
