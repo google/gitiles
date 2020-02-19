@@ -83,7 +83,7 @@ public class Linkifier {
         if (log.isDebugEnabled()) {
           log.debug(msg, ex);
         } else {
-          log.warn(msg + ": " + ex.getMessage());
+          log.warn("{}: {}", msg, ex.getMessage());
         }
         continue;
       }

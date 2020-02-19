@@ -136,7 +136,7 @@ public class BlobSoyData {
     } catch (StackOverflowError e) {
       // TODO(dborowitz): Aaagh. Make prettify use RE2. Or replace it something
       // else. Or something.
-      log.warn("StackOverflowError prettifying " + view.toUrl());
+      log.warn("StackOverflowError prettifying {}", view.toUrl());
       return ImmutableList.of(
           new ParseResult(0, content.length(), ImmutableList.of(Prettify.PR_PLAIN)));
     }
