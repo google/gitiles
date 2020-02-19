@@ -165,14 +165,13 @@ public class BlameServlet extends BaseServlet {
 
     if (!Objects.equals(currCommitBlobId, lastCommitBlobId)) {
       log.warn(
-          String.format(
-              "Blob %s in last modified commit %s for repo %s starting from %s"
-                  + " does not match original blob %s",
-              ObjectId.toString(lastCommitBlobId),
-              ObjectId.toString(lastCommit),
-              access.getRepositoryName(),
-              ObjectId.toString(currCommit),
-              ObjectId.toString(currCommitBlobId)));
+          "Blob {} in last modified commit {} for repo {} starting from {}"
+              + " does not match original blob {}",
+          ObjectId.toString(lastCommitBlobId),
+          ObjectId.toString(lastCommit),
+          access.getRepositoryName(),
+          ObjectId.toString(currCommit),
+          ObjectId.toString(currCommitBlobId));
       lastCommitBlobId = currCommitBlobId;
       lastCommit = currCommit;
     }
