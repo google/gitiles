@@ -33,7 +33,7 @@ final class SoyConstants {
    * <p>Based on {@link
    * com.google.template.soy.shared.internal.EscapingConventions.FilterImageDataUri}.
    */
-  static String IMAGE_URI_INNOCUOUS_OUTPUT = "data:image/gif;base64,zSoyz";
+  static final String IMAGE_URI_INNOCUOUS_OUTPUT = "data:image/gif;base64,zSoyz";
 
   /**
    * Innocuous output when a URI fails escaping.
@@ -46,7 +46,7 @@ final class SoyConstants {
    * <p>Based on {@link
    * com.google.template.soy.shared.internal.EscapingConventions.FilterNormalizeUri}.
    */
-  static String NORMAL_URI_INNOCUOUS_OUTPUT = "about:invalid#zSoyz";
+  static final String NORMAL_URI_INNOCUOUS_OUTPUT = "about:invalid#zSoyz";
 
   private SoyConstants() {}
 }
