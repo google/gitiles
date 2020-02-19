@@ -47,4 +47,6 @@ final class SoyConstants {
    * com.google.template.soy.shared.internal.EscapingConventions.FilterNormalizeUri}.
    */
   static String NORMAL_URI_INNOCUOUS_OUTPUT = "about:invalid#zSoyz";
+
+  private SoyConstants() {}
 }
