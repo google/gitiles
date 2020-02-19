@@ -120,7 +120,6 @@ public class GitilesHtmlExtension implements ParserExtension {
         curr.insertAfter(anchor);
         curr.unlink();
         MarkdownUtil.trimPreviousWhitespace(anchor);
-        return;
       }
     }
   }
@@ -141,7 +140,6 @@ public class GitilesHtmlExtension implements ParserExtension {
         if (f != null) {
           curr.insertAfter(f);
           curr.unlink();
-          return;
         }
       }
     }
