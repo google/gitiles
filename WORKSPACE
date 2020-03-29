@@ -9,22 +9,6 @@ http_archive(
     urls = ["https://github.com/bazelbuild/rules_python/archive/4b84ad270387a7c439ebdccfd530e2339601ef27.tar.gz"],
 )
 
-http_archive(
-    name = "bazel_skylib",
-    sha256 = "bbccf674aa441c266df9894182d80de104cabd19be98be002f6d478aaa31574d",
-    strip_prefix = "bazel-skylib-2169ae1c374aab4a09aa90e65efe1a3aad4e279b",
-    urls = ["https://github.com/bazelbuild/bazel-skylib/archive/2169ae1c374aab4a09aa90e65efe1a3aad4e279b.tar.gz"],
-)
-
-# Check Bazel version when invoked by Bazel directly
-load("//tools:bazelisk_version.bzl", "bazelisk_version")
-
-bazelisk_version(name = "bazelisk_version")
-
-load("@bazelisk_version//:check.bzl", "check_bazel_version")
-
-check_bazel_version()
-
 load("//tools:bazlets.bzl", "load_bazlets")
 
 load_bazlets(
