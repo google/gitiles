@@ -15,8 +15,6 @@
 package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
@@ -27,6 +25,7 @@ import com.google.common.collect.Sets;
 import com.google.common.primitives.Longs;
 import com.google.gitiles.CommitData.Field;
 import com.google.gitiles.DateFormatter.Format;
+import com.google.gitiles.GitilesRequestFailureException.FailureReason;
 import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -42,7 +41,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jgit.diff.DiffConfig;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
-import org.eclipse.jgit.errors.RevWalkException;
 import org.eclipse.jgit.http.server.ServletUtils;
 import org.eclipse.jgit.lib.AbbreviatedObjectId;
 import org.eclipse.jgit.lib.Constants;
@@ -62,13 +60,10 @@ import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.eclipse.jgit.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /** Serves an HTML page with a shortlog for commits and paths. */
 public class LogServlet extends BaseServlet {
   private static final long serialVersionUID = 1L;
-  private static final Logger log = LoggerFactory.getLogger(LogServlet.class);
 
   static final String LIMIT_PARAM = "n";
   static final String START_PARAM = "s";
@@ -76,6 +71,9 @@ public class LogServlet extends BaseServlet {
   private static final String FOLLOW_PARAM = "follow";
   private static final String NAME_STATUS_PARAM = "name-status";
   private static final String PRETTY_PARAM = "pretty";
+  private static final String TOPO_ORDER_PARAM = "topo-order";
+  private static final String REVERSE_PARAM = "reverse";
+  private static final String FIRST_PARENT_PARAM = "first-parent";
 
   private static final int DEFAULT_LIMIT = 100;
   private static final int MAX_LIMIT = 10000;
@@ -97,8 +95,7 @@ public class LogServlet extends BaseServlet {
       GitilesAccess access = getAccess(req);
       paginator = newPaginator(repo, view, access);
       if (paginator == null) {
-        res.setStatus(SC_NOT_FOUND);
-        return;
+        throw new GitilesRequestFailureException(FailureReason.OBJECT_NOT_FOUND);
       }
       DateFormatter df = new DateFormatter(access, Format.DEFAULT);
 
@@ -119,7 +116,7 @@ public class LogServlet extends BaseServlet {
       }
 
       String title = "Log - ";
-      if (view.getOldRevision() != Revision.NULL) {
+      if (!Revision.isNull(view.getOldRevision())) {
         title += view.getRevisionRange();
       } else {
         title += view.getRevision().getName();
@@ -133,10 +130,6 @@ public class LogServlet extends BaseServlet {
             .renderStreaming(paginator, null, renderer, w, df, LogSoyData.FooterBehavior.NEXT);
         w.flush();
       }
-    } catch (RevWalkException e) {
-      log.warn("Error in rev walk", e);
-      res.setStatus(SC_INTERNAL_SERVER_ERROR);
-      return;
     } finally {
       if (paginator != null) {
         paginator.getWalk().close();
@@ -160,8 +153,7 @@ public class LogServlet extends BaseServlet {
       GitilesAccess access = getAccess(req);
       paginator = newPaginator(repo, view, access);
       if (paginator == null) {
-        res.setStatus(SC_NOT_FOUND);
-        return;
+        throw new GitilesRequestFailureException(FailureReason.OBJECT_NOT_FOUND);
       }
       DateFormatter df = new DateFormatter(access, Format.DEFAULT);
       CommitJsonData.Log result = new CommitJsonData.Log();
@@ -186,7 +178,7 @@ public class LogServlet extends BaseServlet {
 
   private static GitilesView getView(HttpServletRequest req, Repository repo) throws IOException {
     GitilesView view = ViewFilter.getView(req);
-    if (view.getRevision() != Revision.NULL) {
+    if (!Revision.isNull(view.getRevision())) {
       return view;
     }
     Ref headRef = repo.exactRef(Constants.HEAD);
@@ -234,9 +226,18 @@ public class LogServlet extends BaseServlet {
   private static RevWalk newWalk(Repository repo, GitilesView view, GitilesAccess access)
       throws MissingObjectException, IOException {
     RevWalk walk = new RevWalk(repo);
+    if (isTrue(view, FIRST_PARENT_PARAM)) {
+      walk.setFirstParent(true);
+    }
+    if (isTrue(view, TOPO_ORDER_PARAM)) {
+      walk.sort(RevSort.TOPO, true);
+    }
+    if (isTrue(view, REVERSE_PARAM)) {
+      walk.sort(RevSort.REVERSE, true);
+    }
     try {
       walk.markStart(walk.parseCommit(view.getRevision().getId()));
-      if (view.getOldRevision() != Revision.NULL) {
+      if (!Revision.isNull(view.getOldRevision())) {
         walk.markUninteresting(walk.parseCommit(view.getOldRevision().getId()));
       }
     } catch (IncorrectObjectTypeException iote) {
@@ -244,12 +245,6 @@ public class LogServlet extends BaseServlet {
     }
     setTreeFilter(walk, view, access);
     setRevFilter(walk, view);
-    if (isTrue(view, "topo-order")) {
-      walk.sort(RevSort.TOPO, true);
-    }
-    if (isTrue(view, "reverse")) {
-      walk.sort(RevSort.REVERSE, true);
-    }
     return walk;
   }
 

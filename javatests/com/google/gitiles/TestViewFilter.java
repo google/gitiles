@@ -65,7 +65,7 @@ public class TestViewFilter {
         new ViewFilter(
             new TestGitilesAccess(repo.getRepository()),
             TestGitilesUrls.URLS,
-            new VisibilityCache(false));
+            new VisibilityCache());
     MetaFilter mf = new MetaFilter();
 
     for (Pattern p : ImmutableList.of(ROOT_REGEX, REPO_REGEX, REPO_PATH_REGEX)) {

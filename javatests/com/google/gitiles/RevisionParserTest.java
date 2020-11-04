@@ -46,7 +46,7 @@ public class RevisionParserTest {
         new RevisionParser(
             repo.getRepository(),
             new TestGitilesAccess(repo.getRepository()).forRequest(null),
-            new VisibilityCache(false, CacheBuilder.newBuilder().maximumSize(0)));
+            new VisibilityCache(CacheBuilder.newBuilder().maximumSize(0)));
   }
 
   @Test
@@ -253,6 +253,14 @@ public class RevisionParserTest {
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=537972
     // assertThat(repo.getRepository().resolve("master@{0}")).isEqualTo(null);
     assertThat(parser.parse("master@{0}")).isNull();
+  }
+
+  @Test
+  public void parseEmailInRevision() throws Exception {
+    RevCommit c = repo.commit().create();
+    repo.update("refs/experimental/author@example.com/foo", c);
+    assertThat(parser.parse("refs/experimental/author@example.com/foo"))
+        .isEqualTo(new Result(Revision.peeled("refs/experimental/author@example.com/foo", c)));
   }
 
   @Test

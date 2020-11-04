@@ -18,7 +18,6 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.net.HttpHeaders.LOCATION;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static javax.servlet.http.HttpServletResponse.SC_GONE;
 import static javax.servlet.http.HttpServletResponse.SC_MOVED_PERMANENTLY;
 
 import com.google.common.base.Splitter;
@@ -26,6 +25,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
+import com.google.gitiles.GitilesRequestFailureException.FailureReason;
 import com.google.gitiles.GitilesView.InvalidViewException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -117,8 +117,7 @@ public class GitwebRedirectFilter extends AbstractHttpFilter {
     } else {
       // Gitiles does not provide an RSS feed (a=rss,atom,opml)
       // Any other URL is out of date and not valid anymore.
-      res.sendError(SC_GONE);
-      return;
+      throw new GitilesRequestFailureException(FailureReason.UNSUPPORTED_GITWEB_URL);
     }
 
     if (!Strings.isNullOrEmpty(project)) {
@@ -132,8 +131,7 @@ public class GitwebRedirectFilter extends AbstractHttpFilter {
               .setServletPath(gitwebView.getServletPath())
               .toUrl();
     } catch (InvalidViewException e) {
-      res.setStatus(SC_GONE);
-      return;
+      throw new GitilesRequestFailureException(FailureReason.UNSUPPORTED_GITWEB_URL, e);
     }
     res.setStatus(SC_MOVED_PERMANENTLY);
     res.setHeader(LOCATION, url);

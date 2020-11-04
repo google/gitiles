@@ -34,9 +34,10 @@
         diffUrl: URL for a diff of this file at this commit.
         class: class name for tr. All keys but "class" are optional.
       */
+  {@inject staticUrls: ?}
 {if $regions}
   {call .header data="all"}
-    {param css: [gitiles.PRETTIFY_CSS_URL] /}
+    {param css: [$staticUrls.PRETTIFY_CSS_URL] /}
     {param containerClass: 'Container--fullWidth' /}
   {/call}
 

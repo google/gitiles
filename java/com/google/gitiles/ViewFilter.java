@@ -16,12 +16,10 @@ package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
-import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
-import static org.eclipse.jgit.http.server.GitSmartHttpTools.sendError;
 import static org.eclipse.jgit.http.server.ServletUtils.ATTRIBUTE_REPOSITORY;
 
 import com.google.common.base.Strings;
+import com.google.gitiles.GitilesRequestFailureException.FailureReason;
 import java.io.IOException;
 import java.util.Map;
 import javax.servlet.FilterChain;
@@ -30,13 +28,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jgit.http.server.ServletUtils;
 import org.eclipse.jgit.http.server.glue.WrappedRequest;
-import org.eclipse.jgit.transport.ServiceMayNotContinueException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /** Filter to parse URLs and convert them to {@link GitilesView}s. */
 public class ViewFilter extends AbstractHttpFilter {
-  private static final Logger log = LoggerFactory.getLogger(ViewFilter.class);
   // TODO(dborowitz): Make this public in JGit (or implement getRegexGroup
   // upstream).
   private static final String REGEX_GROUPS_ATTRIBUTE =
@@ -102,21 +96,9 @@ public class ViewFilter extends AbstractHttpFilter {
   @Override
   public void doFilter(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
       throws IOException, ServletException {
-    GitilesView.Builder view;
-    try {
-      view = parse(req);
-    } catch (ServiceMayNotContinueException e) {
-      sendError(req, res, e.getStatusCode(), e.getMessage());
-      return;
-    } catch (IOException err) {
-      String name = urls.getHostName(req);
-      log.warn("Cannot parse view" + (name != null ? " for " + name : ""), err);
-      res.setStatus(SC_SERVICE_UNAVAILABLE);
-      return;
-    }
+    GitilesView.Builder view = parse(req);
     if (view == null) {
-      res.setStatus(SC_NOT_FOUND);
-      return;
+      throw new GitilesRequestFailureException(FailureReason.CANNOT_PARSE_GITILES_VIEW);
     }
 
     @SuppressWarnings("unchecked")
@@ -137,12 +119,12 @@ public class ViewFilter extends AbstractHttpFilter {
   }
 
   private boolean normalize(GitilesView.Builder view, HttpServletResponse res) throws IOException {
-    if (view.getOldRevision() != Revision.NULL) {
+    if (!Revision.isNull(view.getOldRevision())) {
       return false;
     }
     Revision r = view.getRevision();
     Revision nr = Revision.normalizeParentExpressions(r);
-    if (r != nr) {
+    if (!r.equals(nr)) {
       res.sendRedirect(view.setRevision(nr).toUrl());
       return true;
     }

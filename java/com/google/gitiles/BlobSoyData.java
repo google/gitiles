@@ -50,6 +50,13 @@ public class BlobSoyData {
    */
   @VisibleForTesting static final int MAX_FILE_SIZE = 10 << 20;
 
+  /**
+   * Maximum number of lines to be displayed. Files larger than this will be displayed as binary
+   * files, even on a text content. For example really big XML files may be above this limit and
+   * will get displayed as binary.
+   */
+  private static final int MAX_LINE_COUNT = 50000;
+
   private final GitilesView view;
   private final ObjectReader reader;
 
@@ -73,6 +80,9 @@ public class BlobSoyData {
       byte[] raw = loader.getCachedBytes(MAX_FILE_SIZE);
       content =
           (raw.length < MAX_FILE_SIZE && !RawText.isBinary(raw)) ? RawParseUtils.decode(raw) : null;
+      if (isContentTooLargeForDisplay(content)) {
+        content = null;
+      }
     } catch (LargeObjectException.OutOfMemory e) {
       throw e;
     } catch (LargeObjectException e) {
@@ -126,7 +136,7 @@ public class BlobSoyData {
     } catch (StackOverflowError e) {
       // TODO(dborowitz): Aaagh. Make prettify use RE2. Or replace it something
       // else. Or something.
-      log.warn("StackOverflowError prettifying " + view.toUrl());
+      log.warn("StackOverflowError prettifying {}", view.toUrl());
       return ImmutableList.of(
           new ParseResult(0, content.length(), ImmutableList.of(Prettify.PR_PLAIN)));
     }
@@ -188,6 +198,23 @@ public class BlobSoyData {
       return "sh";
     } else {
       return ext;
+    }
+  }
+
+  private static boolean isContentTooLargeForDisplay(String content) {
+    if (content == null) {
+      return false;
+    }
+
+    int lines = 0;
+    int nl = -1;
+    while (true) {
+      nl = nextLineBreak(content, nl + 1, content.length());
+      if (nl < 0) {
+        return false;
+      } else if (++lines == MAX_LINE_COUNT) {
+        return true;
+      }
     }
   }
 }

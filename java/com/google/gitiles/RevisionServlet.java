@@ -15,7 +15,6 @@
 package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static org.eclipse.jgit.lib.Constants.OBJ_BLOB;
 import static org.eclipse.jgit.lib.Constants.OBJ_COMMIT;
 import static org.eclipse.jgit.lib.Constants.OBJ_TAG;
@@ -28,6 +27,7 @@ import com.google.common.io.BaseEncoding;
 import com.google.gitiles.CommitData.Field;
 import com.google.gitiles.CommitJsonData.Commit;
 import com.google.gitiles.DateFormatter.Format;
+import com.google.gitiles.GitilesRequestFailureException.FailureReason;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
@@ -49,8 +49,6 @@ import org.eclipse.jgit.revwalk.RevObject;
 import org.eclipse.jgit.revwalk.RevTag;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /** Serves an HTML page with detailed information about a ref. */
 public class RevisionServlet extends BaseServlet {
@@ -60,7 +58,6 @@ public class RevisionServlet extends BaseServlet {
       Field.setOf(CommitJsonData.DEFAULT_FIELDS, Field.DIFF_TREE);
 
   private static final long serialVersionUID = 1L;
-  private static final Logger log = LoggerFactory.getLogger(RevisionServlet.class);
 
   private final Linkifier linkifier;
 
@@ -125,18 +122,12 @@ public class RevisionServlet extends BaseServlet {
                       new TagSoyData(linkifier, req).toSoyData(walk, (RevTag) obj, df)));
               break;
             default:
-              log.warn("Bad object type for {}: {}", ObjectId.toString(obj.getId()), obj.getType());
-              res.setStatus(SC_NOT_FOUND);
-              return;
+              throw new GitilesRequestFailureException(FailureReason.UNSUPPORTED_OBJECT_TYPE);
           }
         } catch (MissingObjectException e) {
-          log.warn("Missing object " + ObjectId.toString(obj.getId()), e);
-          res.setStatus(SC_NOT_FOUND);
-          return;
+          throw new GitilesRequestFailureException(FailureReason.OBJECT_NOT_FOUND, e);
         } catch (IncorrectObjectTypeException e) {
-          log.warn("Incorrect object type for " + ObjectId.toString(obj.getId()), e);
-          res.setStatus(SC_NOT_FOUND);
-          return;
+          throw new GitilesRequestFailureException(FailureReason.INCORRECT_OBJECT_TYPE, e);
         }
       }
 
@@ -159,13 +150,12 @@ public class RevisionServlet extends BaseServlet {
     try (ObjectReader reader = repo.newObjectReader()) {
       ObjectLoader loader = reader.open(view.getRevision().getId());
       if (loader.getType() != OBJ_COMMIT) {
-        res.setStatus(SC_NOT_FOUND);
-      } else {
-        PathServlet.setTypeHeader(res, loader.getType());
-        try (Writer writer = startRenderText(req, res);
-            OutputStream out = BaseEncoding.base64().encodingStream(writer)) {
-          loader.copyTo(out);
-        }
+        throw new GitilesRequestFailureException(FailureReason.UNSUPPORTED_OBJECT_TYPE);
+      }
+      PathServlet.setTypeHeader(res, loader.getType());
+      try (Writer writer = startRenderText(req, res);
+          OutputStream out = BaseEncoding.base64().encodingStream(writer)) {
+        loader.copyTo(out);
       }
     }
   }
@@ -188,8 +178,7 @@ public class RevisionServlet extends BaseServlet {
           break;
         default:
           // TODO(dborowitz): Support showing other types.
-          res.setStatus(SC_NOT_FOUND);
-          break;
+          throw new GitilesRequestFailureException(FailureReason.UNSUPPORTED_OBJECT_TYPE);
       }
     }
   }

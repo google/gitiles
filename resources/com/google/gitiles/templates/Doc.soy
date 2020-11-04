@@ -44,6 +44,7 @@
   {@param? analyticsId: ?}  /** Google Analytics Property ID. */
   {@param? navbarHtml: ?}  /** navar.md converted to SafeHtml. */
   {@param? customVariant: ?}  /** variant name for custom styling. */
+  {@inject staticUrls: ?}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -52,9 +53,9 @@
     {if $siteTitle}{$siteTitle} -{sp}{/if}
     {$pageTitle}
   </title>
-  <link rel="stylesheet" type="text/css" href="{gitiles.BASE_CSS_URL |blessStringAsTrustedResourceUrlForLegacy}" />
-  <link rel="stylesheet" type="text/css" href="{gitiles.DOC_CSS_URL |blessStringAsTrustedResourceUrlForLegacy}" />
-  <link rel="stylesheet" type="text/css" href="{gitiles.PRETTIFY_CSS_URL |blessStringAsTrustedResourceUrlForLegacy}" />
+  <link rel="stylesheet" type="text/css" href="{$staticUrls.BASE_CSS_URL}" />
+  <link rel="stylesheet" type="text/css" href="{$staticUrls.DOC_CSS_URL}" />
+  <link rel="stylesheet" type="text/css" href="{$staticUrls.PRETTIFY_CSS_URL}" />
   {delcall gitiles.customHeadTagPart variant="$customVariant ?: ''" /}
 </head>
 <body class="Site">

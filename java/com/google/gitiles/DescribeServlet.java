@@ -14,11 +14,9 @@
 
 package com.google.gitiles;
 
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
-
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
+import com.google.gitiles.GitilesRequestFailureException.FailureReason;
 import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
 import java.io.Writer;
@@ -55,7 +53,7 @@ public class DescribeServlet extends BaseServlet {
 
   @Override
   protected void doGetText(HttpServletRequest req, HttpServletResponse res) throws IOException {
-    String name = describe(ServletUtils.getRepository(req), ViewFilter.getView(req), req, res);
+    String name = describe(ServletUtils.getRepository(req), ViewFilter.getView(req), req);
     if (name == null) {
       return;
     }
@@ -66,7 +64,7 @@ public class DescribeServlet extends BaseServlet {
 
   @Override
   protected void doGetJson(HttpServletRequest req, HttpServletResponse res) throws IOException {
-    String name = describe(ServletUtils.getRepository(req), ViewFilter.getView(req), req, res);
+    String name = describe(ServletUtils.getRepository(req), ViewFilter.getView(req), req);
     if (name == null) {
       return;
     }
@@ -77,45 +75,34 @@ public class DescribeServlet extends BaseServlet {
         new TypeToken<Map<String, String>>() {}.getType());
   }
 
-  private ObjectId resolve(
-      Repository repo, GitilesView view, HttpServletRequest req, HttpServletResponse res)
-      throws IOException {
+  private ObjectId resolve(Repository repo, GitilesView view) throws IOException {
     String rev = view.getPathPart();
     try {
       return repo.resolve(rev);
     } catch (RevisionSyntaxException e) {
-      renderTextError(
-          req,
-          res,
-          SC_BAD_REQUEST,
-          "Invalid revision syntax: " + RefServlet.sanitizeRefForText(rev));
-      return null;
+      throw new GitilesRequestFailureException(FailureReason.INCORECT_PARAMETER, e)
+          .withPublicErrorMessage(
+              "Invalid revision syntax: %s", RefServlet.sanitizeRefForText(rev));
     } catch (AmbiguousObjectException e) {
-      renderTextError(
-          req,
-          res,
-          SC_BAD_REQUEST,
-          String.format(
+      throw new GitilesRequestFailureException(FailureReason.AMBIGUOUS_OBJECT)
+          .withPublicErrorMessage(
               "Ambiguous short SHA-1 %s (%s)",
-              e.getAbbreviatedObjectId(), Joiner.on(", ").join(e.getCandidates())));
-      return null;
+              e.getAbbreviatedObjectId(), Joiner.on(", ").join(e.getCandidates()));
     }
   }
 
-  private String describe(
-      Repository repo, GitilesView view, HttpServletRequest req, HttpServletResponse res)
+  private String describe(Repository repo, GitilesView view, HttpServletRequest req)
       throws IOException {
     if (!getBooleanParam(view, CONTAINS_PARAM)) {
-      res.setStatus(SC_BAD_REQUEST);
-      return null;
+      throw new GitilesRequestFailureException(FailureReason.INCORECT_PARAMETER);
     }
-    ObjectId id = resolve(repo, view, req, res);
+    ObjectId id = resolve(repo, view);
     if (id == null) {
       return null;
     }
     String name;
     try (Git git = new Git(repo)) {
-      NameRevCommand cmd = nameRevCommand(git, id, req, res);
+      NameRevCommand cmd = nameRevCommand(git, id, req);
       if (cmd == null) {
         return null;
       }
@@ -124,21 +111,20 @@ public class DescribeServlet extends BaseServlet {
       throw new IOException(e);
     }
     if (name == null) {
-      res.setStatus(SC_NOT_FOUND);
-      return null;
+      throw new GitilesRequestFailureException(FailureReason.OBJECT_NOT_FOUND);
     }
     return name;
   }
 
-  private NameRevCommand nameRevCommand(
-      Git git, ObjectId id, HttpServletRequest req, HttpServletResponse res) throws IOException {
+  private NameRevCommand nameRevCommand(Git git, ObjectId id, HttpServletRequest req)
+      throws IOException {
     GitilesView view = ViewFilter.getView(req);
     NameRevCommand cmd = git.nameRev();
     boolean all = getBooleanParam(view, ALL_PARAM);
     boolean tags = getBooleanParam(view, TAGS_PARAM);
     if (all && tags) {
-      renderTextError(req, res, SC_BAD_REQUEST, "Cannot specify both \"all\" and \"tags\"");
-      return null;
+      throw new GitilesRequestFailureException(FailureReason.UNSUPPORTED_REVISION_NAMES)
+          .withPublicErrorMessage("Cannot specify both \"all\" and \"tags\"");
     }
     if (all) {
       cmd.addPrefix(Constants.R_REFS);

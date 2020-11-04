@@ -14,8 +14,6 @@
 
 package com.google.gitiles.doc;
 
-import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_MODIFIED;
 import static org.eclipse.jgit.lib.Constants.OBJ_BLOB;
 import static org.eclipse.jgit.lib.FileMode.TYPE_FILE;
@@ -30,6 +28,8 @@ import com.google.common.hash.Hashing;
 import com.google.common.net.HttpHeaders;
 import com.google.gitiles.BaseServlet;
 import com.google.gitiles.GitilesAccess;
+import com.google.gitiles.GitilesRequestFailureException;
+import com.google.gitiles.GitilesRequestFailureException.FailureReason;
 import com.google.gitiles.GitilesView;
 import com.google.gitiles.Renderer;
 import com.google.gitiles.ViewFilter;
@@ -53,11 +53,8 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class DocServlet extends BaseServlet {
-  private static final Logger log = LoggerFactory.getLogger(DocServlet.class);
   private static final long serialVersionUID = 1L;
 
   private static final String INDEX_MD = "index.md";
@@ -86,8 +83,7 @@ public class DocServlet extends BaseServlet {
   protected void doGetHtml(HttpServletRequest req, HttpServletResponse res) throws IOException {
     MarkdownConfig cfg = MarkdownConfig.get(getAccess(req).getConfig());
     if (!cfg.render) {
-      res.setStatus(SC_NOT_FOUND);
-      return;
+      throw new GitilesRequestFailureException(FailureReason.MARKDOWN_NOT_ENABLED);
     }
 
     GitilesView view = ViewFilter.getView(req);
@@ -99,14 +95,12 @@ public class DocServlet extends BaseServlet {
       try {
         root = rw.parseTree(view.getRevision().getId());
       } catch (IncorrectObjectTypeException e) {
-        res.setStatus(SC_NOT_FOUND);
-        return;
+        throw new GitilesRequestFailureException(FailureReason.INCORRECT_OBJECT_TYPE, e);
       }
 
       MarkdownFile srcmd = findFile(rw, root, path);
       if (srcmd == null) {
-        res.setStatus(SC_NOT_FOUND);
-        return;
+        throw new GitilesRequestFailureException(FailureReason.OBJECT_NOT_FOUND);
       }
 
       MarkdownFile navmd = findNavbar(rw, root, path);
@@ -122,11 +116,8 @@ public class DocServlet extends BaseServlet {
         if (navmd != null) {
           navmd.read(reader, cfg);
         }
-      } catch (LargeObjectException.ExceedsLimit errBig) {
-        fileTooBig(res, view, errBig);
-        return;
-      } catch (IOException err) {
-        readError(res, view, err);
+      } catch (LargeObjectException.ExceedsLimit e) {
+        fileTooBig(res, view);
         return;
       }
 
@@ -276,31 +267,11 @@ public class DocServlet extends BaseServlet {
     return false;
   }
 
-  private static void fileTooBig(
-      HttpServletResponse res, GitilesView view, LargeObjectException.ExceedsLimit errBig)
-      throws IOException {
+  private static void fileTooBig(HttpServletResponse res, GitilesView view) throws IOException {
     if (view.getType() == GitilesView.Type.ROOTED_DOC) {
-      log.error(
-          String.format(
-              "markdown too large: %s/%s %s %s: %s",
-              view.getHostName(),
-              view.getRepositoryName(),
-              view.getRevision(),
-              view.getPathPart(),
-              errBig.getMessage()));
-      res.setStatus(SC_INTERNAL_SERVER_ERROR);
-    } else {
-      res.sendRedirect(GitilesView.show().copyFrom(view).toUrl());
+      throw new GitilesRequestFailureException(FailureReason.OBJECT_TOO_LARGE);
     }
-  }
-
-  private static void readError(HttpServletResponse res, GitilesView view, IOException err) {
-    log.error(
-        String.format(
-            "cannot load markdown %s/%s %s %s",
-            view.getHostName(), view.getRepositoryName(), view.getRevision(), view.getPathPart()),
-        err);
-    res.setStatus(SC_INTERNAL_SERVER_ERROR);
+    res.sendRedirect(GitilesView.show().copyFrom(view).toUrl());
   }
 
   private static class MarkdownFile {

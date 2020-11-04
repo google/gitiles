@@ -15,16 +15,16 @@
 package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import com.google.common.html.types.SafeHtml;
 import com.google.gitiles.DateFormatter.Format;
+import com.google.gitiles.GitilesRequestFailureException.FailureReason;
 import com.google.gitiles.doc.MarkdownConfig;
 import com.google.gson.reflect.TypeToken;
-import com.google.template.soy.data.SanitizedContent;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
@@ -65,8 +65,7 @@ public class RepositoryIndexServlet extends BaseServlet {
     // If the repository didn't exist a prior filter would have 404 replied.
     Optional<FormatType> format = getFormat(req);
     if (!format.isPresent()) {
-      res.sendError(SC_BAD_REQUEST);
-      return;
+      throw new GitilesRequestFailureException(FailureReason.UNSUPPORTED_RESPONSE_FORMAT);
     }
     switch (format.get()) {
       case HTML:
@@ -77,8 +76,7 @@ public class RepositoryIndexServlet extends BaseServlet {
       case TEXT:
       case DEFAULT:
       default:
-        res.sendError(SC_BAD_REQUEST);
-        break;
+        throw new GitilesRequestFailureException(FailureReason.UNSUPPORTED_RESPONSE_FORMAT);
     }
   }
 
@@ -174,7 +172,7 @@ public class RepositoryIndexServlet extends BaseServlet {
             req.getRequestURI());
     readme.scanTree(rootTree);
     if (readme.isPresent()) {
-      SanitizedContent html = readme.render();
+      SafeHtml html = readme.render();
       if (html != null) {
         return ImmutableMap.<String, Object>of("readmeHtml", html);
       }

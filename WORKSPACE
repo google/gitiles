@@ -9,26 +9,10 @@ http_archive(
     urls = ["https://github.com/bazelbuild/rules_python/archive/4b84ad270387a7c439ebdccfd530e2339601ef27.tar.gz"],
 )
 
-http_archive(
-    name = "bazel_skylib",
-    sha256 = "bbccf674aa441c266df9894182d80de104cabd19be98be002f6d478aaa31574d",
-    strip_prefix = "bazel-skylib-2169ae1c374aab4a09aa90e65efe1a3aad4e279b",
-    urls = ["https://github.com/bazelbuild/bazel-skylib/archive/2169ae1c374aab4a09aa90e65efe1a3aad4e279b.tar.gz"],
-)
-
-# Check Bazel version when invoked by Bazel directly
-load("//tools:bazelisk_version.bzl", "bazelisk_version")
-
-bazelisk_version(name = "bazelisk_version")
-
-load("@bazelisk_version//:check.bzl", "check_bazel_version")
-
-check_bazel_version()
-
 load("//tools:bazlets.bzl", "load_bazlets")
 
 load_bazlets(
-    commit = "bf900bbe58f7a7802799d6d6477567b05ab2f399",
+    commit = "f30a992da9fc855dce819875afb59f9dd6f860cd",
     # local_path = "/home/<user>/projects/bazlets",
 )
 
@@ -58,8 +42,14 @@ maven_jar(
 
 maven_jar(
     name = "guava",
-    artifact = "com.google.guava:guava:26.0-jre",
-    sha1 = "6a806eff209f36f635f943e16d97491f00f6bfab",
+    artifact = "com.google.guava:guava:29.0-jre",
+    sha1 = "801142b4c3d0f0770dd29abea50906cacfddd447",
+)
+
+maven_jar(
+    name = "guava-failureaccess",
+    artifact = "com.google.guava:failureaccess:1.0.1",
+    sha1 = "1dcf1de382a0bf95a3d8b0849546c88bac1292c9",
 )
 
 maven_jar(
@@ -123,8 +113,8 @@ maven_jar(
 
 maven_jar(
     name = "truth",
-    artifact = "com.google.truth:truth:0.42",
-    sha1 = "b5768f644b114e6cf5c3962c2ebcb072f788dcbb",
+    artifact = "com.google.truth:truth:1.0.1",
+    sha1 = "361459309085bd9441cb97b62f160e8b353a93c0",
 )
 
 # Indirect dependency of truth
@@ -136,14 +126,14 @@ maven_jar(
 
 maven_jar(
     name = "soy",
-    artifact = "com.google.template:soy:2018-03-14",
-    sha1 = "76a1322705ba5a6d6329ee26e7387417725ce4b3",
+    artifact = "com.google.template:soy:2019-10-08",
+    sha1 = "4518bf8bac2dbbed684849bc209c39c4cb546237",
 )
 
 maven_jar(
     name = "html-types",
-    artifact = "com.google.common.html.types:types:1.0.4",
-    sha1 = "2adf4c8bfccc0ff7346f9186ac5aa57d829ad065",
+    artifact = "com.google.common.html.types:types:1.0.8",
+    sha1 = "9e9cf7bc4b2a60efeb5f5581fe46d17c068e0777",
 )
 
 maven_jar(
@@ -158,7 +148,7 @@ maven_jar(
     sha1 = "198ea005f41219f038f4291f0b0e9f3259730e92",
 )
 
-JGIT_VERS = "5.1.3.201810200350-r"
+JGIT_VERS = "5.7.0.202003110725-r"
 
 JGIT_REPO = MAVEN_CENTRAL
 
@@ -166,28 +156,28 @@ maven_jar(
     name = "jgit-lib",
     artifact = "org.eclipse.jgit:org.eclipse.jgit:" + JGIT_VERS,
     repository = JGIT_REPO,
-    sha1 = "f270dbd1d792d5ad06074abe018a18644c90b60e",
+    sha1 = "8dfe333ee6850df171a3d6b696aca3f93e23abc3",
 )
 
 maven_jar(
     name = "jgit-servlet",
     artifact = "org.eclipse.jgit:org.eclipse.jgit.http.server:" + JGIT_VERS,
     repository = JGIT_REPO,
-    sha1 = "360405244c28b537f0eafdc0b9d9f3753503d981",
+    sha1 = "9c4ee5af7f0b42f4589acb255b7bb3543d7d70d6",
 )
 
 maven_jar(
     name = "jgit-junit",
     artifact = "org.eclipse.jgit:org.eclipse.jgit.junit:" + JGIT_VERS,
     repository = JGIT_REPO,
-    sha1 = "1dc8f86bba3c461cb90c9dc3e91bf343889ca684",
+    sha1 = "a90513295c1cba0b289430512f0aa9d984d7cba2",
 )
 
 maven_jar(
     name = "jgit-archive",
     artifact = "org.eclipse.jgit:org.eclipse.jgit.archive:" + JGIT_VERS,
     repository = JGIT_REPO,
-    sha1 = "08e10921fcc75ead2736dd5bf099ba8e2ed8a3fb",
+    sha1 = "4456eb727ed1289121962d74a79c6add9ab3e0c2",
 )
 
 maven_jar(
@@ -200,17 +190,17 @@ maven_jar(
 # corresponding version
 maven_jar(
     name = "commons-compress",
-    artifact = "org.apache.commons:commons-compress:1.15",
-    sha1 = "b686cd04abaef1ea7bc5e143c080563668eec17e",
+    artifact = "org.apache.commons:commons-compress:1.18",
+    sha1 = "1191f9f2bc0c47a8cce69193feb1ff0a8bcb37d5",
 )
 
 # Transitive dependency of commons_compress. Should only be
 # upgraded at the same time as commons_compress.
 maven_jar(
     name = "tukaani-xz",
-    artifact = "org.tukaani:xz:1.6",
+    artifact = "org.tukaani:xz:1.8",
     attach_source = False,
-    sha1 = "05b6f921f1810bdf90e25471968f741f87168b64",
+    sha1 = "c4f7d054303948eb6a4066194253886c8af07128",
 )
 
 maven_jar(
@@ -239,18 +229,18 @@ maven_jar(
     sha1 = "8095d0b9f7e0a9cd79a663c740e0f8fb31d0e2c8",
 )
 
-GUICE_VERSION = "4.2.1"
+GUICE_VERSION = "4.2.3"
 
 maven_jar(
     name = "guice-library",
     artifact = "com.google.inject:guice:" + GUICE_VERSION,
-    sha1 = "f77dfd89318fe3ff293bafceaa75fbf66e4e4b10",
+    sha1 = "2ea992d6d7bdcac7a43111a95d182a4c42eb5ff7",
 )
 
 maven_jar(
     name = "guice-assistedinject",
     artifact = "com.google.inject.extensions:guice-assistedinject:" + GUICE_VERSION,
-    sha1 = "d327e4aee7c96f08cd657c17da231a1f4a8999ac",
+    sha1 = "acbfddc556ee9496293ed1df250cc378f331d854",
 )
 
 maven_jar(
@@ -265,46 +255,78 @@ maven_jar(
     sha1 = "6975da39a7040257bd51d21a231b76c915872d38",
 )
 
-JETTY_VERSION = "9.4.12.v20180830"
+JETTY_VERSION = "9.4.18.v20190429"
 
 maven_jar(
     name = "servlet",
     artifact = "org.eclipse.jetty:jetty-servlet:" + JETTY_VERSION,
-    sha1 = "4c1149328eda9fa39a274262042420f66d9ffd5f",
+    sha1 = "290f7a88f351950d51ebc9fb4a794752c62d7de5",
 )
 
 maven_jar(
     name = "security",
     artifact = "org.eclipse.jetty:jetty-security:" + JETTY_VERSION,
-    sha1 = "299e0602a9c0b753ba232cc1c1dda72ddd9addcf",
+    sha1 = "01aceff3608ca1b223bfd275a497797cfe675ef4",
 )
 
 maven_jar(
     name = "server",
     artifact = "org.eclipse.jetty:jetty-server:" + JETTY_VERSION,
-    sha1 = "b0f25df0d32a445fd07d5f16fff1411c16b888fa",
+    sha1 = "b76ef50e04635f11d4d43bc6ccb7c4482a8384f0",
 )
 
 maven_jar(
     name = "continuation",
     artifact = "org.eclipse.jetty:jetty-continuation:" + JETTY_VERSION,
-    sha1 = "5f6d6e06f95088a3a7118b9065bc49ce7c014b75",
+    sha1 = "3c421a3be5be5805e32b1a7f9c6046526524181d",
 )
 
 maven_jar(
     name = "http",
     artifact = "org.eclipse.jetty:jetty-http:" + JETTY_VERSION,
-    sha1 = "1341796dde4e16df69bca83f3e87688ba2e7d703",
+    sha1 = "c2e73db2db5c369326b717da71b6587b3da11e0e",
 )
 
 maven_jar(
     name = "io",
     artifact = "org.eclipse.jetty:jetty-io:" + JETTY_VERSION,
-    sha1 = "e93f5adaa35a9a6a85ba130f589c5305c6ecc9e3",
+    sha1 = "844af5efe58ab23fd0166a796efef123f4cb06b0",
 )
 
 maven_jar(
     name = "util",
     artifact = "org.eclipse.jetty:jetty-util:" + JETTY_VERSION,
-    sha1 = "cb4ccec9bd1fe4b10a04a0fb25d7053c1050188a",
+    sha1 = "13e6148bfda7ae511f69ae7e5e3ea898bc9b0e33",
+)
+
+OW2_VERS = "7.0"
+
+maven_jar(
+    name = "ow2-asm",
+    artifact = "org.ow2.asm:asm:" + OW2_VERS,
+    sha1 = "d74d4ba0dee443f68fb2dcb7fcdb945a2cd89912",
+)
+
+maven_jar(
+    name = "ow2-asm-analysis",
+    artifact = "org.ow2.asm:asm-analysis:" + OW2_VERS,
+    sha1 = "4b310d20d6f1c6b7197a75f1b5d69f169bc8ac1f",
+)
+
+maven_jar(
+    name = "ow2-asm-commons",
+    artifact = "org.ow2.asm:asm-commons:" + OW2_VERS,
+    sha1 = "478006d07b7c561ae3a92ddc1829bca81ae0cdd1",
+)
+
+maven_jar(
+    name = "ow2-asm-tree",
+    artifact = "org.ow2.asm:asm-tree:" + OW2_VERS,
+    sha1 = "29bc62dcb85573af6e62e5b2d735ef65966c4180",
+)
+
+maven_jar(
+    name = "ow2-asm-util",
+    artifact = "org.ow2.asm:asm-util:" + OW2_VERS,
+    sha1 = "18d4d07010c24405129a6dbb0e92057f8779fb9d",
 )

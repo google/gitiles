@@ -26,13 +26,14 @@
       org.eclipse.jgit.lib.FileMode. */
   {@param data: ?}  /** path data, matching the params for one of .treeDetail, .blobDetail,
       .symlinkDetail, or .gitlinkDetail as appropriate. */
+  {@inject staticUrls: ?}
 {if $type == 'REGULAR_FILE' or $type == 'EXECUTABLE_FILE'}
   {call .header data="all"}
-    {param css: [gitiles.PRETTIFY_CSS_URL] /}
+    {param css: [$staticUrls.PRETTIFY_CSS_URL] /}
   {/call}
 {elseif $data.readmeHtml}
   {call .header data="all"}
-    {param css: [gitiles.DOC_CSS_URL, gitiles.PRETTIFY_CSS_URL] /}
+    {param css: [$staticUrls.DOC_CSS_URL, $staticUrls.PRETTIFY_CSS_URL] /}
   {/call}
 {else}
   {call .header data="all" /}

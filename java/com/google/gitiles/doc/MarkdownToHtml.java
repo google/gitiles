@@ -19,11 +19,12 @@ import static com.google.gitiles.doc.MarkdownUtil.getInnerText;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
+import com.google.common.html.types.SafeHtml;
 import com.google.gitiles.GitilesView;
 import com.google.gitiles.ThreadSafePrettifyParser;
 import com.google.gitiles.doc.html.HtmlBuilder;
 import com.google.gitiles.doc.html.SoyHtmlBuilder;
-import com.google.template.soy.data.SanitizedContent;
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.commonmark.ext.gfm.strikethrough.Strikethrough;
@@ -168,7 +169,7 @@ public class MarkdownToHtml implements Visitor {
   }
 
   /** Render the document AST to sanitized HTML. */
-  public SanitizedContent toSoyHtml(Node node) {
+  public SafeHtml toSoyHtml(Node node) {
     if (node != null) {
       SoyHtmlBuilder out = new SoyHtmlBuilder();
       renderToHtml(out, node);
@@ -319,7 +320,7 @@ public class MarkdownToHtml implements Visitor {
     html.open("pre").attribute("class", "code");
     text = printLeadingBlankLines(text);
     List<ParseResult> parsed = parse(lang, text);
-    if (parsed != null) {
+    if (!parsed.isEmpty()) {
       int last = 0;
       for (ParseResult r : parsed) {
         span(null, text, last, r.getOffset());
@@ -357,12 +358,12 @@ public class MarkdownToHtml implements Visitor {
 
   private List<ParseResult> parse(@Nullable String lang, String text) {
     if (Strings.isNullOrEmpty(lang)) {
-      return null;
+      return Collections.emptyList();
     }
     try {
       return ThreadSafePrettifyParser.INSTANCE.parse(lang, text);
     } catch (StackOverflowError e) {
-      return null;
+      return Collections.emptyList();
     }
   }
 

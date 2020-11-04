@@ -67,6 +67,19 @@ public class LogServletTest extends ServletTest {
   }
 
   @Test
+  public void firstParentLog() throws Exception {
+    RevCommit p1 = repo.update("master", repo.commit().add("foo", "foo\n"));
+    RevCommit p2 = repo.update("master", repo.commit().add("foo", "foo2\n"));
+    RevCommit c = repo.update("master", repo.commit().parent(p1).parent(p2).add("foo", "foo3\n"));
+
+    Log response = buildJson(LOG, "/repo/+log/master", "first-parent");
+    assertThat(response.log).hasSize(2);
+
+    verifyJsonCommit(response.log.get(0), c);
+    verifyJsonCommit(response.log.get(1), p1);
+  }
+
+  @Test
   public void follow() throws Exception {
     String contents = "contents";
     RevCommit c1 = repo.branch("master").commit().add("foo", contents).create();

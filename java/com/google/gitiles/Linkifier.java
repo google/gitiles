@@ -63,16 +63,16 @@ public class Linkifier {
     patterns.add(CHANGE_ID_PATTERN.pattern());
 
     for (String subsection : config.getSubsections(COMMENTLINK)) {
-      String match = config.getString("commentlink", subsection, "match");
-      String link = config.getString("commentlink", subsection, "link");
-      String html = config.getString("commentlink", subsection, "html");
+      String match = config.getString(COMMENTLINK, subsection, "match");
+      String link = config.getString(COMMENTLINK, subsection, "link");
+      String html = config.getString(COMMENTLINK, subsection, "html");
       if (html != null) {
         log.warn(
             "Beware: html in commentlinks is unsupported in gitiles; "
                 + "Did you copy it from a gerrit config?");
       }
       if (Strings.isNullOrEmpty(match)) {
-        log.warn("invalid commentlink.%s.match", subsection);
+        log.warn("invalid commentlink.{}.match", subsection);
         continue;
       }
       Pattern pattern;
@@ -83,12 +83,12 @@ public class Linkifier {
         if (log.isDebugEnabled()) {
           log.debug(msg, ex);
         } else {
-          log.warn(msg + ": " + ex.getMessage());
+          log.warn("{}: {}", msg, ex.getMessage());
         }
         continue;
       }
       if (Strings.isNullOrEmpty(link)) {
-        log.warn("invalid commentlink.%s.link", subsection);
+        log.warn("invalid commentlink.{}.link", subsection);
         continue;
       }
       list.add(new CommentLinkInfo(pattern, link));

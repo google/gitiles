@@ -4,6 +4,7 @@ load("@rules_java//java:defs.bzl", "java_library")
 DEPS = [
     "//lib:gson",
     "//lib:guava",
+    "//lib:guava-failureaccess",
     "//lib/jgit:jgit",
     "//lib/jgit:jgit-servlet",
     "//lib/soy:soy",

@@ -88,6 +88,11 @@ public class Revision {
     this.peeledType = peeledType;
   }
 
+  @SuppressWarnings("ReferenceEquality")
+  public static boolean isNull(Revision r) {
+    return r == NULL;
+  }
+
   public String getName() {
     return name;
   }

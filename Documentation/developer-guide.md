@@ -26,7 +26,7 @@ This will recompile and start a development server.  Open
 http://localhost:8080/ to view your local copy of gitiles, which
 will serve any repositories under `/path/to/repositories`.
 
-To run unit tests, run `bazel test ...`.
+To run unit tests, refer to the aforementioned bazel test command.
 
 
 ## Eclipse IDE

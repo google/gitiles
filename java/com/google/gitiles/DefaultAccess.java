@@ -157,7 +157,7 @@ public class DefaultAccess implements GitilesAccess {
   }
 
   private String getRelativePath(Repository repo) {
-    String path = repo.isBare() ? repo.getDirectory().getPath() : repo.getDirectory().getParent();
+    String path;
     if (repo.isBare()) {
       path = repo.getDirectory().getPath();
       if (path.endsWith(".git")) {

@@ -15,7 +15,6 @@
 package com.google.gitiles.blame;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -27,6 +26,8 @@ import com.google.gitiles.CommitSoyData;
 import com.google.gitiles.DateFormatter;
 import com.google.gitiles.DateFormatter.Format;
 import com.google.gitiles.GitilesAccess;
+import com.google.gitiles.GitilesRequestFailureException;
+import com.google.gitiles.GitilesRequestFailureException.FailureReason;
 import com.google.gitiles.GitilesView;
 import com.google.gitiles.Renderer;
 import com.google.gitiles.ViewFilter;
@@ -34,8 +35,6 @@ import com.google.gitiles.blame.cache.BlameCache;
 import com.google.gitiles.blame.cache.Region;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.google.template.soy.data.SoyListData;
-import com.google.template.soy.data.SoyMapData;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -74,7 +73,7 @@ public class BlameServlet extends BaseServlet {
 
     try (RevWalk rw = new RevWalk(repo)) {
       GitilesAccess access = getAccess(req);
-      RegionResult result = getRegions(view, access, repo, rw, res);
+      RegionResult result = getRegions(view, access, repo, rw);
       if (result == null) {
         return;
       }
@@ -116,7 +115,7 @@ public class BlameServlet extends BaseServlet {
     Repository repo = ServletUtils.getRepository(req);
 
     try (RevWalk rw = new RevWalk(repo)) {
-      RegionResult result = getRegions(view, getAccess(req), repo, rw, res);
+      RegionResult result = getRegions(view, getAccess(req), repo, rw);
       if (result == null) {
         return;
       }
@@ -154,13 +153,11 @@ public class BlameServlet extends BaseServlet {
   }
 
   private RegionResult getRegions(
-      GitilesView view, GitilesAccess access, Repository repo, RevWalk rw, HttpServletResponse res)
-      throws IOException {
+      GitilesView view, GitilesAccess access, Repository repo, RevWalk rw) throws IOException {
     RevCommit currCommit = rw.parseCommit(view.getRevision().getId());
     ObjectId currCommitBlobId = resolveBlob(view, rw, currCommit);
     if (currCommitBlobId == null) {
-      res.setStatus(SC_NOT_FOUND);
-      return null;
+      throw new GitilesRequestFailureException(FailureReason.OBJECT_NOT_FOUND);
     }
 
     ObjectId lastCommit = cache.findLastCommit(repo, currCommit, view.getPathPart());
@@ -168,22 +165,20 @@ public class BlameServlet extends BaseServlet {
 
     if (!Objects.equals(currCommitBlobId, lastCommitBlobId)) {
       log.warn(
-          String.format(
-              "Blob %s in last modified commit %s for repo %s starting from %s"
-                  + " does not match original blob %s",
-              ObjectId.toString(lastCommitBlobId),
-              ObjectId.toString(lastCommit),
-              access.getRepositoryName(),
-              ObjectId.toString(currCommit),
-              ObjectId.toString(currCommitBlobId)));
+          "Blob {} in last modified commit {} for repo {} starting from {}"
+              + " does not match original blob {}",
+          ObjectId.toString(lastCommitBlobId),
+          ObjectId.toString(lastCommit),
+          access.getRepositoryName(),
+          ObjectId.toString(currCommit),
+          ObjectId.toString(currCommitBlobId));
       lastCommitBlobId = currCommitBlobId;
       lastCommit = currCommit;
     }
 
     List<Region> regions = cache.get(repo, lastCommit, view.getPathPart());
     if (regions.isEmpty()) {
-      res.setStatus(SC_NOT_FOUND);
-      return null;
+      throw new GitilesRequestFailureException(FailureReason.BLAME_REGION_NOT_FOUND);
     }
     return new RegionResult(regions, lastCommitBlobId);
   }
@@ -207,21 +202,21 @@ public class BlameServlet extends BaseServlet {
 
   private static final ImmutableList<String> CLASSES =
       ImmutableList.of("Blame-region--bg1", "Blame-region--bg2");
-  private static final ImmutableList<SoyMapData> NULLS;
+  private static final ImmutableList<ImmutableMap<String, Object>> NULLS;
 
   static {
-    ImmutableList.Builder<SoyMapData> nulls = ImmutableList.builder();
+    ImmutableList.Builder<ImmutableMap<String, Object>> nulls = ImmutableList.builder();
     for (String clazz : CLASSES) {
-      nulls.add(new SoyMapData("class", clazz));
+      nulls.add(ImmutableMap.of("class", clazz));
     }
     NULLS = nulls.build();
   }
 
-  private static SoyListData toSoyData(
+  private static List<ImmutableMap<String, Object>> toSoyData(
       GitilesView view, ObjectReader reader, List<Region> regions, DateFormatter df)
       throws IOException {
     Map<ObjectId, String> abbrevShas = Maps.newHashMap();
-    SoyListData result = new SoyListData();
+    ImmutableList.Builder<ImmutableMap<String, Object>> result = ImmutableList.builder();
 
     for (int i = 0; i < regions.size(); i++) {
       Region r = regions.get(i);
@@ -236,7 +231,7 @@ public class BlameServlet extends BaseServlet {
           abbrevSha = reader.abbreviate(r.getSourceCommit()).name();
           abbrevShas.put(r.getSourceCommit(), abbrevSha);
         }
-        Map<String, Object> e = Maps.newHashMapWithExpectedSize(6);
+        ImmutableMap.Builder<String, Object> e = ImmutableMap.builder();
         e.put("abbrevSha", abbrevSha);
         String blameParent = "";
         String blameText = "blame";
@@ -264,7 +259,7 @@ public class BlameServlet extends BaseServlet {
                 .toUrl());
         e.put("author", CommitSoyData.toSoyData(r.getSourceAuthor(), df));
         e.put("class", CLASSES.get(c));
-        result.add(e);
+        result.add(e.build());
       }
       // Pad the list with null regions so we can iterate in parallel in the
       // template. We can't do this by maintaining an index variable into the
@@ -274,6 +269,6 @@ public class BlameServlet extends BaseServlet {
         result.add(NULLS.get(c));
       }
     }
-    return result;
+    return result.build();
   }
 }

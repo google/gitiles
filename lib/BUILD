@@ -21,5 +21,11 @@ package(
     "servlet-api_3_0",
     "gson",
     "guava",
+    "guava-failureaccess",
     "prettify",
+    "ow2-asm",
+    "ow2-asm-analysis",
+    "ow2-asm-commons",
+    "ow2-asm-tree",
+    "ow2-asm-util",
 ]]

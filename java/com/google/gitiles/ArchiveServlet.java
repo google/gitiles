@@ -14,10 +14,10 @@
 
 package com.google.gitiles;
 
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 
 import com.google.common.base.Strings;
+import com.google.gitiles.GitilesRequestFailureException.FailureReason;
 import java.io.IOException;
 import java.util.Optional;
 import javax.servlet.ServletException;
@@ -50,15 +50,13 @@ public class ArchiveServlet extends BaseServlet {
 
     ObjectId treeId = getTree(view, repo, rev);
     if (treeId.equals(ObjectId.zeroId())) {
-      res.sendError(SC_NOT_FOUND);
-      return;
+      throw new GitilesRequestFailureException(FailureReason.INCORRECT_OBJECT_TYPE);
     }
 
     Optional<ArchiveFormat> format =
         ArchiveFormat.byExtension(view.getExtension(), getAccess(req).getConfig());
     if (!format.isPresent()) {
-      res.setStatus(SC_NOT_FOUND);
-      return;
+      throw new GitilesRequestFailureException(FailureReason.UNSUPPORTED_RESPONSE_FORMAT);
     }
     String filename = getFilename(view, rev, view.getExtension());
     setDownloadHeaders(req, res, filename, format.get().getMimeType());

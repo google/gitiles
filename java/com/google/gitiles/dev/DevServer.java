@@ -22,7 +22,6 @@ import com.google.common.html.types.UncheckedConversions;
 import com.google.gitiles.DebugRenderer;
 import com.google.gitiles.GitilesAccess;
 import com.google.gitiles.GitilesServlet;
-import com.google.gitiles.PathServlet;
 import com.google.gitiles.RepositoryDescription;
 import com.google.gitiles.RootedDocServlet;
 import com.google.gitiles.doc.HtmlSanitizer;
@@ -61,7 +60,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 class DevServer {
-  private static final Logger log = LoggerFactory.getLogger(PathServlet.class);
+  private static final Logger log = LoggerFactory.getLogger(DevServer.class);
 
   private static Config defaultConfig() {
     Config cfg = new Config();

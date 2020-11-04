@@ -22,6 +22,7 @@ import static java.util.stream.Collectors.toList;
 import static org.eclipse.jgit.lib.Constants.R_HEADS;
 import static org.eclipse.jgit.lib.Constants.R_TAGS;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Throwables;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -34,16 +35,16 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
-import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.RefDatabase;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
 
 /** Cache of per-user object visibility. */
 public class VisibilityCache {
+
   private static class Key {
     private final Object user;
     private final String repositoryName;
@@ -82,25 +83,48 @@ public class VisibilityCache {
   }
 
   private final Cache<Key, Boolean> cache;
-  private final boolean topoSort;
+  private final VisibilityChecker checker;
 
   public static CacheBuilder<Object, Object> defaultBuilder() {
     return CacheBuilder.newBuilder().maximumSize(1 << 10).expireAfterWrite(30, TimeUnit.MINUTES);
   }
 
-  public VisibilityCache(boolean topoSort) {
-    this(topoSort, defaultBuilder());
+  public VisibilityCache() {
+    this(new VisibilityChecker(), defaultBuilder());
   }
 
-  public VisibilityCache(boolean topoSort, CacheBuilder<Object, Object> builder) {
+  public VisibilityCache(CacheBuilder<Object, Object> builder) {
+    this(new VisibilityChecker(), builder);
+  }
+
+  /**
+   * Use the constructors with a boolean parameter (e.g. {@link #VisibilityCache()}). The default
+   * visibility checker should cover all common use cases.
+   *
+   * <p>This constructor is useful to use a checker with additional logging or metrics collection,
+   * for example.
+   */
+  public VisibilityCache(VisibilityChecker checker) {
+    this(checker, defaultBuilder());
+  }
+
+  /**
+   * Use the constructors with a boolean parameter (e.g. {@link #VisibilityCache()}). The default
+   * visibility checker should cover all common use cases.
+   *
+   * <p>This constructor is useful to use a checker with additional logging or metrics collection,
+   * for example.
+   */
+  public VisibilityCache(VisibilityChecker checker, CacheBuilder<Object, Object> builder) {
     this.cache = builder.build();
-    this.topoSort = topoSort;
+    this.checker = checker;
   }
 
   public Cache<?, Boolean> getCache() {
     return cache;
   }
 
+  @VisibleForTesting
   boolean isVisible(
       final Repository repo,
       final RevWalk walk,
@@ -125,8 +149,7 @@ public class VisibilityCache {
     }
   }
 
-  private boolean isVisible(
-      Repository repo, RevWalk walk, ObjectId id, Collection<ObjectId> knownReachable)
+  boolean isVisible(Repository repo, RevWalk walk, ObjectId id, Collection<ObjectId> knownReachable)
       throws IOException {
     RevCommit commit;
     try {
@@ -135,23 +158,19 @@ public class VisibilityCache {
       return false;
     }
 
-    // If any reference directly points at the requested object, permit display. Common for displays
-    // of pending patch sets in Gerrit Code Review, or bookmarks to the commit a tag points at.
-    Collection<Ref> all = repo.getRefDatabase().getRefs();
-    for (Ref ref : all) {
-      ref = repo.getRefDatabase().peel(ref);
-      if (id.equals(ref.getObjectId()) || id.equals(ref.getPeeledObjectId())) {
-        return true;
-      }
+    RefDatabase refDb = repo.getRefDatabase();
+    if (checker.isTipOfBranch(refDb, id)) {
+      return true;
     }
 
     // Check heads first under the assumption that most requests are for refs close to a head. Tags
     // tend to be much further back in history and just clutter up the priority queue in the common
     // case.
-    return isReachableFrom(walk, commit, knownReachable)
-        || isReachableFromRefs(walk, commit, all.stream().filter(r -> refStartsWith(r, R_HEADS)))
-        || isReachableFromRefs(walk, commit, all.stream().filter(r -> refStartsWith(r, R_TAGS)))
-        || isReachableFromRefs(walk, commit, all.stream().filter(r -> otherRefs(r)));
+    return checker.isReachableFrom("knownReachable", walk, commit, knownReachable)
+        || isReachableFromRefs("heads", walk, commit, refDb.getRefsByPrefix(R_HEADS).stream())
+        || isReachableFromRefs("tags", walk, commit, refDb.getRefsByPrefix(R_TAGS).stream())
+        || isReachableFromRefs(
+            "other", walk, commit, refDb.getRefs().stream().filter(VisibilityCache::otherRefs));
   }
 
   private static boolean refStartsWith(Ref ref, String prefix) {
@@ -164,43 +183,14 @@ public class VisibilityCache {
         || refStartsWith(r, "refs/changes/"));
   }
 
-  private boolean isReachableFromRefs(RevWalk walk, RevCommit commit, Stream<Ref> refs)
+  private boolean isReachableFromRefs(String desc, RevWalk walk, RevCommit commit, Stream<Ref> refs)
       throws IOException {
     return isReachableFrom(
-        walk, commit, refs.map(r -> firstNonNull(r.getPeeledObjectId(), r.getObjectId())));
+        desc, walk, commit, refs.map(r -> firstNonNull(r.getPeeledObjectId(), r.getObjectId())));
   }
 
-  private boolean isReachableFrom(RevWalk walk, RevCommit commit, Stream<ObjectId> ids)
+  private boolean isReachableFrom(String desc, RevWalk walk, RevCommit commit, Stream<ObjectId> ids)
       throws IOException {
-    return isReachableFrom(walk, commit, ids.collect(toList()));
-  }
-
-  private boolean isReachableFrom(RevWalk walk, RevCommit commit, Collection<ObjectId> ids)
-      throws IOException {
-    if (ids.isEmpty()) {
-      return false;
-    }
-    walk.reset();
-    if (topoSort) {
-      walk.sort(RevSort.TOPO);
-    }
-    walk.markStart(commit);
-    for (ObjectId id : ids) {
-      markUninteresting(walk, id);
-    }
-    // If the commit is reachable from any given tip, it will appear to be
-    // uninteresting to the RevWalk and no output will be produced.
-    return walk.next() == null;
-  }
-
-  private static void markUninteresting(RevWalk walk, ObjectId id) throws IOException {
-    if (id == null) {
-      return;
-    }
-    try {
-      walk.markUninteresting(walk.parseCommit(id));
-    } catch (IncorrectObjectTypeException | MissingObjectException e) {
-      // Do nothing, doesn't affect reachability.
-    }
+    return checker.isReachableFrom(desc, walk, commit, ids.collect(toList()));
   }
 }

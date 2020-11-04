@@ -102,6 +102,34 @@ public class PathServletTest extends ServletTest {
   }
 
   @Test
+  public void fileWithMaxLines() throws Exception {
+    int MAX_LINE_COUNT = 50000;
+    StringBuilder contentBuilder = new StringBuilder();
+    for (int i = 1; i < MAX_LINE_COUNT; i++) {
+      contentBuilder.append("\n");
+    }
+    repo.branch("master").commit().add("bar", contentBuilder.toString()).create();
+
+    Map<String, ?> data = buildData("/repo/+/master/bar");
+    SoyListData lines = (SoyListData) getBlobData(data).get("lines");
+    assertThat(lines.length()).isEqualTo(MAX_LINE_COUNT - 1);
+  }
+
+  @Test
+  public void fileLargerThanSupportedLines() throws Exception {
+    int MAX_LINE_COUNT = 50000;
+    StringBuilder contentBuilder = new StringBuilder();
+    for (int i = 1; i <= MAX_LINE_COUNT; i++) {
+      contentBuilder.append("\n");
+    }
+    repo.branch("master").commit().add("largebar", contentBuilder.toString()).create();
+
+    Map<String, ?> data = buildData("/repo/+/master/largebar");
+    SoyListData lines = (SoyListData) getBlobData(data).get("lines");
+    assertThat(lines).isNull();
+  }
+
+  @Test
   public void largeFileHtml() throws Exception {
     int largeContentSize = BlobSoyData.MAX_FILE_SIZE + 1;
     repo.branch("master").commit().add("foo", generateContent(largeContentSize)).create();

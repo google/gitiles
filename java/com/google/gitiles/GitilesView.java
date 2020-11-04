@@ -228,7 +228,7 @@ public class GitilesView {
     public Builder setOldRevision(Revision revision) {
       if (type != Type.DIFF && type != Type.LOG) {
         revision = firstNonNull(revision, Revision.NULL);
-        checkState(revision == Revision.NULL, "cannot set old revision on %s view", type);
+        checkState(Revision.isNull(revision), "cannot set old revision on %s view", type);
       }
       this.oldRevision = revision;
       return this;
@@ -399,7 +399,7 @@ public class GitilesView {
     }
 
     private void checkRevision() {
-      checkView(revision != Revision.NULL, "missing revision on %s view", type);
+      checkView(!Revision.isNull(revision), "missing revision on %s view", type);
       checkRepositoryIndex();
     }
 
@@ -427,7 +427,7 @@ public class GitilesView {
     private void checkRootedDoc() {
       checkView(hostName != null, "missing hostName on %s view", type);
       checkView(servletPath != null, "missing hostName on %s view", type);
-      checkView(revision != Revision.NULL, "missing revision on %s view", type);
+      checkView(!Revision.isNull(revision), "missing revision on %s view", type);
       checkView(path != null, "missing path on %s view", type);
     }
   }
@@ -561,7 +561,7 @@ public class GitilesView {
   }
 
   public String getRevisionRange() {
-    if (oldRevision == Revision.NULL) {
+    if (Revision.isNull(oldRevision)) {
       if (type == Type.LOG || type == Type.DIFF) {
         // For types that require two revisions, NULL indicates the empty
         // tree/commit.
@@ -676,9 +676,9 @@ public class GitilesView {
         break;
       case LOG:
         url.append(repositoryName).append("/+log");
-        if (revision != Revision.NULL) {
+        if (!Revision.isNull(revision)) {
           url.append('/');
-          if (oldRevision != Revision.NULL) {
+          if (!Revision.isNull(oldRevision)) {
             url.append(oldRevision.getName()).append("..");
           }
           url.append(revision.getName());
@@ -764,10 +764,10 @@ public class GitilesView {
       // separate links in "old..new".
       breadcrumbs.add(breadcrumb(getRevisionRange(), diff().copyFrom(this).setPathPart("")));
     } else if (type == Type.LOG) {
-      if (revision != Revision.NULL) {
+      if (!Revision.isNull(revision)) {
         // TODO(dborowitz): Add something in the navigation area (probably not
         // a breadcrumb) to allow switching between /+log/ and /+/.
-        if (oldRevision == Revision.NULL) {
+        if (Revision.isNull(oldRevision)) {
           breadcrumbs.add(breadcrumb(revision.getName(), log().copyFrom(this).setPathPart(null)));
         } else {
           breadcrumbs.add(breadcrumb(getRevisionRange(), log().copyFrom(this).setPathPart(null)));
@@ -776,7 +776,7 @@ public class GitilesView {
         breadcrumbs.add(breadcrumb(Constants.HEAD, log().copyFrom(this)));
       }
       path = Strings.emptyToNull(path);
-    } else if (revision != Revision.NULL) {
+    } else if (!Revision.isNull(revision)) {
       breadcrumbs.add(breadcrumb(revision.getName(), revision().copyFrom(this)));
     }
     if (path != null) {
@@ -850,7 +850,7 @@ public class GitilesView {
   }
 
   private static boolean isFirstParent(Revision rev1, Revision rev2) {
-    return rev2 == Revision.NULL
+    return Revision.isNull(rev2)
         || rev2.getName().equals(rev1.getName() + "^")
         || rev2.getName().equals(rev1.getName() + "~1");
   }

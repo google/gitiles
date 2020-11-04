@@ -15,19 +15,13 @@
 package com.google.gitiles;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
-import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
-import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
-import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
-import static org.eclipse.jgit.http.server.GitSmartHttpTools.sendError;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
+import com.google.gitiles.GitilesRequestFailureException.FailureReason;
 import com.google.gson.reflect.TypeToken;
-import com.google.template.soy.data.SoyListData;
-import com.google.template.soy.data.SoyMapData;
 import com.google.template.soy.data.restricted.NullData;
 import java.io.IOException;
 import java.io.Writer;
@@ -40,17 +34,12 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.eclipse.jgit.errors.RepositoryNotFoundException;
-import org.eclipse.jgit.transport.ServiceMayNotContinueException;
 import org.eclipse.jgit.transport.resolver.ServiceNotAuthorizedException;
 import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /** Serves the top level index page for a Gitiles host. */
 public class HostIndexServlet extends BaseServlet {
   private static final long serialVersionUID = 1L;
-  private static final Logger log = LoggerFactory.getLogger(HostIndexServlet.class);
 
   protected final GitilesUrls urls;
 
@@ -61,57 +50,43 @@ public class HostIndexServlet extends BaseServlet {
   }
 
   private Map<String, RepositoryDescription> list(
-      HttpServletRequest req, HttpServletResponse res, String prefix, Set<String> branches)
-      throws IOException {
+      HttpServletRequest req, String prefix, Set<String> branches) throws IOException {
     Map<String, RepositoryDescription> descs;
     try {
       descs = getAccess(req).listRepositories(prefix, branches);
-    } catch (RepositoryNotFoundException e) {
-      res.sendError(SC_NOT_FOUND);
-      return null;
     } catch (ServiceNotEnabledException e) {
-      res.sendError(SC_FORBIDDEN);
-      return null;
+      throw new GitilesRequestFailureException(FailureReason.SERVICE_NOT_ENABLED, e);
     } catch (ServiceNotAuthorizedException e) {
-      res.sendError(SC_UNAUTHORIZED);
-      return null;
-    } catch (ServiceMayNotContinueException e) {
-      sendError(req, res, e.getStatusCode(), e.getMessage());
-      return null;
-    } catch (IOException err) {
-      String name = urls.getHostName(req);
-      log.warn("Cannot scan repositories" + (name != null ? " for " + name : ""), err);
-      res.sendError(SC_SERVICE_UNAVAILABLE);
-      return null;
+      throw new GitilesRequestFailureException(FailureReason.NOT_AUTHORIZED, e);
     }
     if (prefix != null && descs.isEmpty()) {
-      res.sendError(SC_NOT_FOUND);
-      return null;
+      throw new GitilesRequestFailureException(FailureReason.REPOSITORY_NOT_FOUND);
     }
     return descs;
   }
 
-  private SoyMapData toSoyMapData(
+  private Map<String, Object> toMapData(
       RepositoryDescription desc, @Nullable String prefix, GitilesView view) {
-    return new SoyMapData(
-        "name", stripPrefix(prefix, desc.name),
-        "description", Strings.nullToEmpty(desc.description),
-        "url", GitilesView.repositoryIndex().copyFrom(view).setRepositoryName(desc.name).toUrl());
+    return ImmutableMap.<String, Object>builder()
+        .put("name", stripPrefix(prefix, desc.name))
+        .put("description", Strings.nullToEmpty(desc.description))
+        .put(
+            "url",
+            GitilesView.repositoryIndex().copyFrom(view).setRepositoryName(desc.name).toUrl())
+        .build();
   }
 
   @Override
   protected void doHead(HttpServletRequest req, HttpServletResponse res) throws IOException {
     Optional<FormatType> format = getFormat(req);
     if (!format.isPresent()) {
-      res.sendError(SC_BAD_REQUEST);
-      return;
+      throw new GitilesRequestFailureException(FailureReason.UNSUPPORTED_RESPONSE_FORMAT);
     }
 
     GitilesView view = ViewFilter.getView(req);
     String prefix = view.getRepositoryPrefix();
     if (prefix != null) {
-      Map<String, RepositoryDescription> descs =
-          list(req, res, prefix, Collections.<String>emptySet());
+      Map<String, RepositoryDescription> descs = list(req, prefix, Collections.emptySet());
       if (descs == null) {
         return;
       }
@@ -125,8 +100,7 @@ public class HostIndexServlet extends BaseServlet {
         break;
       case DEFAULT:
       default:
-        res.sendError(SC_BAD_REQUEST);
-        break;
+        throw new GitilesRequestFailureException(FailureReason.UNSUPPORTED_RESPONSE_FORMAT);
     }
   }
 
@@ -134,15 +108,15 @@ public class HostIndexServlet extends BaseServlet {
   protected void doGetHtml(HttpServletRequest req, HttpServletResponse res) throws IOException {
     GitilesView view = ViewFilter.getView(req);
     String prefix = view.getRepositoryPrefix();
-    Map<String, RepositoryDescription> descs = list(req, res, prefix, parseShowBranch(req));
+    Map<String, RepositoryDescription> descs = list(req, prefix, parseShowBranch(req));
     if (descs == null) {
       return;
     }
 
-    SoyListData repos = new SoyListData();
+    ImmutableList.Builder<Map<String, Object>> repos = ImmutableList.builder();
     for (RepositoryDescription desc : descs.values()) {
       if (prefix == null || desc.name.startsWith(prefix)) {
-        repos.add(toSoyMapData(desc, prefix, view));
+        repos.add(toMapData(desc, prefix, view));
       }
     }
 
@@ -160,18 +134,18 @@ public class HostIndexServlet extends BaseServlet {
             "hostName",
             hostName,
             "breadcrumbs",
-            breadcrumbs != null ? new SoyListData(breadcrumbs) : NullData.INSTANCE,
+            breadcrumbs != null ? breadcrumbs : NullData.INSTANCE,
             "prefix",
             prefix != null ? prefix + '/' : "",
             "repositories",
-            repos));
+            repos.build()));
   }
 
   @Override
   protected void doGetText(HttpServletRequest req, HttpServletResponse res) throws IOException {
     String prefix = ViewFilter.getView(req).getRepositoryPrefix();
     Set<String> branches = parseShowBranch(req);
-    Map<String, RepositoryDescription> descs = list(req, res, prefix, branches);
+    Map<String, RepositoryDescription> descs = list(req, prefix, branches);
     if (descs == null) {
       return;
     }
@@ -196,7 +170,7 @@ public class HostIndexServlet extends BaseServlet {
   @Override
   protected void doGetJson(HttpServletRequest req, HttpServletResponse res) throws IOException {
     String prefix = ViewFilter.getView(req).getRepositoryPrefix();
-    Map<String, RepositoryDescription> descs = list(req, res, prefix, parseShowBranch(req));
+    Map<String, RepositoryDescription> descs = list(req, prefix, parseShowBranch(req));
     if (descs == null) {
       return;
     }
