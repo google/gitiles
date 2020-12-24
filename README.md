@@ -16,7 +16,7 @@ for details.
 
 ## Bugs
 
-Use the [issue tracker at github](https://github.com/google/gitiles/issues) to
+Use the [issue tracker at Github](https://github.com/google/gitiles/issues) to
 file bugs.
 
 ## Contributing to Gitiles
